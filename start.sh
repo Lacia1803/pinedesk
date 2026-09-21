@@ -7,6 +7,11 @@
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 PROJECT_DIR="$(pwd)"
 
+# Bao ve khoi dong: neu co 'internal' cua mang da doi thi phai 'down' truoc.
+# Xem scripts/lib/compose-guard.sh (va chu thich trong docker-compose.yml).
+# shellcheck source=scripts/lib/compose-guard.sh
+. "$PROJECT_DIR/scripts/lib/compose-guard.sh"
+
 echo "=============================================================="
 echo "   HE THONG HO TRO KY THUAT (IT HELPDESK) - GLPI"
 echo "=============================================================="
@@ -126,7 +131,7 @@ echo ""
 echo "[..] Dang tai image va khoi dong cac dich vu..."
 echo "     Lan dau tien co the mat 3-5 phut de tai image."
 echo ""
-docker-compose up -d
+compose_up_an_toan
 
 # ---------- 6. Cho he thong san sang ----------
 echo ""

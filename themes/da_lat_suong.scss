@@ -6,92 +6,17 @@
  *  nắng chưa lên, mọi thứ nhạt nhoà và êm dịu.
  *
  *  Phù hợp cho: kỹ thuật viên làm việc nhiều giờ, cần giao diện nhẹ mắt.
+ *
+ *  ★ FILE NÀY KHÔNG CHỨA MÃ MÀU ★
+ *
+ *  GLPI 11 quét thư mục này tìm các file .scss để LIỆT KÊ bảng màu trong
+ *  "Thiết lập của tôi -> Giao diện". Tên file (không phần mở rộng) chính là
+ *  "key" của bảng màu, tức giá trị của thuộc tính <html data-glpi-theme="...">.
+ *
+ *  Toàn bộ MÀU của bảng màu này được định nghĩa DUY NHẤT tại:
+ *      plugins/dlubrand/public/css/dlu-theme.css
+ *      (khối :root[data-glpi-theme="da_lat_suong"] { --dlu-* })
+ *
+ *  Muốn đổi màu -> sửa DUY NHẤT file trên.
  * -----------------------------------------------------------------------------
  */
-
-:root[data-glpi-theme="da_lat_suong"] {
-    /* Xanh ngọc nhạt — màu sương trên đồi thông */
-    --tblr-primary-rgb: 62, 142, 158;             /* #3E8E9E */
-    --tblr-link-color-rgb: 70, 158, 175;
-
-    /* Thanh menu: xanh ngọc đậm vừa — như nước hồ Xuân Hương sớm mai */
-    --glpi-mainmenu-bg: #2F5E6B;
-    --glpi-mainmenu-fg: #EEF7F8;
-
-    /* Khối trang trí: gradient sương → nước hồ */
-    --glpi-illustrations-gradient-1: #E4F1F2;
-    --glpi-illustrations-gradient-2: #8FC4CC;
-    --glpi-illustrations-gradient-3: #3E8E9E;
-
-    /* Bảng màu nhanh */
-    --glpi-palette-color-1: #3E8E9E;
-    --glpi-palette-color-2: #2F5E6B;
-    --glpi-palette-color-3: #7EC8D0;
-    --glpi-palette-color-4: #C0CC84;
-}
-
-:root[data-glpi-theme="da_lat_suong"] {
-
-    .navbar-vertical .nav-link.active {
-        border-left: 3px solid #7EC8D0;
-        background: rgba(126, 200, 208, 0.16);
-        font-weight: 600;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #58A8B8 0%, #3E8E9E 100%);
-        border-color: #3E8E9E;
-        color: #fff;
-    }
-
-    .btn-primary:hover,
-    .btn-primary:focus {
-        background: linear-gradient(135deg, #6BBCCC 0%, #4A9AAB 100%);
-        border-color: #4A9AAB;
-    }
-
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 1px 4px rgba(47, 94, 107, 0.1);
-    }
-
-    .table thead th {
-        background: rgba(62, 142, 158, 0.08);
-        color: #2F5E6B;
-        border-bottom: 2px solid rgba(62, 142, 158, 0.22);
-    }
-
-    .table tbody tr:hover {
-        background: rgba(143, 196, 204, 0.14);
-    }
-
-    .progress-bar {
-        background: linear-gradient(90deg, #3E8E9E 0%, #7EC8D0 100%);
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #7EC8D0;
-        box-shadow: 0 0 0 0.2rem rgba(126, 200, 208, 0.24);
-    }
-
-    .nav-tabs .nav-link.active {
-        border-bottom: 2px solid #3E8E9E;
-        color: #2F5E6B;
-        font-weight: 600;
-    }
-
-    .pagination .page-item.active .page-link {
-        background-color: #3E8E9E;
-        border-color: #3E8E9E;
-    }
-
-    .pagination .page-link {
-        color: #3E8E9E;
-    }
-
-    .dashboard,
-    .dashboard-grid {
-        background: linear-gradient(180deg, rgba(228, 241, 242, 0.45) 0%, transparent 180px);
-    }
-}

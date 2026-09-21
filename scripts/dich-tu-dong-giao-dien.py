@@ -1146,6 +1146,21 @@ def main():
     spec.loader.exec_module(cov)
 
     po = os.path.join(TMP, 'vi_VN.po')
+    # .po khong duoc version hoa (xem .gitignore) nhung luon tai lai duoc tu
+    # image GLPI -> tu dong lay ve khi thieu (cung co che voi cac script dich).
+    if not os.path.exists(po) or os.path.getsize(po) == 0:
+        os.makedirs(TMP, exist_ok=True)
+        r = subprocess.run(
+            ['docker', 'exec', GLPI_CONTAINER, 'cat',
+             '/var/www/glpi/locales/vi_VN.po'],
+            capture_output=True)
+        if r.stdout:
+            with open(po, 'wb') as f:
+                f.write(r.stdout)
+            info(f'Da tai vi_VN.po tu container ({len(r.stdout):,} byte)')
+        else:
+            warn(f'Khong thay {po} va khong tai duoc tu container '
+                 f'-> se dich 0 chuoi. Chay: bash scripts/cai-ban-dich.sh tai')
     ids = cov.doc_po_msgids(po)
     can_dich = [k for k in sorted(ids)
                 if not (hien_tai.get(k, '') and hien_tai.get(k) != k)]

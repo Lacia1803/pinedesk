@@ -4,8 +4,8 @@
 #  Do an thuc tap DLU - He thong ho tro ky thuat (IT Helpdesk)
 #
 #  Cach dung:
-#     bash scripts/tai-ban-dich.sh     # chi tai file .po goc ve may
-#     bash scripts/cai-ban-dich.sh     # cai ban dich da bo sung vao GLPI
+#     bash scripts/cai-ban-dich.sh tai   # chi tai file .po goc ve may
+#     bash scripts/cai-ban-dich.sh       # cai ban dich da bo sung vao GLPI
 # =============================================================================
 set -euo pipefail
 
@@ -52,7 +52,7 @@ echo "   CAI BAN DICH TIENG VIET (DA BO SUNG) VAO GLPI"
 echo "==================================================================="
 
 MO_NGUON="$THU_MUC/vi_VN.mo"
-[ -s "$MO_NGUON" ] || { err "Chua co vi_VN.mo. Chay truoc:"; echo "   bash scripts/tai-ban-dich.sh"; echo "   python scripts/bo-sung-tieng-viet.py"; exit 1; }
+[ -s "$MO_NGUON" ] || { err "Chua co vi_VN.mo. Chay truoc:"; echo "   bash scripts/cai-ban-dich.sh tai"; echo "   python scripts/bo-sung-tieng-viet.py"; exit 1; }
 ok "Tim thay ban dich bo sung: $(du -h "$MO_NGUON" | cut -f1)"
 
 # QUAN TRONG: 'docker cp' tren Git Bash KHONG hieu duong dan '/g/...'.

@@ -254,21 +254,29 @@ https://localhost:8443
 
 ### 4.4. Kích hoạt giao diện tùy biến
 
-Palette "doan" trong `themes/` cần được nạp vào GLPI:
+Đồ án dùng **3 bảng màu** trong `themes/`: `da_lat` (xanh rêu — mặc định),
+`da_lat_suong` (xanh hồ), `da_lat_nang` (cam đất).
+
+> **KHÔNG cần copy thủ công vào container.** Thư mục `themes/` đã được
+> **bind-mount** sẵn vào `/var/glpi/files/_themes` trong `docker-compose.yml`,
+> nên sửa file trên máy là GLPI thấy ngay. (Cách `docker cp` trong tài liệu
+> GLPI 10 không còn cần thiết.)
+
+Chạy 1 lệnh để cài logo + xoá cache + đặt bảng màu mặc định + kiểm tra:
 
 ```bash
-# Tao thu muc palette trong container
-docker exec helpdesk-glpi mkdir -p /var/glpi/files/_themes/palette-doan
-
-# Copy file palette vao
-docker cp themes/palette-doan/palette-doan.scss \
-    helpdesk-glpi:/var/glpi/files/_themes/palette-doan/
-
-# Dat quyen truy cap
-docker exec helpdesk-glpi chown -R www-data:www-data /var/glpi/files/_themes
+bash scripts/cai-giao-dien.sh
 ```
 
-Sau đó vào **Cài đặt cá nhân** → **Giao diện** (Palette) → chọn **doan**.
+Sau đó vào **Cài đặt cá nhân** → **Giao diện** (Palette) → chọn một trong ba
+bảng màu trên.
+
+> **★ Màu nằm ở đâu?** `themes/*.scss` **chỉ đăng ký *tên* bảng màu** — **không
+> chứa mã màu**. Toàn bộ mã màu **giao diện GLPI** nằm **duy nhất** tại
+> `plugins/dlubrand/public/css/dlu-theme.css`. Muốn đổi màu → sửa **1 file đó**
+> (chi tiết xem `tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`, mục B.1).
+> *Ngoại lệ:* trang giới thiệu `landing/` do nginx phục vụ riêng, dùng bảng màu
+> ở `landing/assets/css/style.css` — đổi màu thương hiệu phải sửa cả hai nơi.
 
 ---
 
@@ -589,6 +597,30 @@ docker logs helpdesk-db --tail 30
 
 Nếu database chưa sẵn sàng ở lần chạy đầu, đợi 30–60 giây rồi thử lại.
 
+> ⚠️ **Bẫy hiếm nhưng đã từng gặp — GLPI mất kết nối DB dù container DB vẫn khoẻ:**
+> Docker **không đổi được** cờ `internal` của một mạng **đang tồn tại**. Khi giá trị
+> `internal` trong `docker-compose.yml` thay đổi, Compose **tạo lại mạng**, nhưng
+> container đang chạy chỉ được **gắn lại** mà **không đăng ký lại "alias" dịch vụ**
+> (vd `mariadb`). Kết quả: GLPI không phân giải được tên `mariadb` → *"Unable to
+> connect to database"* → tự cài đặt lại → **restart loop** — dù
+> `docker network inspect` vẫn thấy container nằm trong mạng.
+>
+> **Cách xử lý:** chạy lại **từ đầu** (không chỉ `up -d`):
+> ```bash
+> docker compose down && docker compose up -d
+> ```
+> Volume là **named volume** nên **KHÔNG mất dữ liệu**. Kiểm chứng alias đã đăng ký:
+> ```bash
+> docker exec helpdesk-glpi getent hosts mariadb   # phải in ra 1 địa chỉ IP
+> ```
+>
+> **Đã có sẵn "phanh an toàn":** `start.sh` và `scripts/cai-dat-tat-ca.sh` dùng
+> chung `scripts/lib/compose-guard.sh` — trước khi `up -d`, script tự so cờ
+> `internal` trong `docker-compose.yml` với mạng thực tế; nếu lệch, script tự
+> chạy `down` trước để tạo lại mạng đúng (kèm cảnh báo). Nếu khởi động bằng
+> `docker compose up -d` **thủ công** thì phanh này **không chạy** — gặp lỗi
+> mất kết nối DB, hãy làm theo cách xử lý ở trên.
+
 ### 8.4. Không đăng nhập được (HTTP 403)
 
 **Nguyên nhân có thể:**
@@ -631,6 +663,30 @@ bash start.sh
 Để hết cảnh báo hoàn toàn, cần chứng chỉ từ tổ chức cấp phát hợp lệ
 (Let's Encrypt hoặc chứng chỉ nội bộ của trường).
 
+### 8.7. Mọi trang trả về HTTP 400 (Bad Request)
+
+**Nguyên nhân:** `session.cookie_secure = On` (trong `config/php-custom.ini`)
+khiến GLPI **chặn mọi request không ở ngữ cảnh HTTPS** — đây là hành vi bảo mật
+đúng, không phải lỗi. GLPI biết request là HTTPS nhờ Apache nhận header
+`X-Forwarded-Proto` mà Nginx gửi sang (xem `config/apache-forwarded-proto.conf`).
+
+Lỗi 400 xuất hiện khi **mắt xích đó đứt**:
+
+| Tình huống | Cách xử lý |
+|---|---|
+| Truy cập thẳng Apache (cổng 80 trong container), **không qua Nginx** | Dùng đúng địa chỉ `https://localhost:8443` — **luôn đi qua Nginx** |
+| Xoá nhầm `config/apache-forwarded-proto.conf` | Khôi phục file (nó được mount vào `/etc/apache2/conf-enabled/`) rồi `docker compose restart glpi` |
+| Healthcheck báo `unhealthy` dù web vẫn chạy | Bình thường nếu healthcheck thiếu header — healthcheck của đồ án **đã** gửi kèm `X-Forwarded-Proto: https` |
+
+Kiểm tra nhanh bằng `curl` **có** header (giả lập Nginx):
+
+```bash
+docker exec helpdesk-glpi \
+  curl -fsS -H 'X-Forwarded-Proto: https' -o /dev/null -w '%{http_code}\n' \
+  http://127.0.0.1:80/
+# -> 200 hoặc 302 (tốt)  ·  400 (thiếu header -> xem bảng trên)
+```
+
 ---
 
 ## 9. LƯU Ý BẢO MẬT
@@ -643,10 +699,11 @@ bash start.sh
 | Chuyển hướng HTTP → HTTPS | Tự động, không cho phép truy cập không mã hóa |
 | Chống brute-force | Rate limit 10 lần/phút cho trang đăng nhập |
 | Chống XSS | Cookie phiên có thuộc tính `HttpOnly` |
-| Chống CSRF | Cookie phiên có thuộc tính `SameSite` |
+| Chống CSRF | Cookie phiên có thuộc tính `SameSite=Strict` |
+| Chống lộ cookie qua HTTP | `session.cookie_secure = On` — cookie **chỉ** gửi qua HTTPS (cần `config/apache-forwarded-proto.conf`) |
 | Chặn file nhạy cảm | Nginx chặn `.env`, `.sql`, `.log`, `.git` |
 | Ẩn thông tin hệ thống | Tắt `expose_php`, ẩn phiên bản Nginx |
-| Cô lập mạng | Database và Redis chỉ trong mạng nội bộ |
+| Cô lập mạng | Database và Redis **cô lập hoàn toàn** (`internal: true`), không có gateway ra Internet |
 | Bảo vệ header | X-Frame-Options, X-Content-Type-Options, CSP |
 
 ### 9.2. Cần làm khi triển khai thực tế
@@ -655,8 +712,9 @@ bash start.sh
 
 1. **Đổi tất cả mật khẩu** trong file `.env`
 2. **Đổi mật khẩu tài khoản `glpi`** ngay sau lần đăng nhập đầu
-3. **Bật `session.cookie_secure = On`** trong `config/php-custom.ini`
-   (sau khi đã xác nhận HTTPS hoạt động ổn định)
+3. **Kiểm tra `session.cookie_secure = On`** trong `config/php-custom.ini`
+   (đồ án **đã bật sẵn**). ⚠️ Nó **phụ thuộc** `config/apache-forwarded-proto.conf`
+   — nếu xoá file đó, GLPI sẽ chặn **mọi** trang bằng HTTP 400. Xem mục 9.1.
 4. **Cấu hình sao lưu tự động** hàng ngày
 5. **Phân quyền theo vai trò**, không cấp Admin tràn lan
 6. **Xem xét nhật ký** định kỳ để phát hiện truy cập bất thường
@@ -684,7 +742,9 @@ glpi-helpdesk/
 ├── start.sh                    # Script khởi động tự động
 │
 ├── config/
-│   └── php-custom.ini          # Cấu hình PHP (QR, bảo mật phiên, upload)
+│   ├── php-custom.ini          # Cấu hình PHP (QR, bảo mật phiên, upload)
+│   └── apache-forwarded-proto.conf  # Chuyển tiếp HTTPS nginx -> Apache
+│                               #   (để session.cookie_secure=On hoạt động)
 │
 ├── nginx/
 │   ├── nginx.conf              # Cấu hình Nginx chính
@@ -695,9 +755,15 @@ glpi-helpdesk/
 │       ├── glpi.crt            # Chứng chỉ SSL (sinh tự động, không commit)
 │       └── glpi.key            # Khóa riêng tư SSL (không commit)
 │
+├── plugins/
+│   └── dlubrand/               # Plugin giao diện Đà Lạt
+│       └── public/css/dlu-theme.css  # ★ NGUỒN MÀU DUY NHẤT cho giao diện GLPI
+│
 ├── themes/
-│   └── palette-doan/
-│       └── palette-doan.scss   # Giao diện tùy biến
+│   ├── da_lat.scss             # Đăng ký bảng màu "Đà Lạt" (xanh rêu)
+│   ├── da_lat_suong.scss       # Đăng ký biến thể "sương mù" (xanh hồ)
+│   └── da_lat_nang.scss        # Đăng ký biến thể "nắng" (cam đất)
+│                               #   ★ 3 file này KHÔNG chứa mã màu — chỉ đăng ký TÊN
 │
 ├── backup/
 │   └── backup.sh               # Script sao lưu tự động

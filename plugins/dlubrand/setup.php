@@ -9,13 +9,16 @@
  *
  *  MỤC ĐÍCH:
  *    Áp bảng màu "Đà Lạt" lên MỌI trang của GLPI — kể cả trang đăng nhập,
- *    nơi chưa có phiên làm việc (session) nên GLPI luôn dùng bảng màu mặc
- *    định "auror".
+ *    nơi chưa có phiên làm việc (session).
  *
  *  VÌ SAO CẦN PLUGIN NÀY?
  *    Bảng màu tuỳ biến (files/_themes/*.scss) chỉ được nạp khi người dùng
- *    đã đăng nhập, vì GLPI đọc $_SESSION['glpipalette']. Trang đăng nhập
- *    không có session -> luôn rơi về "auror".
+ *    đã đăng nhập: template trang ẩn danh
+ *    (templates/layout/page_card_notlogged.html.twig) dùng danh sách CSS cố
+ *    định, KHÔNG có file palette tự tạo.
+ *    (Lưu ý: trang đăng nhập VẪN mang data-glpi-theme="da_lat" vì phiên ẩn
+ *     danh được nạp $_SESSION['glpipalette'] từ cấu hình chung
+ *     glpi_configs.palette — nhưng thuộc tính đó KHÔNG kéo theo file .scss.)
  *    Giải pháp: dùng hook ADD_CSS_ANONYMOUS_PAGE + ADD_CSS để chèn thêm
  *    một file CSS ghi đè, được nạp ở CẢ trang ẩn danh lẫn trang đã đăng nhập.
  *

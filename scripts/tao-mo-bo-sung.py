@@ -214,6 +214,36 @@ def _giai_escape(s: str) -> str:
             .replace('\\t', '\t')
             .replace('\\\\', '\\'))
 
+def dam_bao_po_nguon(ten_po: str) -> bool:
+    """
+    Bao dam co file .po nguon trong .tmp-locale/, tai tu container neu thieu.
+
+    VI SAO CAN:
+      File .po (vi_VN.po ~940 KB, fr_FR.po ~1,1 MB) va cac file .mo sinh ra
+      tu chung KHONG con duoc version hoa (xem .gitignore). Nhung .po LUON
+      tai lai duoc tu image GLPI (byte-identical), nen khi thieu thi tu dong
+      lay ve -> nguoi moi clone repo chay 'bash scripts/cai-dat-tat-ca.sh'
+      van co day du ban dich, khong phai lam buoc tai rieng.
+
+    Dung 'docker exec ... cat' (khong dung 'docker cp') de tranh loi dich
+    duong dan kieu /g/... cua Git Bash.
+
+    Tra ve True neu file da san sang (co san hoac tai duoc).
+    """
+    dich = os.path.join(TMP, ten_po)
+    if os.path.exists(dich) and os.path.getsize(dich) > 0:
+        return True
+    nguon = f'/var/www/glpi/locales/{ten_po}'
+    r = subprocess.run(['docker', 'exec', GLPI_CONTAINER, 'cat', nguon],
+                       capture_output=True)
+    if not r.stdout:
+        warn(f'Khong tai duoc {nguon} (container "{GLPI_CONTAINER}" da chay chua?)')
+        return False
+    with open(dich, 'wb') as f:
+        f.write(r.stdout)
+    ok(f'Da tai {ten_po} tu container ({len(r.stdout):,} byte)')
+    return True
+
 
 # -----------------------------------------------------------------------------
 # MAIN
@@ -237,6 +267,7 @@ def main():
 
     # 2. Doc .po (ban day du hon)
     info('Buoc 2: Doc file .po cua GLPI...')
+    dam_bao_po_nguon('vi_VN.po')          # tu tai neu thieu (xem .gitignore)
     tu_po = doc_po(PO_NGUON)
     if tu_po:
         ok(f'Tu .po: {len(tu_po)} chuoi da dich')

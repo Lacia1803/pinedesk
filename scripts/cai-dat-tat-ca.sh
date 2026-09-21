@@ -40,6 +40,11 @@ cd "$ROOT" || exit 1
 export MSYS_NO_PATHCONV=1
 export MSYS2_ARG_CONV_EXCL='*'
 
+# Bao ve khoi dong: neu co 'internal' cua mang da doi thi phai 'down' truoc.
+# Xem scripts/lib/compose-guard.sh (va chu thich trong docker-compose.yml).
+# shellcheck source=scripts/lib/compose-guard.sh
+. "$(dirname "${BASH_SOURCE[0]}")/lib/compose-guard.sh"
+
 # Mau hien thi
 G='\033[0;32m'; Y='\033[1;33m'; R='\033[0;31m'; C='\033[0;36m'; B='\033[1m'; N='\033[0m'
 
@@ -70,7 +75,7 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
-docker-compose up -d
+compose_up_an_toan "$PY"
 if [ $? -eq 0 ]; then
     ok "Da khoi dong 4 container"
 else

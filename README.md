@@ -69,8 +69,8 @@ glpi-helpdesk/
 ├── config/                      # Cau hinh PHP (QR, bao mat)
 ├── nginx/                       # Gateway: HTTPS, rate limit, bao mat
 │   └── ssl/openssl-san.cnf      #   Cau hinh sinh chung chi SSL (co SAN)
-├── themes/                      # Bang mau Da Lat (SCSS)
-├── plugins/dlubrand/            # Plugin giao dien Da Lat (CSS ghi de + logo)
+├── themes/                      # Dang ky bang mau Da Lat (chi co ten file, KHONG chua mau)
+├── plugins/dlubrand/            # Plugin giao dien Da Lat (CSS + logo) — NGUON MAU DUY NHAT
 ├── landing/                     # ★ Trang gioi thieu du an (nginx phuc vu tai /landing/)
 │   ├── index.html               #   Noi dung trang
 │   ├── assets/css/style.css     #   Thiet ke rieng (Da Lat + DLU)

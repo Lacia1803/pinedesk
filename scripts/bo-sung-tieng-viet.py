@@ -911,10 +911,27 @@ def main():
     print('  BO SUNG BAN DICH TIENG VIET CHO GLPI')
     print('=' * 78)
 
-    if not os.path.exists(po_vao):
-        print(f'\n[LOI] Khong thay {po_vao}')
-        print('      Chay: bash scripts/tai-ban-dich.sh')
-        sys.exit(1)
+    # File .po rong (0 byte) cung coi nhu thieu: co the do docker cp bi ngat,
+    # dia day, hoac tai do dang. Neu chap nhan file rong thi lop phu sinh ra se
+    # THIEU toan bo chuoi da dich chinh thuc ma KHONG bao loi (trong nhu thanh
+    # cong). Dung cung dieu kien voi tao-mo-bo-sung.py va kiem-tra-tieng-viet.py.
+    if not os.path.exists(po_vao) or os.path.getsize(po_vao) == 0:
+        # .po khong duoc version hoa (xem .gitignore) nhung luon tai lai duoc
+        # tu image GLPI -> tu dong lay ve thay vi bat nguoi dung chay tay.
+        glpi_container = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+        os.makedirs(thu_muc, exist_ok=True)
+        r = subprocess.run(
+            ['docker', 'exec', glpi_container, 'cat',
+             '/var/www/glpi/locales/vi_VN.po'],
+            capture_output=True)
+        if r.stdout:
+            with open(po_vao, 'wb') as f:
+                f.write(r.stdout)
+            print(f'    -> Da tai vi_VN.po tu container ({len(r.stdout):,} byte)')
+        else:
+            print(f'\n[LOI] Khong thay {po_vao} va khong tai duoc tu container')
+            print('      Container da chay chua? Thu: bash scripts/cai-ban-dich.sh tai')
+            sys.exit(1)
 
     # --- 1. Doc ban dich goc ---
     print(f'\n[1] Doc ban dich goc: {os.path.basename(po_vao)}')

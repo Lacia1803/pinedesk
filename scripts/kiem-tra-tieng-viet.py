@@ -10,21 +10,50 @@
    (2) DO PHU SAU  : ti le sau khi gop them tu dien bo sung cua do an
 
  CHAY:
-   # Buoc 1: tai file .po tu container ve may
-   bash scripts/tai-ban-dich.sh
+   # Buoc 1: tai file .po tu container ve may (neu chua co)
+   bash scripts/cai-ban-dich.sh tai
 
    # Buoc 2: do do phu
    python scripts/kiem-tra-tieng-viet.py
+
+ GHI CHU: script TU TAI .po khi thieu (xem ham dam_bao_po_nguon), nen buoc 1
+          chi can thiet khi muon tai thu cong.
 ================================================================================
 """
 import os
 import re
+import subprocess
 import sys
 
 GOC = os.path.dirname(os.path.abspath(__file__))
 THU_MUC = os.path.join(GOC, '..', '.tmp-locale')
 PO_VI = os.path.join(THU_MUC, 'vi_VN.po')
 PO_FR = os.path.join(THU_MUC, 'fr_FR.po')
+
+GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+
+
+def dam_bao_po_nguon(ten_po):
+    """
+    Bao dam co file .po nguon trong .tmp-locale/, tai tu container neu thieu.
+
+    .po khong duoc version hoa (xem .gitignore) nhung LUON tai lai duoc tu
+    image GLPI (byte-identical). Dung 'docker exec ... cat' thay vi 'docker cp'
+    de tranh loi dich duong dan kieu /g/... cua Git Bash.
+    """
+    dich = os.path.join(THU_MUC, ten_po)
+    if os.path.exists(dich) and os.path.getsize(dich) > 0:
+        return True
+    os.makedirs(THU_MUC, exist_ok=True)
+    nguon = '/var/www/glpi/locales/' + ten_po
+    r = subprocess.run(['docker', 'exec', GLPI_CONTAINER, 'cat', nguon],
+                       capture_output=True)
+    if not r.stdout:
+        return False
+    with open(dich, 'wb') as f:
+        f.write(r.stdout)
+    print(f'  [INFO] Da tai {ten_po} tu container ({len(r.stdout):,} byte)')
+    return True
 
 
 def doc_po_day_du(path):
@@ -64,10 +93,13 @@ def main():
     print('  DO DO PHU BAN DICH TIENG VIET - GLPI 11')
     print('=' * 78)
 
+    dam_bao_po_nguon('vi_VN.po')
+    dam_bao_po_nguon('fr_FR.po')
+
     kq_vi = doc_po_day_du(PO_VI)
     if kq_vi is None:
         print(f'\n[LOI] Khong thay file {PO_VI}')
-        print('      Chay truoc:  bash scripts/tai-ban-dich.sh')
+        print('      Chay truoc:  bash scripts/cai-ban-dich.sh tai')
         sys.exit(1)
 
     total, da_dich, chua = kq_vi

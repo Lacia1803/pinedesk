@@ -64,6 +64,9 @@ services:
       - glpi_files:/var/glpi/files
       # Cau hinh PHP tuy chinh: tang upload, timezone, bao mat phien
       - ./config/php-custom.ini:/usr/local/etc/php/conf.d/zz-custom.ini:ro
+      # Chuyen tiep tin hieu HTTPS tu nginx -> Apache (de 'session.cookie_secure'
+      # hoat dong duoc). Xem giai thich day du trong chinh file cau hinh.
+      - ./config/apache-forwarded-proto.conf:/etc/apache2/conf-enabled/zzz-forwarded-proto.conf:ro
       # Bang mau giao dien tu tuy bien (GLPI quet thu muc nay tim *.scss)
       - ./themes:/var/glpi/files/_themes
       # Plugin tu cai (barcode/QR, ...) - giu lai khi nang cap container
@@ -78,7 +81,10 @@ services:
     healthcheck:
       # Container glpi/glpi co san curl. Kiem tra Apache tra 200/302.
       # Giu nguyen exit code cua curl de healthcheck phan anh dung trang thai.
-      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://127.0.0.1:80/ || exit 1"]
+      # LUU Y: phai gui kem header X-Forwarded-Proto: https, vi khi
+      # session.cookie_secure=On thi GLPI chan request khong o context bao mat
+      # (tra 400). Xem config/apache-forwarded-proto.conf.
+      test: ["CMD-SHELL", "curl -fsS -H 'X-Forwarded-Proto: https' -o /dev/null http://127.0.0.1:80/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -142,13 +148,32 @@ services:
       retries: 3
 
 networks:
+  # Mang "mat tien": chi nginx va glpi. Co gateway ra ngoai Internet
+  # (glpi can Internet de tai plugin tu marketplace, kiem tra cap nhat...).
   frontend_net:
     name: helpdesk-frontend-network
     driver: bridge
+
+  # Mang "hau truong": chi glpi, mariadb, redis. KHONG co gateway ra ngoai.
+  # => mariadb va redis bi co lap hoan toan voi Internet (dung nhu thiet ke:
+  #    chung chi phuc vu glpi, khong bao gio can ra ngoai).
+  #    glpi van ra duoc Internet nhe nho mang frontend_net o tren.
+  #    (Truoc day dat internal: false -> comment noi "chi giao tiep noi bo"
+  #     la SAI thuc te, vi DB/Redis van co the goi ra ngoai.)
+  #
+  # LUU Y KHI DOI GIA TRI 'internal':
+  #   Docker KHONG doi duoc co internal cua mot mang dang ton tai. Khi doi,
+  #   Compose se tao LAI mang, nhung container dang chay chi duoc gan lai ma
+  #   KHONG dang ky lai "alias" dich vu (vd 'mariadb'). Hau qua: GLPI mat ket
+  #   noi DB ("Unable to connect to database" -> auto-install -> restart loop),
+  #   du 'docker network inspect' van thay container nam trong mang.
+  #   => Sau khi doi 'internal', PHAI chay lai tu dau:
+  #         docker compose down && docker compose up -d
+  #      (khong du chi 'up -d'). Volume la named volume nen KHONG mat du lieu.
   backend_net:
     name: helpdesk-backend-network
     driver: bridge
-    internal: false
+    internal: true
 
 volumes:
   mariadb_data:

@@ -111,9 +111,13 @@ các entry có ký tự `\0`. Xem **lỗi #11** ở mục 2.12.
 | `bo-sung-tieng-viet.py` | Từ điển `BAN_DICH_BO_SUNG` — **443 thuật ngữ** (đơn) + `BAN_DICH_SO_NHIEU` — **212 mục** (dạng số nhiều) |
 | `tao-mo-bo-sung.py` | Biên dịch từ điển thành file `.mo` |
 | `gop-ban-dich-tieng-viet.py` | **GỘP** lõi + bổ sung (không mất chuỗi) + **vá/thêm entry số nhiều** |
-| `dich-tu-dong-giao-dien.py` | Dịch tự động theo từ điển + mẫu câu (1.216 dòng) |
+| `dich-tu-dong-giao-dien.py` | Dịch tự động theo từ điển + mẫu câu (1.231 dòng) |
 | `do-do-phu-tieng-viet.py` | Đo tỉ lệ Việt hóa **thật** bằng cách đọc `.mo` trong container |
 | `cai-ban-dich.sh` | Cài bản dịch vào container |
+
+> **File `.po` không được lưu trong git** (xem `.gitignore`). Các script dịch
+> **tự tải lại** `vi_VN.po` từ image GLPI khi thấy thiếu hoặc file rỗng (0 byte),
+> nên vẫn chạy được ngay sau khi clone mà không cần thao tác tay.
 
 ---
 
@@ -191,15 +195,66 @@ Hàm này kiểm tra nếu phiên chưa có ngôn ngữ → lấy từ `$CFG_GLP
 
 **Kiến trúc — phần quan trọng nhất:**
 
-> Bảng màu tự tạo `files/_themes/*.scss` **chỉ được nạp khi đã đăng nhập**, vì GLPI đọc `$_SESSION['glpipalette']`. Trang đăng nhập không có phiên → **luôn rơi về `auror`**.
+> Bảng màu tự tạo `files/_themes/*.scss` **chỉ được nạp khi đã đăng nhập** (GLPI đọc
+> `$_SESSION['glpipalette']` và template trang ẩn danh không đưa file palette vào danh
+> sách CSS). Trang đăng nhập **vẫn mang thuộc tính** `data-glpi-theme="da_lat"` — vì
+> `$_SESSION['glpipalette']` được nạp từ **cấu hình chung** `glpi_configs.palette`
+> (`SessionStart` chép `$CFG_GLPI['palette']` vào phiên ở cả ngữ cảnh ẩn danh) — nhưng
+> **file `.scss` thì không được nạp**, nên màu của nó không có tác dụng.
 >
 > **Giải pháp:** dùng **plugin `dlubrand` chèn CSS ghi đè** qua 2 hook:
 > - `ADD_CSS` → trang đã đăng nhập
 > - `ADD_CSS_ANONYMOUS_PAGE` → trang ẩn danh (đăng nhập, quên mật khẩu…)
 >
-> CSS dùng selector `:root[data-glpi-theme]` (**chỉ theo attribute, không theo giá trị**) nên **phủ được cả `auror` lẫn `da_lat`** bằng một file duy nhất.
->
 > **Ưu điểm lớn:** **KHÔNG sửa file lõi GLPI** → nâng cấp GLPI lên 11.1, 12… **không mất tùy biến**.
+
+**★ NGUỒN MÀU DUY NHẤT cho giao diện GLPI (quan trọng khi bảo trì):**
+
+> Toàn bộ **mã màu của giao diện GLPI** nằm **duy nhất** trong
+> `plugins/dlubrand/public/css/dlu-theme.css`.
+> Ba file `themes/*.scss` **chỉ còn là "giấy đăng ký"**: GLPI quét thư mục `files/_themes/`
+> để **liệt kê** bảng màu trong *Thiết lập của tôi → Giao diện*; **tên file** (không phần mở rộng)
+> chính là **key** của bảng màu, tức giá trị `<html data-glpi-theme="...">`. Nội dung file
+> chỉ còn phần chú thích, **không chứa mã màu**.
+>
+> Nhờ vậy: **muốn đổi màu giao diện GLPI → sửa DUY NHẤT 1 file** (`dlu-theme.css`), không còn
+> cảnh "sửa màu phải sửa 2 nơi rồi dễ lệch nhau".
+>
+> **Ngoại lệ đã biết:** trang giới thiệu tĩnh `landing/` do nginx phục vụ **riêng** (không chạy
+> qua GLPI) nên **không dùng được** file CSS trên — nó có bảng màu riêng ở
+> `landing/assets/css/style.css`. Khi đổi màu thương hiệu, nhớ sửa **cả hai** nơi.
+
+**Cách plugin tách màu theo từng bảng màu:**
+
+> CSS định nghĩa **token ngữ nghĩa** `--dlu-*` cho **từng bảng màu** rồi ánh xạ sang
+> biến của GLPI/tabler. Bảng màu **mặc định (`da_lat`)** dùng `:root` trần (áp cho mọi
+> trang, kể cả khi chưa kịp có attribute); hai bảng phụ dùng selector **theo giá trị**:
+>
+> ```css
+> :root {                                   /* MẶC ĐỊNH = da_lat (xanh rêu) */
+>     --dlu-primary: #607824; ...
+> }
+> :root[data-glpi-theme="da_lat_suong"]  { --dlu-primary: #3E8E9E; ... }  /* xanh hồ */
+> :root[data-glpi-theme="da_lat_nang"]   { --dlu-primary: #F08418; ... }  /* cam đất */
+>
+> :root[data-glpi-theme] {                  /* ánh xạ chung, chạy cho MỌI bảng màu */
+>     --tblr-primary: var(--dlu-primary);
+>     --glpi-mainmenu-bg: var(--dlu-primary-dark);
+>     ...
+> }
+> ```
+>
+> ⚠️ **Bẫy đã từng mắc:** selector `:root[data-glpi-theme]` **chỉ kiểm tra có attribute**,
+> **không kiểm tra giá trị** → nó khớp với **mọi** bảng màu. Nếu đặt mã màu trực tiếp
+> trong khối đó thì `da_lat_suong` và `da_lat_nang` sẽ **bị ghi đè thành cùng một màu xanh**
+> (thực tế đã từng xảy ra: cả 3 bảng màu hiển thị **y hệt nhau**). Cách đúng là **tách mã
+> màu vào khối riêng** (mặc định `:root`, hai bảng phụ theo giá trị như trên), chỉ để khối
+> ánh xạ chung ở dạng attribute-only.
+
+**Thứ tự nạp — vì sao plugin luôn thắng:** plugin CSS nạp **sau cùng** trên mọi trang
+(`ADD_CSS` + `ADD_CSS_ANONYMOUS_PAGE`), còn `themes/*.scss` **chỉ nạp khi đã đăng nhập**.
+Vì vậy kể cả khi `.scss` có chứa màu, plugin vẫn ghi đè — đó là lý do **đặt màu ở plugin
+là đúng đắn**, còn đặt ở `.scss` sẽ gây hiểu nhầm.
 
 **Logo thương hiệu DLU:** Đã đặt logo chính thức (3 kích cỡ: 100px, 100sq, 250px) và ghi đè 4 biến `--glpi-logo-*`, thay thế hoàn toàn logo Teclib/GLPI ở **cả trang đăng nhập lẫn sau khi đăng nhập**.
 
@@ -306,11 +361,11 @@ Mặc định dùng **SQLite**, không HTTPS, không cache, không reverse proxy
 | `max_input_vars` | 5000 | Biểu mẫu nhiều trường |
 | `date.timezone` | `Asia/Ho_Chi_Minh` | Giờ Việt Nam |
 | **`session.cookie_httponly`** | **On** | **Chặn JavaScript đọc cookie phiên — chống XSS đánh cắp phiên** |
-| **`session.cookie_samesite`** | **Lax** | **Chặn cookie gửi chéo trang — chống CSRF** |
+| **`session.cookie_samesite`** | **Strict** | **Chặn cookie gửi chéo trang — chống CSRF (mức cao nhất)** |
 | `session.gc_maxlifetime` | 28800 (8h) | Một ngày làm việc |
 | `expose_php` | **Off** | **Ẩn phiên bản PHP — giảm phơi bày thông tin** |
 | `log_errors` | On → `/var/www/glpi/files/_log/php-error.log` | Có log để debug |
-| `session.cookie_secure` | **Đã viết sẵn, đang tắt** | Bật sau khi xác nhận HTTPS chạy ổn định |
+| **`session.cookie_secure`** | **On** | **Chỉ gửi cookie phiên qua HTTPS.** Đi kèm bắt buộc `config/apache-forwarded-proto.conf` + header ở healthcheck (xem mục 3.2) |
 
 ---
 
@@ -426,13 +481,14 @@ location ~* /(config|files/_log|files/_cron|files/_dumps|files/_sessions)/ { den
 
 | Script | Dòng | Chức năng |
 |---|---|---|
-| **`cai-dat-tat-ca.sh`** | **246** | ⭐ **Cài toàn bộ 5 bước, 1 lệnh duy nhất** |
-| `start.sh` | 114 | Khởi động + kiểm tra Docker + tạo SSL + cảnh báo mật khẩu mặc định |
-| `nap-du-lieu-nen.sh` | 63 | Nạp dữ liệu nền |
+| **`cai-dat-tat-ca.sh`** | **257** | ⭐ **Cài toàn bộ 5 bước, 1 lệnh duy nhất** |
+| `start.sh` | 168 | Khởi động + kiểm tra Docker + tạo SSL + cảnh báo mật khẩu mặc định |
+| `lib/compose-guard.sh` | 85 | Phanh an toàn: tự `down` khi cờ `internal` của mạng đã lệch |
+| `nap-du-lieu-nen.sh` | 71 | Nạp dữ liệu nền |
 | `seed-du-lieu-nen.sql` | **664** | 23 nhóm danh mục nghiệp vụ |
 | `cai-plugin-qrcode.sh` | 197 | Cài + cấu hình plugin QR |
-| `cai-giao-dien.sh` | 121 | Cài giao diện |
-| `cai-ban-dich.sh` | 115 | Cài bản dịch |
+| `cai-giao-dien.sh` | 125 | Cài giao diện |
+| `cai-ban-dich.sh` | 118 | Cài bản dịch |
 | `backup/backup.sh` | — | Sao lưu CSDL + files + config, tự dọn bản cũ |
 
 **`cai-dat-tat-ca.sh` — 5 bước tự động:**
@@ -657,36 +713,38 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 
 | Đường dẫn | Dòng | Mô tả |
 |---|---|---|
-| `plugins/dlubrand/setup.php` | 159 | Plugin giao diện DLU — 3 hook |
-| `plugins/dlubrand/public/css/dlu-theme.css` | 439 | CSS ghi đè thương hiệu Đà Lạt |
-| `themes/da_lat.scss` | 233 | Bảng màu Đà Lạt (chính) |
-| `themes/da_lat_nang.scss` | — | Bảng màu Đà Lạt — Nắng |
-| `themes/da_lat_suong.scss` | — | Bảng màu Đà Lạt — Sương |
+| `plugins/dlubrand/setup.php` | 208 | Plugin giao diện DLU — 3 hook |
+| `plugins/dlubrand/public/css/dlu-theme.css` | 633 | ★ **NGUỒN MÀU DUY NHẤT** cho giao diện GLPI — token `--dlu-*` cho cả 3 bảng màu + ánh xạ + trang đăng nhập |
+| `themes/da_lat.scss` | 21 | Giấy đăng ký bảng màu Đà Lạt (chính) — **không chứa mã màu** |
+| `themes/da_lat_nang.scss` | 25 | Giấy đăng ký bảng màu Đà Lạt — Nắng — **không chứa mã màu** |
+| `themes/da_lat_suong.scss` | 22 | Giấy đăng ký bảng màu Đà Lạt — Sương — **không chứa mã màu** |
 | `themes/dlu-logo.png` | — | Logo DLU |
-| `scripts/cai-dat-tat-ca.sh` | 246 | ⭐ Cài 5 bước, 1 lệnh |
+| `scripts/cai-dat-tat-ca.sh` | 257 | ⭐ Cài 5 bước, 1 lệnh |
+| `scripts/lib/compose-guard.sh` | 85 | Phanh an toàn: tự `down` khi cờ `internal` của mạng đã lệch |
+| `start.sh` | 168 | Khởi động + tạo SSL tự động + cảnh báo mật khẩu mặc định |
 | `scripts/seed-du-lieu-nen.sql` | 664 | 23 nhóm dữ liệu nghiệp vụ |
-| `scripts/nap-du-lieu-nen.sh` | 63 | Nạp dữ liệu nền |
+| `scripts/nap-du-lieu-nen.sh` | 71 | Nạp dữ liệu nền |
 | `scripts/seed-du-lieu-mau.sql` | 530 | ⭐ **Dữ liệu mẫu demo** (thiết bị, phiếu, phần mềm, thiết bị mạng) |
 | `scripts/nap-du-lieu-mau.sh` | 164 | ⭐ Nạp dữ liệu mẫu + đặt mật khẩu tài khoản demo |
-| `scripts/bo-sung-tieng-viet.py` | 990 | Từ điển 443 thuật ngữ (dạng đơn **+ 212 mục dạng số nhiều**) |
+| `scripts/bo-sung-tieng-viet.py` | 1.007 | Từ điển 443 thuật ngữ (dạng đơn **+ 212 mục dạng số nhiều**) |
 | `scripts/gop-ban-dich-tieng-viet.py` | 449 | Gộp bản dịch (không mất chuỗi) + **vá/thêm entry số nhiều** |
-| `scripts/tao-mo-bo-sung.py` | 290 | Biên dịch `.mo` thuần Python |
-| `scripts/dich-tu-dong-giao-dien.py` | 1.216 | Dịch tự động |
-| `scripts/do-do-phu-tieng-viet.py` | 232 | Đo tỉ lệ Việt hóa |
-| `scripts/kiem-tra-tieng-viet.py` | 171 | Kiểm tra chất lượng dịch |
+| `scripts/tao-mo-bo-sung.py` | 321 | Biên dịch `.mo` thuần Python (tự tải `.po` khi thiếu) |
+| `scripts/dich-tu-dong-giao-dien.py` | 1.231 | Dịch tự động (tự tải `.po` khi thiếu) |
+| `scripts/do-do-phu-tieng-viet.py` | 242 | Đo tỉ lệ Việt hóa (tự tải `.po` khi thiếu) |
+| `scripts/kiem-tra-tieng-viet.py` | 203 | Kiểm tra chất lượng dịch (tự tải `.po` khi thiếu) |
 | `scripts/viet-hoa-du-lieu.sh` | 74 | ⭐ **Việt hoá DỮ LIỆU** (tên đơn vị, hồ sơ quyền, tên dashboard) |
 | `scripts/tai-font.py` | 77 | ⭐ Tải font `.woff2` (tách đúng theo tập ký tự) |
 | `scripts/kiem-tra-font.py` | 181 | ⭐ Đọc **bảng ký tự thật** trong tệp font, đối chiếu chữ trên trang |
 | `scripts/sinh-ma-qr.py` | 342 | Sinh QR dự phòng |
 | `scripts/cai-plugin-qrcode.sh` | 197 | Cài plugin QR |
-| `scripts/cai-giao-dien.sh` | 121 | Cài giao diện |
-| `scripts/cai-ban-dich.sh` | 115 | Cài bản dịch |
-| `scripts/chup-anh-giao-dien.js` | 171 | Chụp ảnh giao diện |
-| `scripts/kiem-tra-massive-qr.js` | 138 | Kiểm tra luồng QR |
-| `scripts/kiem-tra-qr-va-chup-anh.js` | 102 | Kiểm tra + chụp QR |
-| `scripts/chup-anh-dashboard.js` | 69 | ⭐ Chụp ảnh dashboard thật cho landing page |
-| `scripts/chup-anh-tung-khu.js` | 60 | ⭐ Chụp riêng từng khu để soi thiết kế |
-| `scripts/kiem-tra-landing.js` | 194 | ⭐ Kiểm tra landing (anchor, ảnh, font, console) |
+| `scripts/cai-giao-dien.sh` | 125 | Cài giao diện |
+| `scripts/cai-ban-dich.sh` | 118 | Cài bản dịch (`tai` = chỉ tải `.po`) |
+| `scripts/chup-anh-giao-dien.js` | 170 | Chụp ảnh giao diện |
+| `scripts/kiem-tra-massive-qr.js` | 140 | Kiểm tra luồng QR |
+| `scripts/kiem-tra-qr-va-chup-anh.js` | 104 | Kiểm tra + chụp QR |
+| `scripts/chup-anh-dashboard.js` | 72 | ⭐ Chụp ảnh dashboard thật cho landing page |
+| `scripts/chup-anh-tung-khu.js` | 61 | ⭐ Chụp riêng từng khu để soi thiết kế |
+| `scripts/kiem-tra-landing.js` | 195 | ⭐ Kiểm tra landing (anchor, ảnh, font, console) |
 | `landing/index.html` | 882 | ⭐ **Trang giới thiệu dự án** (thiết kế riêng) |
 | `landing/assets/css/style.css` | 1.393 | ⭐ **CSS tự viết** cho landing (không dùng Tailwind) |
 | `tai-lieu/HUONG-DAN-TRIEN-KHAI.md` | — | Hướng dẫn triển khai |
@@ -703,12 +761,13 @@ không phải code tự viết.)*
 
 | Đường dẫn | Thay đổi so với mặc định |
 |---|---|
-| `docker-compose.yml` | 157 dòng — 4 service, 2 network, 6 volume |
+| `docker-compose.yml` | 190 dòng — 4 service, 2 network (**backend `internal: true`**), 6 volume |
 | `nginx/nginx.conf` | Thêm zone rate limit 2 tầng + `limit_req_status 429` |
-| `nginx/conf.d/default.conf` | 146 dòng — HTTPS, 5 header bảo mật, chặn file, static cache |
-| `config/php-custom.ini` | Tài nguyên, múi giờ, bảo mật phiên (httponly/samesite/secure), expose_php Off |
+| `nginx/conf.d/default.conf` | 190 dòng — HTTPS, 5 header bảo mật, chặn file, static cache |
+| `config/php-custom.ini` | Tài nguyên, múi giờ, bảo mật phiên (httponly/samesite/**secure**), expose_php Off |
+| `config/apache-forwarded-proto.conf` | ⭐ Chuyển tiếp `X-Forwarded-Proto` → `HTTPS` cho PHP (để `cookie_secure` hoạt động sau TLS của nginx) |
 | `.env` / `.env.example` | Biến môi trường (mật khẩu, cổng, tên CSDL) — **tách khỏi code** |
-| `.gitignore` | Chặn commit bí mật; **giữ** `.tmp-locale/` (chứa `.po` nguồn cho script dịch) |
+| `.gitignore` | Chặn commit bí mật; **bỏ** `.tmp-locale/` (`.po` tải lại được từ container, `.mo` là sản phẩm sinh ra) |
 | `backup/backup.sh` | Sao lưu 3 thành phần + tự dọn bản cũ |
 | `start.sh` | Khởi động + tạo SSL tự động + cảnh báo mật khẩu mặc định |
 
@@ -734,7 +793,7 @@ Ghi rõ để tránh hiểu nhầm khi bảo vệ đồ án:
 |---|---|---|
 | Việt hóa 100% | ❌ **30,6%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
 | Mật khẩu mặc định | ⚠️ **Chưa đổi** | Mật khẩu `glpi` **không hardcode trong mã** — script đọc từ biến môi trường `GLPI_PASS`. Khi triển khai thật phải đổi mật khẩu trong `.env` và tài khoản `glpi` |
-| `session.cookie_secure = On` | ⚠️ **Đang tắt** | Đã viết sẵn trong `php-custom.ini`, bật sau khi xác nhận HTTPS ổn |
+| `session.cookie_secure = On` | ✅ **Đã bật** | Cookie phiên chỉ gửi qua HTTPS. Đi kèm **bắt buộc**: `config/apache-forwarded-proto.conf` (chuyển tiếp tín hiệu HTTPS từ nginx) + healthcheck gửi header — thiếu 1 trong 2 là GLPI chặn mọi trang bằng HTTP 400 |
 | Tài khoản mẫu 3 vai trò | ✅ **Đã tạo** | 6 tài khoản: 2 KTV, 2 giảng viên, 2 sinh viên — đã kiểm chứng đăng nhập được |
 | Dữ liệu thiết bị mẫu | ✅ **Đã nhập** | 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu |
 | Trang Thống kê (`stat.global.php`) | ⚠️ **Cần tham số** | Phải mở từ **menu Hỗ trợ → Thống kê**, không gõ URL trực tiếp (sẽ báo lỗi) |

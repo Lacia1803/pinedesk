@@ -137,8 +137,8 @@ GLPI 11 có 2 tầng giao diện, cần hiểu rõ để tránh nhầm lẫn:
 
 | Tầng | Tên | Vai trò |
 |---|---|---|
-| 1 | **Bảng màu (palette)** | Đổi màu sắc, ghi ở `files/_themes/*.scss` |
-| 2 | **CSS ghi đè (override)** | Ghi đè chi tiết giao diện, do plugin `dlubrand` cung cấp |
+| 1 | **Bảng màu (palette)** | Đăng ký *tên* bảng màu để GLPI liệt kê trong "Thiết lập của tôi → Giao diện"; tên file `.scss` = key = giá trị `<html data-glpi-theme>` |
+| 2 | **CSS ghi đè (override)** | **Chứa toàn bộ mã màu + ghi đè chi tiết giao diện**, do plugin `dlubrand` cung cấp |
 
 **Điểm quan trọng:** GLPI 11 **bỏ qua** theme tự tạo nếu tên trùng khoá theme lõi
 (hàm `getCustomThemes()` có dòng `if (!in_array($file_name, $core_keys, true))`).
@@ -151,6 +151,50 @@ Vì vậy đồ án dùng **cách an toàn hơn**: plugin `dlubrand` nạp file 
 - Không sửa file lõi GLPI → nâng cấp GLPI không mất giao diện.
 - Áp dụng cho cả người chưa đăng nhập (trang login).
 
+#### ★ Nguồn màu DUY NHẤT — tránh "sửa màu phải sửa 2 nơi"
+
+Trước đây mã màu bị **lặp ở 2 nơi**: `themes/*.scss` (tầng palette) **và**
+`plugins/dlubrand/public/css/dlu-theme.css` (tầng override) → sửa màu phải sửa cả hai,
+rất dễ lệch. Đã **gỡ hẳn mã màu khỏi `themes/*.scss`**:
+
+- `themes/*.scss` giờ chỉ là **"giấy đăng ký"**: GLPI quét thư mục để **liệt kê** bảng màu;
+  **tên file** (không phần mở rộng) là key. Nội dung chỉ còn chú thích, **không mã màu**.
+- **Toàn bộ mã màu giao diện GLPI nằm duy nhất** trong `plugins/dlubrand/public/css/dlu-theme.css`.
+
+Muốn đổi màu giao diện GLPI → **sửa DUY NHẤT 1 file** `dlu-theme.css`.
+
+> **Ngoại lệ đã biết:** trang giới thiệu tĩnh `landing/` do nginx phục vụ **riêng** (không
+> qua GLPI) nên không dùng được file này — bảng màu của nó nằm ở
+> `landing/assets/css/style.css`. Đổi màu thương hiệu thì phải sửa **cả hai** nơi.
+
+#### ⚠️ Cạm bẫy selector `:root[data-glpi-theme]` (đã từng làm 2 bảng màu "chết")
+
+Selector `:root[data-glpi-theme]` **chỉ kiểm tra có attribute, KHÔNG kiểm tra giá trị** →
+nó khớp với **mọi** bảng màu. Nếu đặt mã màu trực tiếp trong khối này thì mọi bảng màu
+đều bị ghi đè thành **cùng một màu** (thực tế đã xảy ra: `da_lat_suong` và `da_lat_nang`
+hiển thị **y hệt** `da_lat` — trông như "đã cài" nhưng **không có tác dụng**).
+
+**Cách đúng:** tách mã màu vào khối **theo giá trị**, chỉ để khối ánh xạ chung ở dạng
+attribute-only:
+
+```css
+/* ĐÚNG — bảng màu MẶC ĐỊNH dùng :root trần; hai bảng phụ theo GIÁ TRỊ */
+:root                                 { --dlu-primary: #607824; /* da_lat — xanh rêu */ }
+:root[data-glpi-theme="da_lat_suong"] { --dlu-primary: #3E8E9E; /* xanh hồ */ }
+:root[data-glpi-theme="da_lat_nang"]  { --dlu-primary: #F08418; /* cam đất */ }
+
+/* Khối ánh xạ chung — chạy cho MỌI bảng màu, KHÔNG chứa mã màu */
+:root[data-glpi-theme] {
+    --tblr-primary: var(--dlu-primary);
+    --glpi-mainmenu-bg: var(--dlu-primary-dark);
+}
+```
+
+> **Vì sao plugin luôn thắng:** plugin CSS nạp **sau cùng** trên mọi trang
+> (`ADD_CSS` + `ADD_CSS_ANONYMOUS_PAGE`), còn `themes/*.scss` **chỉ nạp khi đã đăng nhập**.
+> Vì vậy kể cả khi `.scss` có chứa màu, plugin vẫn ghi đè — nên **đặt màu ở plugin là
+> đúng đắn**, đặt ở `.scss` sẽ gây hiểu nhầm.
+
 ### B.2. Bảng màu "Đà Lạt" cài thế nào?
 
 ```bash
@@ -159,6 +203,9 @@ bash scripts/cai-giao-dien.sh
 
 Script copy `themes/*.scss` vào `/var/glpi/files/_themes/` rồi đặt `glpi_users.palette`
 = `da_lat` cho mọi người dùng.
+
+> **Lưu ý:** `.scss` chỉ đóng vai trò **đăng ký tên bảng màu** — **không chứa mã màu**.
+> Màu thật do plugin `dlubrand` cung cấp (xem B.1).
 
 > **Lưu ý đường dẫn:** GLPI 11 dùng `GLPI_VAR_DIR = /var/glpi/files`, **KHÔNG phải**
 > `/var/www/glpi/files`. Đây là điểm rất dễ sai khi làm theo tài liệu GLPI 10.
@@ -207,6 +254,14 @@ entry có ký tự `\0`.
 > **Lưu ý về nguồn số liệu:** file `.tmp-locale/vi_VN.po` (dùng làm mốc so sánh)
 > và file `.mo` **thật trong image** là **hai phiên bản khác nhau**. Luôn lấy `.mo`
 > trong container làm **nguồn sự thật** — xem `scripts/do-do-phu-tieng-viet.py`.
+
+> **`.tmp-locale/` KHÔNG được version hóa** (xem `.gitignore`). Thư mục này chứa
+> 2 file `.po` nguồn và 7 file `.mo` sinh ra. Cả hai loại đều **không cần commit**:
+> `.po` byte-identical với bản trong image nên **tự tải lại được**, `.mo` là sản
+> phẩm của script. Các script dịch (`tao-mo-bo-sung.py`, `bo-sung-tieng-viet.py`,
+> `kiem-tra-tieng-viet.py`) **tự tải `.po` khi thiếu** — nên clone repo mới vẫn
+> chạy `bash scripts/cai-dat-tat-ca.sh` được ngay, không cần bước tải riêng.
+> Muốn tải tay: `bash scripts/cai-ban-dich.sh tai`.
 
 ### B.4. Vì sao phải vá cấu hình Nginx?
 
@@ -260,12 +315,12 @@ glpi-helpdesk/
 ├── plugins/dlubrand/              ← plugin giao diện Đà Lạt
 │   ├── setup.php                  ← đăng ký hook ADD_CSS + POST_INIT
 │   └── public/
-│       ├── css/dlu-theme.css      ← CSS ghi đè (~13,7 KB)
+│       ├── css/dlu-theme.css      ← ★ NGUỒN MÀU DUY NHẤT cho giao diện GLPI (~21 KB, token --dlu-*)
 │       └── pics/logos/            ← logo DLU
-├── themes/
-│   ├── da_lat.scss                ← bảng màu chính (xanh rêu)
-│   ├── da_lat_suong.scss          ← biến thể sương mù
-│   └── da_lat_nang.scss           ← biến thể nắng (cam đất)
+├── themes/                        ← "giấy đăng ký" bảng màu (KHÔNG chứa mã màu)
+│   ├── da_lat.scss                ← đăng ký bảng màu chính (xanh rêu)
+│   ├── da_lat_suong.scss          ← đăng ký biến thể sương mù (xanh hồ)
+│   └── da_lat_nang.scss           ← đăng ký biến thể nắng (cam đất)
 ├── scripts/
 │   ├── cai-dat-tat-ca.sh          ← cài toàn bộ, 1 lệnh
 │   ├── nap-du-lieu-nen.sh         ← nạp danh mục nghiệp vụ

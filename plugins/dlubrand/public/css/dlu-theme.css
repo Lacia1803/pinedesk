@@ -4,68 +4,269 @@
  * -----------------------------------------------------------------------------
  *  Trường Đại học Đà Lạt · Đồ án thực tập IT Helpdesk
  *
- *  File này GHI ĐÈ bảng màu mặc định của GLPI trên MỌI trang,
- *  bao gồm cả trang đăng nhập (nơi chưa có session).
+ *  ★★★  NGUỒN MÀU DUY NHẤT cho GIAO DIỆN GLPI  ★★★
+ *
+ *  TOÀN BỘ màu thương hiệu của GIAO DIỆN GLPI được định nghĩa DUY NHẤT trong
+ *  file này, dưới dạng các "token" `--dlu-*`. Muốn đổi màu giao diện GLPI ->
+ *  sửa DUY NHẤT ở đây.
+ *
+ *  LƯU Ý PHẠM VI: trang giới thiệu tĩnh `landing/` do nginx phục vụ RIÊNG
+ *  (không chạy qua GLPI) nên KHÔNG dùng được file này — nó có bảng màu riêng
+ *  trong `landing/assets/css/style.css`. Khi đổi màu thương hiệu, nhớ sửa cả
+ *  hai nơi (đây là ngoại lệ đã biết, không phải "một nguồn duy nhất").
+ *
+ *  VÌ SAO ĐẶT Ở ĐÂY MÀ KHÔNG PHẢI themes/*.scss?
+ *    GLPI 11 chỉ nạp `themes/*.scss` trên các trang ĐÃ ĐĂNG NHẬP. Trang đăng
+ *    nhập ẩn danh dùng danh sách CSS cố định nằm trong lõi GLPI
+ *    (templates/layout/page_card_notlogged.html.twig) nên KHÔNG nhận được
+ *    bảng màu tuỳ biến. Trong khi đó plugin này được nạp trên MỌI trang qua
+ *    hook ADD_CSS + ADD_CSS_ANONYMOUS_PAGE, và nạp SAU CÙNG.
+ *    => Đặt màu ở đây thì cả trang đăng nhập lẫn sau đăng nhập đều đúng màu,
+ *       và chỉ có MỘT nơi để sửa.
+ *
+ *  CÁC FILE themes/*.scss GIỜ CHỈ CÒN NHIỆM VỤ ĐĂNG KÝ bảng màu cho
+ *  "Thiết lập của tôi -> Giao diện" (GLPI quét tên file .scss để liệt kê).
+ *  Chúng KHÔNG chứa mã màu.
  *
  *  BẢNG MÀU LẤY TỪ LOGO CHÍNH THỨC DLU (2025):
- *    --dlu-cam      #F08418   cam đất    (màu chủ đạo logo, mặt trời)
- *    --dlu-reu      #607824   xanh rêu   (núi, dòng chữ ĐẠI HỌC ĐÀ LẠT)
- *    --dlu-la        #90B43C   xanh lá    (sườn núi phía sáng)
- *    --dlu-nhat     #C0CC84   xanh nhạt  (đồi thông)
- *    --dlu-do       #CC2430   đỏ         (ngôi sao)
- *    --dlu-hon       #3E8E9E   xanh hồ Xuân Hương
- *    --dlu-suong    #E8EDD8   sương mù sớm mai
+ *    cam đất #F08418 · xanh rêu #607824 · xanh lá #90B43C · xanh nhạt #C0CC84
+ *    đỏ sao #CC2430 · xanh hồ Xuân Hương #3E8E9E · sương mù #E8EDD8
+ *
+ *  3 BẢNG MÀU:
+ *    (mặc định)     da_lat        xanh rêu        — bản gốc
+ *    da_lat_suong   sương mai      xanh ngọc       — dịu mắt, làm việc lâu
+ *    da_lat_nang    nắng cao nguyên cam đất        — rực rỡ, màn hình lớn
  * -----------------------------------------------------------------------------
  */
 
+/* =============================================================================
+ *  PHẦN 0A — TOKEN NGỮ NGHĨA (KHÔNG đổi theo bảng màu)
+ *  Đây là các màu mang Ý NGHĨA (trạng thái phiếu, độ ưu tiên, cảnh báo).
+ *  Chúng phải GIỐNG NHAU ở mọi bảng màu để người dùng không bị nhầm.
+ * ============================================================================= */
 :root {
-    /* ===== BIẾN THƯƠNG HIỆU DLU (dùng lại trong toàn file) ===== */
-    --dlu-cam: #F08418;
-    --dlu-cam-dam: #D97210;
-    --dlu-reu: #607824;
-    --dlu-reu-dam: #3D4E17;
-    --dlu-reu-toi: #2B380F;
-    --dlu-la: #90B43C;
-    --dlu-la-sang: #A8CC50;
-    --dlu-nhat: #C0CC84;
-    --dlu-do: #CC2430;
-    --dlu-hon: #3E8E9E;
-    --dlu-suong: #E8EDD8;
-    --dlu-chu: #2B330F;
+    /* --- Màu gốc lấy từ logo / thiên nhiên Đà Lạt --- */
+    --dlu-cam: #F08418;          /* cam đất  — mặt trời trong logo */
+    --dlu-cam-dam: #D97210;      /* cam đất đậm */
+    --dlu-reu: #607824;          /* xanh rêu — núi, dòng chữ ĐẠI HỌC ĐÀ LẠT */
+    --dlu-reu-dam: #3D4E17;      /* xanh rêu đậm */
+    --dlu-reu-toi: #2B380F;      /* xanh rêu rất tối (chữ trên nền sáng) */
+    --dlu-la: #90B43C;           /* xanh lá  — sườn núi phía sáng */
+    --dlu-la-sang: #A8CC50;      /* xanh lá sáng */
+    --dlu-nhat: #C0CC84;         /* xanh nhạt — đồi thông */
+    --dlu-suong: #E8EDD8;        /* sương mù sớm mai */
+    --dlu-sun: #FEC95C;          /* vàng nắng cao nguyên */
+    --dlu-hon: #3E8E9E;          /* xanh hồ Xuân Hương */
+    --dlu-do: #CC2430;           /* đỏ — ngôi sao trong logo */
+    --dlu-xam-suong: #9AA79B;    /* xám sương mù */
+    --dlu-chu: #2B330F;          /* màu chữ chính */
+
+    /* --- Chữ trên nền màu tương ứng (đảm bảo tương phản đạt chuẩn) --- */
+    --dlu-tren-cam: #5A4210;
+    --dlu-tren-do: #8E1A22;
+    --dlu-tren-hon: #2A6270;
+
+    /* --- Độ ưu tiên: dải màu nóng dần (1 = rất thấp, 5 = rất cao) --- */
+    --dlu-uu-tien-1: #7A8C7D;    /* xám sương */
+    --dlu-uu-tien-4: #E05A20;    /* cam cháy */
+
+    /* --- Vạch nhấn 3 màu logo DLU (dùng ở thẻ đăng nhập) --- */
+    --dlu-vach-logo: linear-gradient(90deg,
+        #607824 0%,
+        #90B43C 40%,
+        #F08418 100%);
 }
 
 /* =============================================================================
- *  PHẦN 1 — GHI ĐÈ BẢNG MÀU CHO MỌI THEME
- *  Áp dụng cho [data-glpi-theme] bất kể giá trị là gì (auror, da_lat, ...)
- *  => trang đăng nhập (auror) cũng nhận được màu Đà Lạt
+ *  PHẦN 0B — TOKEN THƯƠNG HIỆU THEO BẢNG MÀU
+ *  Đây là phần DUY NHẤT khác nhau giữa 3 bảng màu.
  * ============================================================================= */
 
+/* --- Mặc định = da_lat (xanh rêu) --- */
+:root {
+    --dlu-primary: #607824;
+    --dlu-primary-rgb: 96, 120, 36;
+    --dlu-primary-dark: #3D4E17;      /* nền thanh menu */
+    --dlu-primary-dark-rgb: 61, 78, 23;
+    --dlu-primary-deep: #1E2609;      /* nền thanh menu ở chế độ tối */
+    --dlu-on-primary: #F5F2E8;        /* chữ trên nền thanh menu */
+    --dlu-on-primary-deep: #E8EDD8;
+
+    --dlu-link: #7A9B2E;
+    --dlu-link-rgb: 122, 155, 46;
+
+    --dlu-btn-from: #7A9B2E;          /* gradient nút chính */
+    --dlu-btn-to: #607824;
+    --dlu-btn-from-hover: #8BAE3A;
+    --dlu-btn-to-hover: #6D8829;
+
+    --dlu-nav-accent: #F08418;        /* vạch nhấn mục menu đang chọn */
+    --dlu-nav-accent-rgb: 240, 132, 24;
+
+    --dlu-focus: #90B43C;             /* viền ô nhập khi được chọn */
+    --dlu-focus-rgb: 144, 180, 60;
+
+    --dlu-hover-rgb: 192, 204, 132;   /* nền dòng bảng khi rê chuột */
+    --dlu-dashboard-rgb: 232, 237, 216; /* nền bảng điều khiển */
+
+    --dlu-illus-1: #E8EDD8;           /* khối trang trí màn hình chào */
+    --dlu-illus-2: #A8BE6E;
+    --dlu-illus-3: #607824;
+
+    --dlu-palette-1: #607824;         /* bảng màu nhanh trong hồ sơ */
+    --dlu-palette-2: #3D4E17;
+    --dlu-palette-3: #90B43C;
+    --dlu-palette-4: #F08418;
+
+    --dlu-progress: linear-gradient(90deg,
+        #607824 0%,
+        #90B43C 60%,
+        #F08418 100%);
+
+    --dlu-login-bg: linear-gradient(160deg,
+        #F4F7EA 0%,
+        #E8EDD8 28%,
+        #D5DFBB 52%,
+        #B9C98D 72%,
+        #9CB262 100%);
+}
+
+/* --- da_lat_suong (sương mai — xanh ngọc, dịu mắt) --- */
+:root[data-glpi-theme="da_lat_suong"] {
+    --dlu-primary: #3E8E9E;
+    --dlu-primary-rgb: 62, 142, 158;
+    --dlu-primary-dark: #2F5E6B;
+    --dlu-primary-dark-rgb: 47, 94, 107;
+    --dlu-primary-deep: #1E3C44;
+    --dlu-on-primary: #EEF7F8;
+    --dlu-on-primary-deep: #DCEEF1;
+
+    --dlu-link: #469EAF;
+    --dlu-link-rgb: 70, 158, 175;
+
+    --dlu-btn-from: #58A8B8;
+    --dlu-btn-to: #3E8E9E;
+    --dlu-btn-from-hover: #6BBCCC;
+    --dlu-btn-to-hover: #4A9AAB;
+
+    --dlu-nav-accent: #7EC8D0;
+    --dlu-nav-accent-rgb: 126, 200, 208;
+
+    --dlu-focus: #7EC8D0;
+    --dlu-focus-rgb: 126, 200, 208;
+
+    --dlu-hover-rgb: 143, 196, 204;
+    --dlu-dashboard-rgb: 228, 241, 242;
+
+    --dlu-illus-1: #E4F1F2;
+    --dlu-illus-2: #8FC4CC;
+    --dlu-illus-3: #3E8E9E;
+
+    --dlu-palette-1: #3E8E9E;
+    --dlu-palette-2: #2F5E6B;
+    --dlu-palette-3: #7EC8D0;
+    --dlu-palette-4: #C0CC84;
+
+    --dlu-progress: linear-gradient(90deg,
+        #3E8E9E 0%,
+        #7EC8D0 100%);
+
+    --dlu-login-bg: linear-gradient(160deg,
+        #F2F9FA 0%,
+        #E4F1F2 28%,
+        #C8E2E7 52%,
+        #9FD0D8 72%,
+        #7EC8D0 100%);
+}
+
+/* --- da_lat_nang (nắng cao nguyên — cam đất, rực rỡ) --- */
+:root[data-glpi-theme="da_lat_nang"] {
+    --dlu-primary: #F08418;
+    --dlu-primary-rgb: 240, 132, 24;
+    --dlu-primary-dark: #6B3D0F;
+    --dlu-primary-dark-rgb: 107, 61, 15;
+    --dlu-primary-deep: #3D2208;
+    --dlu-on-primary: #FFF7EC;
+    --dlu-on-primary-deep: #FFF3E0;
+
+    --dlu-link: #D66C00;
+    --dlu-link-rgb: 214, 108, 0;
+
+    --dlu-btn-from: #F5A03C;
+    --dlu-btn-to: #F08418;
+    --dlu-btn-from-hover: #FFB055;
+    --dlu-btn-to-hover: #FA9428;
+
+    --dlu-nav-accent: #FEC95C;
+    --dlu-nav-accent-rgb: 254, 201, 92;
+
+    --dlu-focus: #F5A03C;
+    --dlu-focus-rgb: 245, 160, 60;
+
+    --dlu-hover-rgb: 254, 201, 92;
+    --dlu-dashboard-rgb: 255, 243, 224;
+
+    --dlu-illus-1: #FFF3E0;
+    --dlu-illus-2: #FCC47C;
+    --dlu-illus-3: #F08418;
+
+    --dlu-palette-1: #F08418;
+    --dlu-palette-2: #6B3D0F;
+    --dlu-palette-3: #FEC95C;
+    --dlu-palette-4: #607824;
+
+    --dlu-progress: linear-gradient(90deg,
+        #FEC95C 0%,
+        #F08418 100%);
+
+    --dlu-login-bg: linear-gradient(160deg,
+        #FFFBF2 0%,
+        #FFF3E0 28%,
+        #FDE3BC 52%,
+        #FCC47C 72%,
+        #F0A040 100%);
+}
+
+/* =============================================================================
+ *  PHẦN 1 — ÁNH XẠ TOKEN -> BIẾN CỦA GLPI / TABLER
+ *  Nhờ phần này, các thành phần dựng sẵn của GLPI (nút, liên kết, viền ô nhập,
+ *  thanh menu, biểu tượng minh hoạ...) tự động đổi màu theo bảng màu đang chọn.
+ *
+ *  Bộ chọn dưới đây CHỈ theo thuộc tính [data-glpi-theme] (không kèm giá trị)
+ *  nên khớp với MỌI trang có gắn thuộc tính đó — kể cả trang đăng nhập.
+ *  Trang đăng nhập mang data-glpi-theme="da_lat" (nạp từ cấu hình chung
+ *  glpi_configs.palette), KHÔNG phải "auror" như tài liệu GLPI 10 thường nói.
+ * ============================================================================= */
 :root[data-glpi-theme] {
-    /* Màu chủ đạo: xanh rêu DLU */
-    --tblr-primary-rgb: 96, 120, 36;
-    --tblr-primary: #607824;
+    --tblr-primary: var(--dlu-primary);
+    --tblr-primary-rgb: var(--dlu-primary-rgb);
+    --tblr-link-color: var(--dlu-link);
+    --tblr-link-color-rgb: var(--dlu-link-rgb);
 
-    /* Link */
-    --tblr-link-color-rgb: 122, 155, 46;
-    --tblr-link-color: #7A9B2E;
+    --glpi-mainmenu-bg: var(--dlu-primary-dark);
+    --glpi-mainmenu-fg: var(--dlu-on-primary);
 
-    /* Thanh menu chính: xanh rêu rất đậm như bóng thông trong sương */
-    --glpi-mainmenu-bg: #3D4E17;
-    --glpi-mainmenu-fg: #F5F2E8;
+    --glpi-illustrations-gradient-1: var(--dlu-illus-1);
+    --glpi-illustrations-gradient-2: var(--dlu-illus-2);
+    --glpi-illustrations-gradient-3: var(--dlu-illus-3);
 
-    /* Khối trang trí màn hình chào */
-    --glpi-illustrations-gradient-1: #E8EDD8;
-    --glpi-illustrations-gradient-2: #A8BE6E;
-    --glpi-illustrations-gradient-3: #607824;
+    --glpi-palette-color-1: var(--dlu-palette-1);
+    --glpi-palette-color-2: var(--dlu-palette-2);
+    --glpi-palette-color-3: var(--dlu-palette-3);
+    --glpi-palette-color-4: var(--dlu-palette-4);
+}
 
-    /* Bảng màu nhanh (chọn trong hồ sơ cá nhân) */
-    --glpi-palette-color-1: #607824;
-    --glpi-palette-color-2: #3D4E17;
-    --glpi-palette-color-3: #90B43C;
-    --glpi-palette-color-4: #F08418;
+/* Chế độ tối: giữ tinh thần Đà Lạt về đêm — thông đen, đèn vàng ấm */
+:root[data-glpi-theme][data-glpi-theme-dark="1"] {
+    --glpi-mainmenu-bg: var(--dlu-primary-deep);
+    --glpi-mainmenu-fg: var(--dlu-on-primary-deep);
+}
 
-    /* ===== LOGO THƯƠNG HIỆU DLU =====
-       File CSS này được phục vụ tại /plugins/dlubrand/css/dlu-theme.css,
+/* =============================================================================
+ *  PHẦN 2 — LOGO DLU
+ * ============================================================================= */
+:root {
+    /* File CSS này được phục vụ tại /plugins/dlubrand/css/dlu-theme.css,
        nên đường dẫn "../pics/logos/..." giải quyết thành
        /plugins/dlubrand/pics/logos/... — trỏ tới public/ của plugin. */
     --glpi-logo-light: url("../pics/logos/logo-DLU-100.png");
@@ -73,16 +274,6 @@
     --glpi-logo-dark-login: url("../pics/logos/logo-DLU-250.png");
     --glpi-logo-light-login: url("../pics/logos/logo-DLU-250.png");
 }
-
-/* Chế độ tối: giữ tinh thần Đà Lạt về đêm — thông đen, đèn vàng ấm */
-:root[data-glpi-theme][data-glpi-theme-dark="1"] {
-    --glpi-mainmenu-bg: #1E2609;
-    --glpi-mainmenu-fg: #E8EDD8;
-}
-
-/* =============================================================================
- *  PHẦN 2 — LOGO DLU
- * ============================================================================= */
 
 /* Logo trên thanh menu: canh giữa, giữ đúng tỉ lệ, không méo */
 .glpi-logo {
@@ -107,14 +298,9 @@
  *  nên được chăm chút kỹ nhất.
  * ============================================================================= */
 
-/* Nền trang đăng nhập: gradient sương mai Đà Lạt → xanh rêu → cam nắng */
+/* Nền trang: gradient sương mai -> xanh rêu -> cam nắng (theo bảng màu) */
 body.welcome-anonymous {
-    background: linear-gradient(160deg,
-        #F4F7EA 0%,
-        #E8EDD8 28%,
-        #D5DFBB 52%,
-        #B9C98D 72%,
-        #9CB262 100%) !important;
+    background: var(--dlu-login-bg) !important;
     background-attachment: fixed !important;
     min-height: 100vh;
 }
@@ -122,11 +308,11 @@ body.welcome-anonymous {
 /* Thẻ đăng nhập: trắng ngà, bo góc lớn, đổ bóng mềm như sương */
 body.welcome-anonymous .card {
     background: rgba(255, 255, 254, 0.97) !important;
-    border: 1px solid rgba(96, 120, 36, 0.16) !important;
+    border: 1px solid rgba(var(--dlu-primary-rgb), 0.16) !important;
     border-radius: 16px !important;
     box-shadow:
-        0 18px 48px rgba(61, 78, 23, 0.16),
-        0 2px 8px rgba(61, 78, 23, 0.08) !important;
+        0 18px 48px rgba(var(--dlu-primary-dark-rgb), 0.16),
+        0 2px 8px rgba(var(--dlu-primary-dark-rgb), 0.08) !important;
     backdrop-filter: blur(6px);
 }
 
@@ -142,28 +328,32 @@ body.welcome-anonymous .page-anonymous {
 /* Tiêu đề trang đăng nhập */
 body.welcome-anonymous h1,
 body.welcome-anonymous .card-title {
-    color: var(--dlu-reu-dam) !important;
+    color: var(--dlu-primary-dark) !important;
     font-weight: 700 !important;
     letter-spacing: -0.2px;
 }
 
-/* Nút đăng nhập: gradient xanh rêu, đổ bóng màu */
+/* Nút đăng nhập: gradient theo bảng màu, đổ bóng màu */
 body.welcome-anonymous .btn-primary,
 body.welcome-anonymous button[type="submit"] {
-    background: linear-gradient(135deg, #7A9B2E 0%, #607824 100%) !important;
+    background: linear-gradient(135deg,
+        var(--dlu-btn-from) 0%,
+        var(--dlu-btn-to) 100%) !important;
     border: none !important;
     border-radius: 9px !important;
     font-weight: 600 !important;
     letter-spacing: 0.2px;
     padding: 0.6rem 1rem !important;
-    box-shadow: 0 4px 14px rgba(96, 120, 36, 0.32) !important;
+    box-shadow: 0 4px 14px rgba(var(--dlu-primary-rgb), 0.32) !important;
     transition: all 0.18s ease;
 }
 
 body.welcome-anonymous .btn-primary:hover,
 body.welcome-anonymous button[type="submit"]:hover {
-    background: linear-gradient(135deg, #8BAE3A 0%, #6D8829 100%) !important;
-    box-shadow: 0 6px 20px rgba(96, 120, 36, 0.42) !important;
+    background: linear-gradient(135deg,
+        var(--dlu-btn-from-hover) 0%,
+        var(--dlu-btn-to-hover) 100%) !important;
+    box-shadow: 0 6px 20px rgba(var(--dlu-primary-rgb), 0.42) !important;
     transform: translateY(-1px);
 }
 
@@ -171,21 +361,21 @@ body.welcome-anonymous button[type="submit"]:hover {
 body.welcome-anonymous .form-control,
 body.welcome-anonymous .form-select {
     border-radius: 9px !important;
-    border-color: rgba(96, 120, 36, 0.24) !important;
+    border-color: rgba(var(--dlu-primary-rgb), 0.24) !important;
     padding: 0.6rem 0.9rem !important;
     background: #FDFEFB !important;
 }
 
 body.welcome-anonymous .form-control:focus,
 body.welcome-anonymous .form-select:focus {
-    border-color: var(--dlu-la) !important;
-    box-shadow: 0 0 0 0.22rem rgba(144, 180, 60, 0.24) !important;
+    border-color: var(--dlu-focus) !important;
+    box-shadow: 0 0 0 0.22rem rgba(var(--dlu-focus-rgb), 0.24) !important;
     background: #fff !important;
 }
 
 /* Nhãn biểu mẫu */
 body.welcome-anonymous .form-label {
-    color: var(--dlu-reu-dam) !important;
+    color: var(--dlu-primary-dark) !important;
     font-weight: 600 !important;
     font-size: 0.9rem;
 }
@@ -193,7 +383,7 @@ body.welcome-anonymous .form-label {
 /* Đường kẻ "hoặc" và các liên kết phụ */
 body.welcome-anonymous a,
 body.welcome-anonymous .link-primary {
-    color: #6D8829 !important;
+    color: var(--dlu-link) !important;
     font-weight: 500;
 }
 
@@ -203,42 +393,39 @@ body.welcome-anonymous a:hover {
 
 /* Hộp kiểm "Ghi nhớ đăng nhập" */
 body.welcome-anonymous .form-check-input:checked {
-    background-color: var(--dlu-reu) !important;
-    border-color: var(--dlu-reu) !important;
+    background-color: var(--dlu-primary) !important;
+    border-color: var(--dlu-primary) !important;
 }
 
 /* Thông báo lỗi / cảnh báo */
 body.welcome-anonymous .alert-danger {
     background: rgba(204, 36, 48, 0.09) !important;
     border-color: rgba(204, 36, 48, 0.28) !important;
-    color: #8E1A22 !important;
+    color: var(--dlu-tren-do) !important;
     border-radius: 9px !important;
 }
 
 body.welcome-anonymous .alert-info {
     background: rgba(62, 142, 158, 0.10) !important;
     border-color: rgba(62, 142, 158, 0.28) !important;
-    color: #2A6270 !important;
+    color: var(--dlu-tren-hon) !important;
     border-radius: 9px !important;
 }
 
-/* Dải màu trang trí trên cùng thẻ đăng nhập — vạch nhấn DLU */
+/* Dải màu trang trí trên cùng thẻ đăng nhập — vạch nhấn 3 màu logo DLU */
 body.welcome-anonymous .card::before {
     content: "";
     display: block;
     height: 4px;
     border-radius: 16px 16px 0 0;
-    background: linear-gradient(90deg,
-        #607824 0%,
-        #90B43C 40%,
-        #F08418 100%);
+    background: var(--dlu-vach-logo);
     margin: -1px -1px 0 -1px;
 }
 
 /* Chân trang đăng nhập */
 body.welcome-anonymous footer,
 body.welcome-anonymous .footer {
-    color: rgba(61, 78, 23, 0.62) !important;
+    color: rgba(var(--dlu-primary-dark-rgb), 0.62) !important;
     font-size: 0.82rem;
 }
 
@@ -248,67 +435,72 @@ body.welcome-anonymous .footer {
 
 /* --- Thanh menu dọc: bóng mềm --- */
 .navbar-vertical.navbar-expand-lg {
-    box-shadow: 0 2px 12px rgba(61, 78, 23, 0.18);
+    box-shadow: 0 2px 12px rgba(var(--dlu-primary-dark-rgb), 0.18);
 }
 
-/* --- Mục menu đang chọn: vạch cam đất bên trái (màu logo DLU) --- */
+/* --- Mục menu đang chọn: vạch nhấn bên trái --- */
 .navbar-vertical .nav-link.active {
-    border-left: 3px solid var(--dlu-cam);
-    background: rgba(240, 132, 24, 0.12);
+    border-left: 3px solid var(--dlu-nav-accent);
+    background: rgba(var(--dlu-nav-accent-rgb), 0.12);
     font-weight: 600;
 }
 
 /* --- Nút hành động chính --- */
 .btn-primary {
-    background: linear-gradient(135deg, #7A9B2E 0%, #607824 100%) !important;
-    border-color: var(--dlu-reu) !important;
+    background: linear-gradient(135deg,
+        var(--dlu-btn-from) 0%,
+        var(--dlu-btn-to) 100%) !important;
+    border-color: var(--dlu-primary) !important;
     color: #fff !important;
 }
 
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-    background: linear-gradient(135deg, #8BAE3A 0%, #6D8829 100%) !important;
-    border-color: #6D8829 !important;
+    background: linear-gradient(135deg,
+        var(--dlu-btn-from-hover) 0%,
+        var(--dlu-btn-to-hover) 100%) !important;
+    border-color: var(--dlu-btn-to-hover) !important;
 }
 
-/* Nút phụ: viền xanh rêu, chữ xanh rêu */
+/* Nút phụ: viền và chữ theo màu chủ đạo */
 .btn-outline-secondary:hover,
 .btn-outline-primary:hover {
-    background: rgba(96, 120, 36, 0.10);
-    border-color: var(--dlu-reu);
-    color: var(--dlu-reu-dam);
+    background: rgba(var(--dlu-primary-rgb), 0.10);
+    border-color: var(--dlu-primary);
+    color: var(--dlu-primary-dark);
 }
 
 /* --- Thẻ nội dung: bo góc, bóng nhẹ --- */
 .card {
     border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(61, 78, 23, 0.09);
+    box-shadow: 0 1px 4px rgba(var(--dlu-primary-dark-rgb), 0.09);
 }
 
 .card-header {
-    border-bottom: 2px solid rgba(96, 120, 36, 0.18);
+    border-bottom: 2px solid rgba(var(--dlu-primary-rgb), 0.18);
     font-weight: 600;
 }
 
-/* --- Bảng dữ liệu: dòng tiêu đề xanh rêu nhạt --- */
+/* --- Bảng dữ liệu: dòng tiêu đề nhạt màu chủ đạo --- */
 .table thead th {
-    background: rgba(96, 120, 36, 0.07);
-    color: var(--dlu-reu-dam);
-    border-bottom: 2px solid rgba(96, 120, 36, 0.25);
+    background: rgba(var(--dlu-primary-rgb), 0.07);
+    color: var(--dlu-primary-dark);
+    border-bottom: 2px solid rgba(var(--dlu-primary-rgb), 0.25);
 }
 
 .table tbody tr:hover {
-    background: rgba(192, 204, 132, 0.16);
+    background: rgba(var(--dlu-hover-rgb), 0.16);
 }
 
 /* --- NHÃN TRẠNG THÁI PHIẾU YÊU CẦU (TICKET) ---
    Màu lấy từ thiên nhiên Đà Lạt để kỹ thuật viên nhận biết nhanh:
-     Mới           → xanh lá non
-     Đang xử lý    → xanh hồ Xuân Hương
-     Đang chờ      → vàng nắng
-     Đã giải quyết → xanh rêu (hoàn thành)
-     Đã đóng       → xám sương mù
+     Mới           -> xanh lá non
+     Đang xử lý    -> xanh hồ Xuân Hương
+     Đang chờ      -> vàng nắng
+     Đã giải quyết -> xanh rêu (hoàn thành)
+     Đã đóng       -> xám sương mù
+   Các màu này GIỐNG NHAU ở mọi bảng màu (mang tính ngữ nghĩa).
 */
 .badge.bg-new,
 .itilstatus.new {
@@ -324,8 +516,8 @@ body.welcome-anonymous .footer {
 
 .badge.bg-planned,
 .itilstatus.planned {
-    background-color: #FEC95C !important;
-    color: #5A4210 !important;
+    background-color: var(--dlu-sun) !important;
+    color: var(--dlu-tren-cam) !important;
 }
 
 .badge.bg-solved,
@@ -336,74 +528,76 @@ body.welcome-anonymous .footer {
 
 .badge.bg-closed,
 .itilstatus.closed {
-    background-color: #9AA79B !important;
+    background-color: var(--dlu-xam-suong) !important;
     color: #fff !important;
 }
 
 /* --- Độ ưu tiên: dải màu nóng dần --- */
-.priority-1 { color: #7A8C7D; }   /* Rất thấp — xám sương */
-.priority-2 { color: var(--dlu-hon); }   /* Thấp — xanh hồ */
-.priority-3 { color: var(--dlu-cam); }   /* Trung bình — cam đất */
-.priority-4 { color: #E05A20; }   /* Cao — cam cháy */
-.priority-5 { color: var(--dlu-do); }   /* Rất cao — đỏ sao */
+.priority-1 { color: var(--dlu-uu-tien-1); }  /* Rất thấp — xám sương */
+.priority-2 { color: var(--dlu-hon); }        /* Thấp — xanh hồ */
+.priority-3 { color: var(--dlu-cam); }        /* Trung bình — cam đất */
+.priority-4 { color: var(--dlu-uu-tien-4); }  /* Cao — cam cháy */
+.priority-5 { color: var(--dlu-do); }         /* Rất cao — đỏ sao */
 
-/* --- Thanh tiến trình: gradient xanh rêu → cam đất --- */
+/* --- Thanh tiến trình: gradient theo bảng màu --- */
 .progress-bar {
-    background: linear-gradient(90deg, #607824 0%, #90B43C 60%, #F08418 100%);
+    background: var(--dlu-progress);
 }
 
-/* --- Ô nhập liệu: viền xanh rêu khi được chọn --- */
+/* --- Ô nhập liệu: viền đổi màu khi được chọn --- */
 .form-control:focus,
 .form-select:focus {
-    border-color: var(--dlu-la);
-    box-shadow: 0 0 0 0.2rem rgba(144, 180, 60, 0.22);
+    border-color: var(--dlu-focus);
+    box-shadow: 0 0 0 0.2rem rgba(var(--dlu-focus-rgb), 0.22);
 }
 
 /* --- Tab đang chọn --- */
 .nav-tabs .nav-link.active {
-    border-bottom: 2px solid var(--dlu-reu);
-    color: var(--dlu-reu-dam);
+    border-bottom: 2px solid var(--dlu-primary);
+    color: var(--dlu-primary-dark);
     font-weight: 600;
 }
 
 /* --- Phân trang --- */
 .pagination .page-item.active .page-link {
-    background-color: var(--dlu-reu);
-    border-color: var(--dlu-reu);
+    background-color: var(--dlu-primary);
+    border-color: var(--dlu-primary);
 }
 
 .pagination .page-link {
-    color: var(--dlu-reu);
+    color: var(--dlu-primary);
 }
 
 /* --- Bảng điều khiển: nền nhẹ như sương sớm Đà Lạt --- */
 .dashboard,
 .dashboard-grid {
-    background: linear-gradient(180deg, rgba(232, 237, 216, 0.35) 0%, transparent 180px);
+    background: linear-gradient(180deg,
+        rgba(var(--dlu-dashboard-rgb), 0.40) 0%,
+        transparent 180px);
 }
 
 /* --- Hộp thoại / menu thả xuống --- */
 .dropdown-menu {
     border-radius: 10px;
-    border-color: rgba(96, 120, 36, 0.16);
-    box-shadow: 0 8px 28px rgba(61, 78, 23, 0.14);
+    border-color: rgba(var(--dlu-primary-rgb), 0.16);
+    box-shadow: 0 8px 28px rgba(var(--dlu-primary-dark-rgb), 0.14);
 }
 
 .dropdown-item:active,
 .dropdown-item.active {
-    background-color: var(--dlu-reu);
+    background-color: var(--dlu-primary);
 }
 
 /* --- Thanh điều hướng ngang trên cùng --- */
 .topbar,
 .navbar {
-    border-bottom-color: rgba(96, 120, 36, 0.14);
+    border-bottom-color: rgba(var(--dlu-primary-rgb), 0.14);
 }
 
 /* --- Tiêu đề trang --- */
 .page-title,
 h1.page-header-title {
-    color: var(--dlu-reu-dam);
+    color: var(--dlu-primary-dark);
     font-weight: 700;
 }
 
@@ -423,17 +617,17 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(232, 237, 216, 0.5);
+    background: rgba(var(--dlu-dashboard-rgb), 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(96, 120, 36, 0.42);
+    background: rgba(var(--dlu-primary-rgb), 0.42);
     border-radius: 6px;
     border: 2px solid transparent;
     background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(96, 120, 36, 0.68);
+    background: rgba(var(--dlu-primary-rgb), 0.68);
     background-clip: content-box;
 }

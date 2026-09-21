@@ -5,96 +5,21 @@
  *  Lấy cảm hứng từ buổi trưa nắng trên cao nguyên Lâm Viên:
  *  nắng vàng óng trên đồi thông, hoa dã quỳ ven đường, trời xanh trong.
  *
- *  Màu chủ đạo lấy trực tiếp từ logo DLU: CAM ĐẤT #F08418
+ *  Màu chủ đạo lấy trực tiếp từ logo DLU: CAM ĐẤT
  *  (vòng hoa văn và mặt trời trong logo chính thức).
  *
  *  Phù hợp cho: màn hình lớn treo tường theo dõi sự cố (NOC/Dashboard).
+ *
+ *  ★ FILE NÀY KHÔNG CHỨA MÃ MÀU ★
+ *
+ *  GLPI 11 quét thư mục này tìm các file .scss để LIỆT KÊ bảng màu trong
+ *  "Thiết lập của tôi -> Giao diện". Tên file (không phần mở rộng) chính là
+ *  "key" của bảng màu, tức giá trị của thuộc tính <html data-glpi-theme="...">.
+ *
+ *  Toàn bộ MÀU của bảng màu này được định nghĩa DUY NHẤT tại:
+ *      plugins/dlubrand/public/css/dlu-theme.css
+ *      (khối :root[data-glpi-theme="da_lat_nang"] { --dlu-* })
+ *
+ *  Muốn đổi màu -> sửa DUY NHẤT file trên.
  * -----------------------------------------------------------------------------
  */
-
-:root[data-glpi-theme="da_lat_nang"] {
-    /* Cam đất — màu chủ đạo của logo DLU */
-    --tblr-primary-rgb: 240, 132, 24;             /* #F08418 */
-    --tblr-link-color-rgb: 214, 108, 0;
-
-    /* Thanh menu: nâu đất ấm — như rơm khô mùa nắng */
-    --glpi-mainmenu-bg: #6B3D0F;
-    --glpi-mainmenu-fg: #FFF7EC;
-
-    /* Khối trang trí: gradient nắng sớm → nắng chiều */
-    --glpi-illustrations-gradient-1: #FFF3E0;
-    --glpi-illustrations-gradient-2: #FCC47C;
-    --glpi-illustrations-gradient-3: #F08418;
-
-    /* Bảng màu nhanh */
-    --glpi-palette-color-1: #F08418;              /* cam đất DLU */
-    --glpi-palette-color-2: #6B3D0F;              /* nâu đất */
-    --glpi-palette-color-3: #FEC95C;              /* vàng nắng */
-    --glpi-palette-color-4: #607824;              /* xanh rêu DLU */
-}
-
-:root[data-glpi-theme="da_lat_nang"] {
-
-    .navbar-vertical .nav-link.active {
-        border-left: 3px solid #FEC95C;
-        background: rgba(254, 201, 92, 0.2);
-        font-weight: 600;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #F5A03C 0%, #F08418 100%);
-        border-color: #F08418;
-        color: #fff;
-    }
-
-    .btn-primary:hover,
-    .btn-primary:focus {
-        background: linear-gradient(135deg, #FFB055 0%, #FA9428 100%);
-        border-color: #FA9428;
-    }
-
-    .card {
-        border-radius: 10px;
-        box-shadow: 0 1px 4px rgba(107, 61, 15, 0.12);
-    }
-
-    .table thead th {
-        background: rgba(240, 132, 24, 0.09);
-        color: #6B3D0F;
-        border-bottom: 2px solid rgba(240, 132, 24, 0.26);
-    }
-
-    .table tbody tr:hover {
-        background: rgba(254, 201, 92, 0.18);
-    }
-
-    .progress-bar {
-        background: linear-gradient(90deg, #FEC95C 0%, #F08418 100%);
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: #F5A03C;
-        box-shadow: 0 0 0 0.2rem rgba(240, 132, 24, 0.22);
-    }
-
-    .nav-tabs .nav-link.active {
-        border-bottom: 2px solid #F08418;
-        color: #6B3D0F;
-        font-weight: 600;
-    }
-
-    .pagination .page-item.active .page-link {
-        background-color: #F08418;
-        border-color: #F08418;
-    }
-
-    .pagination .page-link {
-        color: #D66C00;
-    }
-
-    .dashboard,
-    .dashboard-grid {
-        background: linear-gradient(180deg, rgba(255, 243, 224, 0.55) 0%, transparent 180px);
-    }
-}

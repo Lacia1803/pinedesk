@@ -53,8 +53,15 @@ __pycache__/
 .tmp-backup-verify/
 .tmp-restore-test/
 .tmp-diag/
-# .tmp-locale/ CHUA file nguon .po can cho script dich -> KHONG ignore
-!/.tmp-locale/
+
+# Thu muc lam viec tam cua chuoi script dich tieng Viet.
+#   - 2 file .po nguon (vi_VN.po, fr_FR.po): TAI LAI DUOC tu container
+#     -> bash scripts/cai-ban-dich.sh tai
+#   - 7 file .mo: SAN PHAM SINH RA, khong bao gio sua tay
+# => Khong version hoa (truoc day co '!/.tmp-locale/' nen ca 9 file bi commit
+#    nham, trong do .po nang ~2 MB va .mo la rac sinh ra).
+# Cac script tu dong tai .po khi thieu -> khong anh huong cai dat.
+.tmp-locale/
 
 # Ban sao luu tam cua landing page (giu tren dia, khong can version)
 .backup-landing-cu/

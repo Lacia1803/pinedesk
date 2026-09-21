@@ -139,9 +139,19 @@ def main():
     print()
 
     # --- 1. Tap hop chuoi goc tu .po ----------------------------------------
+    # .po khong duoc version hoa (xem .gitignore) nhung luon tai lai duoc tu
+    # image GLPI -> tu dong lay ve khi thieu (cung co che voi cac script dich).
     po_path = PO_NGUON_LOCAL
-    if not os.path.exists(po_path):
-        po_path = PO_NGUON
+    if not os.path.exists(po_path) or os.path.getsize(po_path) == 0:
+        os.makedirs(os.path.dirname(po_path), exist_ok=True)
+        r = subprocess.run(['docker', 'exec', GLPI_CONTAINER, 'cat', PO_NGUON],
+                           capture_output=True)
+        if r.stdout:
+            with open(po_path, 'wb') as f:
+                f.write(r.stdout)
+            print(f'{CYAN}[INFO]{NC} Da tai vi_VN.po tu container ({len(r.stdout):,} byte)')
+        else:
+            po_path = PO_NGUON
     msgids = doc_po_msgids(po_path)
     if not msgids:
         print(f'{RED}[LOI]{NC} Khong doc duoc file .po nguon: {po_path}')

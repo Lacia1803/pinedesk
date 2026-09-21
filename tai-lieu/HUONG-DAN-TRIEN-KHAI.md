@@ -55,7 +55,8 @@ Người dùng (trình duyệt)
 ### 1.4. Cài đặt nhanh — CHỈ 1 LỆNH
 
 ```bash
-cd G:/glpi-helpdesk
+# Di chuyen vao thu muc goc cua du an (thay bang duong dan thuc tren may ban)
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 bash scripts/cai-dat-tat-ca.sh
 ```
 
@@ -98,7 +99,7 @@ rồi in ra kết quả từng bước (màu xanh = đạt).
 **Bước 2** — Mở Git Bash và di chuyển vào thư mục dự án:
 
 ```bash
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 ```
 
 ### 3.2. Cấu hình môi trường
@@ -139,7 +140,7 @@ bash start.sh
 Script sẽ tự động:
 1. Kiểm tra Docker đang chạy
 2. Kiểm tra file cấu hình
-3. Tạo chứng chỉ SSL tự ký cho mạng nội bộ
+3. Tạo chứng chỉ SSL tự ký cho mạng nội bộ (**có SAN** — xem mục 3.4)
 4. Tải image và khởi động 4 container
 5. Hiển thị thông tin truy cập
 
@@ -151,7 +152,40 @@ docker-compose up -d
 
 Quá trình này mất 3–5 phút ở lần chạy đầu (do phải tải image).
 
-### 3.4. Kiểm tra kết quả
+### 3.4. Chứng chỉ SSL — bắt buộc có SAN
+
+Chứng chỉ tự ký **phải có Subject Alternative Name (SAN)**. Trình duyệt hiện đại
+(Chrome, Firefox, Edge) **bỏ qua** trường `Common Name` và **chỉ đọc SAN**; thiếu
+SAN thì cảnh báo nặng hơn và **không thể thêm ngoại lệ** để truy cập tiếp.
+
+Vì `openssl req -subj` **không đặt được SAN**, dự án khai báo tên miền/IP trong
+file [`nginx/ssl/openssl-san.cnf`](../nginx/ssl/openssl-san.cnf):
+
+```ini
+[ san ]
+DNS.1 = localhost
+DNS.2 = helpdesk.local
+DNS.3 = *.localhost
+IP.1  = 127.0.0.1
+IP.2  = ::1
+```
+
+`start.sh` dùng file này để sinh chứng chỉ. Script **tự kiểm tra SAN** và nếu gặp
+chứng chỉ cũ thiếu SAN, nó **tự động sinh lại** (bản cũ được giữ lại với hậu tố
+`.thieu-san.bak`).
+
+Kiểm chứng:
+
+```bash
+openssl x509 -in nginx/ssl/glpi.crt -noout -text | grep -A1 "Subject Alternative Name"
+# Phai thay: DNS:localhost, DNS:helpdesk.local, DNS:*.localhost, IP Address:127.0.0.1, ...
+```
+
+> **Triển khai với tên miền thật:** sửa `nginx/conf.d/default.conf` (`server_name`)
+> **và** thêm tên miền vào mục `[ san ]` của `openssl-san.cnf`, rồi xoá
+> `nginx/ssl/glpi.crt` và chạy lại `bash start.sh` để sinh chứng chỉ mới.
+
+### 3.5. Kiểm tra kết quả
 
 ```bash
 docker ps --filter "name=helpdesk-"
@@ -388,7 +422,7 @@ Plugin Barcode cần **2 quyền** mới hoạt động (script cài đã tự c
 ### 6.1. Sao lưu thủ công
 
 ```bash
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 bash backup/backup.sh
 ```
 
@@ -412,7 +446,8 @@ Kết quả tạo 3 file trong `backup/`:
 3. Trigger: **Daily**, chọn giờ (ví dụ 23:00)
 4. Action: **Start a program**
    - Program: `C:\Program Files\Git\bin\bash.exe`
-   - Arguments: `-c "cd /g/glpi-helpdesk && bash backup/backup.sh"`
+   - Arguments: `-c "cd /g/<DUONG-DAN-DU-AN>/glpi-helpdesk && bash backup/backup.sh"`
+     (dùng dạng POSIX của Git Bash, ví dụ `/g/glpi-helpdesk` nếu ổ G:)
 5. Nhấn **Finish**
 
 ### 6.3. Phục hồi dữ liệu
@@ -420,7 +455,7 @@ Kết quả tạo 3 file trong `backup/`:
 **Bước 1** — Khởi động hệ thống:
 
 ```bash
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 bash start.sh
 ```
 
@@ -461,7 +496,7 @@ docker-compose restart glpi
 
 ```bash
 # Di chuyen vao thu muc du an
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 
 # Khoi dong he thong
 bash start.sh
@@ -576,11 +611,25 @@ docker-compose restart glpi
 
 ### 8.6. Cảnh báo chứng chỉ SSL trên trình duyệt
 
-Đây là hiện tượng **bình thường** với chứng chỉ tự ký.
-Cách xử lý: nhấn **Nâng cao** → **Tiếp tục truy cập localhost**.
+Chứng chỉ tự ký **luôn** khiến trình duyệt cảnh báo — đây là hiện tượng bình
+thường. Cách xử lý: nhấn **Nâng cao** → **Tiếp tục truy cập localhost**.
 
-Để hết cảnh báo, cần chứng chỉ từ tổ chức cấp phát hợp lệ (Let's Encrypt
-hoặc chứng chỉ nội bộ của trường).
+> ⚠️ **Nếu KHÔNG thấy nút "Tiếp tục truy cập"** (chỉ có "Quay lại"): chứng chỉ
+> đang **thiếu SAN** — trình duyệt không cho thêm ngoại lệ. Kiểm tra và sửa:
+
+```bash
+openssl x509 -in nginx/ssl/glpi.crt -noout -text | grep -A1 "Subject Alternative Name"
+```
+
+Nếu **không có kết quả**, chứng chỉ cũ cần sinh lại:
+
+```bash
+rm nginx/ssl/glpi.crt nginx/ssl/glpi.key
+bash start.sh
+```
+
+Để hết cảnh báo hoàn toàn, cần chứng chỉ từ tổ chức cấp phát hợp lệ
+(Let's Encrypt hoặc chứng chỉ nội bộ của trường).
 
 ---
 
@@ -642,8 +691,9 @@ glpi-helpdesk/
 │   ├── conf.d/
 │   │   └── default.conf        # Cấu hình gateway, HTTPS, rate limit
 │   └── ssl/
-│       ├── glpi.crt            # Chứng chỉ SSL
-│       └── glpi.key            # Khóa riêng tư SSL
+│       ├── openssl-san.cnf     # ★ Cấu hình sinh chứng chỉ (có SAN)
+│       ├── glpi.crt            # Chứng chỉ SSL (sinh tự động, không commit)
+│       └── glpi.key            # Khóa riêng tư SSL (không commit)
 │
 ├── themes/
 │   └── palette-doan/
@@ -680,7 +730,35 @@ glpi-helpdesk/
 | MariaDB | 3306 | MySQL | Chỉ trong Docker |
 | Redis | 6379 | Redis | Chỉ trong Docker |
 
-### 11.3. Đường dẫn quan trọng
+### 11.3. Kiểm tra tự động trước khi triển khai
+
+Repo có pipeline CI (`.github/workflows/ci.yml`) tự chạy khi push/PR. Có thể chạy
+nhanh các kiểm tra tương tự **ngay trên máy** mà không cần GitHub:
+
+```bash
+# 1. Cu phap shell
+for f in start.sh backup/backup.sh scripts/*.sh; do bash -n "$f" || echo "LOI: $f"; done
+
+# 2. Cu phap Python + JavaScript
+python -m py_compile scripts/*.py
+for f in scripts/*.js scripts/lib/*.js; do node --check "$f"; done
+
+# 3. Cau hinh docker compose (moi service phai co healthcheck)
+docker compose config --quiet
+
+# 4. Cau hinh Nginx (can them --add-host vi upstream 'glpi' chi co trong Docker)
+docker run --rm --add-host glpi:127.0.0.1 \
+  -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+  -v "$PWD/nginx/conf.d:/etc/nginx/conf.d:ro" \
+  -v "$PWD/nginx/ssl:/etc/nginx/ssl:ro" \
+  -v "$PWD/landing:/usr/share/nginx/html/landing:ro" \
+  nginx:1.27-alpine nginx -t
+
+# 5. Lint shell (nang cao, can cai shellcheck)
+shellcheck --severity=warning --shell=bash start.sh backup/backup.sh scripts/*.sh
+```
+
+### 11.4. Đường dẫn quan trọng
 
 | Mục đích | Đường dẫn |
 |---|---|

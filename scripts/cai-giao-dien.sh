@@ -71,7 +71,10 @@ info "Dat bang mau 'da_lat' lam mac dinh..."
 THEME_KEY="${THEME_KEY:-da_lat}"
 ENV_FILE="$WORKDIR/.env"
 if [ -f "$ENV_FILE" ]; then
-  set -a; . "$ENV_FILE"; set +a
+  set -a
+  # shellcheck source=/dev/null
+  . "$ENV_FILE"
+  set +a
 fi
 DB_CONTAINER="${DB_CONTAINER:-helpdesk-db}"
 if [ -n "${GLPI_DB_PASSWORD:-}" ]; then
@@ -87,7 +90,8 @@ fi
 # --- 5. Kiem tra phuc vu bang mau --------------------------------------------
 info "Kiem tra GLPI bien dich bang mau..."
 sleep 2
-for key in $(find "$THEME_DIR" -maxdepth 1 -name '*.scss' -exec basename {} .scss \;); do
+while IFS= read -r key; do
+  [ -n "$key" ] || continue
   code=$(curl -sk -o /dev/null -w "%{http_code}" \
     "https://localhost:8443/front/css.php?file=${key}&is_custom_theme=1" 2>/dev/null || echo "000")
   if [ "$code" = "200" ]; then
@@ -95,7 +99,7 @@ for key in $(find "$THEME_DIR" -maxdepth 1 -name '*.scss' -exec basename {} .scs
   else
     warn "  ${key}: HTTP ${code}"
   fi
-done
+done < <(find "$THEME_DIR" -maxdepth 1 -name '*.scss' -exec basename {} .scss \;)
 
 echo
 echo "==================================================================="

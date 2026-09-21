@@ -13,6 +13,9 @@ nginx/ssl/*.crt
 nginx/ssl/*.key
 nginx/ssl/*.pem
 nginx/ssl/*.csr
+# Ban cu cua chung chi (start.sh tu dong sao luu khi sinh lai) - cung bi mat
+nginx/ssl/*.bak
+nginx/ssl/*.old
 
 # Cac ban sao luu co so du lieu
 backup/*.sql

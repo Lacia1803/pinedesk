@@ -15,7 +15,7 @@ hệ thống mở ngay hồ sơ thiết bị đó (lịch sử sửa chữa, c�
 **Chỉ cần chạy 1 lệnh:**
 
 ```bash
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 bash scripts/cai-plugin-qrcode.sh
 ```
 
@@ -65,7 +65,7 @@ QR PNG generated: 243 bytes
 ### Bước 1 — Chạy script
 
 ```bash
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 bash scripts/cai-plugin-qrcode.sh
 ```
 
@@ -290,8 +290,15 @@ Cấu hình trong file `hosts` của máy trạm, hoặc DNS nội bộ của Tr
 
 ### 9.2. Bật HTTPS với tên miền thật
 
-Sửa `nginx/conf.d/default.conf`, đổi `server_name` thành tên miền nội bộ,
-sau đó chạy lại `./start.sh` để sinh chứng chỉ mới.
+Sửa `nginx/conf.d/default.conf`, đổi `server_name` thành tên miền nội bộ; đồng
+thời **thêm tên miền đó vào mục `[ san ]`** của `nginx/ssl/openssl-san.cnf`
+(nếu không, trình duyệt sẽ báo sai tên miền — xem mục 3.4 của
+`HUONG-DAN-TRIEN-KHAI.md`). Sau đó xoá chứng chỉ cũ và chạy lại `bash start.sh`:
+
+```bash
+rm nginx/ssl/glpi.crt nginx/ssl/glpi.key
+bash start.sh
+```
 
 ### 9.3. Phân quyền kỹ thuật viên
 
@@ -324,7 +331,7 @@ Tạo nhóm người dùng **"Kỹ thuật viên phòng máy"** với quyền:
 ### Kiểm tra nhanh tình trạng plugin
 
 ```bash
-cd /g/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/glpi-helpdesk
 
 # 1. Plugin co dang Enabled?
 docker exec -u www-data helpdesk-glpi php /var/www/glpi/bin/console plugin:list

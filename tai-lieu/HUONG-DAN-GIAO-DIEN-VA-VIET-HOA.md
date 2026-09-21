@@ -240,9 +240,11 @@ python scripts/gop-ban-dich-tieng-viet.py
 python scripts/do-do-phu-tieng-viet.py
 
 # Chụp ảnh giao diện (làm minh chứng báo cáo)
-# Mật khẩu KHÔNG hardcode trong script — phải truyền qua biến môi trường.
+# - Mật khẩu KHÔNG hardcode: truyền qua GLPI_PASS.
+# - NODE_PATH trỏ tới node_modules có puppeteer-core (cài bằng `npm i puppeteer-core`).
+# - Nếu Chrome không nằm ở đường dẫn mặc định, đặt thêm CHROME_PATH.
 GLPI_USER=glpi GLPI_PASS='<mật khẩu>' \
-NODE_PATH="C:/Users/Lacia/.workbuddy-ai/binaries/node/workspace/node_modules" \
+NODE_PATH="<DUONG-DAN>/node_modules" \
   node scripts/chup-anh-giao-dien.js
 
 # Sinh mã QR cho thiết bị

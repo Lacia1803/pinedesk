@@ -7,7 +7,8 @@ const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+// Duong dan Chrome: lay tu scripts/lib/browser.js (dat CHROME_PATH neu can)
+const { CHROME } = require('./lib/browser');
 const URL = 'https://localhost:8443/landing/';
 const OUT = '.tmp-check';
 

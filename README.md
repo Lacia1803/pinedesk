@@ -1,5 +1,7 @@
 # HỆ THỐNG HỖ TRỢ KỸ THUẬT (IT HELPDESK)
 
+[![CI](https://github.com/OWNER/glpi-helpdesk/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/glpi-helpdesk/actions/workflows/ci.yml)
+
 > **Đồ án thực tập** — Trường Đại học Đà Lạt (DLU)
 > Hệ thống quản lý phòng máy, thiết bị CNTT và tiếp nhận sự cố dạng ticket,
 > xây dựng trên nền tảng mã nguồn mở **GLPI 11**.
@@ -16,12 +18,13 @@
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
 | **Việt hoá** | Mặc định tiếng Việt, 443 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (30,6% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
 | **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
-| **Bảo mật** | HTTPS, chống brute-force, phân quyền theo vai trò, sao lưu tự động |
+| **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
 ## ⚡ Bắt đầu nhanh — CHỈ 1 LỆNH
 
 ```bash
-cd G:/glpi-helpdesk
+# Di chuyen vao thu muc goc cua du an (thay bang duong dan thuc tren may ban)
+cd duong-dan-toi/glpi-helpdesk
 bash scripts/cai-dat-tat-ca.sh
 ```
 
@@ -34,8 +37,10 @@ Script tự động làm 5 việc và báo kết quả từng bước:
 4. Nạp **bản dịch tiếng Việt** (gộp bản chính thức + bổ sung của đồ án)
 5. Kiểm tra sức khỏe hệ thống (5 hạng mục)
 
-Truy cập: **https://localhost:8443** · Tài khoản: `glpi` / `<MAT-KHAU-QUAN-TRI-DA-DOI>`
-⚠️ **Đổi mật khẩu ngay sau khi đăng nhập.**
+Truy cập: **https://localhost:8443** · Tài khoản: `glpi`
+⚠️ **Đổi mật khẩu `glpi` ngay sau khi đăng nhập lần đầu.**
+Mật khẩu admin **không lưu trong mã nguồn**; các script tự động hoá đọc mật khẩu
+từ biến môi trường `GLPI_PASS` (không truyền qua tham số dòng lệnh).
 
 ## Kiến trúc
 
@@ -57,11 +62,13 @@ Database và Redis chỉ giao tiếp trong mạng nội bộ Docker, không lộ
 
 ```
 glpi-helpdesk/
+├── .github/workflows/ci.yml     # ★ Pipeline kiem tra tu dong (6 nhom)
 ├── docker-compose.yml           # Dinh nghia 4 dich vu Docker
 ├── .env                         # Bien moi truong (chua mat khau)
 ├── start.sh                     # Khoi dong he thong
 ├── config/                      # Cau hinh PHP (QR, bao mat)
 ├── nginx/                       # Gateway: HTTPS, rate limit, bao mat
+│   └── ssl/openssl-san.cnf      #   Cau hinh sinh chung chi SSL (co SAN)
 ├── themes/                      # Bang mau Da Lat (SCSS)
 ├── plugins/dlubrand/            # Plugin giao dien Da Lat (CSS ghi de + logo)
 ├── landing/                     # ★ Trang gioi thieu du an (nginx phuc vu tai /landing/)
@@ -195,6 +202,30 @@ bash backup/backup.sh                # Sao luu du lieu
 | [`HUONG-DAN-PLUGIN-QRCODE.md`](tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md) | Cài & dùng plugin sinh mã QR |
 | [`THONG-TIN-DAI-HOC-DA-LAT.md`](tai-lieu/THONG-TIN-DAI-HOC-DA-LAT.md) | Cơ cấu tổ chức DLU, ánh xạ vào hệ thống |
 | [`SO-SANH-VOI-GLPI-GOC.md`](tai-lieu/SO-SANH-VOI-GLPI-GOC.md) | **Đã cải thiện gì so với GLPI gốc** — bảng đối chiếu chi tiết |
+
+## Kiểm thử tự động (CI)
+
+Mỗi pull request và mỗi lần push lên `main`/`master` đều chạy pipeline
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) — **6 nhóm kiểm tra**:
+
+| # | Nhóm | Nội dung |
+|---|---|---|
+| 1 | **Cú pháp** | `bash -n` (shell) · `py_compile` (Python) · `node --check` (JS) |
+| 2 | **ShellCheck** | Lint shell ở mức `warning` — bắt lỗi thật, không bắt style |
+| 3 | **Cấu hình** | `docker compose config` · mọi service phải có `healthcheck` · `nginx -t` |
+| 4 | **Chứng chỉ SSL** | Sinh được từ `openssl-san.cnf` và **bắt buộc có SAN** |
+| 5 | **Bảo mật** | Không commit `.env`/chứng chỉ; không hardcode mật khẩu hay đường dẫn máy cá nhân |
+| 6 | **Smoke test** | Khởi động thật 4 container → chờ `healthy` → kiểm tra HTTP/HTTPS |
+
+> Pipeline **chặn merge** nếu bất kỳ cửa nào thất bại. Chạy kiểm tra nhanh trên
+> máy trước khi push:
+>
+> ```bash
+> bash -n start.sh                     # cú pháp shell
+> python -m py_compile scripts/*.py    # cú pháp Python
+> node --check scripts/lib/browser.js  # cú pháp JS
+> docker compose config --quiet        # cấu hình compose
+> ```
 
 ## Yêu cầu hệ thống
 

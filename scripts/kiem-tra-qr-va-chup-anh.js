@@ -5,18 +5,11 @@ const puppeteer = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+// Duong dan Chrome + tai khoan dang nhap: lay tu scripts/lib/browser.js
+const { CHROME, credentials } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
 const OUT = path.join(__dirname, '..', 'tai-lieu', 'anh-giao-dien');
-
-// Tai khoan dang nhap: lay tu bien moi truong, KHONG hardcode mat khau.
-const USER = process.env.GLPI_USER || 'glpi';
-const PASS = process.env.GLPI_PASS;
-if (!PASS) {
-  console.error('Thieu bien moi truong GLPI_PASS. Vi du:');
-  console.error('  GLPI_USER=glpi GLPI_PASS=<mat-khau> node scripts/kiem-tra-qr-va-chup-anh.js');
-  process.exit(1);
-}
+const { user: USER, pass: PASS } = credentials();
 
 (async () => {
   const browser = await puppeteer.launch({

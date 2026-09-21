@@ -1,0 +1,50 @@
+# ==============================================================================
+#  QUY TAC KET THUC DONG (LINE ENDINGS)
+# ==============================================================================
+#  Ly do: Git tren Windows mac dinh core.autocrlf=true -> co the doi LF thanh
+#  CRLF khi checkout. Voi script shell, CRLF o dong dau se pha shebang
+#  ("#!/bin/bash\r") khien Linux bao "bad interpreter: No such file or directory".
+#  Khai bao tuong minh o day de moi may (Windows/macOS/Linux) deu nhat quan.
+# ==============================================================================
+
+# Mac dinh: Git tu chuan hoa ve LF khi luu, checkout theo he dieu hanh
+* text=auto
+
+# Script shell + cau hinh: LUON dung LF (bat buoc, chay tren Linux/container)
+*.sh          text eol=lf
+*.bash        text eol=lf
+Dockerfile    text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.conf        text eol=lf
+*.cnf         text eol=lf
+*.ini         text eol=lf
+.env.example  text eol=lf
+
+# Python / JavaScript / Markdown / SQL: LF cho nhat quan
+*.py          text eol=lf
+*.js          text eol=lf
+*.json        text eol=lf
+*.md          text eol=lf
+*.sql         text eol=lf
+*.scss        text eol=lf
+
+# Tep nhi phan: KHONG doi (giu nguyen byte)
+*.png         binary
+*.jpg         binary
+*.jpeg        binary
+*.gif         binary
+*.ico         binary
+*.woff        binary
+*.woff2       binary
+*.ttf         binary
+*.pdf         binary
+*.zip         binary
+*.gz          binary
+*.tar         binary
+*.key         binary
+*.crt         binary
+*.pem         binary
+
+# Khong hien trong thong ke diff
+landing/fonts/*  linguist-vendored

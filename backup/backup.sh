@@ -36,7 +36,17 @@ if [ ! -f "$PROJECT_DIR/.env" ]; then
     echo "[LOI] Khong tim thay file .env tai $PROJECT_DIR/.env"
     exit 1
 fi
-export $(grep -v '^#' "$PROJECT_DIR/.env" | grep '=' | xargs)
+# Doc .env bang vong lap (an toan voi gia tri co khoang trang, bo qua comment).
+# Xoa \r o cuoi: file .env tao bang Notepad tren Windows dung CRLF, neu giu \r
+# thi mat khau se sai.
+while IFS='=' read -r _key _val; do
+    _key="${_key%$'\r'}"
+    _val="${_val%$'\r'}"
+    case "$_key" in
+        ''|\#*) continue ;;
+    esac
+    export "$_key=$_val"
+done < "$PROJECT_DIR/.env"
 
 # Git Bash tren Windows: MSYS tu dong doi "/var/glpi" thanh
 # "C:/Program Files/Git/var/glpi" khi truyen lam tham so cho docker.

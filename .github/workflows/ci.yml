@@ -1,0 +1,311 @@
+# ==============================================================================
+#  CI - KIEM TRA TU DONG (GitHub Actions)
+# ==============================================================================
+#  Chay tren MOI pull request va moi lan push len nhanh chinh.
+#
+#  Muc tieu: khong cho thay doi loi lot vao nhanh chinh. Cac cong kiem tra
+#  deu la "cua chat luong" (quality gate) - FAIL thi KHONG duoc merge:
+#
+#    1. Cu phap shell (bash -n) + shellcheck
+#    2. Cu phap Python (py_compile) + cu phap JavaScript (node --check)
+#    3. Cau hinh docker-compose hop le (docker compose config)
+#    4. Cau hinh Nginx hop le (nginx -t trong container that)
+#    5. Chung chi SSL sinh duoc va CO Subject Alternative Name (SAN)
+#    6. Khong lo mat khau / duong dan tuyet doi cua may ca nhan
+#    7. Smoke test: khoi dong that 4 container roi kiem tra HTTP
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+# Huy lan chay cu khi co push moi tren cung nhanh (tiet kiem thoi gian)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+
+  # --------------------------------------------------------------------------
+  # 1. Kiem tra cu phap: shell, Python, JavaScript
+  # --------------------------------------------------------------------------
+  syntax:
+    name: Cu phap (shell / Python / JS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Cu phap shell (bash -n)
+        run: |
+          mapfile -t FILES < <(find . -name '*.sh' -not -path './node_modules/*')
+          echo "Kiem tra ${#FILES[@]} file shell"
+          for f in "${FILES[@]}"; do
+            bash -n "$f" && echo "  [OK] $f"
+          done
+
+      - name: Cu phap Python (py_compile)
+        run: |
+          mapfile -t FILES < <(find . -name '*.py' -not -path './node_modules/*')
+          echo "Kiem tra ${#FILES[@]} file Python"
+          python -m py_compile "${FILES[@]}" && echo "  [OK] tat ca file Python"
+
+      - name: Cu phap JavaScript (node --check)
+        run: |
+          mapfile -t FILES < <(find scripts -name '*.js' 2>/dev/null || true)
+          if [ ${#FILES[@]} -eq 0 ]; then echo "Khong co file JS"; exit 0; fi
+          echo "Kiem tra ${#FILES[@]} file JS"
+          for f in "${FILES[@]}"; do
+            node --check "$f" && echo "  [OK] $f"
+          done
+
+  # --------------------------------------------------------------------------
+  # 2. Lint shell nang cao (shellcheck)
+  # --------------------------------------------------------------------------
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ShellCheck
+        run: |
+          mapfile -t FILES < <(find . -name '*.sh' -not -path './node_modules/*')
+          echo "ShellCheck ${#FILES[@]} file"
+          # -S warning: chi fail o muc warning tro len (loi that su),
+          # bo qua cac goi y trang tri (info/style) de pipeline khong on ao.
+          shellcheck --severity=warning --shell=bash "${FILES[@]}"
+
+  # --------------------------------------------------------------------------
+  # 3. Cau hinh Docker Compose + Nginx
+  # --------------------------------------------------------------------------
+  config:
+    name: Cau hinh (compose / nginx)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tao .env gia de validate compose
+        run: |
+          cp .env.example .env
+          # .env.example co cho trong <DOI_MAT_KHAU...> -> thay bang gia tri gia
+          sed -i 's/^GLPI_DB_PASSWORD=.*/GLPI_DB_PASSWORD=ci_test_password/'  .env
+          sed -i 's/^DB_ROOT_PASSWORD=.*/DB_ROOT_PASSWORD=ci_test_password/'   .env
+          sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=ci_test_password/'       .env
+
+      - name: docker compose config (cu phap + bien moi truong)
+        run: |
+          docker compose config --quiet && echo "  [OK] docker-compose.yml hop le"
+          echo "--- Cac dich vu duoc dinh nghia ---"
+          docker compose config --services
+
+      - name: Kiem tra moi service deu co healthcheck
+        run: |
+          docker compose config --format json | jq -r '
+            .services | to_entries[] |
+            "\(.key): \(if .value.healthcheck then "CO" else "THIEU" end)"
+          '
+          MISSING=$(docker compose config --format json | jq -r '
+            [.services | to_entries[] | select(.value.healthcheck == null) | .key]
+            | join(" ")
+          ')
+          if [ -n "$MISSING" ]; then
+            echo "[LOI] Cac service thieu healthcheck: $MISSING"
+            exit 1
+          fi
+          echo "[OK] Moi service deu co healthcheck"
+
+      - name: Sinh chung chi SSL de test nginx
+        run: |
+          mkdir -p nginx/ssl
+          # Dung dung file cau hinh cua du an (co SAN) de sinh chung chi
+          openssl req -x509 -nodes -days 1 -newkey rsa:2048 \
+            -config nginx/ssl/openssl-san.cnf \
+            -keyout nginx/ssl/glpi.key -out nginx/ssl/glpi.crt 2>/dev/null
+          test -f nginx/ssl/glpi.crt && echo "[OK] Da sinh chung chi"
+
+      - name: nginx -t (kiem tra cau hinh trong container that)
+        run: |
+          # --add-host glpi:127.0.0.1: nginx -t phan giai upstream "glpi" luc
+          # nap cau hinh. Ngoai mang Docker khong co ten nay -> phai tro tam.
+          docker run --rm \
+            --add-host glpi:127.0.0.1 \
+            -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+            -v "$PWD/nginx/conf.d:/etc/nginx/conf.d:ro" \
+            -v "$PWD/nginx/ssl:/etc/nginx/ssl:ro" \
+            -v "$PWD/landing:/usr/share/nginx/html/landing:ro" \
+            nginx:1.27-alpine nginx -t
+
+  # --------------------------------------------------------------------------
+  # 4. Chung chi SSL phai CO SAN
+  # --------------------------------------------------------------------------
+  ssl-san:
+    name: Chung chi SSL co SAN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sinh chung chi tu openssl-san.cnf
+        run: |
+          mkdir -p .ci-ssl
+          openssl req -x509 -nodes -days 1 -newkey rsa:2048 \
+            -config nginx/ssl/openssl-san.cnf \
+            -keyout .ci-ssl/glpi.key -out .ci-ssl/glpi.crt 2>/dev/null
+
+      - name: Bat buoc phai co Subject Alternative Name
+        run: |
+          TEXT=$(openssl x509 -in .ci-ssl/glpi.crt -noout -text)
+          echo "$TEXT" | grep -A1 'Subject Alternative Name'
+          if ! echo "$TEXT" | grep -q 'Subject Alternative Name'; then
+            echo "[LOI] Chung chi THIEU SAN -> trinh duyet se chan"
+            exit 1
+          fi
+          echo "[OK] Chung chi co SAN"
+
+      - name: Ten mien/IP trong SAN phai xac minh duoc
+        run: |
+          for h in localhost helpdesk.local; do
+            openssl x509 -in .ci-ssl/glpi.crt -noout -checkhost "$h" \
+              || { echo "[LOI] SAN khong khop hostname: $h"; exit 1; }
+          done
+          openssl x509 -in .ci-ssl/glpi.crt -noout -checkip 127.0.0.1 \
+            || { echo "[LOI] SAN khong khop IP: 127.0.0.1"; exit 1; }
+          echo "[OK] localhost, helpdesk.local, 127.0.0.1 deu khop SAN"
+
+  # --------------------------------------------------------------------------
+  # 5. Khong lo bi mat / duong dan tuyet doi cua may ca nhan
+  # --------------------------------------------------------------------------
+  hygiene:
+    name: Bao mat (khong lo bi mat / duong dan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Khong commit file .env that
+        run: |
+          if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+            echo "[LOI] File .env bi commit len Git (chua mat khau that)!"
+            exit 1
+          fi
+          echo "[OK] .env khong nam trong Git"
+
+      - name: Khong commit chung chi SSL / khoa rieng tu
+        run: |
+          BAD=$(git ls-files | grep -E 'nginx/ssl/.*\.(key|crt|pem|csr)$' || true)
+          if [ -n "$BAD" ]; then
+            echo "[LOI] Chung chi/khoa rieng tu bi commit:"
+            echo "$BAD"
+            exit 1
+          fi
+          echo "[OK] Khong co chung chi/khoa rieng tu trong Git"
+
+      - name: Khong co duong dan tuyet doi cua may ca nhan trong ma nguon
+        run: |
+          # Cac mau duong dan chi ton tai tren may cua mot nguoi
+          if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
+              -E 'C:[/\\]Users[/\\][A-Za-z]|/Users/[a-z]|/home/[a-z]+/' \
+              --include='*.sh' --include='*.py' --include='*.js' \
+              --include='*.yml' --include='*.yaml' --include='*.conf' . ; then
+            echo "[LOI] Phat hien duong dan tuyet doi cua may ca nhan (hardcode)"
+            exit 1
+          fi
+          echo "[OK] Khong co duong dan tuyet doi hardcode"
+
+      - name: Khong co mat khau hardcode trong ma nguon
+        run: |
+          # Cac gia tri mau cua do an - khong duoc xuat hien trong script
+          if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
+              -E '<MAT-KHAU-QUAN-TRI-DA-DOI>|<MAT-KHAU-CSDL-DA-DOI>' \
+              --include='*.sh' --include='*.py' --include='*.js' . ; then
+            echo "[LOI] Phat hien mat khau hardcode trong ma nguon"
+            exit 1
+          fi
+          echo "[OK] Khong co mat khau hardcode trong ma nguon"
+
+  # --------------------------------------------------------------------------
+  # 6. Smoke test: khoi dong that toan bo he thong
+  # --------------------------------------------------------------------------
+  smoke:
+    name: Smoke test (khoi dong that)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Chuan bi .env
+        run: |
+          cp .env.example .env
+          sed -i 's/^GLPI_DB_PASSWORD=.*/GLPI_DB_PASSWORD=ci_test_password/'  .env
+          sed -i 's/^DB_ROOT_PASSWORD=.*/DB_ROOT_PASSWORD=ci_test_password/'   .env
+          sed -i 's/^REDIS_PASSWORD=.*/REDIS_PASSWORD=ci_test_password/'       .env
+
+      - name: Sinh chung chi SSL
+        run: |
+          mkdir -p nginx/ssl
+          openssl req -x509 -nodes -days 1 -newkey rsa:2048 \
+            -config nginx/ssl/openssl-san.cnf \
+            -keyout nginx/ssl/glpi.key -out nginx/ssl/glpi.crt 2>/dev/null
+
+      - name: Khoi dong cac container
+        run: docker compose up -d
+
+      - name: Cho cac container bao healthy
+        run: |
+          echo "Cho toi da 5 phut de GLPI khoi dong lan dau..."
+          for i in $(seq 1 60); do
+            RUNNING=$(docker ps --filter "name=helpdesk-" -q | wc -l)
+            HEALTHY=$(docker ps --filter "name=helpdesk-" --filter "health=healthy" -q | wc -l)
+            echo "  [${i}/60] dang chay: $RUNNING/4 | healthy: $HEALTHY/4"
+            if [ "$HEALTHY" -ge 4 ]; then echo "[OK] Ca 4 container deu healthy"; exit 0; fi
+            sleep 5
+          done
+          echo "=== Trang thai cuoi ==="
+          docker compose ps
+          echo "=== Log GLPI (100 dong cuoi) ==="
+          docker compose logs --tail=100 glpi
+          echo "=== Log nginx ==="
+          docker compose logs --tail=50 nginx
+          exit 1
+
+      - name: Kiem tra gateway tra HTTP/HTTPS
+        run: |
+          echo "--- /healthz (HTTP, cho Docker healthcheck) ---"
+          curl -fsS http://localhost:8080/healthz && echo "  [OK] healthz"
+          echo "--- HTTP phai chuyen huong sang HTTPS ---"
+          REDIR=$(curl -sS -o /dev/null -w '%{http_code}' http://localhost:8080/)
+          echo "  HTTP $REDIR"
+          [ "$REDIR" = "301" ] || { echo "[LOI] Khong chuyen huong HTTPS (ma $REDIR)"; exit 1; }
+          echo "--- Trang dang nhap GLPI qua HTTPS ---"
+          CODE=$(curl -sSk -o /dev/null -w '%{http_code}' https://localhost:8443/)
+          echo "  HTTP $CODE"
+          [ "$CODE" = "200" ] || [ "$CODE" = "302" ] || { echo "[LOI] Trang GLPI tra $CODE"; exit 1; }
+          echo "[OK] GLPI phan hoi $CODE"
+
+      - name: Kiem tra TLS co SAN khi handshake that
+        run: |
+          echo | openssl s_client -connect localhost:8443 \
+            -servername localhost 2>/dev/null \
+            | openssl x509 -noout -text | grep -A1 'Subject Alternative Name'
+
+      - name: In log khi that bai
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Don dep
+        if: always()
+        run: docker compose down -v

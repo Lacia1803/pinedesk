@@ -13,8 +13,7 @@
 #     4. Nap ban dich tieng Viet (gop ban chinh thuc + bo sung cua do an)
 #     5. Kiem tra suc khoe he thong
 #
-#  CHAY:
-#     cd G:/glpi-helpdesk
+#  CHAY (tu thu muc goc cua du an):
 #     bash scripts/cai-dat-tat-ca.sh
 #
 #  LUU Y: Chay lai nhieu lan KHONG tao du lieu trung.
@@ -50,10 +49,15 @@ warn()  { echo -e "  ${Y}[CANH BAO]${N} $*"; }
 err()   { echo -e "  ${R}[LOI]${N} $*"; }
 step()  { echo ""; echo -e "${B}=== $* ===${N}"; }
 
-# Python da quan ly (dung cho cac script dich)
-PY="C:/Users/Lacia/.workbuddy-ai/binaries/python/versions/3.13.12/python.exe"
-if [ ! -f "$PY" ]; then
+# Python: uu tien bien moi truong GLPI_PYTHON, roi den python he thong.
+# KHONG hardcode duong dan tuyet doi de chay duoc tren may khac.
+PY="${GLPI_PYTHON:-}"
+if [ -z "$PY" ] || [ ! -x "$PY" ]; then
     PY="$(command -v python3 || command -v python)"
+fi
+if [ -z "$PY" ]; then
+    err "Khong tim thay Python. Cai Python 3 hoac dat bien GLPI_PYTHON."
+    exit 1
 fi
 
 LOI=0
@@ -229,7 +233,9 @@ cat <<EOF
      (Chung chi tu ky -> trinh duyet se canh bao, chon "Tiep tuc")
 
   Tai khoan quan tri mac dinh:
-     glpi / <MAT-KHAU-QUAN-TRI-DA-DOI>        <-- HAY DOI MAT KHAU NAY
+     Tai khoan: glpi
+     Mat khau : (mat khau ban da dat trong file .env / khi cai GLPI)
+     >>> DOI MAT KHAU NAY NGAY sau khi dang nhap lan dau! <<<
 
   Sau khi dang nhap, kiem tra:
      - Tai san > Vi tri           : danh muc phong may, toa nha

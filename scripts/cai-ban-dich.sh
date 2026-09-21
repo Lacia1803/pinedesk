@@ -79,7 +79,10 @@ info "Dat tieng Viet lam ngon ngu mac dinh..."
 # Nap bien .env de ket noi CSDL
 ENV_FILE="$WORKDIR/.env"
 if [ -f "$ENV_FILE" ]; then
-  set -a; . "$ENV_FILE"; set +a
+  set -a
+  # shellcheck source=/dev/null
+  . "$ENV_FILE"
+  set +a
 fi
 DB_CONTAINER="${DB_CONTAINER:-helpdesk-db}"
 if [ -n "${GLPI_DB_PASSWORD:-}" ]; then

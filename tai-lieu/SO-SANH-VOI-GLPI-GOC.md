@@ -733,14 +733,15 @@ Ghi rõ để tránh hiểu nhầm khi bảo vệ đồ án:
 | Hạng mục | Trạng thái | Ghi chú |
 |---|---|---|
 | Việt hóa 100% | ❌ **30,6%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
-| Mật khẩu mặc định | ⚠️ **Chưa đổi** | `.env` và tài khoản `glpi` hiện dùng `<MAT-KHAU-QUAN-TRI-DA-DOI>` |
+| Mật khẩu mặc định | ⚠️ **Chưa đổi** | Mật khẩu `glpi` **không hardcode trong mã** — script đọc từ biến môi trường `GLPI_PASS`. Khi triển khai thật phải đổi mật khẩu trong `.env` và tài khoản `glpi` |
 | `session.cookie_secure = On` | ⚠️ **Đang tắt** | Đã viết sẵn trong `php-custom.ini`, bật sau khi xác nhận HTTPS ổn |
 | Tài khoản mẫu 3 vai trò | ✅ **Đã tạo** | 6 tài khoản: 2 KTV, 2 giảng viên, 2 sinh viên — đã kiểm chứng đăng nhập được |
 | Dữ liệu thiết bị mẫu | ✅ **Đã nhập** | 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu |
 | Trang Thống kê (`stat.global.php`) | ⚠️ **Cần tham số** | Phải mở từ **menu Hỗ trợ → Thống kê**, không gõ URL trực tiếp (sẽ báo lỗi) |
-| Chứng chỉ SSL | ⚠️ **Tự ký** | Đủ cho mạng nội bộ; triển khai thật nên dùng Let's Encrypt |
+| Chứng chỉ SSL | ⚠️ **Tự ký nhưng CÓ SAN** | Đã có Subject Alternative Name (`localhost`, `helpdesk.local`, `127.0.0.1`…) nên trình duyệt cho thêm ngoại lệ; triển khai thật nên dùng Let's Encrypt |
 | Đa ngôn ngữ | ✅ Tiếng Việt + tiếng Anh | Các ngôn ngữ khác chưa dịch |
 | Ứng dụng di động | ❌ Không có | GLPI có bản mobile chính thức, chưa tích hợp |
+| Kiểm thử tự động | ✅ **Đã có CI** | `.github/workflows/ci.yml`: cú pháp (shell/Python/JS), ShellCheck, `docker compose config`, `nginx -t`, chứng chỉ có SAN, kiểm tra bảo mật, smoke test khởi động thật 4 container |
 | `url_base` | ⚠️ **Đang là `https://localhost:8443`** | Khi triển khai lên máy chủ thật phải đổi lại tên miền, nếu không **mã QR in ra sẽ sai** |
 | Phiếu quá hạn | ⚠️ Chưa có dữ liệu | Seed đủ 4 trạng thái chính, chưa tạo phiếu trễ hạn để demo cảnh báo |
 

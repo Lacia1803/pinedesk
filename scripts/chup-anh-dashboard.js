@@ -1,16 +1,9 @@
 const puppeteer = require('puppeteer-core');
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+// Duong dan Chrome + tai khoan dang nhap: lay tu scripts/lib/browser.js
+// (khong hardcode). Dat CHROME_PATH / GLPI_PASS neu can chi dinh ro.
+const { CHROME, credentials } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
-
-// Tai khoan dang nhap: lay tu bien moi truong, KHONG hardcode mat khau.
-//   GLPI_USER=glpi GLPI_PASS=... node scripts/chup-anh-dashboard.js
-const USER = process.env.GLPI_USER || 'glpi';
-const PASS = process.env.GLPI_PASS;
-if (!PASS) {
-  console.error('Thieu bien moi truong GLPI_PASS. Vi du:');
-  console.error('  GLPI_USER=glpi GLPI_PASS=<mat-khau> node scripts/chup-anh-dashboard.js');
-  process.exit(1);
-}
+const { user: USER, pass: PASS } = credentials();
 
 (async () => {
   const b = await puppeteer.launch({

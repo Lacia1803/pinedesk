@@ -11,8 +11,7 @@
 # ==============================================================================
 
 set -e
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
-PROJECT_DIR="$(pwd)"
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 echo "=============================================================="
 echo "   NAP DU LIEU NEN - HE THONG IT HELPDESK"
@@ -32,7 +31,16 @@ if [ ! -f .env ]; then
     echo "[LOI] Khong tim thay file .env"
     exit 1
 fi
-export $(grep -v '^#' .env | grep '=' | xargs)
+# Doc .env bang vong lap (an toan voi gia tri co khoang trang, bo qua comment).
+# Xoa \r o cuoi: file .env tao bang Notepad tren Windows dung CRLF.
+while IFS='=' read -r _key _val; do
+    _key="${_key%$'\r'}"
+    _val="${_val%$'\r'}"
+    case "$_key" in
+        ''|\#*) continue ;;
+    esac
+    export "$_key=$_val"
+done < .env
 echo "[OK] Da doc file cau hinh"
 echo ""
 

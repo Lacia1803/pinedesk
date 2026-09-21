@@ -470,7 +470,10 @@ bash start.sh
 **Bước 2** — Phục hồi cơ sở dữ liệu:
 
 ```bash
-docker exec -i pinedesk-db mariadb -u root -p"<MAT-KHAU-CSDL-DA-DOI>" glpi \
+# Đọc mật khẩu root từ .env, không ghi thẳng mật khẩu vào tài liệu.
+set -a; . ./.env; set +a
+docker exec -i -e MYSQL_PWD="$DB_ROOT_PASSWORD" pinedesk-db \
+    mariadb -u root glpi \
     < backup/glpi_backup_YYYYMMDD_HHMMSS_db.sql
 ```
 

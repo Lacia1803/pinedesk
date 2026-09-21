@@ -228,14 +228,10 @@ jobs:
 
       - name: Khong co mat khau hardcode trong ma nguon
         run: |
-          # Cac gia tri mau cua do an - khong duoc xuat hien trong script
-          if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
-              -E '<MAT-KHAU-QUAN-TRI-DA-DOI>|<MAT-KHAU-CSDL-DA-DOI>' \
-              --include='*.sh' --include='*.py' --include='*.js' . ; then
-            echo "[LOI] Phat hien mat khau hardcode trong ma nguon"
-            exit 1
-          fi
-          echo "[OK] Khong co mat khau hardcode trong ma nguon"
+          # Dung script quet theo HINH DANG thay vi liet ke gia tri cu the.
+          # Ly do: ban cu chua chinh cac mat khau that (=> tu no la cho ro ri)
+          # va chi quet *.sh/*.py/*.js nen bo sot .md/.yml.
+          bash scripts/quet-bi-mat.sh
 
   # --------------------------------------------------------------------------
   # 6. Smoke test: khoi dong that toan bo he thong

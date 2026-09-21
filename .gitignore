@@ -1,0 +1,57 @@
+# ==============================================================================
+#  CAC FILE KHONG DUOC DUA LEN GIT
+#  Ly do: chua thong tin bi mat, mat khau, du lieu nguoi dung
+# ==============================================================================
+
+# File cau hinh chua mat khau - TUYET DOI khong commit
+.env
+.env.*
+!.env.example
+
+# Chung chi SSL (bi mat rieng tu cua he thong)
+nginx/ssl/*.crt
+nginx/ssl/*.key
+nginx/ssl/*.pem
+nginx/ssl/*.csr
+
+# Cac ban sao luu co so du lieu
+backup/*.sql
+backup/*.tar.gz
+backup/*.zip
+
+# Log
+*.log
+logs/
+
+# File tam cua he dieu hanh
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# File cua trinh soan thao
+*.swp
+*.swo
+*~
+
+# Thu muc tai nguyen tam
+node_modules/
+vendor/
+.cache/
+
+# Bytecode Python (sinh tu dong, khong can version)
+__pycache__/
+*.pyc
+
+# Thu muc lam viec tam cua cac script dich / kiem tra
+.tmp-check/
+.tmp-logo/
+.tmp-plugin/
+.tmp-theme/
+.tmp-backup-verify/
+.tmp-restore-test/
+.tmp-diag/
+# .tmp-locale/ CHUA file nguon .po can cho script dich -> KHONG ignore
+!/.tmp-locale/
+
+# Ban sao luu tam cua landing page (giu tren dia, khong can version)
+.backup-landing-cu/

@@ -397,8 +397,11 @@ Kết quả tạo 3 file trong `backup/`:
 | File | Nội dung |
 |---|---|
 | `*_db.sql` | Toàn bộ cơ sở dữ liệu |
-| `*_files.tar.gz` | File cấu hình, plugin, tệp đính kèm |
-| `*_config.tar.gz` | File cấu hình dự án |
+| `*_files.tar.gz` | `glpicrypt.key`, `config_db.php`, bản dịch, theme, tệp đính kèm, plugin (`/var/glpi/*` + `/var/www/glpi/plugins`) |
+| `*_config.tar.gz` | File cấu hình dự án (docker-compose, nginx, themes, scripts) |
+
+> Script tự kiểm tra `glpicrypt.key` có trong bản sao lưu không; thiếu khoá này
+> thì dừng ngay và báo lỗi (vì phục hồi sẽ không giải mã được dữ liệu).
 
 ### 6.2. Sao lưu tự động hàng ngày
 
@@ -430,13 +433,21 @@ docker exec -i helpdesk-db mariadb -u root -p"<MAT-KHAU-CSDL-DA-DOI>" glpi \
 
 **Bước 3** — Phục hồi file hệ thống:
 
+Bản sao lưu lưu đường dẫn tương đối từ gốc `/` (ví dụ `var/glpi/config/
+glpicrypt.key`), nên phải giải nén **tại `/`** — KHÔNG dùng `-C /var/www/glpi`.
+Giải nén đúng sẽ khôi phục cả `glpicrypt.key` (khoá mã hoá CSDL) và
+`config_db.php`; nếu thiếu khoá này, dữ liệu mã hoá trong CSDL không đọc được.
+
 ```bash
 docker run --rm \
     --volumes-from helpdesk-glpi \
-    -v "$(pwd)/backup:/backup" \
+    -v "$(pwd -W)/backup:/backup" \
     alpine:latest \
-    tar xzf /backup/glpi_backup_YYYYMMDD_HHMMSS_files.tar.gz -C /var/www/glpi
+    tar xzf /backup/glpi_backup_YYYYMMDD_HHMMSS_files.tar.gz -C /
 ```
+
+> **Lưu ý Git Bash trên Windows:** phải dùng `$(pwd -W)` (đường dẫn Windows)
+> thay vì `$(pwd)`, nếu không Docker Desktop không tìm thấy thư mục.
 
 **Bước 4** — Khởi động lại:
 
@@ -674,7 +685,9 @@ glpi-helpdesk/
 | Mục đích | Đường dẫn |
 |---|---|
 | Truy cập hệ thống | `https://localhost:8443` |
-| Thư mục GLPI trong container | `/var/www/glpi` |
+| Mã nguồn GLPI | `/var/www/glpi` |
+| **Thư mục DỮ LIỆU GLPI** (config, files, marketplace, logs) | **`/var/glpi`** |
+| Khoá mã hoá CSDL | `/var/glpi/config/glpicrypt.key` |
 | Log PHP | `/var/glpi/files/_log/php-error.log` |
 | Thư mục palette | `/var/glpi/files/_themes` |
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ==============================================================================
-#  CAI DAT HOAN CHINH HE THONG IT HELPDESK - TRUONG DAI HOC DA LAT
+#  CAI DAT HOAN CHINH PINEDESK - TRUONG DAI HOC DA LAT
 # ==============================================================================
-#  Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk)
+#  Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk)
 #
 #  Script nay chay MOT LAN la co ngay he thong san sang su dung:
 #     1. Khoi dong cac container (GLPI + MariaDB + Redis + Nginx gateway)
@@ -22,7 +22,7 @@
 set -uo pipefail
 
 # Duong dan dang Windows (G:/...) de Python tren Windows doc duoc.
-# Git Bash tra ve "/g/glpi-helpdesk" -> Python hieu sai thanh "\g\glpi-helpdesk".
+# Git Bash tra ve "/g/duong-dan-du-an" -> Python hieu sai thanh "\g\duong-dan-du-an".
 # Dung "pwd -W" (chi co tren Git Bash) de lay duong dan Windows that.
 _winpath() {
     local p="$1"
@@ -84,7 +84,7 @@ fi
 
 info "Cho cac dich vu san sang..."
 for i in $(seq 1 60); do
-    if docker exec helpdesk-db mariadb-admin ping -h 127.0.0.1 --silent >/dev/null 2>&1; then
+    if docker exec pinedesk-db mariadb-admin ping -h 127.0.0.1 --silent >/dev/null 2>&1; then
         ok "MariaDB da san sang (sau ${i}s)"; break
     fi
     [ "$i" -eq 60 ] && { err "MariaDB khong phan hoi sau 60s"; LOI=1; }
@@ -118,11 +118,11 @@ fi
 step "BUOC 3/5 - Bat cac plugin (QR code + giao dien DLU)"
 # ------------------------------------------------------------------------------
 info "Trang thai plugin truoc khi bat:"
-docker exec helpdesk-db sh -c \
+docker exec pinedesk-db sh -c \
   'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "SELECT directory,state FROM glpi_plugins;"' \
   2>/dev/null | sed 's/^/      /'
 
-docker exec helpdesk-db sh -c \
+docker exec pinedesk-db sh -c \
   'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "UPDATE glpi_plugins SET state=1 WHERE directory IN (\"barcode\",\"dlubrand\");"' \
   >/dev/null 2>&1
 ok "Da bat plugin barcode (QR) va dlubrand (giao dien Da Lat)"
@@ -132,7 +132,7 @@ ok "Da bat plugin barcode (QR) va dlubrand (giao dien Da Lat)"
 # Neu thu muc nay KHONG ton tai thi file_put_contents() THAT BAI AM THAM
 # (khong bao loi), nen bam "Print QRcodes" se khong ra file nao.
 info "Tao thu muc xuat file QR cho plugin barcode..."
-docker exec helpdesk-glpi sh -c \
+docker exec pinedesk-glpi sh -c \
   'mkdir -p /var/glpi/files/_plugins/barcode && chown -R www-data:www-data /var/glpi/files/_plugins'
 ok "Da tao /var/glpi/files/_plugins/barcode"
 
@@ -140,7 +140,7 @@ ok "Da tao /var/glpi/files/_plugins/barcode"
 # Mac dinh GLPI chua bat quyen plugin_barcode_config -> tuy chon sinh QR
 # khong xuat hien trong menu "Cac hanh dong".
 info "Cap quyen plugin barcode cho ho so Super-Admin..."
-docker exec helpdesk-db sh -c \
+docker exec pinedesk-db sh -c \
   'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "
      UPDATE glpi_profilerights SET rights=31
        WHERE profiles_id=4 AND name=\"plugin_barcode_barcode\";
@@ -152,7 +152,7 @@ docker exec helpdesk-db sh -c \
 ok "Da cap quyen sinh ma QR"
 
 # Xoa cache de GLPI nap lai plugin + theme
-docker exec helpdesk-glpi sh -c \
+docker exec pinedesk-glpi sh -c \
   'rm -rf /var/glpi/files/_cache/* 2>/dev/null' || true
 ok "Da xoa cache"
 
@@ -199,18 +199,21 @@ CODE=$(curl -sk -o /dev/null -w '%{http_code}' \
                     || { err "CSS giao dien Da Lat    : HTTP $CODE"; LOI=1; }
 
 # 3. Logo DLU
+# Duong dan phai la /plugins/dlubrand/pics/logos/... vi dlu-theme.css tro
+# --glpi-logo-* vao do (xem giai thich trong dlu-theme.css). Duong dan cu
+# /pics/logos/... da thanh 404 sau khi logo chuyen ve plugin.
 CODE=$(curl -sk -o /dev/null -w '%{http_code}' \
-       https://localhost:8443/pics/logos/logo-DLU-100.png 2>/dev/null)
+       https://localhost:8443/plugins/dlubrand/pics/logos/logo-DLU-100.png 2>/dev/null)
 [ "$CODE" = "200" ] && ok "Logo DLU               : HTTP $CODE" \
                     || { err "Logo DLU               : HTTP $CODE"; LOI=1; }
 
 # 4. Ban dich tieng Viet
-docker exec helpdesk-glpi test -f /var/glpi/files/_locales/core/vi_VN.mo 2>/dev/null \
+docker exec pinedesk-glpi test -f /var/glpi/files/_locales/core/vi_VN.mo 2>/dev/null \
     && ok "Ban dich tieng Viet     : da cai" \
     || { err "Ban dich tieng Viet     : CHUA cai"; LOI=1; }
 
 # 5. Plugin
-PDIR=$(docker exec helpdesk-db sh -c \
+PDIR=$(docker exec pinedesk-db sh -c \
   'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -e "SELECT COUNT(*) FROM glpi_plugins WHERE state=1;"' \
   2>/dev/null | tr -d '\r')
 [ "${PDIR:-0}" -ge 2 ] && ok "Plugin dang hoat dong  : $PDIR plugin" \

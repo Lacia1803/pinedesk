@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-#  SCRIPT SAO LUU HE THONG IT HELPDESK (GLPI)
+#  SCRIPT SAO LUU HE THONG PINEDESK (GLPI)
 #
 #  CACH DUNG:
 #    bash backup/backup.sh                 -> sao luu ngay, giu 7 ban gan nhat
@@ -9,7 +9,7 @@
 #
 #  HEN LICH TU DONG (Windows Task Scheduler):
 #    Program : C:\Program Files\Git\bin\bash.exe
-#    Argument: -c "cd /g/glpi-helpdesk && bash backup/backup.sh"
+#    Argument: -c "cd /g/<DUONG-DAN-DU-AN>/pinedesk && bash backup/backup.sh"
 #    Trigger : Hang ngay luc 23:00
 # ==============================================================================
 
@@ -20,8 +20,8 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 BACKUP_DIR="$SCRIPT_DIR"
 KEEP=7
 
-# Doi duong dan POSIX cua Git Bash (/g/glpi-helpdesk/...) sang dang Windows
-# (G:/glpi-helpdesk/...) de Docker Desktop tren Windows hieu dung.
+# Doi duong dan POSIX cua Git Bash (/g/duong-dan-du-an/...) sang dang Windows
+# (G:/duong-dan-du-an/...) de Docker Desktop tren Windows hieu dung.
 _winpath() {
     local p="$1"
     if pwd -W >/dev/null 2>&1; then
@@ -68,13 +68,13 @@ TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_NAME="glpi_backup_$TIMESTAMP"
 
 echo "=============================================================="
-echo "   SAO LUU HE THONG IT HELPDESK - $TIMESTAMP"
+echo "   SAO LUU HE THONG PINEDESK - $TIMESTAMP"
 echo "=============================================================="
 echo ""
 
 # ---------- 1. Kiem tra container dang chay ----------
-if ! docker ps --format '{{.Names}}' | grep -q '^helpdesk-db$'; then
-    echo "[LOI] Container helpdesk-db khong chay."
+if ! docker ps --format '{{.Names}}' | grep -q '^pinedesk-db$'; then
+    echo "[LOI] Container pinedesk-db khong chay."
     echo "      Hay khoi dong he thong bang: bash start.sh"
     exit 1
 fi
@@ -83,7 +83,7 @@ fi
 echo "[1/4] Dang sao luu co so du lieu..."
 DB_FILE="$BACKUP_DIR/${BACKUP_NAME}_db.sql"
 
-docker exec helpdesk-db mariadb-dump \
+docker exec pinedesk-db mariadb-dump \
     -u root \
     -p"$DB_ROOT_PASSWORD" \
     --single-transaction \
@@ -111,7 +111,7 @@ echo "[2/4] Dang sao luu file he thong..."
 FILES_FILE="$BACKUP_DIR/${BACKUP_NAME}_files.tar.gz"
 
 docker run --rm \
-    --volumes-from helpdesk-glpi \
+    --volumes-from pinedesk-glpi \
     -v "$(_winpath "$BACKUP_DIR"):/backup" \
     alpine:latest \
     tar czf "/backup/${BACKUP_NAME}_files.tar.gz" \
@@ -179,8 +179,8 @@ echo "   CACH PHUC HOI KHI CAN:"
 echo "     (Xem tai-lieu/HUONG-DAN-TRIEN-KHAI.md, muc Sao luu & Phuc hoi)"
 echo "     1. Khoi dong lai he thong : bash start.sh"
 echo "     2. Phuc hoi CSDL:"
-echo "        docker exec -i helpdesk-db mariadb -u root -p\"\$DB_ROOT_PASSWORD\" glpi < <file>_db.sql"
+echo "        docker exec -i pinedesk-db mariadb -u root -p\"\$DB_ROOT_PASSWORD\" glpi < <file>_db.sql"
 echo "     3. Phuc hoi file he thong (giai nen tu goc /):"
-echo "        docker run --rm --volumes-from helpdesk-glpi -v \"\$(pwd -W):/backup\" alpine \\"
+echo "        docker run --rm --volumes-from pinedesk-glpi -v \"\$(pwd -W):/backup\" alpine \\"
 echo "          tar xzf /backup/<file>_files.tar.gz -C /"
 echo "=============================================================="

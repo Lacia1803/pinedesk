@@ -4,7 +4,7 @@
  * -----------------------------------------------------------------------------
  *  Plugin "dlubrand" — Giao diện thương hiệu DLU cho GLPI
  * -----------------------------------------------------------------------------
- *  Đồ án thực tập: Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk)
+ *  Đồ án thực tập: Xây dựng hệ thống hỗ trợ kỹ thuật (PineDesk)
  *  Trường Đại học Đà Lạt
  *
  *  MỤC ĐÍCH:
@@ -57,6 +57,26 @@ function plugin_init_dlubrand(): void
         'css/dlu-theme.css',
     ];
 
+    // Lịch chọn ngày bằng tiếng Việt. GLPI gọi flatpickr bằng mã "vi" nhưng
+    // thư viện lại đăng ký bản tiếng Việt dưới khoá "vn", nên lịch rơi về tiếng
+    // Anh. File này bổ sung khoá "vi" còn thiếu (xem ghi chú đầu file).
+    // Nạp ở CẢ hai loại trang: trong hệ thống (hạn tiếp nhận, hạn giải quyết,
+    // ngày khai mạc) lẫn trang ẩn danh (biểu mẫu công khai có ô chọn ngày).
+    // Dải ưu tiên bên hông phiếu (dlu-dai-phieu.js): kéo độ ưu tiên từ cột
+    // giữa bảng ra mép trái từng dòng. Đây là tệp DUY NHẤT trong plugin can
+    // thiệp vào bảng danh sách, nên nó chỉ được nạp ở trang đã đăng nhập —
+    // khách ẩn danh không có bảng danh sách để cần.
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['dlubrand'] = [
+        'js/dlu-lich-viet.js',
+        'js/dlu-chu-vue.js',
+        'js/dlu-tieu-de-cot.js',
+        'js/dlu-dai-phieu.js',
+    ];
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT_ANONYMOUS_PAGE]['dlubrand'] = [
+        'js/dlu-canh.js',
+        'js/dlu-lich-viet.js',
+    ];
+
     // Ngôn ngữ mặc định cho trang ẩn danh (trang đăng nhập).
     $PLUGIN_HOOKS[Hooks::POST_INIT]['dlubrand'] = 'plugin_dlubrand_set_default_language';
 
@@ -82,31 +102,6 @@ function plugin_init_dlubrand(): void
     //
     //   Cách này KHÔNG sửa mã nguồn lõi, và chỉ áp dụng cho khách chưa đăng
     //   nhập — người dùng đã đăng nhập vẫn giữ nguyên ngôn ngữ họ tự chọn.
-}
-
-/**
- * Đặt ngôn ngữ mặc định của hệ thống cho phiên ẩn danh.
- *
- * Được gọi qua hook POST_INIT.
- *
- * @return void
- */
-function plugin_dlubrand_force_language_on_login(): void
-{
-    global $CFG_GLPI;
-
-    $default = $CFG_GLPI['language'] ?? '';
-
-    // Ngôn ngữ mặc định phải có trong danh sách GLPI hỗ trợ
-    if (empty($default) || !isset($CFG_GLPI['languages'][$default])) {
-        return;
-    }
-
-    // Đặt lại về ngôn ngữ mặc định của hệ thống và nạp bản dịch
-    if (($_SESSION['glpilanguage'] ?? null) !== $default) {
-        $_SESSION['glpilanguage'] = $default;
-        \Session::loadLanguage();
-    }
 }
 
 /**

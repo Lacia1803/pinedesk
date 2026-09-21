@@ -2,7 +2,7 @@
  * ============================================================================
  *  CHUP ANH GIAO DIEN GLPI  (bang chung truc quan cho bao cao do an)
  * ============================================================================
- *  Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ *  Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
  *
  *  Script nay:
  *    1. Mo trang dang nhap  -> chup anh (kiem tra tieng Viet + giao dien DLU)

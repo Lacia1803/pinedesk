@@ -45,14 +45,17 @@ vendor/
 __pycache__/
 *.pyc
 
-# Thu muc lam viec tam cua cac script dich / kiem tra
-.tmp-check/
-.tmp-logo/
-.tmp-plugin/
-.tmp-theme/
-.tmp-backup-verify/
-.tmp-restore-test/
-.tmp-diag/
+# Thu muc lam viec tam cua cac script dich / kiem tra / chup anh
+#   (dung wildcard de khong sot khi them thu muc .tmp-* moi)
+.tmp-*/
+
+# Workspace tam cua cong cu thiet ke va Playwright
+.impeccable/
+.playwright-mcp/
+
+# Anh chup nghiem thu vut tam o goc repo (anh that cua du an nam trong
+# landing/ va plugins/, khong bi mau nay dung toi)
+/*.png
 
 # Thu muc lam viec tam cua chuoi script dich tieng Viet.
 #   - 2 file .po nguon (vi_VN.po, fr_FR.po): TAI LAI DUOC tu container

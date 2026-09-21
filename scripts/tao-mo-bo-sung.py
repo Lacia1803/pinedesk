@@ -4,7 +4,7 @@
 ================================================================================
  TAO FILE .MO BO SUNG TIENG VIET CHO GLPI  (tu .po + tu dien nghiep vu)
 ================================================================================
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 
  MUC DICH:
    Tao file "lop phu" .mo chua cac ban dich BO SUNG (ngoai ban chinh thuc cua
@@ -34,7 +34,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 TMP = os.path.join(ROOT, '.tmp-locale')
-GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
 
 MO_GOC = '/var/www/glpi/locales/vi_VN.mo'
 PO_NGUON = os.path.join(TMP, 'vi_VN.po')
@@ -166,7 +166,15 @@ def doc_po(duong_dan: str) -> dict:
 
 
 def _lay(entry: str, khoa: str) -> str:
-    """Trich gia tri msgid/msgstr (ho tro chuoi noi tiep nhieu dong)."""
+    """
+    Trich gia tri msgid/msgstr (ho tro chuoi noi tiep nhieu dong).
+
+    Noi bang chuoi RONG, khong phai dau cach: dinh dang .po cat chuoi dai
+    qua nhieu dong ma khong them phan cach nao, va dong dau tien luon rong
+    (""). Noi bang dau cach se lam moi khoa co them mot dau cach o dau ->
+    khong bao gio khop khi GLPI tra cuu. Xem chu thich cung ten trong
+    scripts/bo-sung-tieng-viet.py.
+    """
     phan = []
     gom = False
     for ln in entry.split('\n'):
@@ -180,7 +188,7 @@ def _lay(entry: str, khoa: str) -> str:
             break
     if not phan:
         return ''
-    return ' '.join(x.strip().strip('"') for x in phan)
+    return ''.join(x.strip().strip('"') for x in phan)
 
 
 def doc_tu_dien_nghiep_vu(duong_dan: str) -> dict:
@@ -207,8 +215,13 @@ def _giai_escape(s: str) -> str:
 
     QUAN TRONG: khong dung unicode_escape vi no lam hong ky tu Unicode
     (vi du "Tên" -> "TÃªn"). Chi xu ly cac escape thuc su can thiet.
+
+    \\x04 la ky tu phan cach ngu canh cua gettext (pgettext): GLPI goi
+    _x('quantity', 'Number of users') -> tra cuu khoa "quantity\\x04Number
+    of users". Phai doi thanh ky tu that thi entry moi khop.
     """
     return (s
+            .replace('\\x04', '\x04')
             .replace('\\"', '"')
             .replace('\\n', '\n')
             .replace('\\t', '\t')

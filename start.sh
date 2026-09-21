@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-#  SCRIPT KHOI DONG HE THONG IT HELPDESK (GLPI)
+#  SCRIPT KHOI DONG PINEDESK (GLPI)
 #  Cach dung: bash start.sh
 # ==============================================================================
 
@@ -13,7 +13,7 @@ PROJECT_DIR="$(pwd)"
 . "$PROJECT_DIR/scripts/lib/compose-guard.sh"
 
 echo "=============================================================="
-echo "   HE THONG HO TRO KY THUAT (IT HELPDESK) - GLPI"
+echo "   HE THONG HO TRO KY THUAT (PINEDESK) - GLPI"
 echo "=============================================================="
 echo ""
 
@@ -113,7 +113,7 @@ if [ "$TAO_MOI" = "1" ]; then
 
     if chung_chi_co_san nginx/ssl/glpi.crt; then
         echo "[OK] Da tao chung chi SSL (co Subject Alternative Name)"
-        echo "     Ten mien/IP hop le: localhost, helpdesk.local, *.localhost,"
+        echo "     Ten mien/IP hop le: localhost, pinedesk.local, *.localhost,"
         echo "                         127.0.0.1, ::1"
         echo "     LUU Y: Day la chung chi tu ky, trinh duyet se canh bao."
         echo "            Chap nhan canh bao de tiep tuc (an toan trong mang noi bo)."
@@ -140,7 +140,7 @@ sleep 20
 
 # ---------- 7. Kiem tra trang thai ----------
 echo ""
-docker ps --filter "name=helpdesk-" --format "table {{.Names}}\t{{.Status}}"
+docker ps --filter "name=pinedesk-" --format "table {{.Names}}\t{{.Status}}"
 
 # Doc bien moi truong
 source .env 2>/dev/null || true

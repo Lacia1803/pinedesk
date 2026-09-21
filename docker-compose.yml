@@ -1,5 +1,5 @@
 # ==============================================================================
-# HE THONG HO TRO KY THUAT (IT HELPDESK) - TRUONG DAI HOC
+# HE THONG HO TRO KY THUAT (PINEDESK) - TRUONG DAI HOC
 # Nen tang: GLPI 11 - Ma nguon mo ITSM (GPL v3)
 # Kien truc: Nginx Gateway + GLPI App + MariaDB + Redis
 # ==============================================================================
@@ -11,7 +11,7 @@ services:
   # --------------------------------------------------------------------------
   nginx:
     image: nginx:1.27-alpine
-    container_name: helpdesk-gateway
+    container_name: pinedesk-gateway
     restart: unless-stopped
     ports:
       - "${HTTP_PORT:-8080}:80"
@@ -21,6 +21,10 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - ./landing:/usr/share/nginx/html/landing:ro
+      # Tai lieu du an: landing page co the lien ket toi cac tep .md nay.
+      # Chi doc, va chi nam trong thu muc tai lieu -> khong lo ma nguon.
+      - ./tai-lieu:/usr/share/nginx/html/tai-lieu:ro
+      - ./README.md:/usr/share/nginx/html/README.md:ro
     depends_on:
       glpi:
         condition: service_healthy
@@ -38,7 +42,7 @@ services:
   # --------------------------------------------------------------------------
   glpi:
     image: glpi/glpi:11.0.0
-    container_name: helpdesk-glpi
+    container_name: pinedesk-glpi
     restart: unless-stopped
     environment:
       GLPI_DB_HOST: mariadb
@@ -98,7 +102,7 @@ services:
   # --------------------------------------------------------------------------
   mariadb:
     image: mariadb:10.11
-    container_name: helpdesk-db
+    container_name: pinedesk-db
     restart: unless-stopped
     command: >
       --default-time-zone="+07:00"
@@ -128,7 +132,7 @@ services:
   # --------------------------------------------------------------------------
   redis:
     image: redis:7-alpine
-    container_name: helpdesk-redis
+    container_name: pinedesk-redis
     restart: unless-stopped
     command: >
       redis-server
@@ -151,7 +155,7 @@ networks:
   # Mang "mat tien": chi nginx va glpi. Co gateway ra ngoai Internet
   # (glpi can Internet de tai plugin tu marketplace, kiem tra cap nhat...).
   frontend_net:
-    name: helpdesk-frontend-network
+    name: pinedesk-frontend-network
     driver: bridge
 
   # Mang "hau truong": chi glpi, mariadb, redis. KHONG co gateway ra ngoai.
@@ -171,20 +175,20 @@ networks:
   #         docker compose down && docker compose up -d
   #      (khong du chi 'up -d'). Volume la named volume nen KHONG mat du lieu.
   backend_net:
-    name: helpdesk-backend-network
+    name: pinedesk-backend-network
     driver: bridge
     internal: true
 
 volumes:
   mariadb_data:
-    name: helpdesk-mariadb-data
+    name: pinedesk-mariadb-data
   redis_data:
-    name: helpdesk-redis-data
+    name: pinedesk-redis-data
   glpi_config:
-    name: helpdesk-glpi-config
+    name: pinedesk-glpi-config
   glpi_marketplace:
-    name: helpdesk-glpi-marketplace
+    name: pinedesk-glpi-marketplace
   glpi_files:
-    name: helpdesk-glpi-files
+    name: pinedesk-glpi-files
   glpi_plugins:
-    name: helpdesk-glpi-plugins
+    name: pinedesk-glpi-plugins

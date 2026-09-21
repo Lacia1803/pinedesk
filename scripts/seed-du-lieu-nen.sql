@@ -1,5 +1,5 @@
 -- ==============================================================================
---  DU LIEU NEN HE THONG IT HELPDESK - TRUONG DAI HOC DA LAT
+--  DU LIEU NEN PINEDESK - TRUONG DAI HOC DA LAT
 --  File: seed-du-lieu-nen.sql
 --
 --  MO TA:
@@ -14,7 +14,7 @@
 --    - Hinh thuc xu ly
 --
 --  CACH CHAY:
---    docker exec -i helpdesk-db mariadb -u root -p"<mat khau root>" glpi \
+--    docker exec -i pinedesk-db mariadb -u root -p"<mat khau root>" glpi \
 --        < scripts/seed-du-lieu-nen.sql
 --
 --  HOAC dung script tien loi:

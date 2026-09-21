@@ -1,5 +1,5 @@
 -- ==============================================================================
---  DU LIEU MAU DE DEMO - HE THONG HO TRO KY THUAT (IT HELPDESK) DLU
+--  DU LIEU MAU DE DEMO - HE THONG HO TRO KY THUAT (PINEDESK) DLU
 -- ==============================================================================
 --  MUC DICH:
 --    Tao du lieu thiet bi + phieu su c hoan chinh de:
@@ -16,7 +16,7 @@
 --  CACH CHAY:
 --    bash scripts/nap-du-lieu-mau.sh
 --    hoac truc tiep:
---      docker exec -i helpdesk-db mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi < file.sql
+--      docker exec -i pinedesk-db mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi < file.sql
 -- ==============================================================================
 
 SET @now = NOW();
@@ -74,14 +74,26 @@ SELECT 'sv.khanh', '', 'Vũ Minh', 'Khánh', 1, 1,
        'vi_VN', 'da_lat', @now, @now, 'Sinh viên - Khoa Công nghệ thông tin'
 WHERE NOT EXISTS (SELECT 1 FROM glpi_users WHERE name = 'sv.khanh');
 
--- 1.4. SUA DON: dam bao moi tai khoan (ke ca tao tu truoc) deu dung
---      ngon ngu tieng Viet + bang mau Da Lat + dang hoat dong.
+-- 1.4. SUA DON: dam bao MOI tai khoan demo deu dung ngon ngu tieng Viet
+--      + bang mau Da Lat + dang hoat dong.
+--
+--      VI SAO PHAI LIET KE CA 'tech','normal','post-only','glpi'?
+--        Bon tai khoan nay do chinh trinh cai dat GLPI tao ra, va GLPI gan
+--        san language = 'en_GB' cho chung. Gia tri luu theo tung tai khoan
+--        LUON thang ngon ngu mac dinh cua he thong, nen du glpi_configs.language
+--        da la vi_VN thi dang nhap bang 'tech' van hien giao dien TIENG ANH.
+--        Day chinh la loi tung lam toan bo giao dien sau dang nhap hien chu
+--        "Assets / Assistance / Management" thay vi tieng Viet.
+--      'ktv.an' co language = NULL (trinh cai dat khong dien) -> NULL nghia la
+--      "dung mac dinh he thong", ve ly thuyet la duoc, nhung ghi ro vi_VN cho
+--      nhat quan va de doi chieu.
 UPDATE glpi_users
 SET language = 'vi_VN',
     palette  = 'da_lat',
     is_active = 1,
     date_mod = @now
-WHERE name IN ('ktv.an','ktv.binh','gv.cuong','gv.dung','sv.hoa','sv.khanh');
+WHERE name IN ('glpi','tech','normal','post-only',
+               'ktv.an','ktv.binh','gv.cuong','gv.dung','sv.hoa','sv.khanh');
 
 -- 1.5. Dat ngon ngu + bang mau mac dinh cho TOAN HE THONG
 --      (de tai khoan tao moi sau nay tu dong dung Da Lat, khong bi "auror")
@@ -109,13 +121,29 @@ WHERE u.name IN ('gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh')
   AND NOT EXISTS (SELECT 1 FROM glpi_groups_users gu
                   WHERE gu.users_id = u.id AND gu.groups_id = 1);
 
--- Gan cac tai khoan mau vao entity Root
+-- Gan cac tai khoan mau vao entity Root, DUNG HO SO THEO VAI TRO.
+--
+-- VI SAO KHONG HARDCODE profiles_id = 1?
+--   Ban dau cho TAT CA tai khoan vao ho so 1 ("Nguoi dung"). Ho so nay thuoc
+--   giao dien helpdesk (tu phuc vu) chu KHONG phai giao dien trung tam, nen
+--   'ktv.an' / 'ktv.binh' mang danh "ky thuat vien" ma khong mo duoc bang
+--   dieu khien, khong thay menu "Tai san / Ho tro / Quan ly". README lai ghi
+--   hai tai khoan do la "Ky thuat vien" -> tai lieu sai so voi he thong.
+--   Tra cuu ho so theo TEN de khong phu thuoc vao thu tu id (id co the khac
+--   nhau giua cac ban GLPI / ngon ngu cai dat).
+--
+--   'Kỹ thuật viên' -> giao dien trung tam, dung de xu ly su co.
+--   'Người dùng'    -> giao dien helpdesk, dung cho nguoi bao su co.
 INSERT INTO glpi_profiles_users (users_id, profiles_id, entities_id, is_recursive, is_dynamic)
-SELECT u.id, 1, 0, 1, 0
+SELECT u.id, p.id, 0, 1, 0
 FROM glpi_users u
+JOIN glpi_profiles p
+  ON p.name = CASE WHEN u.name IN ('ktv.an', 'ktv.binh')
+                   THEN 'Kỹ thuật viên'
+                   ELSE 'Người dùng' END
 WHERE u.name IN ('ktv.an', 'ktv.binh', 'gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh')
   AND NOT EXISTS (SELECT 1 FROM glpi_profiles_users pu
-                  WHERE pu.users_id = u.id AND pu.profiles_id = 1);
+                  WHERE pu.users_id = u.id AND pu.profiles_id = p.id);
 
 
 -- ==============================================================================
@@ -370,7 +398,7 @@ SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY), @now, @now, @entit
        (SELECT id FROM glpi_locations WHERE name = s.loc AND level = 3 LIMIT 1),
        0
 FROM (
-    SELECT 'Máy không khởi động được được' AS name,
+    SELECT 'Máy không khởi động được' AS name,
            'Máy TDL-PC-A101-003 bấm nút nguồn không lên, đèn nguồn không sáng. Mong kỹ thuật kiểm tra giúp.' AS content,
            0 AS ago, 'sv.hoa' AS requester, 'Máy không khởi động được' AS cat,
            3 AS urgency, 3 AS impact, 3 AS priority, 'Phòng máy A101' AS loc UNION ALL

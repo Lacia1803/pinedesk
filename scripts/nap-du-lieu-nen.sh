@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-#  SCRIPT NAP DU LIEU NEN VAO HE THONG IT HELPDESK
+#  SCRIPT NAP DU LIEU NEN VAO PINEDESK
 #
 #  Cach dung: bash scripts/nap-du-lieu-nen.sh
 #
@@ -14,12 +14,12 @@ set -e
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 echo "=============================================================="
-echo "   NAP DU LIEU NEN - HE THONG IT HELPDESK"
+echo "   NAP DU LIEU NEN - PINEDESK"
 echo "=============================================================="
 echo ""
 
 # ---------- Kiem tra he thong dang chay ----------
-if ! docker ps --format '{{.Names}}' | grep -q '^helpdesk-db$'; then
+if ! docker ps --format '{{.Names}}' | grep -q '^pinedesk-db$'; then
     echo "[LOI] He thong chua khoi dong."
     echo "      Hay chay truoc: bash start.sh"
     exit 1
@@ -50,7 +50,7 @@ echo "     Script co the chay lai nhieu lan, khong tao du lieu trung."
 echo ""
 
 # ---------- Nap du lieu ----------
-docker exec -i helpdesk-db mariadb \
+docker exec -i pinedesk-db mariadb \
     -u root \
     -p"$DB_ROOT_PASSWORD" \
     --default-character-set=utf8mb4 \

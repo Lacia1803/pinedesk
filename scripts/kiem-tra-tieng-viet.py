@@ -3,7 +3,7 @@
 """
 ================================================================================
  DO DO PHU BAN DICH TIENG VIET CUA GLPI
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 
  Script do 2 chi so:
    (1) DO PHU GOC  : ti le chuoi da dich trong file vi_VN.po chinh thuc cua GLPI
@@ -30,7 +30,7 @@ THU_MUC = os.path.join(GOC, '..', '.tmp-locale')
 PO_VI = os.path.join(THU_MUC, 'vi_VN.po')
 PO_FR = os.path.join(THU_MUC, 'fr_FR.po')
 
-GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
 
 
 def dam_bao_po_nguon(ten_po):

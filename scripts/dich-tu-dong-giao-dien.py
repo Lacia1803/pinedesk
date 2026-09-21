@@ -4,7 +4,7 @@
 ================================================================================
  DICH TU DONG GIAO DIEN GLPI SANG TIENG VIET
 ================================================================================
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 
  BOI CANH:
    GLPI 11 chi dong goi ~30% ban dich tieng Viet chinh thuc (1941/6511 chuoi).
@@ -54,7 +54,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 TMP = os.path.join(ROOT, '.tmp-locale')
-GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
 
 MO_DICH = '/var/glpi/files/_locales/core/vi_VN.mo'
 MO_RA = os.path.join(TMP, 'vi_VN_auto.mo')

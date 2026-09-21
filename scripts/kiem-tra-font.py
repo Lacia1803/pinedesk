@@ -53,7 +53,12 @@ def doc_unicode_range(s):
 
 
 def doc_css():
-    """Tra ve danh sach cac mat chu: family, weight, style, tep, unicode-range."""
+    """Tra ve danh sach cac mat chu: family, dai weight, style, tep, unicode-range.
+
+    LUU Y ve font bien thien: fonts.css khai bao `font-weight: 300 700` (mot tep
+    dung cho ca dai) chu khong phai mot con so. Neu chi bat mot con so thi mat chu
+    do se khong bao gio khop voi do dam nao dang dung -> am tham bo qua phep kiem.
+    """
     src = open(CSS, encoding='utf-8').read()
     ra = []
     for blk in re.findall(r'@font-face\s*\{[^}]*\}', src):
@@ -63,9 +68,13 @@ def doc_css():
         tep = lay(r"url\(\./([^)]+)\)")
         if not tep:
             continue
+        mw = re.search(r'font-weight:\s*(\d+)(?:\s+(\d+))?', blk)
+        w_min = int(mw.group(1)) if mw else 400
+        w_max = int(mw.group(2)) if (mw and mw.group(2)) else w_min
         ra.append({
             'family': lay(r"font-family:\s*'([^']+)'"),
-            'weight': lay(r'font-weight:\s*(\d+)', '400'),
+            'w_min': w_min,
+            'w_max': w_max,
             'style': lay(r'font-style:\s*(\w+)', 'normal'),
             'tep': tep,
             'range': doc_unicode_range(lay(r'unicode-range:\s*([^;]+)', '')),
@@ -133,7 +142,9 @@ def main():
         cm = cmap_theo_tep.get(m['tep'], set())
         quan_trong = {c for c in m['range'] if 0x20 <= c <= 0x2FFF}
         thieu = sorted(quan_trong - cm)
-        nhan = f"{m['family']} {m['weight']}{' italic' if m['style'] == 'italic' else ''}"
+        w = (f"{m['w_min']}" if m['w_min'] == m['w_max']
+             else f"{m['w_min']}-{m['w_max']}")
+        nhan = f"{m['family']} {w}{' italic' if m['style'] == 'italic' else ''}"
         ty_le = 0 if not quan_trong else 100 * (1 - len(thieu) / len(quan_trong))
         print(f'       {nhan:38} {m["tep"]:46} phu {ty_le:5.1f}% vung khai bao')
 
@@ -148,9 +159,11 @@ def main():
     for family in sorted({m['family'] for m in mat}):
         for weight in sorted(dung):
             for style in ('normal', 'italic'):
+                # Font bien thien dung cho CA DAI weight (w_min..w_max);
+                # font tinh chi dung cho dung mot do dam.
                 nhom = [m for m in mat
                         if m['family'] == family
-                        and int(m['weight']) == weight
+                        and m['w_min'] <= weight <= m['w_max']
                         and m['style'] == style]
                 if not nhom:
                     continue

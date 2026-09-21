@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-#  NAP DU LIEU MAU DE DEMO - HE THONG HO TRO KY THUAT (IT HELPDESK) DLU
+#  NAP DU LIEU MAU DE DEMO - HE THONG HO TRO KY THUAT (PINEDESK) DLU
 # ==============================================================================
 #  CACH DUNG:
 #    bash scripts/nap-du-lieu-mau.sh
@@ -50,8 +50,8 @@ echo "=============================================================="
 echo ""
 
 # ---------- 1. Kiem tra container dang chay ----------
-if ! docker ps --format '{{.Names}}' | grep -q '^helpdesk-db$'; then
-    echo "[LOI] Container helpdesk-db khong chay."
+if ! docker ps --format '{{.Names}}' | grep -q '^pinedesk-db$'; then
+    echo "[LOI] Container pinedesk-db khong chay."
     echo "      Hay khoi dong: bash scripts/cai-dat-tat-ca.sh"
     exit 1
 fi
@@ -64,7 +64,7 @@ fi
 # ---------- 2. Nap du lieu mau ----------
 echo "[1/4] Dang nap du lieu mau (thiet bi, phieu su co, phan mem)..."
 
-DB_ERR=$(docker exec -i helpdesk-db sh -c \
+DB_ERR=$(docker exec -i pinedesk-db sh -c \
     'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi' < "$SQL_FILE" 2>&1 | grep -i "^ERROR" || true)
 
 if [ -n "$DB_ERR" ]; then
@@ -84,9 +84,9 @@ echo "[2/4] Dang dat mat khau cho tai khoan mau..."
 
 TMP_HASH=".tmp-hash-$$.txt"
 
-if ! docker exec helpdesk-glpi php -r \
+if ! docker exec pinedesk-glpi php -r \
     "echo password_hash('${MAT_KHAU_MAC_DINH}', PASSWORD_BCRYPT);" > "$TMP_HASH" 2>/dev/null; then
-    echo "[LOI] Khong sinh duoc mat khau (container helpdesk-glpi co chay khong?)"
+    echo "[LOI] Khong sinh duoc mat khau (container pinedesk-glpi co chay khong?)"
     rm -f "$TMP_HASH"
     exit 1
 fi
@@ -103,10 +103,10 @@ case "$HASH" in
         ;;
 esac
 
-docker cp "$TMP_HASH" helpdesk-db:/tmp/hash.txt >/dev/null 2>&1
+docker cp "$TMP_HASH" pinedesk-db:/tmp/hash.txt >/dev/null 2>&1
 rm -f "$TMP_HASH"
 
-docker exec helpdesk-db sh -c '
+docker exec pinedesk-db sh -c '
     H=$(cat /tmp/hash.txt)
     mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "
         UPDATE glpi_users
@@ -124,7 +124,7 @@ echo "      [OK] Da dat mat khau '${MAT_KHAU_MAC_DINH}' cho 6 tai khoan."
 echo ""
 echo "[3/4] Kiem tra chat luong du lieu (cac truong bat buoc)..."
 
-NULL_CHECK=$(docker exec helpdesk-db sh -c '
+NULL_CHECK=$(docker exec pinedesk-db sh -c '
     mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -e "
         SELECT COUNT(*) FROM glpi_computers
           WHERE computermodels_id IS NULL OR computermodels_id = 0
@@ -147,7 +147,7 @@ echo ""
 echo "[4/4] Ket qua:"
 echo ""
 
-docker exec -i helpdesk-db sh -c \
+docker exec -i pinedesk-db sh -c \
     'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi' < "$SQL_FILE" 2>/dev/null | tail -15
 
 echo ""

@@ -18,7 +18,7 @@
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
-DB_CONTAINER="helpdesk-db"
+DB_CONTAINER="pinedesk-db"
 DB_NAME="glpi"
 
 xanh()  { printf '\033[0;32m%s\033[0m\n' "$1"; }
@@ -70,5 +70,5 @@ docker exec "$DB_CONTAINER" sh -c "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $D
 echo ""
 xanh "  [OK] Đã Việt hoá dữ liệu."
 echo "  Nhớ xoá bộ nhớ đệm để giao diện nhận thay đổi:"
-echo "    docker exec helpdesk-redis redis-cli FLUSHALL"
-echo "    docker exec helpdesk-glpi sh -c 'rm -rf /var/glpi/files/_cache/*'"
+echo "    docker exec pinedesk-redis redis-cli FLUSHALL"
+echo "    docker exec pinedesk-glpi sh -c 'rm -rf /var/glpi/files/_cache/*'"

@@ -3,7 +3,7 @@
 """
 ================================================================================
  SINH MA QR CHO THIET BI GLPI  (PHUONG AN DU PHONG)
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 ================================================================================
 
  Script nay doc danh sach thiet bi tu GLPI (qua REST API hoac tu file CSV),
@@ -62,7 +62,7 @@ NhanCauHinh = {
     'le_trai': 8 * mm,      # le trai trang
     'khoang_cach': 1.5 * mm,  # khe giua cac nhan
     'ten_don_vi': 'TRUONG DAI HOC DA LAT',
-    'ten_he_thong': 'He thong Ho tro Ky thuat (IT Helpdesk)',
+    'ten_he_thong': 'PineDesk - He thong Ho tro Ky thuat',
 }
 
 # Thu muc xuat
@@ -284,7 +284,7 @@ def main():
     args = parser.parse_args()
 
     print('=' * 78)
-    print('  SINH MA QR THIET BI - HE THONG IT HELPDESK DH DA LAT')
+    print('  SINH MA QR THIET BI - PINEDESK DH DA LAT')
     print('=' * 78)
 
     # --- Lay du lieu ---

@@ -1,5 +1,5 @@
 # THÔNG TIN TRƯỜNG ĐẠI HỌC ĐÀ LẠT (DLU)
-## Tư liệu phục vụ đồ án IT Helpdesk
+## Tư liệu phục vụ đồ án PineDesk
 
 > **Mục đích:** cung cấp dữ liệu thực tế để cấu hình hệ thống khớp với tổ chức
 > của Trường Đại học Đà Lạt — dùng cho cây vị trí, phòng máy, khoa/trung tâm,
@@ -87,7 +87,7 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
 
 > **⭐ LƯU Ý QUAN TRỌNG CHO ĐỒ ÁN:**
 > **Phòng Cơ sở Vật chất (`pcsvc`)** là đơn vị **quản lý tài sản, cơ sở vật chất**
-> của Trường. Trong thực tế, đây chính là **đơn vị chủ quản của hệ thống IT Helpdesk** —
+> của Trường. Trong thực tế, đây chính là **đơn vị chủ quản của PineDesk** —
 > tức là **khách hàng chính** của đồ án. Khi thuyết minh, hãy nêu rõ:
 > hệ thống được xây dựng để phục vụ nghiệp vụ quản lý & hỗ trợ kỹ thuật cho
 > Phòng Cơ sở Vật chất và Trung tâm Công nghệ thông tin.
@@ -121,7 +121,7 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
               │                                        │
               └──────────────┬─────────────────────────┘
                              ▼
-                  HỆ THỐNG IT HELPDESK (GLPI)
+                  HỆ THỐNG PINEDESK (GLPI)
                              │
                              ▼
         Người dùng cuối: giảng viên, sinh viên, nhân viên

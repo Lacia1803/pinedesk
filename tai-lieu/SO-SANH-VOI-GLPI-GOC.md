@@ -1,11 +1,11 @@
 # SO SÁNH VỚI GLPI GỐC — NHỮNG GÌ ĐÃ CẢI THIỆN
 
-> **Đồ án thực tập:** Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk)
+> **Đồ án thực tập:** Xây dựng hệ thống hỗ trợ kỹ thuật (PineDesk)
 > **Trường Đại học Đà Lạt** — Khoa Toán – Tin học
 >
 > **Đối tượng so sánh:**
 > - **Gốc (upstream):** GLPI 11.0.0 chính thức — https://github.com/glpi-project/glpi (giấy phép GPL v3)
-> - **Bản của đồ án:** `G:\glpi-helpdesk`
+> - **Bản của đồ án:** repo này (`pinedesk`)
 >
 > **Ngày lập:** 19/09/2026
 
@@ -27,10 +27,10 @@
 
 ## 1. BẢNG ĐỐI CHIẾU TỔNG QUAN
 
-| Hạng mục | GLPI 11 gốc | Bản đồ án (glpi-helpdesk) | Mức cải thiện |
+| Hạng mục | GLPI 11 gốc | Bản đồ án (pinedesk) | Mức cải thiện |
 |---|---|---|---|
 | **Ngôn ngữ giao diện** | Tiếng Anh mặc định; có sẵn ~32% tiếng Việt | Mặc định **tiếng Việt**, **443 thuật ngữ + 212 mục số nhiều** dịch bổ sung, phủ **30,6%→toàn bộ menu** | ⭐⭐⭐⭐ |
-| **Giao diện / thương hiệu** | Bảng màu `auror` của Teclib | Bảng màu **"Đà Lạt"** lấy từ logo DLU + 3 bảng màu phụ | ⭐⭐⭐⭐⭐ |
+| **Giao diện / thương hiệu** | Bảng màu `auror` của Teclib, ngôn ngữ thẻ nổi bo tròn + bóng đổ | **Bảng màu "Đà Lạt"** lấy từ logo DLU (3 bảng màu) **+ ngôn ngữ hình ảnh riêng**: nền giấy/mực đậm/đường kẻ mảnh, thẻ mất vỏ hộp, bo góc 3–6px, đầu bảng in hoa, số liệu chữ đều | ⭐⭐⭐⭐⭐ |
 | **Logo** | Logo Teclib / GLPI | **Logo chính thức ĐH Đà Lạt** ở mọi trang | ⭐⭐⭐⭐⭐ |
 | **Dữ liệu nền** | **Rỗng hoàn toàn** — phải tự nhập | **Dựng sẵn 23 nhóm danh mục** theo cơ cấu thật của DLU | ⭐⭐⭐⭐⭐ |
 | **Dữ liệu demo** | **Không có** — bảng điều khiển trống, không demo được | **1 lệnh ra 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu + 6 tài khoản 3 vai trò** | ⭐⭐⭐⭐⭐ |
@@ -175,23 +175,40 @@ Hàm này kiểm tra nếu phiên chưa có ngôn ngữ → lấy từ `$CFG_GLP
 
 **Chi tiết tinh chỉnh đã làm (ngoài đổi màu):**
 
-- Thanh menu dọc: đổ bóng mềm `0 2px 12px rgba(61,78,23,0.18)`
-- Mục menu đang chọn: **vạch cam đất 3px bên trái** + nền cam nhạt
-- Nút chính: gradient xanh lá → xanh rêu, có hiệu ứng nâng lên khi hover
-- Thẻ nội dung: bo góc 10px, đổ bóng nhẹ
-- Bảng dữ liệu: dòng tiêu đề nền xanh rêu nhạt, hover dòng đổi màu
-- Ô nhập liệu: viền xanh lá khi focus, có vòng sáng
-- Menu thả xuống: bo góc, đổ bóng sâu
-- **Thanh cuộn** (scrollbar): đổi sang màu xanh rêu thương hiệu
-- **Chế độ tối:** giữ tinh thần "Đà Lạt về đêm" — thông đen `#1E2609`, chữ vàng nhạt
+Giao diện bên trong không còn là GLPI "đổi màu". Nó đọc như một **cuốn sổ theo dõi**:
+nền giấy, mực đậm, đường kẻ mảnh — khác hẳn ngôn ngữ thẻ nổi bo tròn của Tabler.
+
+- **Thẻ nội dung mất hẳn vỏ hộp**: bỏ bóng đổ, bỏ bo góc, bỏ viền kín. Chỉ còn **một đường
+  kẻ 1px phía trên** làm ranh giới. Bảng dữ liệu nhờ vậy đọc được nhiều dòng hơn trên cùng
+  diện tích, và mắt không bị bóng đổ chen vào.
+- **Đường kẻ thay cho bóng đổ.** Không dùng bóng để trang trí ở bất kỳ đâu.
+- **Bo góc 3–6px** theo bậc thang có chủ ý (nhãn/ô nhập/nút nhỏ 3px, thẻ/khối 6px), thay cho
+  10px+ đồng loạt của Tabler.
+- **Thanh menu dọc**: nền xanh rêu đậm, **in chìm trường đường bình độ** của chính những dãy
+  đồi ở trang đăng nhập → hai mặt tiền của hệ thống thuộc cùng một thế giới.
+- **Mục menu đang chọn**: **vạch cam đất 3px bên trái** (lấy từ logo Trường), mục menu phẳng
+  `border-radius: 0`, không còn pill bo tròn kiểu Tabler.
+- **Đầu bảng dữ liệu**: chữ in hoa nhỏ, giãn chữ, mực phụ — đọc ra "nhãn cột" chứ không phải
+  "tiêu đề khối".
+- **Số liệu và mã**: phông đều, `font-variant-numeric: tabular-nums` → các chữ số thẳng cột
+  dọc theo bảng (mã tài sản kiểu `TDL-PC-A101-001` cần điều này).
+- **Thanh cuộn** (scrollbar): màu xanh rêu thương hiệu.
+- **Chế độ tối**: nền mực xanh rêu rất tối `#171A11`, chữ sương sớm, thanh menu lùi vào
+  `#1E2609`. Ba token giấy/mực đổi tại một chỗ (`PHẦN 0C`), nên không có chuyện nửa sáng nửa tối.
 
 **Trang đăng nhập — được chăm chút kỹ nhất:**
 
 - Nền: gradient 5 điểm dừng `#F4F7EA → #E8EDD8 → #D5DFBB → #B9C98D → #9CB262` (sương mai → rêu)
+- **Cảnh đồi Đà Lạt 5 lớp** dựng bằng SVG, xếp lớp phía sau thẻ đăng nhập. Rê chuột thì mỗi
+  lớp trôi một nhịp khác nhau (lớp gần trôi nhiều hơn lớp xa) → mắt đọc ra chiều sâu. Đây là
+  hiệu ứng chuyển động **duy nhất** của cả hệ thống, và chỉ có ở mặt tiền; bên trong người ta
+  đang làm việc thật nên không có chuyển động nào.
 - Thẻ đăng nhập: trắng ngà bán trong suốt, bo góc 16px, bóng 2 lớp như sương
 - **Dải màu trang trí 4px trên đỉnh thẻ**: gradient xanh rêu → xanh lá → cam đất (nhấn thương hiệu DLU)
 - Ô nhập liệu bo góc, nền trắng ngà, focus đổi viền xanh lá
 - Nút đăng nhập gradient + bóng màu xanh rêu, hover nâng lên
+- **Tắt JavaScript** → trang vẫn nguyên vẹn, chỉ mất cảnh đồi. **Bật "giảm chuyển động"**
+  → cảnh vẫn hiện nhưng đứng yên.
 
 **Kiến trúc — phần quan trọng nhất:**
 
@@ -258,6 +275,31 @@ là đúng đắn**, còn đặt ở `.scss` sẽ gây hiểu nhầm.
 
 **Logo thương hiệu DLU:** Đã đặt logo chính thức (3 kích cỡ: 100px, 100sq, 250px) và ghi đè 4 biến `--glpi-logo-*`, thay thế hoàn toàn logo Teclib/GLPI ở **cả trang đăng nhập lẫn sau khi đăng nhập**.
 
+> ⚠️ **Bẫy đã từng mắc — đường dẫn logo phải TUYỆT ĐỐI.** Ban đầu viết
+> `url("../pics/logos/logo-DLU-100.png")`. Trình duyệt phân giải `url()` trong biến CSS
+> theo **stylesheet đang dùng biến**, không phải stylesheet khai báo biến. GLPI dùng
+> `--glpi-logo-*` trong `/css_compiled/css_glpi.min.css`, nên `../pics/logos/...` bị hiểu
+> thành `/pics/logos/...` → **404, logo vỡ**. Sửa thành
+> `/plugins/dlubrand/pics/logos/logo-DLU-100.png` thì đúng trong mọi ngữ cảnh phân giải.
+
+**Việt hoá giao diện sau đăng nhập — lỗi đã phát hiện và sửa:**
+
+> Bốn tài khoản do **chính trình cài đặt GLPI** tạo (`glpi`, `tech`, `normal`, `post-only`)
+> mang sẵn `language = 'en_GB'`. Ngôn ngữ **lưu theo từng tài khoản luôn thắng** ngôn ngữ
+> mặc định của hệ thống, nên dù `glpi_configs.language` đã là `vi_VN`, đăng nhập bằng `tech`
+> vẫn hiện giao diện **tiếng Anh** (`Assets / Assistance / Management`). Script
+> `seed-du-lieu-mau.sql` nay đặt `language = 'vi_VN'` cho **cả bốn tài khoản này**, không
+> chỉ sáu tài khoản mẫu.
+
+**Hồ sơ (vai trò) của tài khoản kỹ thuật viên — lỗi đã phát hiện và sửa:**
+
+> Script cũ gán **tất cả** tài khoản mẫu vào hồ sơ `profiles_id = 1` ("Người dùng"), vốn
+> thuộc **giao diện helpdesk** (tự phục vụ). Vì vậy `ktv.an` / `ktv.binh` mang danh "kỹ thuật
+> viên" mà **không mở được bảng điều khiển**, không thấy menu *Tài sản / Hỗ trợ / Quản lý* —
+> trong khi README lại ghi hai tài khoản đó là "Kỹ thuật viên". Nay script tra cứu hồ sơ
+> **theo tên** (`'Kỹ thuật viên'` cho hai tài khoản ktv, `'Người dùng'` cho phần còn lại),
+> không phụ thuộc vào thứ tự id.
+
 ---
 
 ### 2.4. Dữ liệu nền — bản gốc RỖNG HOÀN TOÀN
@@ -321,17 +363,17 @@ Mặc định dùng **SQLite**, không HTTPS, không cache, không reverse proxy
 
 ```
         ┌─────────────────────────────────────────────┐
-        │  helpdesk-gateway   (nginx:1.27-alpine)     │
+        │  pinedesk-gateway   (nginx:1.27-alpine)     │
         │  HTTPS 8443 · TLS 1.2/1.3 · Rate limit      │
         └────────────────────┬────────────────────────┘
                              │ frontend_net
         ┌────────────────────▼────────────────────────┐
-        │  helpdesk-glpi      (glpi/glpi:11.0.0)      │
+        │  pinedesk-glpi      (glpi/glpi:11.0.0)      │
         │  Ứng dụng ITSM · PHP · plugin               │
         └──────────┬──────────────────────┬───────────┘
                    │ backend_net          │
      ┌─────────────▼──────────┐  ┌────────▼──────────┐
-     │ helpdesk-db            │  │ helpdesk-redis    │
+     │ pinedesk-db            │  │ pinedesk-redis    │
      │ mariadb:10.11          │  │ redis:7-alpine    │
      │ utf8mb4, +07:00, 512M  │  │ cache/lock 256MB  │
      └────────────────────────┘  └───────────────────┘
@@ -407,7 +449,7 @@ limit_req_status 429;
 
 > 🐛 **Lỗi thực tế đã gặp và sửa:** ban đầu đặt `general_zone = 120r/m`. GLPI 11 nạp **hàng trăm file CSS/JS/font mỗi trang** → vượt hạn mức → **503 Service Temporarily Unavailable** trên trình duyệt thật. Đáng chú ý: **`curl` không phát hiện được lỗi này** vì chỉ tải 1 file/request.
 >
-> **Bài học: bắt buộc phải test bằng trình duyệt thật.** Tìm ra nguyên nhân trong `docker logs helpdesk-gateway`: `limiting requests, excess: 40.838 by zone "general_zone"`.
+> **Bài học: bắt buộc phải test bằng trình duyệt thật.** Tìm ra nguyên nhân trong `docker logs pinedesk-gateway`: `limiting requests, excess: 40.838 by zone "general_zone"`.
 
 **Lớp 4 — Chặn truy cập file nhạy cảm**
 
@@ -511,7 +553,7 @@ location ~* /(config|files/_log|files/_cron|files/_dumps|files/_sessions)/ { den
 [ OK ] Plugin đang hoạt động   : 2 plugin (Barcode, DLU Brand)
 ```
 
-> 🐛 **Lỗi thực tế #3 — Git Bash trên Windows:** script dịch bị lỗi `can't open file 'G:\g\glpi-helpdesk\scripts\...'`. Nguyên nhân: `pwd` trong Git Bash trả về đường dẫn POSIX `/g/glpi-helpdesk`, Python hiểu sai thành `\g\glpi-helpdesk`.
+> 🐛 **Lỗi thực tế #3 — Git Bash trên Windows:** script dịch bị lỗi `can't open file 'G:\g\duong-dan-du-an\scripts\...'`. Nguyên nhân: `pwd` trong Git Bash trả về đường dẫn POSIX `/g/duong-dan-du-an`, Python hiểu sai thành `\g\duong-dan-du-an`.
 >
 > **Đã sửa:** hàm `_winpath()` dùng `pwd -W` để lấy đường dẫn Windows thật, kèm `MSYS_NO_PATHCONV=1` và `MSYS2_ARG_CONV_EXCL='*'`.
 
@@ -528,7 +570,7 @@ location ~* /(config|files/_log|files/_cron|files/_dumps|files/_sessions)/ { den
 - **Tự dọn bản cũ**, mặc định giữ 7 bản gần nhất → không đầy ổ cứng
 - Tùy chọn: `--keep 30` (giữ 30 bản), `--dir /path` (đổi thư mục)
 - Hướng dẫn **hẹn lịch tự động** bằng Windows Task Scheduler (chạy 23:00 hằng ngày)
-- Kiểm tra container `helpdesk-db` đang chạy trước khi dump
+- Kiểm tra container `pinedesk-db` đang chạy trước khi dump
 
 ---
 
@@ -543,6 +585,8 @@ location ~* /(config|files/_log|files/_cron|files/_dumps|files/_sessions)/ { den
 | `do-do-phu-tieng-viet.py` | Python | Đọc `.mo` **thực tế trong container**, đo tỉ lệ Việt hóa, phân loại chuỗi thiếu theo nhóm nghiệp vụ |
 | `kiem-tra-tieng-viet.py` | Python | Kiểm tra chất lượng bản dịch |
 | `chup-anh-giao-dien.js` | Puppeteer + Chrome | Đăng nhập thật, **chụp 6 màn hình**, assert `lang`/`theme`/`title` |
+| `chup-lai-anh-minh-chung.js` | Puppeteer + Chrome | Chụp **19 ảnh minh chứng** cho README, mỗi màn hình một ảnh, tự bỏ qua trang thiếu quyền |
+| `chup-anh-qr-admin.js` | Puppeteer + Chrome | Chụp luồng in QR qua plugin Barcode bằng tài khoản quản trị |
 | `kiem-tra-massive-qr.js` | Puppeteer + Chrome | **Kiểm tra luồng sinh QR qua Massive Action** end-to-end |
 | `kiem-tra-qr-va-chup-anh.js` | Puppeteer + Chrome | Kiểm tra + chụp ảnh kết quả QR |
 
@@ -651,13 +695,14 @@ phục vụ trình diễn trước hội đồng.
 
 | Nội dung | Mô tả |
 |---|---|
-| Khung cảnh Đà Lạt | Đồi thông nhiều lớp, sương mù giữa các dãy núi, hồ nước — vẽ bằng SVG |
-| Số liệu + 3 định hướng | 4 chỉ số thật, và 3 thẻ đối chiếu thẳng với yêu cầu của đề tài |
-| Tính năng nổi bật | Mã QR · Quy trình sự cố ITIL · Dashboard thống kê |
-| Ảnh giao diện thật | Ảnh dashboard **sinh tự động** từ hệ thống đang chạy |
-| Khu mã QR | Mã QR thật, quét được, dẫn thẳng về hồ sơ thiết bị |
+| Khung cảnh Đà Lạt | Năm lớp đồi xếp chồng nhạt dần, rừng thông ở lớp gần nhất, hai dải sương trôi — vẽ bằng SVG |
+| Cửa sổ sản phẩm | Khung trình duyệt chứa ảnh dashboard thật, đặt trên sườn đồi |
+| Quy mô | 4 chỉ số thật: 4 dịch vụ · 34 tài sản · 443 thuật ngữ Việt hoá · 0đ bản quyền |
+| Tính năng nổi bật | Mã QR · Quy trình sự cố ITIL · Dashboard thống kê · An toàn dữ liệu |
+| Mặt cắt kiến trúc | Năm lớp xếp chồng như sườn đồi, đưa chuột lên một lớp thì dải tương ứng sáng lên |
+| Bốn dịch vụ Docker | `pinedesk-gateway` · `pinedesk-glpi` · `pinedesk-db` · `pinedesk-redis`, kèm lệnh chạy |
 | Tài khoản demo | 6 tài khoản 3 vai trò — **bấm để copy**, kèm mật khẩu chung |
-| Kiến trúc & tài liệu | Sơ đồ 4 container, bảo mật, danh sách tài liệu |
+| Tài liệu | Sáu thẻ dẫn tới `tai-lieu/*.md` và `README.md` |
 
 #### Chất liệu tạo hình — lấy từ chính DLU và Đà Lạt
 
@@ -665,17 +710,18 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 
 | Nguồn thật | Thể hiện trên trang |
 |---|---|
-| **Họa tiết trống đồng** trong logo DLU | Vòng đồng tâm mờ sau tiêu đề mục, họa tiết ngăn cách giữa các mục |
-| **Dải lá xanh + sao đỏ** trong logo | Bảng màu chủ đạo, huy hiệu "Trường Đại học Đà Lạt" |
-| **Cảnh quan Đà Lạt** | Đồi thông, sương mù, hồ nước ở hero; nền chân trang |
-| **Kiến trúc Pháp cổ** của thành phố | Chữ tiêu đề **Playfair Display** (serif), thân bài **Be Vietnam Pro** |
+| **Đồi thông Đà Lạt** | Năm lớp đồi nhạt dần theo tầm nhìn xa, rừng thông ở lớp gần nhất |
+| **Khí hậu cao nguyên** | Hai dải sương trôi chậm giữa các lớp đồi; nền trang là sắc sương sớm |
+| **Dải lá xanh + sao đỏ** trong logo | Bảng màu chủ đạo: xanh rêu `#607824`, dải lá `#90B43C`, cam đất `#F08418`, đỏ sao `#CC2430` |
+| **Kiến trúc Pháp cổ** của thành phố | Chữ tiêu đề **Fraunces** (serif), thân bài **Be Vietnam Pro** |
 
 #### Bốn quyết định kỹ thuật quan trọng
 
 1. **Không phụ thuộc CDN.** Bản đầu dùng Tailwind CSS + Font Awesome từ CDN →
    **phòng bảo vệ không có mạng là trang mất toàn bộ giao diện**. Đã thay bằng
-   **CSS tự viết** và **20 tệp font `.woff2` tự lưu** trong `landing/fonts/`
-   (có subset tiếng Việt). Trang gọn còn **~630 KB** (trước ~2,1 MB).
+   **CSS tự viết** và **16 tệp font `.woff2` tự lưu** trong `landing/fonts/`
+   (có subset tiếng Việt). Cả thư mục `landing/` gọn còn **~600 KB**, phần lớn
+   là ảnh dashboard (trước ~2,1 MB).
 
 2. **Liên kết tương đối, không hardcode `localhost`.** Ban đầu 3 nút đều trỏ
    `https://localhost:8443` → **mở từ máy khác trong mạng LAN là hỏng ngay**
@@ -689,9 +735,12 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
    `node scripts/chup-anh-dashboard.js` (tự đăng nhập, chụp, và ẩn banner cảnh báo
    kỹ thuật tạm thời).
 
-4. **Hiệu ứng xuất hiện chỉ ẩn nội dung khi JavaScript chạy.** Lớp `.reveal` ban đầu
-   đặt `opacity: 0` cố định → **nếu JS lỗi hoặc bị tắt thì toàn bộ nội dung vô hình**.
-   Đã chuyển sang chỉ ẩn khi `<html>` có lớp `js` (thêm bằng JS ngay trong `<head>`).
+4. **Không dùng hiệu ứng xuất hiện khi cuộn.** Bản trước gắn lớp `.reveal` cho
+   từng mục rồi cho mờ dần hiện ra lúc cuộn tới. Cách đó vừa là mẫu thiết kế
+   chung chung, vừa có rủi ro: nếu JavaScript lỗi hoặc bị tắt thì nội dung
+   vẫn nằm ở `opacity: 0`. Bản này bỏ hẳn hiệu ứng cuộn — **nội dung hiện đầy
+   đủ ngay cả khi JavaScript bị tắt**. JavaScript chỉ còn lo hai việc: sao chép
+   tài khoản và làm sáng dải mặt cắt khi đưa chuột lên một lớp.
 
 **Kiểm thử:**
 
@@ -739,14 +788,16 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 | `scripts/cai-plugin-qrcode.sh` | 197 | Cài plugin QR |
 | `scripts/cai-giao-dien.sh` | 125 | Cài giao diện |
 | `scripts/cai-ban-dich.sh` | 118 | Cài bản dịch (`tai` = chỉ tải `.po`) |
+| `scripts/chup-lai-anh-minh-chung.js` | 253 | ⭐ **Chụp 19 ảnh minh chứng** cho README (một màn hình một ảnh, bỏ qua trang thiếu quyền) |
+| `scripts/chup-anh-qr-admin.js` | 192 | ⭐ Chụp luồng in QR qua plugin Barcode (cần tài khoản quản trị) |
 | `scripts/chup-anh-giao-dien.js` | 170 | Chụp ảnh giao diện |
 | `scripts/kiem-tra-massive-qr.js` | 140 | Kiểm tra luồng QR |
 | `scripts/kiem-tra-qr-va-chup-anh.js` | 104 | Kiểm tra + chụp QR |
 | `scripts/chup-anh-dashboard.js` | 72 | ⭐ Chụp ảnh dashboard thật cho landing page |
 | `scripts/chup-anh-tung-khu.js` | 61 | ⭐ Chụp riêng từng khu để soi thiết kế |
 | `scripts/kiem-tra-landing.js` | 195 | ⭐ Kiểm tra landing (anchor, ảnh, font, console) |
-| `landing/index.html` | 882 | ⭐ **Trang giới thiệu dự án** (thiết kế riêng) |
-| `landing/assets/css/style.css` | 1.393 | ⭐ **CSS tự viết** cho landing (không dùng Tailwind) |
+| `landing/index.html` | 662 | ⭐ **Trang giới thiệu dự án** (thiết kế riêng theo cảnh quan Đà Lạt) |
+| `landing/assets/css/style.css` | 1.249 | ⭐ **CSS tự viết** cho landing (không dùng Tailwind) |
 | `tai-lieu/HUONG-DAN-TRIEN-KHAI.md` | — | Hướng dẫn triển khai |
 | `tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md` | — | Hướng dẫn plugin QR |
 | `tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md` | — | Giao diện & Việt hóa |
@@ -754,7 +805,7 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 | `tai-lieu/SO-SANH-VOI-GLPI-GOC.md` | — | **Tài liệu này** |
 
 **Tổng code tự viết: ~9.900 dòng** (script + plugin + theme + CSS + landing page).
-*(Không tính `landing/fonts/` — đó là 20 tệp font `.woff2` tải sẵn từ Google Fonts,
+*(Không tính `landing/fonts/` — đó là 16 tệp font `.woff2` tải sẵn từ Google Fonts,
 không phải code tự viết.)*
 
 ### 3.2. File cấu hình tùy chỉnh
@@ -797,7 +848,7 @@ Ghi rõ để tránh hiểu nhầm khi bảo vệ đồ án:
 | Tài khoản mẫu 3 vai trò | ✅ **Đã tạo** | 6 tài khoản: 2 KTV, 2 giảng viên, 2 sinh viên — đã kiểm chứng đăng nhập được |
 | Dữ liệu thiết bị mẫu | ✅ **Đã nhập** | 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu |
 | Trang Thống kê (`stat.global.php`) | ⚠️ **Cần tham số** | Phải mở từ **menu Hỗ trợ → Thống kê**, không gõ URL trực tiếp (sẽ báo lỗi) |
-| Chứng chỉ SSL | ⚠️ **Tự ký nhưng CÓ SAN** | Đã có Subject Alternative Name (`localhost`, `helpdesk.local`, `127.0.0.1`…) nên trình duyệt cho thêm ngoại lệ; triển khai thật nên dùng Let's Encrypt |
+| Chứng chỉ SSL | ⚠️ **Tự ký nhưng CÓ SAN** | Đã có Subject Alternative Name (`localhost`, `pinedesk.local`, `127.0.0.1`…) nên trình duyệt cho thêm ngoại lệ; triển khai thật nên dùng Let's Encrypt |
 | Đa ngôn ngữ | ✅ Tiếng Việt + tiếng Anh | Các ngôn ngữ khác chưa dịch |
 | Ứng dụng di động | ❌ Không có | GLPI có bản mobile chính thức, chưa tích hợp |
 | Kiểm thử tự động | ✅ **Đã có CI** | `.github/workflows/ci.yml`: cú pháp (shell/Python/JS), ShellCheck, `docker compose config`, `nginx -t`, chứng chỉ có SAN, kiểm tra bảo mật, smoke test khởi động thật 4 container |

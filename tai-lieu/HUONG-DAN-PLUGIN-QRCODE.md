@@ -1,6 +1,6 @@
 # HƯỚNG DẪN CÀI & SỬ DỤNG PLUGIN SINH MÃ QR
 
-> **Dự án:** Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk) — Trường Đại học Đà Lạt
+> **Dự án:** Xây dựng hệ thống hỗ trợ kỹ thuật (PineDesk) — Trường Đại học Đà Lạt
 > **Phiên bản GLPI:** 11.0.0 · **Plugin:** Barcode 2.7.1 (AGPL-3.0)
 > **Trạng thái thực tế:** ✅ Đã cài đặt và **ĐANG HOẠT ĐỘNG** (Enabled)
 
@@ -15,7 +15,7 @@ hệ thống mở ngay hồ sơ thiết bị đó (lịch sử sửa chữa, c�
 **Chỉ cần chạy 1 lệnh:**
 
 ```bash
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 bash scripts/cai-plugin-qrcode.sh
 ```
 
@@ -65,14 +65,14 @@ QR PNG generated: 243 bytes
 ### Bước 1 — Chạy script
 
 ```bash
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 bash scripts/cai-plugin-qrcode.sh
 ```
 
 Kết quả mong đợi (rút gọn):
 
 ```
-[ OK ] Container helpdesk-glpi dang chay
+[ OK ] Container pinedesk-glpi dang chay
 [ OK ] Extension day du
 [ OK ] Da tai (1.9M)
 [ OK ] Thu muc nguon: barcode (co vendor/ day du)
@@ -93,7 +93,7 @@ Kết quả mong đợi (rút gọn):
 Nếu script dừng ở `state = 4` (đã cài, chưa bật), chạy thêm:
 
 ```bash
-docker exec -u www-data helpdesk-glpi php /var/www/glpi/bin/console plugin:activate barcode
+docker exec -u www-data pinedesk-glpi php /var/www/glpi/bin/console plugin:activate barcode
 ```
 
 → Kết quả: **`Plugin "barcode" has been activated.`**
@@ -101,7 +101,7 @@ docker exec -u www-data helpdesk-glpi php /var/www/glpi/bin/console plugin:activ
 ### Bước 3 — Kiểm tra
 
 ```bash
-docker exec -u www-data helpdesk-glpi php /var/www/glpi/bin/console plugin:list
+docker exec -u www-data pinedesk-glpi php /var/www/glpi/bin/console plugin:list
 ```
 
 Kết quả đúng phải là:
@@ -131,8 +131,11 @@ Nếu muốn thao tác trên trình duyệt:
 
 ## 6. CÁCH SỬ DỤNG — IN MÃ QR HÀNG LOẠT
 
-> ✅ **ĐÃ KIỂM CHỨNG THỰC TẾ** bằng trình duyệt tự động — xem ảnh
-> `anh-giao-dien/11-cau-hinh-nhan-qr.png` và `13-phieu-qr-da-sinh.png`.
+> ✅ **ĐÃ KIỂM CHỨNG THỰC TẾ** bằng trình duyệt tự động (19/09).
+> Tùy chọn **Barcode - Print QRcodes** chỉ hiện với hồ sơ có quyền
+> `plugin_barcode_barcode` (mặc định là Super-Admin), nên ảnh minh chứng
+> cho luồng này cần chụp bằng tài khoản quản trị:
+> `node scripts/chup-anh-qr-admin.js`.
 
 ### 6.1. In mã QR cho thiết bị (qua Hành động hàng loạt)
 
@@ -163,7 +166,7 @@ Nếu muốn thao tác trên trình duyệt:
    báo phía trên để **tải file PDF về** và in.
 
 **Kết quả thực tế đã kiểm chứng:** file PDF 1 trang, chứa mã QR hợp lệ kèm
-tên thiết bị in bên dưới (`PC-TEST-QR-DLU-001`). Xem `13-phieu-qr-da-sinh.png`.
+tên thiết bị in bên dưới (`PC-TEST-QR-DLU-001`).
 
 ### 6.2. In mã QR cho phiếu sự cố (Ticket)
 
@@ -195,7 +198,7 @@ Hai lỗi này **KHÔNG hiện thông báo lỗi** — chỉ im lặng không ra
 **Kiểm tra nhanh file QR đã sinh hay chưa:**
 
 ```bash
-docker exec helpdesk-glpi ls -la /var/glpi/files/_plugins/barcode/
+docker exec pinedesk-glpi ls -la /var/glpi/files/_plugins/barcode/
 # Phai thay: <id>_QRcode.pdf
 ```
 
@@ -237,7 +240,7 @@ ITC-PC-A101-001
 - Rủi ro bảo mật: lộ địa chỉ nội bộ.
 
 Khi cần, có thể dùng **URL rút gọn nội bộ** trỏ tới
-`https://helpdesk.dlu.edu.vn/front/computer.form.php?id=<ID>` — nhưng phải
+`https://pinedesk.dlu.edu.vn/front/computer.form.php?id=<ID>` — nhưng phải
 triển khai tên miền nội bộ trước (xem mục 9).
 
 ### 7.3. Các bước triển khai thực tế
@@ -283,7 +286,7 @@ python scripts/sinh-ma-qr.py
 Để mã QR trỏ tới hồ sơ thiết bị, cần một tên miền nội bộ:
 
 ```
-helpdesk.dlu.edu.vn   →  trỏ về IP máy chủ chạy Docker (cổng 8443)
+pinedesk.dlu.edu.vn   →  trỏ về IP máy chủ chạy Docker (cổng 8443)
 ```
 
 Cấu hình trong file `hosts` của máy trạm, hoặc DNS nội bộ của Trung tâm CNTT.
@@ -331,24 +334,24 @@ Tạo nhóm người dùng **"Kỹ thuật viên phòng máy"** với quyền:
 ### Kiểm tra nhanh tình trạng plugin
 
 ```bash
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 
 # 1. Plugin co dang Enabled?
-docker exec -u www-data helpdesk-glpi php /var/www/glpi/bin/console plugin:list
+docker exec -u www-data pinedesk-glpi php /var/www/glpi/bin/console plugin:list
 
 # 2. Trang thai trong CSDL
 source .env
-docker exec helpdesk-db mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
+docker exec pinedesk-db mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
   -e "SELECT name,version,state FROM glpi_plugins;"
 #   1 = ACTIVATED (tot nhat) | 2 = NOTINSTALLED | 3 = TOBECONFIGURED | 4 = NOTACTIVATED
 
 # 3. Bang du lieu cua plugin da tao chua?
-docker exec helpdesk-db mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
+docker exec pinedesk-db mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
   -e "SHOW TABLES LIKE '%barcode%';"
 #   Phai thay: glpi_plugin_barcode_configs, glpi_plugin_barcode_configs_types
 
 # 4. Thu sinh 1 ma QR that
-docker exec -u www-data helpdesk-glpi sh -c 'cd /var/www/glpi/plugins/barcode && \
+docker exec -u www-data pinedesk-glpi sh -c 'cd /var/www/glpi/plugins/barcode && \
   php -r "require \"vendor/autoload.php\"; QRcode::png(\"TEST-001\", \"/tmp/q.png\", QR_ECLEVEL_L, 4); \
   echo filesize(\"/tmp/q.png\")>0 ? \"QR OK\" : \"QR FAIL\";"'
 ```
@@ -368,7 +371,9 @@ docker exec -u www-data helpdesk-glpi sh -c 'cd /var/www/glpi/plugins/barcode &&
 | Tuỳ chọn QR trong menu | ✅ `Barcode - Print QRcodes` hiện trong "Các hành động" |
 | Sinh mã QR thực tế | ✅ File PDF 18.813 byte, 1 trang, QR hợp lệ, quét được |
 | Thư mục xuất file | ✅ `/var/glpi/files/_plugins/barcode/` (đã tạo trong script cài) |
-| Ảnh minh chứng | ✅ `anh-giao-dien/11-cau-hinh-nhan-qr.png`, `13-phieu-qr-da-sinh.png` |
+| Ảnh minh chứng | ✅ `anh-giao-dien/11-ma-qr-thiet-bi.png` (mã QR hiện trên hồ sơ thiết bị) |
+| Ảnh luồng in qua plugin | ⏳ Cần tài khoản quản trị mới thấy tùy chọn — chụp bằng `node scripts/chup-anh-qr-admin.js` |
+| Ảnh nhãn QR in hàng loạt | ✅ `anh-giao-dien/12-ket-qua-sinh-qr.png` (do `scripts/sinh-ma-qr.py`, phương án dự phòng) |
 
 > **Kiểm chứng bằng trình duyệt tự động thật (Chrome headless):**
 > tạo thiết bị → tích chọn → Các hành động → Barcode - Print QRcodes →
@@ -376,4 +381,4 @@ docker exec -u www-data helpdesk-glpi sh -c 'cd /var/www/glpi/plugins/barcode &&
 
 ---
 
-*Tài liệu thuộc đồ án thực tập "Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk)" — Trường Đại học Đà Lạt.*
+*Tài liệu thuộc đồ án thực tập "Xây dựng hệ thống hỗ trợ kỹ thuật (PineDesk)" — Trường Đại học Đà Lạt.*

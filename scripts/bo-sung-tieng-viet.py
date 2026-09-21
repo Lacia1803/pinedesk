@@ -4,7 +4,7 @@
 ================================================================================
  BO SUNG BAN DICH TIENG VIET CHO GLPI  (PO -> MO, khong can msgfmt)
 ================================================================================
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 
  VAN DE:
    GLPI 11 dong goi san file vi_VN.mo nhung CHI DICH DUOC ~32% (2052/6394 chuoi).
@@ -22,6 +22,7 @@
    python scripts/bo-sung-tieng-viet.py
 ================================================================================
 """
+import gettext
 import os
 import re
 import struct
@@ -428,6 +429,11 @@ BAN_DICH_BO_SUNG = {
     "Notifications": "Thông báo",
     "Template": "Mẫu",
     "Templates": "Mẫu",
+    # Cac nut che do xem tren thanh cong cu danh sach phieu. Ban dich vi_VN
+    # chinh thuc cua GLPI de trong (msgstr = "") nen nut van hien tieng Anh
+    # giua mot giao dien da Viet hoa hoan toan.
+    "Global Kanban": "Bảng Kanban",
+    "Kanban": "Kanban",
     "Rule": "Quy tắc",
     "Rules": "Quy tắc",
     "Field": "Trường dữ liệu",
@@ -508,6 +514,199 @@ BAN_DICH_BO_SUNG = {
     "of": "trên",
     "rows": "dòng",
     "per page": "mỗi trang",
+
+    # ===== THANH PHAN TRANG + NHAN TRONG BIEU MAU =====
+    # Cung loai loi nhu khoi SLA: ban dich vi_VN chinh thuc de msgstr = ""
+    # nen cac chuoi nay roi ve tieng Anh. Chung nam ngay duoi bang du lieu
+    # ("Showing 1 to 7 of 7 rows") hoac trong the "Actors" cua bieu mau, tuc
+    # la cho nguoi dung nhin thay moi lan cuon trang.
+    # Giu nguyen %s vi GLPI thay bang so that.
+    "Showing %s to %s of %s rows": "Hiển thị %s đến %s trong %s dòng",
+    "Sorted by %s": "Sắp xếp theo %s",
+    "Rows per page": "Số dòng mỗi trang",
+    "No results": "Không có kết quả",
+    "Actors": "Các bên liên quan",
+    "Linked object": "Đối tượng liên kết",
+    "External File": "Tệp bên ngoài",
+    "External files": "Tệp bên ngoài",
+    "Room": "Phòng",
+    # KHONG them "Entity" / "Rack": ca hai la msgid SO NHIEU trong .po goc
+    # (msgid_plural "Entities" / "Racks") va "Entity" da co ban dich
+    # "Các đối tượng". Them mot khoa so it se ghi de sai dang.
+
+    # ===== SUA BAN DICH SAI NGHIA (khong phai chuoi trong) =====
+    # Khac voi cac khoi tren (msgstr rong -> roi ve tieng Anh), day la cac
+    # entry CO ban dich nhung dich SAI. Chuoi goc la "Login source" (nguon
+    # xac thuc: CSDL noi bo / LDAP / SSO). Ban dich chinh thuc cua GLPI la
+    # "Đăng nhập dữ liệu" — doc nhu "login data", vo nghia voi nguoi dung.
+    # Nhan nay hien ngay tren trang dang nhap, canh o chon nguon xac thuc.
+    "Login source": "Nguồn xác thực",
+    # "GLPI internal database" bi dich thanh "GLPI cơ sở dữ liệu nội bộ" —
+    # thieu gioi tu, doc nhu ten rieng. Day la MOT lua chon trong o chon
+    # nguon xac thuc o tren.
+    "GLPI internal database": "Cơ sở dữ liệu nội bộ của GLPI",
+
+    # --- Chuoi con sot, quet tu giao dien that ---
+    # "Server room" va "Linked assistance object" la msgid SO NHIEU trong .po
+    # goc; ham va_so_nhieu() se tu lay ban dich so it nay ap cho ca dang nhieu.
+    "Server room": "Phòng máy chủ",
+    "Linked assistance object": "Đối tượng hỗ trợ liên kết",
+    "Current page": "Trang hiện tại",
+    "Top of the page": "Đầu trang",
+    "rows / page": "dòng / trang",
+    "Notifications are disabled in this entity.": "Thông báo đang bị tắt trong đơn vị này.",
+    "%1$s will be added in entity %2$s": "%1$s sẽ được thêm vào đơn vị %2$s",
+    # Khoi ly do tat thong bao, hien trong the "Cac ben lien quan" cua bieu mau
+    # phieu. Ba cau nay nam lien nhau trong templates/components/itilobject/
+    # actors/main.html.twig va deu co msgstr rong trong ban dich chinh thuc.
+    "Notifications are disabled because:": "Thông báo bị tắt vì:",
+    "User does not have an email address.": "Người dùng chưa có địa chỉ email.",
+    "User has disabled notifications from its preferences.":
+        "Người dùng đã tắt thông báo trong phần thiết lập cá nhân.",
+    # Goi y trong hop thoai tim kiem nhanh (Ctrl+Alt+G). %s la to hop phim.
+    "Tip: You can call this modal with %s keys combination":
+        "Mẹo: mở hộp thoại này bằng tổ hợp phím %s",
+    # Nhan trong hop thoai tim kiem nhanh va lien ket trong the thong bao.
+    # Ca hai deu co msgstr rong trong ban dich chinh thuc.
+    "Go to menu": "Tới menu",
+    "Edit notification settings": "Sửa thiết lập thông báo",
+    # Chu goi y trong o nhap cua hop thoai tim kiem nhanh. Ban dich chinh thuc
+    # de TRONG, va chuoi nay con bi "dong bang" luc nap module Vue (xem
+    # plugins/dlubrand/public/js/dlu-chu-vue.js).
+    "Start typing to find a menu": "Gõ để tìm mục trong menu",
+    # Chu thich cua nut mo lich chon ngay. Ban dich chinh thuc cung de TRONG.
+    "Show date picker": "Mở lịch chọn ngày",
+    # Nut them mot dieu kien sap xep trong thanh tim kiem nang cao (bam vao
+    # bieu tuong ba gach ngang tren tieu de cot). Ban dich chinh thuc de TRONG
+    # (locales/vi_VN.po dong 3779, msgstr = ""), nen nut van hien tieng Anh
+    # giua mot thanh tim kiem da Viet hoa hoan toan.
+    "Add another sort": "Thêm điều kiện sắp xếp",
+    "Escalations defined in the OLA will be triggered under this new date.":
+        "Các bước leo thang đã định trong OLA sẽ được kích hoạt theo mốc thời gian mới này.",
+
+    # ===== CAM KET DICH VU (SLA) — thoi gian xu ly / tiep nhan =====
+    # Cac nhan nay hien ngay tren danh sach phieu va trong bieu mau phieu.
+    # Ban dich vi_VN chinh thuc cua GLPI de TRONG (msgstr = "") nen truoc day
+    # cot van hien "Time to resolve" giua mot bang toan tieng Viet.
+    # Giu nguyen chu viet tat TTO/TTR vi do la thuat ngu quoc te, ky thuat vien
+    # van dung hang ngay; dich dai dong se lam tieu de cot bi cat.
+    "Time to resolve": "Thời gian giải quyết",
+    "Time to own": "Thời gian tiếp nhận",
+    "Time to resolve + Progress": "Thời gian giải quyết + Tiến độ",
+    "Time to resolve exceeded": "Quá hạn giải quyết",
+    "Internal TTO": "TTO nội bộ",
+    "Internal TTR": "TTR nội bộ",
+    "Internal Time to own": "Thời gian tiếp nhận nội bộ",
+    "Internal Time to resolve": "Thời gian giải quyết nội bộ",
+    "TTO": "TTO",
+    "TTR": "TTR",
+    "OLA": "OLA",
+    "SLA": "SLA",
+    "Service level": "Mức dịch vụ",
+    "Service levels": "Các mức dịch vụ",
+    "Next escalation: %s": "Leo thang kế tiếp: %s",
+
+    # ===== CHUOI CON SOT, QUET TU GIAO DIEN THAT (vong 2) =====
+    # Quet bang trinh duyet tren 31 trang da dang nhap, loc ra chuoi ASCII
+    # hien nguyen tieng Anh. Moi muc duoi day deu da doi chieu lai voi
+    # locales/vi_VN.po cua GLPI: msgid co that, msgstr rong.
+
+    # --- Tieu de cot trong bang danh sach tai san ---
+    # Cac cot nay do GLPI sinh theo mot khuon chung cho MOI loai tai san,
+    # nen sua mot lan la hien dung o tat ca danh sach.
+    "Location code": "Mã vị trí",
+    "Location alias": "Tên khác của vị trí",
+    "Group in charge": "Nhóm phụ trách",
+    "not contains": "không chứa",
+    "Copy names to clipboard": "Sao chép tên vào bộ nhớ tạm",
+    "All pages": "Tất cả các trang",
+
+    # --- Cot thoi gian xu ly tren danh sach phieu ---
+    # Nhom nhan nay thuoc SLA/OLA. Giu nguyen chu "OLA"/"SLA" vi do la ten
+    # rieng cua khai niem trong GLPI, khong phai chu tieng Anh thong thuong.
+    "Time to own exceeded": "Quá hạn tiếp nhận",
+    "Internal time to own": "Thời gian tiếp nhận nội bộ",
+    "Internal time to own exceeded": "Quá hạn tiếp nhận nội bộ",
+    "Internal time to resolve": "Thời gian giải quyết nội bộ",
+    "Internal time to resolve exceeded": "Quá hạn giải quyết nội bộ",
+    "OLA Internal time to own": "OLA - Thời gian tiếp nhận nội bộ",
+    "OLA Internal time to resolve": "OLA - Thời gian giải quyết nội bộ",
+    "Next escalation level": "Cấp leo thang kế tiếp",
+    "Substitute of a member of approver group": "Người thay thế của một thành viên nhóm phê duyệt",
+
+    # --- Quan he phieu cha/con, dem so luong tren trang chi tiet ---
+    "Number of sons tickets": "Số phiếu con",
+    "Number of parent tickets": "Số phiếu cha",
+    "Son of": "Phiếu con của",
+    "Parent of": "Phiếu cha của",
+
+    # --- Cau huong dan hien ngay tren bieu mau phieu ---
+    "However, you can reactivate the notifications for this ticket.": "Tuy nhiên, bạn có thể bật lại thông báo cho phiếu này.",
+    "The assignment of a SLA to a ticket causes the recalculation of the date.": "Gán một SLA cho phiếu sẽ khiến ngày được tính lại.",
+    "The assignment of an OLA to a ticket causes the recalculation of the date.": "Gán một OLA cho phiếu sẽ khiến ngày được tính lại.",
+
+    # --- Trang chi tiet may tinh: dem linh kien, thong so bo xu ly ---
+    "Number of monitors": "Số màn hình",
+    "Number of peripherals": "Số thiết bị ngoại vi",
+    "Number of printers": "Số máy in",
+    "Number of phones": "Số điện thoại",
+    "processor: number of cores": "bộ xử lý: số nhân",
+    "processor: number of threads": "bộ xử lý: số luồng",
+    "Virtual machine Comment": "Ghi chú máy ảo",
+
+    # --- Bieu mau nguoi dung: khoi mat khau ---
+    "Passwords and access keys": "Mật khẩu và khoá truy cập",
+    "Send an email to the user to set their own new password.": "Gửi email để người dùng tự đặt mật khẩu mới.",
+
+    # --- Bieu mau nhom ---
+    "Can be in charge of a task": "Có thể phụ trách một công việc",
+    "Group code": "Mã nhóm",
+
+    # --- Nhan dem so luong trong tab cua trang chi tiet ---
+    # Nhung nhan nay KHONG goi __() ma goi _x('quantity', '...'). Ham _x()
+    # tra cuu bang khoa "quantity\x04<nhan>" (ky tu \x04 = \004 trong PHP,
+    # xem src/autoload/i18n.php). Vi vay phai ghi ca ngu canh vao khoa,
+    # khong duoc chi ghi "Number of users".
+    # Nguon: src/Group_User.php:654, Monitor.php:534, Peripheral.php:443,
+    #        Phone.php:558, Printer.php:744
+    "quantity\x04Number of users": "Số người dùng",
+    "quantity\x04Number of monitors": "Số màn hình",
+    "quantity\x04Number of peripherals": "Số thiết bị ngoại vi",
+    "quantity\x04Number of phones": "Số điện thoại",
+    "quantity\x04Number of printers": "Số máy in",
+    # (Dang khong ngu canh "Number of ..." da co san o khoi tren, khong
+    #  khai bao lai o day.)
+
+    # --- Bieu mau don vi ---
+    "No-Reply address": "Địa chỉ không trả lời",
+    "No-Reply name": "Tên không trả lời",
+
+    # --- Trang quan ly phan mem ---
+    "Technician in charge of the software": "Kỹ thuật viên phụ trách phần mềm",
+
+    # --- Nut quay lai o cac trang cau hinh / hop dong / ngan sach ---
+    "Return to previous page": "Quay lại trang trước",
+
+    # --- Trang Quy tac (rules): tieu de nhom va mo ta tung loai quy tac ---
+    # Day la trang quan tri, nguoi dung thuong khong vao, nhung ten nhom quy
+    # tac hien ngay tren menu trai nen van can doc duoc.
+    "Location rules": "Quy tắc vị trí",
+    "Apply a location by checking common criteria": "Gán vị trí theo các tiêu chí chung",
+    "Rules for import and link equipments": "Quy tắc nhập và liên kết thiết bị",
+    "Match data with an existing asset, create a new asset, or deny the import": "Khớp dữ liệu với tài sản đã có, tạo tài sản mới, hoặc từ chối nhập",
+    "Normalize sub-data (like softwares, OS and models)": "Chuẩn hoá dữ liệu con (như phần mềm, hệ điều hành và model)",
+    "Business rules for assets": "Quy tắc nghiệp vụ cho tài sản",
+    "The asset is created or updated in GLPI": "Tài sản được tạo hoặc cập nhật trong GLPI",
+    "Other rules": "Quy tắc khác",
+    "Override the asset to another custom definition (like Servers)": "Chuyển tài sản sang một định nghĩa tuỳ chỉnh khác (như Máy chủ)",
+    "Set an entity with some criteria (by its tag for example)": "Gán đơn vị theo tiêu chí (ví dụ theo thẻ tag)",
+
+    # --- Muc menu nguoi dung (goc phai tren) ---
+    # "About" nam trong menu xo ra khi bam ten nguoi dung. Dong ban quyen
+    # "GLPI 11.0.0 Copyright (C) 2015-2025 Teclib' and contributors" nam
+    # ngay duoi muc nay va CO Y de nguyen tieng Anh: do la dong ghi cong
+    # phap ly cua tac gia, khong phai chu giao dien.
+    "About": "Giới thiệu",
 }
 
 
@@ -783,7 +982,20 @@ def doc_po(duong_dan):
 
 
 def _lay_chuoi(entry, khoa):
-    """Trich gia tri cua msgid/msgstr (co the nhieu dong noi tiep)."""
+    """
+    Trich gia tri cua msgid/msgstr (co the nhieu dong noi tiep).
+
+    VI SAO NOI BANG CHUOI RONG (khong phai dau cach):
+      Dinh dang .po cho phep cat mot chuoi dai qua nhieu dong:
+          msgid ""
+          "The assignment of a SLA to a ticket causes the recalculation "
+          "of the date."
+      Cac manh nay noi lai KHONG co phan cach nao. Dong dau tien lai luon
+      rong (""), nen neu noi bang dau cach thi moi khoa sinh ra deu bi them
+      mot dau cach o dau (" The assignment..."). Khoa do khong bao gio khop
+      khi GLPI tra cuu -> ban dich nam trong .mo nhung khong dung duoc.
+      Do duoc: 41 entry nhu vay trong ban vi_VN cua GLPI.
+    """
     lines = entry.split('\n')
     gtri = []
     gom = False
@@ -798,7 +1010,9 @@ def _lay_chuoi(entry, khoa):
             break
     if not gtri:
         return ''
-    return ' '.join(g.strip().strip('"') for g in gtri)
+    # .strip('"') go cap nhay ngoai cung; giu nguyen khoang trang BEN TRONG
+    # chuoi vi chung la mot phan cua ban dich ("Hello " + "World").
+    return ''.join(g.strip().strip('"') for g in gtri)
 
 
 # -----------------------------------------------------------------------------
@@ -827,11 +1041,13 @@ def ghi_mo(ban_dich, duong_dan_mo):
     msgid_blob = b''
     msgstr_blob = b''
     offsets = []
+    do_dai = []                      # do dai THAT (byte) cua tung msgid
 
     # Entry dau tien la header (msgid rong)
     msgid_blob += b'\x00'
     msgstr_blob += header.encode('utf-8') + b'\x00'
     offsets.append((0, 0, len(header.encode('utf-8'))))
+    do_dai.append(0)                 # msgid rong -> do dai 0
 
     for msgid, msgstr in items:
         id_b = msgid.encode('utf-8')
@@ -841,6 +1057,7 @@ def ghi_mo(ban_dich, duong_dan_mo):
             len(msgstr_blob),
             len(str_b),
         ))
+        do_dai.append(len(id_b))
         msgid_blob += id_b + b'\x00'
         msgstr_blob += str_b + b'\x00'
 
@@ -866,26 +1083,23 @@ def ghi_mo(ban_dich, duong_dan_mo):
     )
 
     # --- Bang offset ---
-    orig_tbl = b''
-    trans_tbl = b''
-    for o_id, o_str, ln_str in offsets:
-        orig_tbl += struct.pack('<2I', len(msgid_blob), o_id)
-        trans_tbl += struct.pack('<2I', ln_str, o_str)
+    #
+    # CANH BAO — LOI DA GAP THAT:
+    #   Truong 'offset' trong bang phai la vi tri TUYET DOI tinh tu DAU FILE,
+    #   khong phai vi tri tuong doi trong blob. Ban dau ham nay ghi offset
+    #   tuong doi, sinh ra file .mo ma Python gettext KHONG doc duoc
+    #   (UnicodeDecodeError ngay dong dau) va GLPI am tham bo qua.
+    #   Vi vay phai cong them moc bat dau cua tung blob.
+    blob_id_start = off_trans_tbl + tong * 8
+    blob_str_start = blob_id_start + len(msgid_blob)
 
-    # Sua lai: do dai msgid phai la do dai that cua chuoi
     orig_tbl = b''
     trans_tbl = b''
-    # Tinh lai chinh xac do dai tung msgid
-    do_dai = []
-    for msgid, msgstr in items:
-        do_dai.append(len(msgid.encode('utf-8')))
-    # Entry header: msgid rong -> do dai 0
-    orig_tbl += struct.pack('<2I', 0, 0)
-    trans_tbl += struct.pack('<2I', len(header.encode('utf-8')), 0)
-    for idx, (msgid, msgstr) in enumerate(items, start=1):
+    for idx in range(tong):
         o_id, o_str, ln_str = offsets[idx]
-        orig_tbl += struct.pack('<2I', do_dai[idx - 1], o_id)
-        trans_tbl += struct.pack('<2I', ln_str, o_str)
+        do_dai_id = do_dai[idx]
+        orig_tbl += struct.pack('<2I', do_dai_id, blob_id_start + o_id)
+        trans_tbl += struct.pack('<2I', ln_str, blob_str_start + o_str)
 
     # --- Ghi file ---
     with open(duong_dan_mo, 'wb') as f:
@@ -907,6 +1121,13 @@ def main():
     po_vao = os.path.join(thu_muc, 'vi_VN.po')
     mo_ra = os.path.join(thu_muc, 'vi_VN.mo')
 
+    # Console Windows (cp1252/cp437) khong in duoc dau tieng Viet -> ep UTF-8
+    # de dong "Thu dich" khong lam script chet giua chung.
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    except (AttributeError, ValueError):
+        pass
+
     print('=' * 78)
     print('  BO SUNG BAN DICH TIENG VIET CHO GLPI')
     print('=' * 78)
@@ -918,7 +1139,7 @@ def main():
     if not os.path.exists(po_vao) or os.path.getsize(po_vao) == 0:
         # .po khong duoc version hoa (xem .gitignore) nhung luon tai lai duoc
         # tu image GLPI -> tu dong lay ve thay vi bat nguoi dung chay tay.
-        glpi_container = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+        glpi_container = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
         os.makedirs(thu_muc, exist_ok=True)
         r = subprocess.run(
             ['docker', 'exec', glpi_container, 'cat',
@@ -971,35 +1192,46 @@ def main():
     print('\n' + '=' * 78)
     print('  HOAN TAT')
     print('=' * 78)
-    print('\n  BUOC TIEP THEO: cai ban dich vao GLPI')
-    print('    bash scripts/cai-ban-dich.sh')
+    print()
+    print('  CANH BAO — DAY KHONG PHAI BUOC CUOI CUNG.')
+    print('  File vua tao la LOP PHU (chi chua chuoi moi/ghi de), KHONG phai')
+    print('  catalog day du. Cai thang lop phu nay de len vi tri catalog goc se')
+    print('  LAM MAT ~2000 chuoi da dich chinh thuc cua GLPI.')
+    print()
+    print('  BUOC TIEP THEO — gop lop phu vao catalog day du:')
+    print('    python scripts/tao-mo-bo-sung.py')
+    print('    python scripts/gop-ban-dich-tieng-viet.py')
     print()
 
 
 def kiem_tra_mo(duong_dan):
-    """Doc lai file .mo de kiem tra tinh hop le."""
+    """
+    Doc lai file .mo bang chinh bo doc gettext cua Python.
+
+    VI SAO KHONG TU DOC BANG TAY:
+      Ban truoc tu doc offset va luon tra ve True, nen mot file .mo hong
+      (offset tuong doi thay vi tuyet doi) VAN BAO "HOP LE" — trong khi
+      gettext that su nem UnicodeDecodeError. Dung gettext.GNUTranslations
+      de kiem tra dung cai ma GLPI se dung.
+    """
     try:
         with open(duong_dan, 'rb') as f:
-            data = f.read()
-        magic, ver, n, off_o, off_t, hash_sz, off_h = struct.unpack('<7I', data[:28])
-        if magic != 0x950412de:
-            print(f'       magic sai: {hex(magic)}')
-            return False
-        if n == 0:
-            print('       khong co entry nao')
-            return False
-        # Thu tra 1 chuoi cu the
-        for i in range(n):
-            ln, off = struct.unpack('<2I', data[off_o + i * 8: off_o + i * 8 + 8])
-            msgid = data[off:off + ln]
-            ln2, off2 = struct.unpack('<2I', data[off_t + i * 8: off_t + i * 8 + 8])
-            msgstr = data[off2:off2 + ln2]
-            if msgid == b'Computer':
-                print(f'       Thu dich: "Computer" => "{msgstr.decode("utf-8")}"')
-                break
+            dich = gettext.GNUTranslations(f)
+
+        # Vai chuoi chot: phai dich duoc, va ban dich phai KHAC ban goc.
+        for goc, mong_doi in (
+            ('Computer', 'Máy tính'),
+            ('Status', 'Trạng thái'),
+            ('Time to resolve', 'Thời gian giải quyết'),
+        ):
+            ket_qua = dich.gettext(goc)
+            if ket_qua == goc:
+                print(f'       [LOI] "{goc}" khong duoc dich (van la tieng Anh)')
+                return False
+            print(f'       Thu dich: "{goc}" => "{ket_qua}"')
         return True
     except Exception as e:
-        print(f'       Loi doc file: {e}')
+        print(f'       Loi doc file: {type(e).__name__}: {e}')
         return False
 
 

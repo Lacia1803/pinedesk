@@ -1,6 +1,6 @@
 # HƯỚNG DẪN TUỲ BIẾN GIAO DIỆN & VIỆT HOÁ
 
-> **Dự án:** Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk) — Trường Đại học Đà Lạt
+> **Dự án:** Xây dựng hệ thống hỗ trợ kỹ thuật (PineDesk) — Trường Đại học Đà Lạt
 > **Nền tảng:** GLPI 11.0.0 · **Giao diện:** Bảng màu "Đà Lạt" + plugin `dlubrand`
 > **Trạng thái thực tế:** ✅ Đã áp dụng và **đang chạy** (đã kiểm tra bằng ảnh chụp thật)
 
@@ -266,7 +266,7 @@ entry có ký tự `\0`.
 ### B.4. Vì sao phải vá cấu hình Nginx?
 
 Khi kiểm tra bằng **trình duyệt thật** (Chrome headless), trang bị lỗi **503** và
-**logo 404**. Truy nguyên trong log `helpdesk-gateway`:
+**logo 404**. Truy nguyên trong log `pinedesk-gateway`:
 
 | Lỗi | Nguyên nhân | Đã sửa |
 |---|---|---|
@@ -294,13 +294,14 @@ python scripts/gop-ban-dich-tieng-viet.py
 # Đo tỉ lệ Việt hoá
 python scripts/do-do-phu-tieng-viet.py
 
-# Chụp ảnh giao diện (làm minh chứng báo cáo)
+# Chụp 19 ảnh minh chứng trong README (một màn hình một ảnh)
 # - Mật khẩu KHÔNG hardcode: truyền qua GLPI_PASS.
 # - NODE_PATH trỏ tới node_modules có puppeteer-core (cài bằng `npm i puppeteer-core`).
 # - Nếu Chrome không nằm ở đường dẫn mặc định, đặt thêm CHROME_PATH.
-GLPI_USER=glpi GLPI_PASS='<mật khẩu>' \
+# - Hai ảnh luồng in QR cần quyền quản trị, chụp riêng bằng scripts/chup-anh-qr-admin.js.
+GLPI_USER=ktv.an GLPI_PASS='<mật khẩu>' \
 NODE_PATH="<DUONG-DAN>/node_modules" \
-  node scripts/chup-anh-giao-dien.js
+  node scripts/chup-lai-anh-minh-chung.js
 
 # Sinh mã QR cho thiết bị
 python scripts/sinh-ma-qr.py
@@ -311,7 +312,7 @@ python scripts/sinh-ma-qr.py
 ## PHẦN D — CẤU TRÚC FILE LIÊN QUAN
 
 ```
-glpi-helpdesk/
+pinedesk/
 ├── plugins/dlubrand/              ← plugin giao diện Đà Lạt
 │   ├── setup.php                  ← đăng ký hook ADD_CSS + POST_INIT
 │   └── public/
@@ -327,7 +328,7 @@ glpi-helpdesk/
 │   ├── tao-mo-bo-sung.py          ← tạo lớp phủ bản dịch
 │   ├── gop-ban-dich-tieng-viet.py ← gộp bản dịch (không mất chuỗi)
 │   ├── do-do-phu-tieng-viet.py    ← đo tỉ lệ Việt hoá
-│   ├── chup-anh-giao-dien.js      ← chụp ảnh minh chứng
+│   ├── chup-lai-anh-minh-chung.js ← chụp 19 ảnh minh chứng (một màn hình một ảnh)
 │   └── sinh-ma-qr.py              ← sinh mã QR thiết bị
 └── tai-lieu/anh-giao-dien/        ← ảnh chụp giao diện thực tế
 ```

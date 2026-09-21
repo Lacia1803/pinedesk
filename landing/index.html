@@ -1,732 +1,580 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IT Helpdesk — Đại học Đà Lạt</title>
-<meta name="description" content="Hệ thống hỗ trợ kỹ thuật (IT Helpdesk) của Trường Đại học Đà Lạt: quản lý phòng máy, thiết bị, phần mềm, phiếu sự cố và tra cứu tài sản bằng mã QR.">
-<meta name="theme-color" content="#F08418">
-<meta name="author" content="Đồ án thực tập — Trường Đại học Đà Lạt">
-
-<!-- Biểu tượng trang: vòng đồng tâm lấy ý từ logo DLU -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23F08418'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M16 9l5 4-5 10-5-10z' fill='%2390B43C'/%3E%3C/svg%3E">
-
-<!-- Kiểu chữ nội bộ — đã tải sẵn, trang chạy được khi không có mạng.
-     Mỗi tập ký tự (Việt / Latin) là một tệp riêng. -->
-<link rel="preload" as="font" type="font/woff2" href="fonts/be-vietnam-pro-400-vietnamese.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="fonts/be-vietnam-pro-400-latin.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="fonts/playfair-display-700-vietnamese.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="fonts/playfair-display-700-latin.woff2" crossorigin>
-<link rel="stylesheet" href="fonts/fonts.css">
-<link rel="stylesheet" href="assets/css/style.css">
-
-<!-- Đánh dấu "đã có JS" trước khi vẽ trang.
-     Nhờ vậy hiệu ứng xuất hiện dần chỉ bật khi JS thực sự chạy;
-     nếu JS lỗi hoặc bị tắt, toàn bộ nội dung vẫn hiển thị bình thường. -->
-<script>document.documentElement.className += ' js';</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PineDesk — Trường Đại học Đà Lạt</title>
+  <meta name="description" content="Hệ thống hỗ trợ kỹ thuật và quản lý tài sản CNTT của Trường Đại học Đà Lạt: quy trình sự cố ITIL, tra cứu thiết bị bằng mã QR, chạy trên GLPI 11 và Docker.">
+  <link rel="icon" type="image/png" href="./logo-DLU-100sq.png">
+  <link rel="stylesheet" href="./fonts/fonts.css?v=1">
+  <link rel="stylesheet" href="./assets/css/style.css?v=1">
 </head>
 <body>
 
-<!-- ==========================================================================
-     BỘ BIỂU TƯỢNG SVG NỘI BỘ (nhúng thẳng, không phụ thuộc thư viện ngoài)
-     ========================================================================== -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
-  <symbol id="i-sao" viewBox="0 0 24 24"><path d="M12 2.4l3 6.1 6.7.98-4.85 4.72 1.15 6.66L12 17.72 6 20.86l1.15-6.66L2.3 9.48 9 8.5z" fill="currentColor" stroke="none"/></symbol>
-  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
-  <symbol id="i-mui-ten" viewBox="0 0 24 24"><path d="M4.5 12h15M13 5.5l6.5 6.5-6.5 6.5"/></symbol>
-  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.3l11.2 6.7L8 18.7z"/></symbol>
-  <symbol id="i-ma-nguon" viewBox="0 0 24 24"><path d="M9 18.5L3 12l6-6.5M15 5.5l6 6.5-6 6.5"/></symbol>
-  <symbol id="i-khien" viewBox="0 0 24 24"><path d="M12 2.4l8.2 3.2v6.2c0 5.1-3.5 9.5-8.2 10.9-4.7-1.4-8.2-5.8-8.2-10.9V5.6z"/><path d="M8.8 12.1l2.3 2.3 4.3-4.6"/></symbol>
-  <symbol id="i-hoa" viewBox="0 0 24 24"><circle cx="12" cy="6.8" r="3.1"/><circle cx="16.9" cy="10.3" r="3.1"/><circle cx="15" cy="16.1" r="3.1"/><circle cx="9" cy="16.1" r="3.1"/><circle cx="7.1" cy="10.3" r="3.1"/><circle cx="12" cy="12" r="2.1" fill="currentColor" stroke="none"/></symbol>
-  <symbol id="i-may-tinh" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="13" rx="2.2"/><path d="M8.5 20.5h7M12 17v3.5"/></symbol>
-  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><path d="M14 14h3.2v3.2H14zM20.6 14v3M17.2 20.6h3.4M14 20.6h.1"/></symbol>
-  <symbol id="i-phieu" viewBox="0 0 24 24"><path d="M3 9.6V6.6a2 2 0 012-2h14a2 2 0 012 2v3a2.6 2.6 0 000 5.2v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2.6 2.6 0 000-5.2z"/><path d="M12 6.6v2M12 11v2.4M12 16v1.6"/></symbol>
-  <symbol id="i-nguoi" viewBox="0 0 24 24"><circle cx="9.2" cy="8" r="3.6"/><path d="M2.6 20.2c0-3.6 3-6.6 6.6-6.6s6.6 3 6.6 6.6"/><path d="M16.6 4.9a3.6 3.6 0 010 6.3M18.4 20.2c0-2.6-.9-5-2.5-6.6"/></symbol>
-  <symbol id="i-bieu-do" viewBox="0 0 24 24"><path d="M3 20.6h18"/><rect x="4.8" y="11" width="3.5" height="6.6" rx="1.1"/><rect x="10.2" y="6.4" width="3.5" height="11.2" rx="1.1"/><rect x="15.6" y="9" width="3.5" height="8.6" rx="1.1"/></symbol>
-  <symbol id="i-dia" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3.3"/><path d="M4 6v12c0 1.8 3.6 3.3 8 3.3s8-1.5 8-3.3V6"/><path d="M4 12c0 1.8 3.6 3.3 8 3.3s8-1.5 8-3.3"/></symbol>
-  <symbol id="i-in" viewBox="0 0 24 24"><path d="M7 9.2V3.6h10v5.6"/><rect x="3" y="9.2" width="18" height="7.8" rx="2.2"/><path d="M7 14.2h10v6.2H7z"/></symbol>
-  <symbol id="i-quet" viewBox="0 0 24 24"><path d="M3 8V5.6A2.6 2.6 0 015.6 3H8M16 3h2.4A2.6 2.6 0 0121 5.6V8M21 16v2.4a2.6 2.6 0 01-2.6 2.6H16M8 21H5.6A2.6 2.6 0 013 18.4V16"/><path d="M3.4 12h17.2"/></symbol>
-  <symbol id="i-ho-so" viewBox="0 0 24 24"><path d="M14 2.6H7a2 2 0 00-2 2v14.8a2 2 0 002 2h10a2 2 0 002-2V7.6z"/><path d="M14 2.6v5h5M8.5 13h7M8.5 16.6h4.5"/></symbol>
-  <symbol id="i-cong" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.7 3.8 5.9 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.9-3.8-9S9.5 5.7 12 3z"/></symbol>
-  <symbol id="i-ung-dung" viewBox="0 0 24 24"><rect x="3" y="3" width="7.6" height="7.6" rx="1.9"/><rect x="13.4" y="3" width="7.6" height="7.6" rx="1.9"/><rect x="3" y="13.4" width="7.6" height="7.6" rx="1.9"/><rect x="13.4" y="13.4" width="7.6" height="7.6" rx="1.9"/></symbol>
-  <symbol id="i-cache" viewBox="0 0 24 24"><path d="M13.2 2.5L4.6 13.6H11l-.6 7.9L19.6 10.4H13z"/></symbol>
-  <symbol id="i-sach" viewBox="0 0 24 24"><path d="M3.6 4.6a2 2 0 012-2H19a1.6 1.6 0 011.6 1.6v13.6A1.6 1.6 0 0119 19.4H5.6a2 2 0 00-2 2z"/><path d="M3.6 4.6v16.8"/></symbol>
-  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.6" y="8.6" width="11.8" height="11.8" rx="2.2"/><path d="M15.4 5.6v-1a2 2 0 00-2-2H5.6a2 2 0 00-2 2v7.8a2 2 0 002 2h1"/></symbol>
-  <symbol id="i-dia-diem" viewBox="0 0 24 24"><path d="M12 21.4s7-6.2 7-11.4a7 7 0 10-14 0c0 5.2 7 11.4 7 11.4z"/><circle cx="12" cy="9.8" r="2.6"/></symbol>
-  <symbol id="i-thu" viewBox="0 0 24 24"><rect x="2.5" y="4.6" width="19" height="14.8" rx="2.5"/><path d="M3.2 7l8.8 6 8.8-6"/></symbol>
-  <symbol id="i-dang-nhap" viewBox="0 0 24 24"><path d="M14 3.6h4.4a2 2 0 012 2v12.8a2 2 0 01-2 2H14"/><path d="M10 16.4l4.4-4.4L10 7.6M14.4 12H3"/></symbol>
-  <symbol id="i-ngoai" viewBox="0 0 24 24"><path d="M13.8 3.6h6.6v6.6M20.4 3.6L11 13"/><path d="M18 14.4v5.2a2 2 0 01-2 2H5a2 2 0 01-2-2V8.6a2 2 0 012-2h5.2"/></symbol>
-  <symbol id="i-la" viewBox="0 0 24 24"><path d="M20.6 3.4C11 3.4 4 8.4 4 15.4a5.6 5.6 0 005.6 5.6c7 0 11-7.1 11-17.6z"/><path d="M4 21.2c2.6-6.1 6.7-10.3 12.3-12.9"/></symbol>
-  <symbol id="i-mui-ten-xuong" viewBox="0 0 24 24"><path d="M12 4.6v15M5.5 13l6.5 6.5L18.5 13"/></symbol>
-  <symbol id="i-kiem-tra" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.8 2.8L16 9.5"/></symbol>
-  <!-- Họa tiết trống đồng: vòng đồng tâm + dải chấm + mặt trời ở tâm -->
-  <symbol id="i-trong-dong" viewBox="0 0 200 200"><g fill="none" stroke="currentColor"><circle cx="100" cy="100" r="97" stroke-width="1.6"/><circle cx="100" cy="100" r="90" stroke-width=".8"/><circle cx="100" cy="100" r="76" stroke-width="7" stroke-dasharray="3 9"/><circle cx="100" cy="100" r="64" stroke-width=".8"/><circle cx="100" cy="100" r="52" stroke-width="5" stroke-dasharray="2 12"/><circle cx="100" cy="100" r="40" stroke-width=".8"/><circle cx="100" cy="100" r="26" stroke-width="1.2"/></g><g fill="currentColor"><path d="M100 74l6.4 15.6L122 96l-15.6 6.4L100 118l-6.4-15.6L78 96l15.6-6.4z"/><circle cx="100" cy="58" r="3.4"/><circle cx="100" cy="142" r="3.4"/><circle cx="58" cy="100" r="3.4"/><circle cx="142" cy="100" r="3.4"/></g></symbol>
-  <!-- Cây thông — dùng xếp thành rừng thông trên đồi -->
-  <symbol id="i-thong" viewBox="0 0 24 40"><path d="M12 1L3.6 16.4h4.2L1.8 30.6h7.4V39h5.6v-8.4h7.4L16.2 16.4h4.2z" fill="currentColor" stroke="none"/></symbol>
-</defs></svg>
+<a class="nhay" href="#mo-dau">Bỏ qua tới nội dung chính</a>
 
 <!-- ==========================================================================
      THANH ĐIỀU HƯỚNG
      ========================================================================== -->
-<header class="nav" id="nav">
-  <div class="wrap nav__inner">
-    <a class="nav__brand" href="#tong-quan">
-      <img src="logo-DLU-100sq.png" alt="Logo Trường Đại học Đà Lạt" width="40" height="40">
-      <span>IT Helpdesk<small>Đại học Đà Lạt</small></span>
+<header class="nav">
+  <div class="khung nav__trong">
+    <a href="#mo-dau" class="nav__hieu">
+      <img src="./logo-DLU-100sq.png" alt="" class="nav__logo" width="44" height="44">
+      <span class="nav__ten">
+        <strong>PineDesk</strong>
+        <span>Trường Đại học Đà Lạt</span>
+      </span>
     </a>
 
-    <button class="nav__toggle" id="navToggle" aria-label="Mở menu" aria-expanded="false" aria-controls="navLinks">
-      <svg class="ic" aria-hidden="true"><use href="#i-menu"/></svg>
-    </button>
-
-    <nav class="nav__links" id="navLinks" aria-label="Liên kết chính">
+    <nav class="nav__neo" aria-label="Mục chính">
       <a href="#tinh-nang">Tính năng</a>
-      <a href="#giao-dien">Giao diện</a>
-      <a href="#ma-qr">Mã QR</a>
-      <a href="#tai-khoan">Dùng thử</a>
+      <a href="#tai-khoan">Tài khoản</a>
+      <a href="#kien-truc">Kiến trúc</a>
       <a href="#tai-lieu">Tài liệu</a>
     </nav>
 
-    <a class="nav__cta" href="/">
-      <svg class="ic" aria-hidden="true"><use href="#i-dang-nhap"/></svg>
-      Truy cập
-    </a>
+    <div class="nav__hanh">
+      <span class="nav__tin">
+        <span class="cham"></span>
+        Đang chạy
+      </span>
+      <a href="/" class="nut nut--day">
+        Mở hệ thống
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+      </a>
+    </div>
   </div>
 </header>
 
 <main>
 
 <!-- ==========================================================================
-     HERO — KHUNG CẢNH ĐÀ LẠT
-     Sương mù, đồi thông, hồ Xuân Hương, vầng sáng bình minh.
+     1. MỞ ĐẦU — nhìn từ đồi thông xuống thung lũng sương
      ========================================================================== -->
-<section class="hero" id="tong-quan">
-  <div class="hero__glow" aria-hidden="true"></div>
+<section class="mo-dau" id="mo-dau">
+  <div class="khung mo-dau__chu">
+    <p class="mo-dau__nhan">
+      <span class="sao" aria-hidden="true"></span>
+      Đồ án tốt nghiệp · Khoá 2022–2026 · Khoa Công nghệ Thông tin
+    </p>
 
-  <!-- Cảnh nền: núi xa → đồi thông → hồ → rừng thông gần -->
-  <div class="hero__scene" aria-hidden="true">
-    <svg viewBox="0 0 1440 620" preserveAspectRatio="none">
+    <h1 class="mo-dau__tua">
+      Hệ thống hỗ trợ kỹ thuật<br>
+      của Trường Đại học Đà Lạt
+    </h1>
+
+    <p class="mo-dau__dan">
+      Tiếp nhận và xử lý sự cố theo quy trình ITIL, quản lý tài sản phòng máy
+      bằng mã QR, thống kê tình hình thiết bị trên dashboard. Toàn bộ chạy trên
+      GLPI 11 trong bốn container Docker, giao diện tiếng Việt.
+    </p>
+
+    <div class="mo-dau__nut">
+      <a href="/" class="nut nut--day nut--to">
+        Mở hệ thống tại cổng 8443
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+      </a>
+      <a href="#tai-khoan" class="nut nut--vien nut--to">
+        Xem 6 tài khoản dùng thử
+      </a>
+    </div>
+  </div>
+
+  <!-- Cảnh đồi thông nhiều lớp -->
+  <div class="canh" aria-hidden="true">
+    <div class="canh__suong canh__suong--1" data-sau="64"></div>
+    <div class="canh__suong canh__suong--2" data-sau="42"></div>
+
+    <!-- data-sau: độ sâu, tính bằng đơn tọa độ SVG. Lớp càng xa càng trôi
+         chậm hơn nhịp cuộn, nên càng dịch xuống nhiều. -->
+    <svg class="canh__hinh" viewBox="0 0 1440 520" preserveAspectRatio="xMidYMax slice">
+      <!-- Lớp đồi xa nhất, nhạt nhất -->
+      <path class="doi doi--5" data-sau="72" d="M0,200 C160,150 240,240 400,195 C560,150 640,230 800,185 C960,140 1040,225 1200,180 C1330,145 1390,200 1440,185 L1440,520 L0,520 Z"/>
+      <!-- Lớp 4 -->
+      <path class="doi doi--4" data-sau="58" d="M0,258 C180,208 260,292 420,248 C580,204 660,288 820,244 C980,200 1060,280 1220,240 C1340,210 1400,258 1440,244 L1440,520 L0,520 Z"/>
+      <!-- Lớp 3 -->
+      <path class="doi doi--3" data-sau="46" d="M0,318 C200,268 280,352 460,308 C640,264 720,348 900,304 C1080,260 1160,340 1340,300 L1440,314 L1440,520 L0,520 Z"/>
+      <!-- Lớp 2 -->
+      <path class="doi doi--2" data-sau="34" d="M0,382 C220,332 320,418 540,374 C760,330 860,408 1080,368 C1240,338 1360,388 1440,374 L1440,520 L0,520 Z"/>
+
+      <!-- Rừng thông đứng trên lớp đồi gần nhất, nên trôi cùng nhịp với nó -->
+      <g class="thong" data-sau="10">
+        <use href="#cay" transform="translate(58,470) scale(1.05)"/>
+        <use href="#cay" transform="translate(104,486) scale(1.4)"/>
+        <use href="#cay" transform="translate(158,462) scale(0.9)"/>
+        <use href="#cay" transform="translate(212,492) scale(1.55)"/>
+        <use href="#cay" transform="translate(272,468) scale(1.1)"/>
+        <use href="#cay" transform="translate(330,488) scale(1.35)"/>
+        <use href="#cay" transform="translate(392,464) scale(0.95)"/>
+
+        <!-- Cụm giữa: trên màn hình hẹp, phép cắt xMidYMax slice bỏ hẳn hai
+             cụm ở mép, nên phải có thông ở giữa mới giữ được rừng. -->
+        <use href="#cay" transform="translate(492,468) scale(1.05)"/>
+        <use href="#cay" transform="translate(556,488) scale(1.45)"/>
+        <use href="#cay" transform="translate(620,462) scale(0.9)"/>
+        <use href="#cay" transform="translate(684,490) scale(1.5)"/>
+        <use href="#cay" transform="translate(748,466) scale(1.1)"/>
+        <use href="#cay" transform="translate(812,486) scale(1.35)"/>
+        <use href="#cay" transform="translate(876,464) scale(0.95)"/>
+        <use href="#cay" transform="translate(940,488) scale(1.4)"/>
+
+        <use href="#cay" transform="translate(1046,462) scale(0.95)"/>
+        <use href="#cay" transform="translate(1104,488) scale(1.4)"/>
+        <use href="#cay" transform="translate(1164,466) scale(1.1)"/>
+        <use href="#cay" transform="translate(1224,490) scale(1.5)"/>
+        <use href="#cay" transform="translate(1288,464) scale(0.9)"/>
+        <use href="#cay" transform="translate(1346,484) scale(1.3)"/>
+      </g>
+
+      <!-- Lớp đồi gần nhất, gần như đứng yên khi cuộn -->
+      <path class="doi doi--1" data-sau="18" d="M0,452 C260,406 380,482 640,442 C900,402 1020,472 1280,438 C1380,424 1420,448 1440,442 L1440,520 L0,520 Z"/>
+    </svg>
+
+    <!-- Cây thông dùng lại nhiều lần -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
       <defs>
-        <linearGradient id="g-nui-xa" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#8CB2BE"/><stop offset="1" stop-color="#BCD4D6"/>
-        </linearGradient>
-        <linearGradient id="g-nui-gan" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#74A2AA"/><stop offset="1" stop-color="#A6C5C6"/>
-        </linearGradient>
-        <linearGradient id="g-suong" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
-          <stop offset=".42" stop-color="#FFFFFF" stop-opacity=".92"/>
-          <stop offset=".64" stop-color="#FFFFFF" stop-opacity=".92"/>
-          <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
-        </linearGradient>
-        <linearGradient id="g-hill1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#A9C489"/><stop offset="1" stop-color="#80A463"/>
-        </linearGradient>
-        <linearGradient id="g-hill2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#6D9354"/><stop offset="1" stop-color="#4E7448"/>
-        </linearGradient>
-        <linearGradient id="g-hill3" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#3B6145"/><stop offset="1" stop-color="#22402B"/>
-        </linearGradient>
-        <linearGradient id="g-ho" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#D8E9EA"/><stop offset="1" stop-color="#9DC2CB"/>
-        </linearGradient>
+        <path id="cay" d="M0,-22 L7,-9 L4,-9 L10,4 L6,4 L13,18 L-13,18 L-6,4 L-10,4 L-4,-9 L-7,-9 Z"/>
       </defs>
-
-      <!-- Dãy núi xa — dáng Langbiang hai đỉnh, sườn mềm không gãy khúc -->
-      <path d="M0 322 Q70 280 140 292 Q200 302 250 274 Q300 246 356 268 Q400 284 440 264 Q480 242 530 266 Q570 284 610 260 Q650 236 690 212 Q724 192 758 206 Q790 220 812 250 Q836 282 872 288 Q900 292 920 264 Q946 228 980 216 Q1010 206 1038 232 Q1066 258 1096 280 Q1128 304 1170 296 Q1216 286 1258 266 Q1300 246 1348 268 Q1394 288 1440 298 L1440 620 L0 620 Z" fill="url(#g-nui-xa)"/>
-
-      <!-- Sương phủ chân núi xa -->
-      <rect x="0" y="300" width="1440" height="104" fill="url(#g-suong)"/>
-      <ellipse cx="288" cy="352" rx="366" ry="22" fill="#FFFFFF" opacity=".5"/>
-      <ellipse cx="884" cy="334" rx="424" ry="19" fill="#FFFFFF" opacity=".4"/>
-      <ellipse cx="1312" cy="364" rx="300" ry="21" fill="#FFFFFF" opacity=".38"/>
-
-      <!-- Dãy núi gần hơn, nhạt dần trong sương -->
-      <path d="M0 386 Q90 350 176 366 Q252 380 320 352 Q392 322 462 350 Q524 374 596 356 Q664 338 736 360 Q800 380 872 362 Q944 344 1016 364 Q1084 382 1156 360 Q1228 338 1300 362 Q1372 386 1440 366 L1440 620 L0 620 Z" fill="url(#g-nui-gan)"/>
-
-      <!-- Tầng sương thứ hai -->
-      <rect x="0" y="360" width="1440" height="90" fill="url(#g-suong)" opacity=".74"/>
-
-      <!-- Hồ Xuân Hương phía tả, in bóng sườn đồi -->
-      <path d="M30 456 C92 436 202 433 270 444 C332 454 342 478 264 488 C178 498 62 494 28 478 C10 469 10 462 30 456 Z" fill="url(#g-ho)"/>
-      <path d="M72 470 C132 460 216 459 260 466 C290 471 284 478 246 481 C188 485 108 482 68 476 C48 473 50 472 72 470 Z" fill="#FFFFFF" opacity=".45"/>
-
-      <!-- Đồi thông lớp giữa -->
-      <path d="M0 414 C170 380 320 408 480 394 C640 380 780 408 940 392 C1100 376 1250 404 1440 386 L1440 620 L0 620 Z" fill="url(#g-hill1)"/>
-
-      <!-- Thông nhỏ trên sườn đồi giữa -->
-      <g color="#568555" opacity=".88">
-        <use href="#i-thong" x="84"  y="366" width="14" height="24"/>
-        <use href="#i-thong" x="108" y="358" width="18" height="30"/>
-        <use href="#i-thong" x="138" y="372" width="12" height="20"/>
-        <use href="#i-thong" x="248" y="364" width="16" height="27"/>
-        <use href="#i-thong" x="278" y="352" width="21" height="35"/>
-        <use href="#i-thong" x="426" y="374" width="15" height="25"/>
-        <use href="#i-thong" x="452" y="364" width="19" height="32"/>
-        <use href="#i-thong" x="484" y="376" width="13" height="22"/>
-        <use href="#i-thong" x="638" y="352" width="17" height="29"/>
-        <use href="#i-thong" x="668" y="342" width="23" height="38"/>
-        <use href="#i-thong" x="704" y="358" width="14" height="24"/>
-        <use href="#i-thong" x="858" y="372" width="16" height="27"/>
-        <use href="#i-thong" x="888" y="360" width="21" height="35"/>
-        <use href="#i-thong" x="1074" y="352" width="15" height="25"/>
-        <use href="#i-thong" x="1100" y="344" width="20" height="33"/>
-        <use href="#i-thong" x="1132" y="356" width="13" height="22"/>
-        <use href="#i-thong" x="1296" y="370" width="17" height="29"/>
-        <use href="#i-thong" x="1328" y="364" width="22" height="36"/>
-      </g>
-
-      <!-- Đồi thông lớp gần -->
-      <path d="M0 496 C180 474 340 496 520 486 C700 476 860 496 1040 488 C1200 481 1320 494 1440 486 L1440 620 L0 620 Z" fill="url(#g-hill2)"/>
-
-      <!-- Thông trên sườn đồi gần -->
-      <g color="#33583C">
-        <use href="#i-thong" x="46"  y="450" width="24" height="40"/>
-        <use href="#i-thong" x="98"  y="458" width="19" height="31"/>
-        <use href="#i-thong" x="152" y="446" width="22" height="37"/>
-        <use href="#i-thong" x="276" y="452" width="21" height="35"/>
-        <use href="#i-thong" x="338" y="462" width="18" height="30"/>
-        <use href="#i-thong" x="470" y="450" width="23" height="38"/>
-        <use href="#i-thong" x="548" y="444" width="25" height="42"/>
-        <use href="#i-thong" x="626" y="456" width="19" height="31"/>
-        <use href="#i-thong" x="742" y="446" width="23" height="38"/>
-        <use href="#i-thong" x="836" y="458" width="18" height="30"/>
-        <use href="#i-thong" x="918" y="450" width="22" height="37"/>
-        <use href="#i-thong" x="1044" y="452" width="21" height="35"/>
-        <use href="#i-thong" x="1148" y="446" width="24" height="40"/>
-        <use href="#i-thong" x="1256" y="456" width="19" height="31"/>
-        <use href="#i-thong" x="1362" y="448" width="23" height="38"/>
-      </g>
-
-      <!-- Đồi tối nhất, khép khung phía dưới -->
-      <path d="M0 570 C200 552 380 570 560 562 C740 554 900 570 1080 564 C1240 559 1340 568 1440 562 L1440 620 L0 620 Z" fill="url(#g-hill3)"/>
-
-      <!-- Rừng thông chính ở tiền cảnh — so le, khác cỡ, không xếp hàng đều -->
-      <g color="#23432E">
-        <use href="#i-thong" x="16"   y="514" width="34" height="56"/>
-        <use href="#i-thong" x="72"   y="520" width="28" height="46"/>
-        <use href="#i-thong" x="124"  y="511" width="32" height="53"/>
-        <use href="#i-thong" x="250"  y="518" width="27" height="45"/>
-        <use href="#i-thong" x="330"  y="511" width="34" height="56"/>
-        <use href="#i-thong" x="396"  y="526" width="26" height="43"/>
-        <use href="#i-thong" x="510"  y="514" width="30" height="50"/>
-        <use href="#i-thong" x="572"  y="503" width="36" height="59"/>
-        <use href="#i-thong" x="646"  y="514" width="28" height="46"/>
-        <use href="#i-thong" x="760"  y="505" width="33" height="54"/>
-        <use href="#i-thong" x="828"  y="521" width="26" height="43"/>
-        <use href="#i-thong" x="940"  y="511" width="35" height="57"/>
-        <use href="#i-thong" x="1010" y="520" width="28" height="46"/>
-        <use href="#i-thong" x="1120" y="512" width="31" height="51"/>
-        <use href="#i-thong" x="1190" y="502" width="36" height="59"/>
-        <use href="#i-thong" x="1262" y="514" width="28" height="46"/>
-        <use href="#i-thong" x="1360" y="507" width="34" height="56"/>
-        <use href="#i-thong" x="1420" y="517" width="27" height="45"/>
-      </g>
     </svg>
   </div>
+</section>
 
-  <!-- Ba dải sương trôi chậm -->
-  <div class="hero__mist hero__mist--1" aria-hidden="true"></div>
-  <div class="hero__mist hero__mist--2" aria-hidden="true"></div>
-  <div class="hero__mist hero__mist--3" aria-hidden="true"></div>
-
-  <!-- Cánh hoa rơi -->
-  <div class="hero__petals" aria-hidden="true">
-    <i class="petal" style="left:8%;  animation-duration:15s; animation-delay:0s"></i>
-    <i class="petal" style="left:19%; animation-duration:19s; animation-delay:2.4s; background:#90B43C"></i>
-    <i class="petal" style="left:31%; animation-duration:13s; animation-delay:5.1s"></i>
-    <i class="petal" style="left:44%; animation-duration:21s; animation-delay:1.2s; background:#C0CC84"></i>
-    <i class="petal" style="left:57%; animation-duration:16s; animation-delay:6.6s"></i>
-    <i class="petal" style="left:69%; animation-duration:18s; animation-delay:3.3s; background:#90B43C"></i>
-    <i class="petal" style="left:81%; animation-duration:14s; animation-delay:8.1s"></i>
-    <i class="petal" style="left:92%; animation-duration:20s; animation-delay:4.5s"></i>
-  </div>
-
-  <div class="wrap hero__inner">
-    <div class="hero__content">
-      <span class="hero__badge">
-        <svg class="ic" aria-hidden="true"><use href="#i-sao"/></svg>
-        Trường Đại học Đà Lạt · Hệ thống nội bộ
+<!-- Cửa sổ sản phẩm, đặt trên sườn đồi -->
+<div class="khung cua-so__bao">
+  <figure class="cua-so">
+    <div class="cua-so__thanh">
+      <span class="cua-so__cham"></span>
+      <span class="cua-so__cham"></span>
+      <span class="cua-so__cham"></span>
+      <span class="cua-so__dia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        https://localhost:8443
       </span>
-
-      <h1 class="hero__title">
-        <span>Hệ thống</span>
-        <span>Hỗ trợ Kỹ thuật</span>
-        <em>IT Helpdesk</em>
-      </h1>
-
-      <div class="phan-cach" aria-hidden="true">
-        <svg class="ic" viewBox="0 0 24 24"><use href="#i-hoa"/></svg>
-      </div>
-
-      <p class="hero__sub">
-        Quản lý phòng máy, thiết bị và phần mềm; tiếp nhận – phân công – theo dõi
-        <strong>phiếu sự cố theo quy trình ITIL</strong>; tra cứu hồ sơ tài sản tức thì bằng
-        <strong>mã QR</strong>. Xây dựng trên mã nguồn mở GLPI, đóng gói bằng Docker,
-        giao diện tiếng Việt mang bản sắc Đà Lạt.
-      </p>
-
-      <div class="hero__actions">
-        <a class="btn btn--cam" href="/">
-          <svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>
-          Trải nghiệm hệ thống
-        </a>
-        <a class="btn btn--trong" href="#tai-khoan">
-          <svg class="ic" aria-hidden="true"><use href="#i-nguoi"/></svg>
-          Tài khoản dùng thử
-        </a>
-      </div>
     </div>
+    <img src="./dashboard-preview.png"
+         alt="Ảnh chụp dashboard GLPI 11 đã Việt hoá và tô bảng màu Đà Lạt, hiển thị thống kê phiếu sự cố và tài sản"
+         class="cua-so__anh" width="1600" height="1000">
+    <figcaption class="cua-so__chu">
+      Dashboard sinh từ hệ thống đang chạy, dữ liệu mẫu đã nạp, giao diện tiếng Việt.
+    </figcaption>
+  </figure>
+</div>
 
-    <!-- Dải số liệu -->
-    <div class="hero__stats">
-      <div class="stat">
-        <div class="stat__num">4</div>
-        <div class="stat__label">Dịch vụ trong kiến trúc Docker</div>
+<!-- ==========================================================================
+     2. QUY MÔ — số liệu thật của hệ thống và của Trường
+     ========================================================================== -->
+<section class="quy-mo">
+  <div class="khung">
+    <div class="quy-mo__luoi">
+      <div class="so">
+        <span class="so__gia">4</span>
+        <span class="so__nhan">Dịch vụ Docker</span>
+        <span class="so__chu">Nginx · GLPI 11 · MariaDB 10.11 · Redis 7, dựng bằng một lệnh.</span>
       </div>
-      <div class="stat">
-        <div class="stat__num">443</div>
-        <div class="stat__label">Thuật ngữ Việt hoá bổ sung</div>
+      <div class="so">
+        <span class="so__gia">34</span>
+        <span class="so__nhan">Tài sản trong hệ thống</span>
+        <span class="so__chu">17 máy tính, 5 màn hình, 3 máy in, 9 thiết bị mạng.</span>
       </div>
-      <div class="stat">
-        <div class="stat__num">79</div>
-        <div class="stat__label">Loại sự cố được phân loại sẵn</div>
+      <div class="so">
+        <span class="so__gia">443</span>
+        <span class="so__nhan">Thuật ngữ Việt hoá</span>
+        <span class="so__chu">Cộng 212 mục dạng số nhiều; menu, biểu mẫu và nhãn đã dịch.</span>
       </div>
-      <div class="stat">
-        <div class="stat__num">0<span>đ</span></div>
-        <div class="stat__label">Chi phí bản quyền phần mềm</div>
+      <div class="so">
+        <span class="so__gia">0<span class="so__dv">đ</span></span>
+        <span class="so__nhan">Chi phí bản quyền</span>
+        <span class="so__chu">GLPI 11 và toàn bộ thành phần đều là mã nguồn mở.</span>
       </div>
-    </div>
-
-    <div class="hero__scroll">
-      <span aria-hidden="true"></span>
-      Cuộn xuống
     </div>
   </div>
 </section>
 
 <!-- ==========================================================================
-     VÌ SAO — BA TRỤ CỘT
+     3. TÍNH NĂNG
      ========================================================================== -->
-<section class="sec sec--giay" id="vi-sao">
-  <div class="trong-dong" aria-hidden="true">
-    <svg viewBox="0 0 200 200"><use href="#i-trong-dong"/></svg>
-  </div>
-
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <span class="eyebrow">Định hướng thực hiện</span>
-      <h2 class="sec-title">Ba điều <em>then chốt</em></h2>
-      <p class="sec-desc">
-        Đề tài đặt ra ba yêu cầu: không làm lại từ đầu, tùy biến giao diện thân thiện,
-        và mọi chức năng thêm vào đều phải bảo đảm bảo mật.
+<section class="muc" id="tinh-nang">
+  <div class="khung">
+    <header class="dau-muc">
+      <h2 class="dau-muc__tua">Bốn việc hệ thống làm được</h2>
+      <p class="dau-muc__dan">
+        Từ lúc thiết bị được dán nhãn trong phòng máy đến lúc kỹ thuật viên đóng
+        phiếu sự cố, mọi bước đều nằm trong cùng một hệ thống.
       </p>
-    </div>
-
-    <div class="tru">
-      <article class="tru__item reveal">
-        <div class="tru__icon"><svg class="ic" aria-hidden="true"><use href="#i-ma-nguon"/></svg></div>
-        <h3>Kế thừa, không viết lại</h3>
-        <p>
-          Dùng GLPI 11 — nền tảng ITSM mã nguồn mở đã được kiểm chứng qua hàng nghìn
-          tổ chức. Toàn bộ phần tùy biến nằm ở <strong>lớp phủ riêng</strong>
-          (plugin, giao diện, script), nên nâng cấp GLPI về sau không làm mất công sức đã bỏ ra.
-        </p>
-      </article>
-
-      <article class="tru__item reveal">
-        <div class="tru__icon"><svg class="ic" aria-hidden="true"><use href="#i-khien"/></svg></div>
-        <h3>Bảo mật theo từng lớp</h3>
-        <p>
-          HTTPS có chứng thư riêng, giới hạn tần suất đăng nhập để chống dò mật khẩu,
-          chặn truy cập tệp nhạy cảm ngay tại cổng vào, và phân quyền chặt theo
-          <strong>ba vai trò</strong>: quản trị, kỹ thuật viên, người dùng.
-        </p>
-      </article>
-
-      <article class="tru__item reveal">
-        <div class="tru__icon"><svg class="ic" aria-hidden="true"><use href="#i-hoa"/></svg></div>
-        <h3>Tiếng Việt, chất Đà Lạt</h3>
-        <p>
-          443 thuật ngữ chuyên ngành được Việt hoá thêm, phủ kín menu, biểu mẫu và
-          bảng điều khiển. Bảng màu và họa tiết lấy thẳng từ <strong>logo Đại học Đà Lạt</strong> —
-          vòng trống đồng, sắc cam, dải lá xanh.
-        </p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================================================
-     TÍNH NĂNG
-     ========================================================================== -->
-<section class="sec sec--suong" id="tinh-nang">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Năng lực hệ thống</span>
-      <h2 class="sec-title">Một nơi cho <em>mọi việc kỹ thuật</em></h2>
-      <p class="sec-desc">
-        Từ lúc thiết bị về trường, dán nhãn QR, cài phần mềm, cho tới khi có sự cố
-        và cần biết ai đang xử lý — tất cả nằm trong cùng một hệ thống.
-      </p>
-    </div>
+    </header>
 
     <div class="tinh-nang">
-      <article class="tn reveal">
-        <div class="tn__icon"><svg class="ic" aria-hidden="true"><use href="#i-may-tinh"/></svg></div>
-        <h3>Quản lý tài sản &amp; phòng máy</h3>
-        <p>Hồ sơ chi tiết cho máy tính, màn hình, máy in, thiết bị mạng và phần mềm cài đặt trên từng máy.</p>
-        <ul><li>17 máy tính</li><li>5 màn hình</li><li>3 máy in</li><li>9 thiết bị mạng</li><li>10 phần mềm</li></ul>
-      </article>
 
-      <article class="tn reveal">
-        <div class="tn__icon"><svg class="ic" aria-hidden="true"><use href="#i-qr"/></svg></div>
-        <h3>Tra cứu bằng mã QR</h3>
-        <p>In nhãn QR dán trực tiếp lên thiết bị. Quét bằng điện thoại là mở ngay hồ sơ — không cần gõ mã tài sản.</p>
-        <ul><li>Xuất PDF hàng loạt</li><li>Quét bằng điện thoại</li></ul>
-      </article>
-
-      <article class="tn reveal">
-        <div class="tn__icon"><svg class="ic" aria-hidden="true"><use href="#i-phieu"/></svg></div>
-        <h3>Phiếu sự cố theo ITIL</h3>
-        <p>Vòng đời đầy đủ và minh bạch: tiếp nhận, phân công, lên kế hoạch, giải quyết, đóng phiếu.</p>
-        <ul><li>6 trạng thái</li><li>Mức ưu tiên</li><li>Hạn xử lý</li></ul>
-      </article>
-
-      <article class="tn reveal">
-        <div class="tn__icon"><svg class="ic" aria-hidden="true"><use href="#i-nguoi"/></svg></div>
-        <h3>Phân công kỹ thuật viên</h3>
-        <p>Giao việc theo nhóm phụ trách, theo dõi tiến độ, biết ngay phiếu nào đang chờ ai và đã quá hạn bao lâu.</p>
-        <ul><li>Nhóm phụ trách</li><li>Theo dõi quá hạn</li></ul>
-      </article>
-
-      <article class="tn reveal">
-        <div class="tn__icon"><svg class="ic" aria-hidden="true"><use href="#i-bieu-do"/></svg></div>
-        <h3>Bảng điều khiển thống kê</h3>
-        <p>Biểu đồ theo thời gian, theo đơn vị, theo loại sự cố và theo người gửi — nhìn là thấy chỗ nào đang nóng.</p>
-        <ul><li>Theo tháng</li><li>Theo đơn vị</li><li>Theo loại sự cố</li></ul>
-      </article>
-
-      <article class="tn reveal">
-        <div class="tn__icon"><svg class="ic" aria-hidden="true"><use href="#i-cache"/></svg></div>
-        <h3>Dựng lại bằng một lệnh</h3>
-        <p>Toàn bộ hệ thống đóng gói bằng Docker Compose. Cài đặt, nạp danh mục, Việt hoá và kiểm tra chỉ cần chạy một script.</p>
-        <ul><li>Docker Compose</li><li>Một lệnh cài đặt</li></ul>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================================================
-     GIAO DIỆN THỰC TẾ
-     ========================================================================== -->
-<section class="sec sec--giay" id="giao-dien">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <span class="eyebrow">Giao diện thực tế</span>
-      <h2 class="sec-title">Bảng điều khiển <em>sinh từ dữ liệu thật</em></h2>
-      <p class="sec-desc">
-        Ảnh dưới đây chụp trực tiếp từ hệ thống đang chạy — không phải ảnh dựng,
-        không phải dữ liệu mẫu của nhà sản xuất. Tên người, tên đơn vị và số liệu
-        đều là dữ liệu của Trường.
-      </p>
-    </div>
-
-    <figure class="khung reveal" style="margin:0">
-      <div class="khung__bar">
-        <span class="khung__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="khung__url">
-          <svg class="ic" aria-hidden="true"><use href="#i-khien"/></svg>
-          localhost:8443/front/central.php
-        </span>
-      </div>
-      <img src="dashboard-preview.png" alt="Bảng điều khiển IT Helpdesk với biểu đồ thống kê tài sản, phần mềm và phiếu sự cố của Trường Đại học Đà Lạt" loading="lazy" width="1600" height="1100">
-      <figcaption class="khung__foot">
-        <span class="khung__note">
-          <strong>Bảng điều khiển trung tâm</strong> — thẻ số liệu, biểu đồ theo nhà sản xuất,
-          loại sự cố và người gửi phiếu.
-        </span>
-        <a class="btn btn--vien btn--nho" href="/">
-          <svg class="ic" aria-hidden="true"><use href="#i-ngoai"/></svg>
-          Mở bảng điều khiển
-        </a>
-      </figcaption>
-    </figure>
-
-    <div class="so-lieu reveal">
-      <div><b>17</b><span>Máy tính</span></div>
-      <div><b>5</b><span>Màn hình</span></div>
-      <div><b>3</b><span>Máy in</span></div>
-      <div><b>10</b><span>Phần mềm</span></div>
-      <div><b>13</b><span>Phiếu yêu cầu</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- ==========================================================================
-     MÃ QR
-     ========================================================================== -->
-<section class="sec sec--suong" id="ma-qr">
-  <div class="wrap">
-    <div class="qr-luoi">
-      <div class="reveal">
-        <div class="sec-head" style="margin-bottom:34px">
-          <span class="eyebrow">Tra cứu tài sản</span>
-          <h2 class="sec-title">Dán nhãn một lần, <em>quét dùng mãi</em></h2>
-          <p class="sec-desc">
-            Mỗi thiết bị được cấp một mã tài sản theo quy ước riêng của Trường, in kèm
-            mã QR dán lên máy. Kỹ thuật viên chỉ cần quét là mở thẳng hồ sơ — không phải
-            gõ mã, không phải tra bảng.
+      <!-- QR -->
+      <article class="the the--rong">
+        <div class="the__than">
+          <h3 class="the__tua">Tra cứu thiết bị bằng mã QR</h3>
+          <p class="the__chu">
+            Mỗi máy tính, màn hình và thiết bị mạng được gắn một tem QR riêng.
+            Quét bằng camera điện thoại là mở ngay hồ sơ thiết bị: cấu hình,
+            phòng đặt máy, lịch sử sửa chữa và nút báo hỏng.
           </p>
         </div>
 
-        <div class="buoc">
-          <div class="buoc__item">
-            <div class="buoc__num">1</div>
-            <div class="buoc__body">
-              <h3>In nhãn từ hệ thống</h3>
-              <p>Chọn thiết bị trong danh sách, xuất PDF nhãn QR hàng loạt — mỗi nhãn in kèm mã tài sản và tên phòng.</p>
-            </div>
-          </div>
-          <div class="buoc__item">
-            <div class="buoc__num">2</div>
-            <div class="buoc__body">
-              <h3>Quét bằng điện thoại</h3>
-              <p>Dán nhãn lên máy rồi quét bằng camera điện thoại, không cần cài thêm ứng dụng.</p>
-            </div>
-          </div>
-          <div class="buoc__item">
-            <div class="buoc__num">3</div>
-            <div class="buoc__body">
-              <h3>Mở thẳng hồ sơ thiết bị</h3>
-              <p>Trình duyệt mở đúng trang hồ sơ: cấu hình, phần mềm đã cài, người quản lý và lịch sử sửa chữa.</p>
-            </div>
+        <div class="tem">
+          <img src="./qr-sample.png" alt="Mã QR mẫu dán trên một máy tính của Trường" class="tem__anh" width="92" height="92">
+          <div class="tem__chu">
+            <span class="tem__ma">TDL-PC-A101-001</span>
+            <span class="tem__mo">Đà Lạt · Máy tính · Toà A · Phòng 101 · Máy 01</span>
+            <span class="tem__noi">Quét ra hồ sơ thiết bị trên HTTPS cổng 8443</span>
           </div>
         </div>
-      </div>
+      </article>
 
-      <!-- Thẻ tài sản minh hoạ -->
-      <aside class="the reveal">
-        <div class="the__head">
-          <img src="logo-DLU-100sq.png" alt="" width="42" height="42" aria-hidden="true">
-          <span>
-            <b>Nhãn tài sản</b>
-            <small>Hệ thống IT Helpdesk · Đại học Đà Lạt</small>
-          </span>
+      <!-- ITIL -->
+      <article class="the">
+        <div class="the__than">
+          <h3 class="the__tua">Quy trình sự cố theo ITIL</h3>
+          <p class="the__chu">
+            Phiếu sự cố đi qua bốn bước có ghi nhận thời gian, phân loại sẵn theo
+            79 loại sự cố của Trường.
+          </p>
         </div>
 
-        <div class="the__qr">
-          <img src="qr-sample.png" alt="Mã QR mẫu của một thiết bị, quét để mở hồ sơ tài sản" width="150" height="150" loading="lazy">
-          <div class="the__rows">
-            <div class="the__row"><span>Loại thiết bị</span><b>Máy tính để bàn</b></div>
-            <div class="the__row"><span>Vị trí</span><b>Toà A — Phòng 101</b></div>
-            <div class="the__row"><span>Người quản lý</span><b>Nguyễn Văn An</b></div>
-            <div class="the__row"><span>Tình trạng</span><b>Đang sử dụng</b></div>
-          </div>
-        </div>
+        <ol class="buoc">
+          <li class="buoc__muc">
+            <span class="buoc__so">1</span>
+            <span class="buoc__chu">Người dùng báo sự cố qua QR hoặc cổng dịch vụ</span>
+          </li>
+          <li class="buoc__muc">
+            <span class="buoc__so">2</span>
+            <span class="buoc__chu">Hệ thống phân loại và gán kỹ thuật viên phụ trách</span>
+          </li>
+          <li class="buoc__muc">
+            <span class="buoc__so">3</span>
+            <span class="buoc__chu">Kỹ thuật viên xử lý, ghi lại cách khắc phục</span>
+          </li>
+          <li class="buoc__muc">
+            <span class="buoc__so">4</span>
+            <span class="buoc__chu">Nghiệm thu và đóng phiếu, lưu vào cơ sở tri thức</span>
+          </li>
+        </ol>
+      </article>
 
-        <div class="the__code">TDL-PC-A101-001</div>
-      </aside>
+      <!-- Dashboard -->
+      <article class="the">
+        <div class="the__than">
+          <h3 class="the__tua">Thống kê tình hình thiết bị</h3>
+          <p class="the__chu">
+            Dashboard tổng hợp số phiếu theo trạng thái, theo toà nhà và theo
+            loại sự cố. Dùng để lập kế hoạch bảo trì và mua sắm.
+          </p>
+        </div>
+        <ul class="nhanh">
+          <li><span>13</span> phiếu sự cố mẫu, đủ bốn trạng thái</li>
+          <li><span>65</span> phòng máy trong 12 toà nhà</li>
+          <li><span>16</span> khoa và 10 phòng chức năng</li>
+        </ul>
+      </article>
+
+      <!-- Bảo mật -->
+      <article class="the">
+        <div class="the__than">
+          <h3 class="the__tua">An toàn dữ liệu và sao lưu</h3>
+          <p class="the__chu">
+            Cổng vào kết thúc TLS bằng chứng chỉ tự ký có SAN, dùng được cả tên
+            miền lẫn địa chỉ IP trong mạng LAN. Cơ sở dữ liệu được sao lưu theo
+            lịch và khôi phục lại bằng một lệnh.
+          </p>
+        </div>
+        <ul class="nhanh">
+          <li><span>HTTPS</span> chứng chỉ SAN cho tên miền và IP</li>
+          <li><span>2 mạng</span> tách mặt tiền và hậu trường</li>
+          <li><span>Redis</span> phiên đăng nhập có mật khẩu riêng</li>
+        </ul>
+      </article>
+
     </div>
   </div>
 </section>
 
 <!-- ==========================================================================
-     TÀI KHOẢN DÙNG THỬ
+     4. TÀI KHOẢN DÙNG THỬ
      ========================================================================== -->
-<section class="sec sec--giay" id="tai-khoan">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <span class="eyebrow">Dùng thử không cần cài đặt</span>
-      <h2 class="sec-title">Sáu tài khoản, <em>ba vai trò</em></h2>
-      <p class="sec-desc">
-        Bấm vào ô bất kỳ để sao chép tên đăng nhập. Mật khẩu dùng chung cho cả sáu tài khoản.
+<section class="muc muc--toi" id="tai-khoan">
+  <div class="khung">
+    <header class="dau-muc dau-muc--sang">
+      <h2 class="dau-muc__tua">Sáu tài khoản, ba vai trò</h2>
+      <p class="dau-muc__dan">
+        Bấm vào tên tài khoản hoặc mật khẩu để sao chép. Cả sáu dùng chung một
+        mật khẩu.
       </p>
-    </div>
+    </header>
 
-    <div class="tk reveal">
-      <button class="tk__item" type="button" data-user="ktv.an" data-vai="ky-thuat">
-        <span class="tk__avt" aria-hidden="true">A</span>
-        <span class="tk__info">
-          <b>ktv.an</b>
-          <small>Nguyễn Văn An · Kỹ thuật viên</small>
-        </span>
-        <span class="tk__copy" aria-hidden="true"><svg class="ic"><use href="#i-copy"/></svg></span>
-      </button>
-
-      <button class="tk__item" type="button" data-user="ktv.binh" data-vai="ky-thuat">
-        <span class="tk__avt" aria-hidden="true">B</span>
-        <span class="tk__info">
-          <b>ktv.binh</b>
-          <small>Trần Thanh Bình · Kỹ thuật viên</small>
-        </span>
-        <span class="tk__copy" aria-hidden="true"><svg class="ic"><use href="#i-copy"/></svg></span>
-      </button>
-
-      <button class="tk__item" type="button" data-user="gv.cuong" data-vai="giang-vien">
-        <span class="tk__avt" aria-hidden="true">C</span>
-        <span class="tk__info">
-          <b>gv.cuong</b>
-          <small>Lê Mạnh Cường · Giảng viên</small>
-        </span>
-        <span class="tk__copy" aria-hidden="true"><svg class="ic"><use href="#i-copy"/></svg></span>
-      </button>
-
-      <button class="tk__item" type="button" data-user="gv.dung" data-vai="giang-vien">
-        <span class="tk__avt" aria-hidden="true">D</span>
-        <span class="tk__info">
-          <b>gv.dung</b>
-          <small>Phạm Thị Dung · Giảng viên</small>
-        </span>
-        <span class="tk__copy" aria-hidden="true"><svg class="ic"><use href="#i-copy"/></svg></span>
-      </button>
-
-      <button class="tk__item" type="button" data-user="sv.hoa" data-vai="sinh-vien">
-        <span class="tk__avt" aria-hidden="true">H</span>
-        <span class="tk__info">
-          <b>sv.hoa</b>
-          <small>Đỗ Thị Hoa · Sinh viên</small>
-        </span>
-        <span class="tk__copy" aria-hidden="true"><svg class="ic"><use href="#i-copy"/></svg></span>
-      </button>
-
-      <button class="tk__item" type="button" data-user="sv.khanh" data-vai="sinh-vien">
-        <span class="tk__avt" aria-hidden="true">K</span>
-        <span class="tk__info">
-          <b>sv.khanh</b>
-          <small>Vũ Minh Khánh · Sinh viên</small>
-        </span>
-        <span class="tk__copy" aria-hidden="true"><svg class="ic"><use href="#i-copy"/></svg></span>
+    <div class="mat-khau">
+      <span class="mat-khau__nhan">Mật khẩu chung</span>
+      <button type="button" class="mat-khau__nut" data-chep="Dlu@2026" data-goi="mật khẩu">
+        <code>Dlu@2026</code>
+        <span class="mat-khau__goi">Sao chép</span>
       </button>
     </div>
 
-    <div class="tk__note reveal">
-      <svg class="ic" aria-hidden="true"><use href="#i-khien"/></svg>
-      <span>
-        Mật khẩu dùng chung:
-        <strong id="mk" style="font-family:ui-monospace,Menlo,Consolas,monospace;cursor:pointer;color:var(--cam-dam)" title="Bấm để sao chép">Dlu@2026</strong>
-        — đây là tài khoản mẫu phục vụ trình diễn, sẽ được đổi trước khi bàn giao.
-      </span>
+    <div class="vai-tro">
+
+      <div class="vai">
+        <div class="vai__dau">
+          <h3 class="vai__ten">Kỹ thuật viên</h3>
+          <span class="vai__muc">Trung tâm Công nghệ thông tin</span>
+        </div>
+        <p class="vai__chu">Tiếp nhận phiếu, xử lý sự cố và cập nhật hồ sơ thiết bị.</p>
+        <div class="vai__ds">
+          <button type="button" class="tk" data-chep="ktv.an" data-goi="tài khoản ktv.an">
+            <span class="tk__ma">ktv.an</span>
+            <span class="tk__ten">Nguyễn Văn An</span>
+            <span class="tk__goi">Sao chép</span>
+          </button>
+          <button type="button" class="tk" data-chep="ktv.binh" data-goi="tài khoản ktv.binh">
+            <span class="tk__ma">ktv.binh</span>
+            <span class="tk__ten">Trần Thanh Bình</span>
+            <span class="tk__goi">Sao chép</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="vai">
+        <div class="vai__dau">
+          <h3 class="vai__ten">Giảng viên</h3>
+          <span class="vai__muc">Khoa Toán – Tin học, Khoa Vật lý</span>
+        </div>
+        <p class="vai__chu">Báo sự cố cho phòng máy, đề nghị cài đặt phần mềm và theo dõi tiến độ.</p>
+        <div class="vai__ds">
+          <button type="button" class="tk" data-chep="gv.cuong" data-goi="tài khoản gv.cuong">
+            <span class="tk__ma">gv.cuong</span>
+            <span class="tk__ten">Lê Mạnh Cường</span>
+            <span class="tk__goi">Sao chép</span>
+          </button>
+          <button type="button" class="tk" data-chep="gv.dung" data-goi="tài khoản gv.dung">
+            <span class="tk__ma">gv.dung</span>
+            <span class="tk__ten">Phạm Thị Dung</span>
+            <span class="tk__goi">Sao chép</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="vai">
+        <div class="vai__dau">
+          <h3 class="vai__ten">Sinh viên</h3>
+          <span class="vai__muc">Khoa Toán – Tin học, Khoa Công nghệ Thông tin</span>
+        </div>
+        <p class="vai__chu">Quét mã QR tại máy thực hành, báo hỏng và xem lại lịch sử xử lý.</p>
+        <div class="vai__ds">
+          <button type="button" class="tk" data-chep="sv.hoa" data-goi="tài khoản sv.hoa">
+            <span class="tk__ma">sv.hoa</span>
+            <span class="tk__ten">Đỗ Thị Hoa</span>
+            <span class="tk__goi">Sao chép</span>
+          </button>
+          <button type="button" class="tk" data-chep="sv.khanh" data-goi="tài khoản sv.khanh">
+            <span class="tk__ma">sv.khanh</span>
+            <span class="tk__ten">Vũ Minh Khánh</span>
+            <span class="tk__goi">Sao chép</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
 <!-- ==========================================================================
-     KIẾN TRÚC
+     5. KIẾN TRÚC — mặt cắt các lớp, như sườn đồi trong sương
      ========================================================================== -->
-<section class="sec sec--suong" id="kien-truc">
-  <div class="wrap">
-    <div class="sec-head center reveal">
-      <span class="eyebrow">Bên dưới hệ thống</span>
-      <h2 class="sec-title">Bốn dịch vụ, <em>một lệnh dựng lên</em></h2>
-      <p class="sec-desc">
-        Toàn bộ hệ thống chạy trong Docker Compose. Cổng vào là Nginx — nơi xử lý HTTPS,
-        giới hạn tần suất và chặn truy cập tệp nhạy cảm trước khi vào tới ứng dụng.
+<section class="muc" id="kien-truc">
+  <div class="khung">
+    <header class="dau-muc">
+      <h2 class="dau-muc__tua">Năm lớp, dựng trên nền GLPI 11</h2>
+      <p class="dau-muc__dan">
+        Toàn bộ năng lực nghiệp vụ có sẵn của GLPI được giữ nguyên. Phần đồ án tự
+        làm nằm ở các lớp phủ bên trên, nên nâng cấp GLPI không làm mất công sức
+        đã bỏ ra. Đưa chuột lên một lớp để xem nó nằm ở đâu.
       </p>
+    </header>
+
+    <div class="cat">
+      <!-- Mặt cắt bên trái -->
+      <div class="cat__hinh" aria-hidden="true" data-sau="16">
+        <div class="lat lat--5" data-lat="5"><span>Lớp tiếp cận</span></div>
+        <div class="lat lat--4" data-lat="4"><span>Lớp giao diện</span></div>
+        <div class="lat lat--3" data-lat="3"><span>Lớp Việt hoá</span></div>
+        <div class="lat lat--2" data-lat="2"><span>Lõi nghiệp vụ</span></div>
+        <div class="lat lat--1" data-lat="1"><span>Nền tảng vận hành</span></div>
+      </div>
+
+      <!-- Nội dung bên phải -->
+      <ol class="cat__ds">
+        <li class="lop" data-lop="5">
+          <div class="lop__dau">
+            <span class="lop__so">05</span>
+            <h3 class="lop__ten">Lớp tiếp cận</h3>
+          </li>
+          <p class="lop__chu">
+            Tem QR dán trên từng thiết bị trỏ thẳng về hồ sơ máy, cộng cổng dịch
+            vụ để người dùng gửi phiếu sự cố mà không cần tài khoản quản trị.
+          </p>
+          <p class="lop__so-lieu">Mã tài sản theo quy ước <code>TDL-PC-A101-001</code></p>
+        </li>
+
+        <li class="lop" data-lop="4">
+          <div class="lop__dau">
+            <span class="lop__so">04</span>
+            <h3 class="lop__ten">Lớp giao diện</h3>
+          </li>
+          <p class="lop__chu">
+            Plugin <code>dlubrand</code> ghi đè CSS và logo, đưa bảng màu cùng
+            nhận diện của Trường vào bên trong GLPI. Gỡ plugin là hệ thống trở về
+            giao diện gốc, không ảnh hưởng dữ liệu.
+          </p>
+          <p class="lop__so-lieu">Bảng màu Đà Lạt lấy từ logo Trường</p>
+        </li>
+
+        <li class="lop" data-lop="3">
+          <div class="lop__dau">
+            <span class="lop__so">03</span>
+            <h3 class="lop__ten">Lớp Việt hoá</h3>
+          </li>
+          <p class="lop__chu">
+            Bổ sung bản dịch cho những chuỗi GLPI chưa có tiếng Việt, gồm menu,
+            biểu mẫu và nhãn trên dashboard. Bản dịch tách riêng khỏi mã nguồn
+            nên không bị ghi đè khi nâng cấp.
+          </p>
+          <p class="lop__so-lieu">443 thuật ngữ · 212 mục dạng số nhiều</p>
+        </li>
+
+        <li class="lop" data-lop="2">
+          <div class="lop__dau">
+            <span class="lop__so">02</span>
+            <h3 class="lop__ten">Lõi nghiệp vụ</h3>
+          </li>
+          <p class="lop__chu">
+            GLPI 11 giữ vai trò trung tâm: quản lý tài sản, phiếu sự cố, cây vị
+            trí theo toà nhà và phòng máy, phân quyền theo khoa và trung tâm.
+          </p>
+          <p class="lop__so-lieu">79 loại sự cố · 65 phòng máy · 12 toà nhà</p>
+        </li>
+
+        <li class="lop" data-lop="1">
+          <div class="lop__dau">
+            <span class="lop__so">01</span>
+            <h3 class="lop__ten">Nền tảng vận hành</h3>
+          </li>
+          <p class="lop__chu">
+            Bốn container Docker Compose, chia hai mạng: mặt tiền chỉ có cổng
+            vào và ứng dụng, hậu trường chỉ có cơ sở dữ liệu và bộ nhớ đệm, và
+            không có đường ra Internet.
+          </p>
+          <p class="lop__so-lieu">Cài toàn bộ bằng <code>bash scripts/cai-dat-tat-ca.sh</code></p>
+        </li>
+      </ol>
     </div>
 
-    <div class="kt">
-      <div class="kt__item reveal">
-        <svg class="ic" aria-hidden="true"><use href="#i-cong"/></svg>
-        <b>helpdesk-gateway</b>
-        <small>nginx:1.27-alpine<br>Cổng vào, HTTPS, giới hạn tần suất</small>
+    <!-- Bốn dịch vụ Docker -->
+    <div class="dich-vu">
+      <div class="dv">
+        <span class="dv__vai">Cổng vào · 8443</span>
+        <h4 class="dv__ten">pinedesk-gateway</h4>
+        <p class="dv__anh">nginx:1.27-alpine</p>
+        <p class="dv__chu">Kết thúc TLS, chuyển tiếp yêu cầu vào ứng dụng, chặn truy cập trực tiếp từ ngoài.</p>
       </div>
-      <div class="kt__item reveal">
-        <svg class="ic" aria-hidden="true"><use href="#i-ung-dung"/></svg>
-        <b>helpdesk-glpi</b>
-        <small>glpi/glpi:11.0.0<br>Ứng dụng ITSM chính</small>
+      <div class="dv">
+        <span class="dv__vai">Ứng dụng lõi</span>
+        <h4 class="dv__ten">pinedesk-glpi</h4>
+        <p class="dv__anh">glpi/glpi:11.0.0</p>
+        <p class="dv__chu">Toàn bộ nghiệp vụ ITSM, tác vụ định kỳ, bản dịch tiếng Việt và plugin giao diện.</p>
       </div>
-      <div class="kt__item reveal">
-        <svg class="ic" aria-hidden="true"><use href="#i-dia"/></svg>
-        <b>helpdesk-db</b>
-        <small>mariadb:10.11<br>Cơ sở dữ liệu</small>
+      <div class="dv">
+        <span class="dv__vai">Cơ sở dữ liệu</span>
+        <h4 class="dv__ten">pinedesk-db</h4>
+        <p class="dv__anh">mariadb:10.11</p>
+        <p class="dv__chu">Lưu dữ liệu với bảng mã utf8mb4, đặt trong volume riêng trên ổ đĩa máy chủ.</p>
       </div>
-      <div class="kt__item reveal">
-        <svg class="ic" aria-hidden="true"><use href="#i-cache"/></svg>
-        <b>helpdesk-redis</b>
-        <small>redis:7-alpine<br>Bộ nhớ đệm, tăng tốc</small>
+      <div class="dv">
+        <span class="dv__vai">Bộ nhớ đệm</span>
+        <h4 class="dv__ten">pinedesk-redis</h4>
+        <p class="dv__anh">redis:7-alpine</p>
+        <p class="dv__chu">Giữ phiên đăng nhập và tăng tốc các tác vụ chạy nền, có mật khẩu riêng.</p>
       </div>
+    </div>
+
+    <div class="lenh">
+      <code class="lenh__chu">docker compose up -d</code>
+      <button type="button" class="nut nut--vien nut--nho" data-chep="docker compose up -d" data-goi="lệnh khởi chạy">
+        Sao chép lệnh
+      </button>
     </div>
   </div>
 </section>
 
 <!-- ==========================================================================
-     TÀI LIỆU
+     6. TÀI LIỆU
      ========================================================================== -->
-<section class="sec sec--giay" id="tai-lieu">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Tài liệu kèm theo</span>
-      <h2 class="sec-title">Năm tài liệu <em>tiếng Việt</em></h2>
-      <p class="sec-desc">
-        Viết riêng cho đồ án, nằm trong thư mục <code style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em">tai-lieu/</code>
-        của mã nguồn — kèm <code style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em">README.md</code>
-        ở gốc, đủ để người khác dựng lại và vận hành hệ thống.
+<section class="muc muc--nen" id="tai-lieu">
+  <div class="khung">
+    <header class="dau-muc">
+      <h2 class="dau-muc__tua">Tài liệu kèm theo</h2>
+      <p class="dau-muc__dan">
+        Năm tài liệu tiếng Việt trong thư mục <code>tai-lieu/</code>, cộng tệp
+        README mô tả toàn bộ dự án.
       </p>
-    </div>
+    </header>
 
-    <div class="tailieu">
-      <div class="tl reveal">
-        <span class="tl__icon"><svg class="ic" aria-hidden="true"><use href="#i-ho-so"/></svg></span>
-        <span>
-          <b>Hướng dẫn triển khai</b>
-          <small>Từ máy trắng tới hệ thống chạy được</small>
-        </span>
-      </div>
-      <div class="tl reveal">
-        <span class="tl__icon"><svg class="ic" aria-hidden="true"><use href="#i-qr"/></svg></span>
-        <span>
-          <b>Hướng dẫn plugin mã QR</b>
-          <small>Cách sinh và in nhãn QR cho thiết bị</small>
-        </span>
-      </div>
-      <div class="tl reveal">
-        <span class="tl__icon"><svg class="ic" aria-hidden="true"><use href="#i-hoa"/></svg></span>
-        <span>
-          <b>Giao diện &amp; Việt hoá</b>
-          <small>Cách tùy biến giao diện và bổ sung bản dịch</small>
-        </span>
-      </div>
-      <div class="tl reveal">
-        <span class="tl__icon"><svg class="ic" aria-hidden="true"><use href="#i-dia-diem"/></svg></span>
-        <span>
-          <b>Thông tin Đại học Đà Lạt</b>
-          <small>Cơ cấu đơn vị, phòng máy, danh mục nghiệp vụ</small>
-        </span>
-      </div>
-      <div class="tl reveal">
-        <span class="tl__icon"><svg class="ic" aria-hidden="true"><use href="#i-kiem-tra"/></svg></span>
-        <span>
-          <b>So sánh với GLPI gốc</b>
-          <small>Đối chiếu từng hạng mục và những lỗi đã phát hiện</small>
-        </span>
-      </div>
-      <div class="tl reveal">
-        <span class="tl__icon"><svg class="ic" aria-hidden="true"><use href="#i-sach"/></svg></span>
-        <span>
-          <b>README của mã nguồn</b>
-          <small>Cấu trúc thư mục và các lệnh thường dùng</small>
-        </span>
-      </div>
+    <div class="tai-lieu">
+      <a class="tl" href="../tai-lieu/HUONG-DAN-TRIEN-KHAI.md">
+        <span class="tl__so">01</span>
+        <h3 class="tl__tua">Hướng dẫn triển khai</h3>
+        <p class="tl__chu">Cài đặt, cấu hình nghiệp vụ, sao lưu và xử lý sự cố thường gặp.</p>
+      </a>
+      <a class="tl" href="../tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md">
+        <span class="tl__so">02</span>
+        <h3 class="tl__tua">Giao diện và Việt hoá</h3>
+        <p class="tl__chu">Cách dựng plugin giao diện Đà Lạt và quy trình bổ sung bản dịch.</p>
+      </a>
+      <a class="tl" href="../tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md">
+        <span class="tl__so">03</span>
+        <h3 class="tl__tua">Plugin mã QR</h3>
+        <p class="tl__chu">Sinh mã hàng loạt, in tem và gắn mã vào hồ sơ thiết bị.</p>
+      </a>
+      <a class="tl" href="../tai-lieu/THONG-TIN-DAI-HOC-DA-LAT.md">
+        <span class="tl__so">04</span>
+        <h3 class="tl__tua">Cơ cấu tổ chức ĐH Đà Lạt</h3>
+        <p class="tl__chu">16 khoa, 10 phòng chức năng, 6 trung tâm và cây vị trí dùng trong hệ thống.</p>
+      </a>
+      <a class="tl" href="../tai-lieu/SO-SANH-VOI-GLPI-GOC.md">
+        <span class="tl__so">05</span>
+        <h3 class="tl__tua">So sánh với GLPI gốc</h3>
+        <p class="tl__chu">Những gì đồ án thêm vào và giữ nguyên so với bản GLPI nguyên bản.</p>
+      </a>
+      <a class="tl" href="../README.md">
+        <span class="tl__so">06</span>
+        <h3 class="tl__tua">Tổng quan dự án</h3>
+        <p class="tl__chu">Kiến trúc, danh mục lệnh, dữ liệu mẫu và hướng dẫn vận hành.</p>
+      </a>
     </div>
+  </div>
+</section>
 
-    <!-- Lời mời dùng thử -->
-    <div class="moi reveal" style="margin-top:66px">
-      <h2>Sẵn sàng xem thử?</h2>
-      <p>
-        Đăng nhập bằng một trong sáu tài khoản mẫu để trải nghiệm đủ ba vai trò:
-        quản trị, kỹ thuật viên và người dùng.
-      </p>
-      <div class="moi__actions">
-        <a class="btn btn--trong" href="/">
-          <svg class="ic" aria-hidden="true"><use href="#i-dang-nhap"/></svg>
-          Đăng nhập hệ thống
+<!-- ==========================================================================
+     7. LỜI MỜI
+     ========================================================================== -->
+<section class="moi">
+  <div class="khung">
+    <div class="moi__hop">
+      <div class="moi__chu">
+        <h2 class="moi__tua">Hệ thống đang chạy sẵn</h2>
+        <p class="moi__dan">
+          Bốn container đã khởi động, dữ liệu mẫu đã nạp: 34 tài sản, 13 phiếu sự
+          cố và 6 tài khoản. Mở cổng 8443 để xem trực tiếp.
+        </p>
+      </div>
+      <div class="moi__nut">
+        <a href="/" class="nut nut--day nut--to">
+          Mở hệ thống
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
         </a>
-        <a class="btn btn--trong" href="#tai-khoan" style="background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.4)">
-          <svg class="ic" aria-hidden="true"><use href="#i-nguoi"/></svg>
-          Xem tài khoản mẫu
-        </a>
+        <a href="#tai-khoan" class="nut nut--vien nut--to">Xem lại tài khoản</a>
       </div>
     </div>
   </div>
@@ -735,146 +583,151 @@
 </main>
 
 <!-- ==========================================================================
-     CHÂN TRANG
+     CHÂN TRANG — thông tin Trường và địa chỉ
      ========================================================================== -->
 <footer class="chan">
-  <div class="wrap">
-    <div class="chan__luoi">
-      <div>
-        <div class="chan__brand">
-          <img src="logo-DLU-100sq.png" alt="Logo Trường Đại học Đà Lạt" width="50" height="50">
-          <span>
-            <b>IT Helpdesk</b>
-            <small>Trường Đại học Đà Lạt</small>
-          </span>
-        </div>
-        <p>
-          Hệ thống hỗ trợ kỹ thuật phục vụ công tác quản lý phòng máy, thiết bị,
-          phần mềm và xử lý sự cố trong toàn Trường. Xây dựng trên nền tảng mã nguồn mở GLPI 11.
-        </p>
-      </div>
-
-      <div>
-        <h4>Liên kết</h4>
-        <ul>
-          <li><a href="#tinh-nang">Tính năng</a></li>
-          <li><a href="#giao-dien">Giao diện</a></li>
-          <li><a href="#ma-qr">Mã QR</a></li>
-          <li><a href="#tai-khoan">Tài khoản dùng thử</a></li>
-          <li><a href="#kien-truc">Kiến trúc</a></li>
-        </ul>
-      </div>
-
-      <div>
-        <h4>Liên hệ</h4>
-        <ul>
-          <li>
-            <svg class="ic" aria-hidden="true" style="vertical-align:-2px;margin-right:7px"><use href="#i-dia-diem"/></svg>
-            01 Phù Đổng Thiên Vương,<br>TP. Đà Lạt, Lâm Đồng
-          </li>
-          <li>
-            <svg class="ic" aria-hidden="true" style="vertical-align:-2px;margin-right:7px"><use href="#i-thu"/></svg>
-            Phòng Công nghệ thông tin
-          </li>
-        </ul>
-      </div>
+  <div class="khung chan__trong">
+    <div class="chan__hieu">
+      <img src="./logo-DLU-100sq.png" alt="Logo Trường Đại học Đà Lạt" width="40" height="40">
+      <span>
+        <strong>PineDesk — Trường Đại học Đà Lạt</strong>
+        <span>Đồ án tốt nghiệp ngành Công nghệ Thông tin, khoá 2022–2026</span>
+      </span>
     </div>
-
-    <div class="chan__cuoi">
-      <span>Đồ án thực tập — <b>Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk)</b></span>
-      <span>Nền tảng GLPI 11 · Giấy phép GPL v3</span>
-    </div>
+    <p class="chan__dia">
+      Số 01 Phù Đổng Thiên Vương, Phường Lâm Viên, TP Đà Lạt, tỉnh Lâm Đồng
+    </p>
+    <p class="chan__ghi">
+      Trường thành lập năm 1976 · 16 khoa · 10 phòng chức năng · 6 trung tâm
+    </p>
   </div>
 </footer>
 
+<!-- Thông báo sao chép -->
+<div class="bao" id="bao" role="status" aria-live="polite"></div>
+
 <script>
-/* ---------------------------------------------------------------------------
-   Tương tác nhỏ, không phụ thuộc thư viện ngoài.
-   --------------------------------------------------------------------------- */
-
-/* 1. Thanh điều hướng: đổi nền khi cuộn khỏi đầu trang */
 (function () {
-  var nav = document.getElementById('nav');
-  var capNhat = function () {
-    nav.classList.toggle('is-stuck', window.scrollY > 24);
-  };
-  capNhat();
-  window.addEventListener('scroll', capNhat, { passive: true });
-})();
+  var bao = document.getElementById('bao');
+  var hen;
 
-/* 2. Menu trên điện thoại */
-(function () {
-  var nut = document.getElementById('navToggle');
-  var links = document.getElementById('navLinks');
-  if (!nut || !links) return;
-
-  nut.addEventListener('click', function () {
-    var mo = links.classList.toggle('is-open');
-    nut.setAttribute('aria-expanded', mo ? 'true' : 'false');
-  });
-
-  /* Đóng menu sau khi chọn mục */
-  links.addEventListener('click', function (e) {
-    if (e.target.closest('a')) {
-      links.classList.remove('is-open');
-      nut.setAttribute('aria-expanded', 'false');
-    }
-  });
-})();
-
-/* 3. Hiệu ứng xuất hiện dần khi cuộn tới */
-(function () {
-  var ds = document.querySelectorAll('.reveal');
-  if (!('IntersectionObserver' in window)) {
-    ds.forEach(function (el) { el.classList.add('is-hien'); });
-    return;
+  function hienBao(chu) {
+    if (!bao) return;
+    bao.textContent = chu;
+    bao.classList.add('bao--hien');
+    clearTimeout(hen);
+    hen = setTimeout(function () { bao.classList.remove('bao--hien'); }, 2200);
   }
-  var theoDoi = new IntersectionObserver(function (muc) {
-    muc.forEach(function (m) {
-      if (!m.isIntersecting) return;
-      /* Trễ nhẹ theo thứ tự trong cùng một nhóm cho đẹp mắt */
-      var i = Array.prototype.indexOf.call(m.target.parentNode.children, m.target);
-      m.target.style.transitionDelay = Math.min(i, 5) * 70 + 'ms';
-      m.target.classList.add('is-hien');
-      theoDoi.unobserve(m.target);
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
-  ds.forEach(function (el) { theoDoi.observe(el); });
-})();
 
-/* 4. Bấm để sao chép tên đăng nhập */
-(function () {
-  function chep(text, el) {
-    var xong = function () {
-      if (!el) return;
-      el.classList.add('is-copied');
-      setTimeout(function () { el.classList.remove('is-copied'); }, 1500);
-    };
+  function chep(chu) {
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(xong, function () { duPhong(text, xong); });
-    } else {
-      duPhong(text, xong);
+      return navigator.clipboard.writeText(chu);
     }
-  }
-  /* Trang có thể chạy qua HTTP nội bộ, khi đó Clipboard API bị chặn */
-  function duPhong(text, xong) {
-    var o = document.createElement('textarea');
-    o.value = text;
-    o.setAttribute('readonly', '');
-    o.style.position = 'fixed';
-    o.style.top = '-1000px';
-    document.body.appendChild(o);
-    o.select();
-    try { document.execCommand('copy'); xong(); } catch (e) { /* bỏ qua */ }
-    document.body.removeChild(o);
+    return new Promise(function (xong, loi) {
+      var o = document.createElement('textarea');
+      o.value = chu;
+      o.setAttribute('readonly', '');
+      o.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+      document.body.appendChild(o);
+      o.select();
+      try { document.execCommand('copy') ? xong() : loi(new Error('khong chep duoc')); }
+      catch (e) { loi(e); }
+      finally { document.body.removeChild(o); }
+    });
   }
 
-  document.querySelectorAll('.tk__item').forEach(function (nut) {
-    nut.addEventListener('click', function () { chep(nut.dataset.user, nut); });
+  document.querySelectorAll('[data-chep]').forEach(function (nut) {
+    nut.addEventListener('click', function () {
+      var chu = nut.getAttribute('data-chep');
+      var goi = nut.getAttribute('data-goi') || 'nội dung';
+      chep(chu).then(function () {
+        hienBao('Đã sao chép ' + goi);
+        nut.classList.add('vua-chep');
+        setTimeout(function () { nut.classList.remove('vua-chep'); }, 900);
+      }).catch(function () {
+        hienBao('Không sao chép được, bạn hãy chọn và copy thủ công');
+      });
+    });
   });
 
-  var mk = document.getElementById('mk');
-  if (mk) mk.addEventListener('click', function () { chep(mk.textContent.trim(), null); });
+  /* ------------------------------------------------------------------
+     Trục sâu theo cuộn trang.
+     Mỗi lớp mang một số ở thuộc tính data-sau (đơn vị: pixel). Số càng lớn
+     thì lớp càng xa, trôi chậm hơn nhịp cuộn nên tụt lại phía sau.
+     Độ lệch luôn >= 0 (chỉ tụt xuống, không nhích lên), nhờ vậy các lớp đồi
+     không bao giờ hở một khe ở mép dưới.
+     Chỉ ghi transform/translate, không đụng tới bố cục.
+     ------------------------------------------------------------------ */
+  var dsSau = Array.prototype.slice.call(document.querySelectorAll('[data-sau]'));
+  var thichYen = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (dsSau.length && !thichYen && 'IntersectionObserver' in window) {
+    var dangThay = new Set();
+    var cho = false;
+
+    var quanSat = new IntersectionObserver(function (muc) {
+      muc.forEach(function (m) {
+        if (m.isIntersecting) {
+          dangThay.add(m.target);
+          m.target.classList.add('dang-sau');
+        } else {
+          dangThay.delete(m.target);
+          m.target.classList.remove('dang-sau');
+        }
+      });
+      xinVe();
+    }, { rootMargin: '20% 0px 20% 0px' });
+
+    dsSau.forEach(function (el) { quanSat.observe(el); });
+
+    function capNhat() {
+      cho = false;
+      var cao = window.innerHeight;
+      dangThay.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        var p = (cao - r.top) / (cao + r.height);
+        p = p < 0 ? 0 : (p > 1 ? 1 : p);
+        var sau = parseFloat(el.getAttribute('data-sau')) || 0;
+        var dich = (p * sau).toFixed(1) + 'px';
+        if (el.classList.contains('canh__suong')) {
+          /* Sương đã có animation chạy trên `transform`, nên độ lệch đi qua
+             thuộc tính `translate` để hai chuyển động cộng dồn. */
+          el.style.translate = '0 ' + dich;
+        } else {
+          el.style.transform = 'translate3d(0, ' + dich + ', 0)';
+        }
+      });
+    }
+
+    function xinVe() {
+      if (cho) return;
+      cho = true;
+      requestAnimationFrame(capNhat);
+    }
+
+    window.addEventListener('scroll', xinVe, { passive: true });
+    window.addEventListener('resize', xinVe, { passive: true });
+    capNhat();
+  }
+
+  /* Mặt cắt: đưa chuột lên một lớp thì tô sáng dải tương ứng. */
+  var cat = document.querySelector('.cat');
+  if (!cat) return;
+  var cacLat = cat.querySelectorAll('.lat');
+
+  function toSang(so) {
+    cacLat.forEach(function (l) {
+      l.classList.toggle('lat--sang', l.getAttribute('data-lat') === so);
+    });
+  }
+
+  cat.querySelectorAll('.lop').forEach(function (lop) {
+    var so = lop.getAttribute('data-lop');
+    lop.addEventListener('mouseenter', function () { toSang(so); });
+    lop.addEventListener('focusin', function () { toSang(so); });
+    lop.addEventListener('mouseleave', function () { toSang(null); });
+    lop.addEventListener('focusout', function () { toSang(null); });
+  });
 })();
 </script>
 

@@ -2,20 +2,20 @@
 # =============================================================================
 #  CAI PLUGIN SINH MA QR / BARCODE CHO GLPI
 #  Plugin: pluginsGLPI/barcode  (AGPL-3.0)
-#  Tac gia script: do an thuc tap DLU - He thong ho tro ky thuat (IT Helpdesk)
+#  Tac gia script: do an thuc tap DLU - He thong ho tro ky thuat (PineDesk)
 #
 #  Cach dung:
 #     bash scripts/cai-plugin-qrcode.sh
 #
 #  Script se:
 #    1. Tai plugin barcode tu GitHub
-#    2. Copy vao volume helpdesk-glpi-plugins
+#    2. Copy vao volume pinedesk-glpi-plugins
 #    3. Cai dat plugin qua CLI cua GLPI (khong can bam tay tren web)
 #    4. Kiem tra ket qua
 # =============================================================================
 set -euo pipefail
 
-GLPI_CONTAINER="${GLPI_CONTAINER:-helpdesk-glpi}"
+GLPI_CONTAINER="${GLPI_CONTAINER:-pinedesk-glpi}"
 PLUGIN_NAME="barcode"
 PLUGIN_VERSION="2.7.1"
 # Nap bien tu file .env (GLPI_DB_USER, GLPI_DB_PASSWORD...) de truy van CSDL
@@ -28,7 +28,7 @@ if [ -f "$ENV_FILE" ]; then
 fi
 GLPI_DB_USER="${GLPI_DB_USER:-glpi_user}"
 GLPI_DB_PASSWORD="${GLPI_DB_PASSWORD:-}"
-DB_CONTAINER="${DB_CONTAINER:-helpdesk-db}"
+DB_CONTAINER="${DB_CONTAINER:-pinedesk-db}"
 # QUAN TRONG: Phai dung goi RELEASE (dinh dang .tar.bz2) chu KHONG dung nhanh
 # 'develop' (.tar.gz), vi goi release da dong goi san thu muc 'vendor/' chua
 # cac thu vien can thiet (deltalab/phpqrcode, pear/Image_Barcode, rospdf/pdf-php).
@@ -96,13 +96,13 @@ ok "Thu muc nguon: $(basename "$SRC_DIR") (co vendor/ day du)"
 SRC_DIR_WIN="$(cd "$SRC_DIR" && pwd -W 2>/dev/null || echo "$WORKDIR/$SRC_DIR")"
 
 # --- 3. Copy vao volume plugin cua GLPI --------------------------------------
-info "Copy plugin vao volume helpdesk-glpi-plugins..."
+info "Copy plugin vao volume pinedesk-glpi-plugins..."
 
 # Tao volume neu chua co
-docker volume inspect helpdesk-glpi-plugins >/dev/null 2>&1 || docker volume create helpdesk-glpi-plugins >/dev/null
+docker volume inspect pinedesk-glpi-plugins >/dev/null 2>&1 || docker volume create pinedesk-glpi-plugins >/dev/null
 
 # Copy bang 'docker cp' -> container tam
-CID="$(docker create -v helpdesk-glpi-plugins:/dest alpine:3.20 sh -c 'sleep 1')"
+CID="$(docker create -v pinedesk-glpi-plugins:/dest alpine:3.20 sh -c 'sleep 1')"
 docker cp "$SRC_DIR_WIN/." "$CID:/dest/${PLUGIN_NAME}"
 docker start "$CID" >/dev/null
 docker exec "$CID" chown -R 33:33 "/dest/${PLUGIN_NAME}" 2>/dev/null || true

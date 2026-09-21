@@ -4,7 +4,7 @@
 ================================================================================
  DO DO PHU BAN DICH TIENG VIET CUA GLPI  (do chinh xac, doc .mo thuc te)
 ================================================================================
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 
  Script nay do TI LE THAT cua ban dich dang duoc GLPI su dung, bang cach:
    1. Lay tap hop "chuoi goc" (msgid) tu file .po nguon cua GLPI
@@ -30,7 +30,7 @@ import struct
 import subprocess
 import sys
 
-GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
 MO_THUC_TE = '/var/glpi/files/_locales/core/vi_VN.mo'
 PO_NGUON = '/var/www/glpi/locales/vi_VN.po'
 PO_NGUON_LOCAL = os.path.join(
@@ -114,7 +114,11 @@ def doc_po_msgids(duong_dan: str) -> set:
             elif gom:
                 gom = False
         if buf:
-            txt = ' '.join(x.strip().strip('"') for x in buf)
+            # Noi bang chuoi RONG: .po cat chuoi dai qua nhieu dong ma khong
+            # them phan cach, va dong dau luon rong. Noi bang dau cach se lam
+            # msgid sinh ra co them mot dau cach o dau -> khong khop voi ban
+            # dich trong .mo, va bi dem nham la "chua dich".
+            txt = ''.join(x.strip().strip('"') for x in buf)
             if txt:
                 msgids.add(txt)
     return msgids

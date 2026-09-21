@@ -1,10 +1,72 @@
-# HỆ THỐNG HỖ TRỢ KỸ THUẬT (IT HELPDESK)
+# PINEDESK — HỆ THỐNG HỖ TRỢ KỸ THUẬT
 
-[![CI](https://github.com/OWNER/glpi-helpdesk/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/glpi-helpdesk/actions/workflows/ci.yml)
+[![CI](https://github.com/Lacia1803/pinedesk/actions/workflows/ci.yml/badge.svg)](https://github.com/Lacia1803/pinedesk/actions/workflows/ci.yml)
 
 > **Đồ án thực tập** — Trường Đại học Đà Lạt (DLU)
 > Hệ thống quản lý phòng máy, thiết bị CNTT và tiếp nhận sự cố dạng ticket,
 > xây dựng trên nền tảng mã nguồn mở **GLPI 11**.
+>
+> Tên **PineDesk** ghép từ *pine* (rừng thông Đà Lạt) và *desk* (bàn hỗ trợ).
+
+## Giao diện
+
+### Trang đăng nhập
+
+![Trang đăng nhập](tai-lieu/anh-giao-dien/01-trang-dang-nhap.png)
+
+### Bảng điều khiển
+
+![Bảng điều khiển](tai-lieu/anh-giao-dien/02-bang-dieu-khien.png)
+
+### Quản lý tài sản
+
+| Danh sách máy tính | Chi tiết thiết bị |
+|---|---|
+| ![Danh sách máy tính](tai-lieu/anh-giao-dien/03-danh-sach-may-tinh.png) | ![Chi tiết thiết bị](tai-lieu/anh-giao-dien/07-chi-tiet-thiet-bi.png) |
+
+| Màn hình | Thiết bị mạng |
+|---|---|
+| ![Danh sách màn hình](tai-lieu/anh-giao-dien/03b-danh-sach-man-hinh.png) | ![Thiết bị mạng](tai-lieu/anh-giao-dien/03c-thiet-bi-mang.png) |
+
+| Máy in | Phần mềm |
+|---|---|
+| ![Danh sách máy in](tai-lieu/anh-giao-dien/03d-danh-sach-may-in.png) | ![Danh sách phần mềm](tai-lieu/anh-giao-dien/03e-danh-sach-phan-mem.png) |
+
+| Thêm thiết bị mới | Hành động hàng loạt |
+|---|---|
+| ![Tạo thiết bị](tai-lieu/anh-giao-dien/06-tao-thiet-bi.png) | ![Menu hành động](tai-lieu/anh-giao-dien/10-menu-cac-hanh-dong.png) |
+
+### Tiếp nhận sự cố
+
+| Danh sách phiếu yêu cầu | Tạo phiếu mới |
+|---|---|
+| ![Danh sách phiếu yêu cầu](tai-lieu/anh-giao-dien/04-danh-sach-phieu-yeu-cau.png) | ![Tạo phiếu mới](tai-lieu/anh-giao-dien/05-tao-phieu-moi.png) |
+
+### Mã QR cho thiết bị
+
+Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
+
+| Mã QR trên hồ sơ thiết bị | Nhãn QR in hàng loạt |
+|---|---|
+| ![Mã QR thiết bị](tai-lieu/anh-giao-dien/11-ma-qr-thiet-bi.png) | ![Kết quả sinh QR](tai-lieu/anh-giao-dien/12-ket-qua-sinh-qr.png) |
+
+### Nhân sự và tổ chức
+
+| Cơ cấu tổ chức | Người dùng |
+|---|---|
+| ![Nhóm cơ cấu tổ chức](tai-lieu/anh-giao-dien/06-nhom-co-cau-to-chuc.png) | ![Danh sách người dùng](tai-lieu/anh-giao-dien/08-danh-sach-nguoi-dung.png) |
+
+### Thống kê
+
+![Thống kê toàn cầu](tai-lieu/anh-giao-dien/13-thong-ke-toan-cau.png)
+
+### Trang giới thiệu dự án
+
+![Landing page](tai-lieu/anh-giao-dien/16-landing-dau-trang.png)
+
+[![Landing page toàn trang](tai-lieu/anh-giao-dien/17-landing-toan-trang.png)](tai-lieu/anh-giao-dien/17-landing-toan-trang.png)
+
+Ảnh minh chứng đầy đủ nằm trong [`tai-lieu/anh-giao-dien/`](tai-lieu/anh-giao-dien/).
 
 ## Tính năng chính
 
@@ -20,11 +82,11 @@
 | **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
-## ⚡ Bắt đầu nhanh — CHỈ 1 LỆNH
+## Bắt đầu nhanh
 
 ```bash
 # Di chuyen vao thu muc goc cua du an (thay bang duong dan thuc tren may ban)
-cd duong-dan-toi/glpi-helpdesk
+cd duong-dan-toi/pinedesk
 bash scripts/cai-dat-tat-ca.sh
 ```
 
@@ -61,7 +123,7 @@ Database và Redis chỉ giao tiếp trong mạng nội bộ Docker, không lộ
 ## Cấu trúc thư mục
 
 ```
-glpi-helpdesk/
+pinedesk/
 ├── .github/workflows/ci.yml     # ★ Pipeline kiem tra tu dong (6 nhom)
 ├── docker-compose.yml           # Dinh nghia 4 dich vu Docker
 ├── .env                         # Bien moi truong (chua mat khau)
@@ -74,7 +136,7 @@ glpi-helpdesk/
 ├── landing/                     # ★ Trang gioi thieu du an (nginx phuc vu tai /landing/)
 │   ├── index.html               #   Noi dung trang
 │   ├── assets/css/style.css     #   Thiet ke rieng (Da Lat + DLU)
-│   ├── fonts/                   #   20 tep .woff2 tu luu — chay duoc khi khong co mang
+│   ├── fonts/                   #   16 tep .woff2 tu luu — chay duoc khi khong co mang
 │   └── dashboard-preview.png    #   Anh bang dieu khien (sinh tu du lieu that)
 ├── scripts/                     # ★ Tat ca script tu dong hoa
 │   ├── cai-dat-tat-ca.sh        #   Cai toan bo, 1 lenh
@@ -87,7 +149,8 @@ glpi-helpdesk/
 │   ├── gop-ban-dich-tieng-viet.py  # Gop ban dich (khong mat chuoi + va so nhieu)
 │   ├── do-do-phu-tieng-viet.py  #   Do ti le Viet hoa
 │   ├── bo-sung-tieng-viet.py    #   Tu dien thuat ngu (don + so nhieu)
-│   ├── chup-anh-giao-dien.js    #   Chup anh minh chung
+│   ├── chup-lai-anh-minh-chung.js  # Chup 19 anh minh chung (mot man hinh mot anh)
+│   ├── chup-anh-qr-admin.js     #   Chup luong in QR (can tai khoan quan tri)
 │   ├── chup-anh-dashboard.js    #   Chup anh bang dieu khien cho landing page
 │   ├── chup-anh-tung-khu.js     #   Chup rieng tung khu de soi thiet ke
 │   ├── kiem-tra-landing.js      #   Kiem tra landing (anchor, anh, font, console)
@@ -104,7 +167,7 @@ glpi-helpdesk/
     └── anh-giao-dien/                     # Anh chup giao dien thuc te
 ```
 
-## 🎬 Dữ liệu demo — để trình diễn cho hội đồng
+## Dữ liệu demo
 
 Hệ thống cài xong là **CSDL rỗng**, không thể demo. Chạy 1 lệnh để có dữ liệu:
 
@@ -117,40 +180,53 @@ Kết quả: **17 máy tính · 5 màn hình · 3 máy in · 9 thiết bị mạ
 
 | Tài khoản | Mật khẩu | Vai trò |
 |---|---|---|
+| `tech` | `tech` | Kỹ thuật viên (tài khoản có sẵn của GLPI) |
 | `ktv.an`, `ktv.binh` | `Dlu@2026` | Kỹ thuật viên |
 | `gv.cuong`, `gv.dung` | `Dlu@2026` | Giảng viên |
 | `sv.hoa`, `sv.khanh` | `Dlu@2026` | Sinh viên |
 
+> Tài khoản `tech` do chính trình cài đặt GLPI tạo ra, không thuộc script
+> `nap-du-lieu-mau.sh`, nên mật khẩu là `tech` chứ không phải `Dlu@2026`.
+
 > Script **idempotent** — chạy lại nhiều lần không nhân đôi dữ liệu.
 > Mã tài sản theo quy ước thật: `TDL-PC-A101-001` = ĐH Đà Lạt – Máy tính – Toà A – Phòng 101 – Máy 01.
 
-## 🌐 Trang giới thiệu dự án (Landing page)
+## Trang giới thiệu dự án (Landing page)
 
 Truy cập: **https://localhost:8443/landing/**
 
-Trang giới thiệu dành cho hội đồng và người dùng mới, **thiết kế riêng theo bản
-sắc Đà Lạt và Trường Đại học Đà Lạt** — không dùng giao diện mẫu có sẵn.
+Trang giới thiệu dành cho hội đồng và người dùng mới. Toàn bộ hình ảnh trên
+trang lấy từ cảnh quan Đà Lạt và từ chính Trường, không dùng giao diện mẫu.
 
-**Chất liệu tạo hình lấy từ chính DLU:**
+**Chất liệu tạo hình:**
 
 | Nguồn | Thể hiện trên trang |
 |---|---|
-| Họa tiết trống đồng trong logo | Vòng đồng tâm mờ sau tiêu đề, họa tiết ngăn cách giữa các mục |
-| Dải lá xanh + sao đỏ | Bảng màu chủ đạo, huy hiệu "Trường Đại học Đà Lạt" |
-| Cảnh quan Đà Lạt | Đồi thông nhiều lớp, sương mù giữa các dãy núi, hồ nước ở chân trang |
-| Kiến trúc Pháp cổ | Chữ tiêu đề **Playfair Display** (serif), thân bài **Be Vietnam Pro** |
+| Đồi thông Đà Lạt | Năm lớp đồi xếp chồng, nhạt dần theo tầm nhìn xa, có rừng thông ở lớp gần nhất |
+| Khí hậu cao nguyên | Hai dải sương mờ trôi chậm giữa các lớp đồi; nền trang là sắc sương sớm |
+| Bảng màu logo DLU | Xanh rêu `#607824`, dải lá `#90B43C`, cam đất `#F08418`, đỏ sao `#CC2430` |
+| Kiến trúc Pháp cổ ở Đà Lạt | Chữ tiêu đề **Fraunces** (serif), thân bài **Be Vietnam Pro** |
+
+Phần kiến trúc hệ thống cũng vẽ theo cùng một lối: năm lớp phủ xếp chồng như
+sườn đồi, đưa chuột lên một lớp thì dải tương ứng sáng lên.
 
 **Kỹ thuật:**
 
-- **Chạy hoàn toàn khi KHÔNG có Internet** — 20 tệp font `.woff2` tự lưu trong
+- **Chạy hoàn toàn khi KHÔNG có Internet** — 16 tệp font `.woff2` tự lưu trong
   `landing/fonts/` (có subset tiếng Việt), **không dùng CDN**. Đã bỏ hẳn
-  Tailwind CSS và Font Awesome (~1,5 MB) để trang gọn còn ~630 KB.
+  Tailwind CSS và Font Awesome (~1,5 MB); cả thư mục `landing/` nặng khoảng
+  600 KB, phần lớn là ảnh dashboard.
 - **Bộ biểu tượng SVG nội bộ** — không phụ thuộc thư viện icon bên ngoài.
 - **Liên kết tương đối** — mở từ máy khác trong mạng LAN vẫn hoạt động đúng.
-- **Có hiệu ứng xuất hiện khi cuộn**, nhưng chỉ ẩn nội dung khi JavaScript chạy
-  (nếu JS lỗi hoặc bị tắt, nội dung vẫn hiện đầy đủ).
+  Nút "Mở hệ thống" trỏ về gốc `/` chứ không hardcode `localhost`.
+- **Nội dung hiện đầy đủ khi JavaScript bị tắt.** JavaScript chỉ dùng cho việc
+  sao chép tài khoản và làm sáng dải mặt cắt; không có hiệu ứng cuộn.
 - Ảnh dashboard trong trang sinh tự động bằng `node scripts/chup-anh-dashboard.js`
   (dữ liệu thật, đã Việt hoá, đã ẩn banner cảnh báo kỹ thuật).
+
+**Tài liệu trong trang:** sáu thẻ tài liệu trỏ tới `tai-lieu/*.md` và `README.md`
+ở gốc mã nguồn. Gateway mount thêm hai đường dẫn này và phục vụ dưới dạng
+`text/plain` để mở xem ngay trên trình duyệt (xem `nginx/conf.d/default.conf`).
 
 **Kiểm thử tự động:** `node scripts/kiem-tra-landing.js` (anchor, ảnh, font,
 tài nguyên lỗi, lỗi console) và `python scripts/kiem-tra-font.py` (đối chiếu
@@ -181,9 +257,10 @@ node   scripts/chup-anh-tung-khu.js  # Chup rieng tung khu de soi thiet ke
 python scripts/kiem-tra-font.py      # Do phu ky tu that trong tep font
 
 # Chup anh giao dien (can dang nhap) — mat khau lay tu bien moi truong:
-#   GLPI_USER=glpi GLPI_PASS='<mat-khau>' node scripts/chup-anh-dashboard.js
+#   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
+node   scripts/chup-lai-anh-minh-chung.js # Chup 19 anh minh chung cho README
 node   scripts/chup-anh-dashboard.js # Chup lai anh dashboard cho landing page
-node   scripts/chup-anh-giao-dien.js # Chup anh minh chung bao cao
+#   Hai anh luong in QR can quyen quan tri: node scripts/chup-anh-qr-admin.js
 
 # Van hanh
 bash start.sh                        # Khoi dong

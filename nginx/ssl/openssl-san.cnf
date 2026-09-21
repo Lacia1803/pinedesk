@@ -1,5 +1,5 @@
 # ==============================================================================
-#  CAU HINH CHUNG CHI SSL TU KY (self-signed) CHO HE THONG IT HELPDESK
+#  CAU HINH CHUNG CHI SSL TU KY (self-signed) CHO PINEDESK
 # ==============================================================================
 #  Dung cho: openssl req -x509 ... -config nginx/ssl/openssl-san.cnf
 #
@@ -9,7 +9,7 @@
 #    SAN. Thieu SAN => canh bao nang hon, khong the them ngoai le.
 #
 #  MUC SAN (cac ten mien/IP ma chung chi hop le):
-#    - localhost, helpdesk.local  : truy cap qua ten mien noi bo
+#    - localhost, pinedesk.local  : truy cap qua ten mien noi bo
 #    - 127.0.0.1, ::1             : truy cap qua dia chi loopback
 #    - *.localhost                : ten phu cua localhost
 #    - 192.168.x.x / 10.x.x.x     : them IP LAN that neu can (sua ben duoi)
@@ -26,8 +26,8 @@ x509_extensions    = v3_req
 C  = VN
 ST = LamDong
 L  = Da Lat
-O  = Do An IT Helpdesk
-CN = helpdesk.local
+O  = Do An PineDesk
+CN = pinedesk.local
 
 [ v3_req ]
 basicConstraints = critical, CA:FALSE
@@ -37,7 +37,7 @@ subjectAltName   = @san
 
 [ san ]
 DNS.1 = localhost
-DNS.2 = helpdesk.local
+DNS.2 = pinedesk.local
 DNS.3 = *.localhost
 IP.1  = 127.0.0.1
 IP.2  = ::1

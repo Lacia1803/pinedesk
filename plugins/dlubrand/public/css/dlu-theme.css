@@ -2,7 +2,7 @@
  * -----------------------------------------------------------------------------
  *  DLU BRAND — Giao diện "Đà Lạt" cho Hệ thống Hỗ trợ Kỹ thuật
  * -----------------------------------------------------------------------------
- *  Trường Đại học Đà Lạt · Đồ án thực tập IT Helpdesk
+ *  Trường Đại học Đà Lạt · Đồ án thực tập PineDesk
  *
  *  ★★★  NGUỒN MÀU DUY NHẤT cho GIAO DIỆN GLPI  ★★★
  *
@@ -40,11 +40,153 @@
  */
 
 /* =============================================================================
+ *  PHẦN 0 — PHÔNG CHỮ THƯƠNG HIỆU
+ *
+ *  VÌ SAO CẦN:
+ *    Bản gốc dùng phông hệ điều hành (-apple-system, Segoe UI...). Trang giới
+ *    thiệu tĩnh lại dùng Be Vietnam Pro + Fraunces. Hai nơi hai phông khác hẳn
+ *    nhau, nên người dùng vừa xem landing vừa vào hệ thống sẽ thấy như hai sản
+ *    phẩm rời. Đây chính là dấu hiệu "repo gốc đổi màu" rõ nhất còn lại.
+ *
+ *  Be Vietnam Pro: phông Việt hoá đầy đủ, dựng cho tiếng Việt (dấu không bị
+ *    lệch), thay cho Segoe UI. Dùng cho toàn bộ giao diện.
+ *  IBM Plex Mono: mã tài sản, mã phiếu, số liệu — chữ số thẳng cột.
+ *
+ *  Phông nằm trong public/fonts/ của plugin; GLPI 11 phục vụ
+ *  /plugins/<ten>/... từ public/ nên đường dẫn dưới đây là tuyệt đối.
+ *  unicode-range tách bản latin / vietnamese như landing/fonts/fonts.css để
+ *  trình duyệt chỉ tải phần cần.
+ * ============================================================================= */
+
+/* --- Be Vietnam Pro: chữ giao diện --- */
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-400-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-400-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-500-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-500-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-600-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-600-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-700-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Be Vietnam Pro';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/be-vietnam-pro-700-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+/* --- IBM Plex Mono: mã, số liệu --- */
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/ibm-plex-mono-400-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/ibm-plex-mono-400-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/ibm-plex-mono-500-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/ibm-plex-mono-500-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/ibm-plex-mono-600-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'IBM Plex Mono';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/ibm-plex-mono-600-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+/* =============================================================================
  *  PHẦN 0A — TOKEN NGỮ NGHĨA (KHÔNG đổi theo bảng màu)
  *  Đây là các màu mang Ý NGHĨA (trạng thái phiếu, độ ưu tiên, cảnh báo).
  *  Chúng phải GIỐNG NHAU ở mọi bảng màu để người dùng không bị nhầm.
  * ============================================================================= */
 :root {
+    /* --- Phông chữ: đổi ở GỐC để mọi thành phần Tabler/GLPI ăn theo ---
+       Tabler dựng toàn bộ chữ từ --tblr-font-sans-serif. Đặt lại biến này ở
+       :root là cách DUY NHẤT phủ được cả những chỗ GLPI đặt font-family trực
+       tiếp (nút, nhãn, ô nhập...), thay vì phải liệt kê từng selector. */
+    --tblr-font-sans-serif: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
     /* --- Màu gốc lấy từ logo / thiên nhiên Đà Lạt --- */
     --dlu-cam: #F08418;          /* cam đất  — mặt trời trong logo */
     --dlu-cam-dam: #D97210;      /* cam đất đậm */
@@ -61,6 +203,27 @@
     --dlu-xam-suong: #9AA79B;    /* xám sương mù */
     --dlu-chu: #2B330F;          /* màu chữ chính */
 
+    /* --- Ghi đè màu NGỮ NGHĨA của Tabler bằng màu Đà Lạt ---
+       VI SAO CAN:
+         Tabler dinh nghia --tblr-info: #4299e1, --tblr-danger, --tblr-success...
+         va dung chung cho moi nut/badge/alert co hau to -info, -danger...
+         Bang mau cua do an chi doi --dlu-primary, nen cac thanh phan do van
+         mang mau XANH DUONG GOC cua Tabler — da bat qua that: nut .btn-ghost-info
+         hien rgb(128,171,228) tren danh sach thieu.
+         Gan lai o goc nay sua MOT LAN cho tat ca hau to, thay vi liet ke
+         tung selector .btn-ghost-info, .badge-info, .alert-info...
+       Gia tri lay tu chinh bang mau Da Lat de giao dien chi con MOT ho mau. */
+    --tblr-info: #3E8E9E;                 /* xanh hồ Xuân Hương */
+    --tblr-info-rgb: 62, 142, 158;
+    --tblr-success: #607824;              /* xanh rêu */
+    --tblr-success-rgb: 96, 120, 36;
+    --tblr-danger: #CC2430;               /* đỏ sao */
+    --tblr-danger-rgb: 204, 36, 48;
+    --tblr-warning: #F08418;              /* cam đất */
+    --tblr-warning-rgb: 240, 132, 24;
+    --tblr-blue: #3E8E9E;
+    --tblr-blue-rgb: 62, 142, 158;
+
     /* --- Chữ trên nền màu tương ứng (đảm bảo tương phản đạt chuẩn) --- */
     --dlu-tren-cam: #5A4210;
     --dlu-tren-do: #8E1A22;
@@ -75,6 +238,39 @@
         #607824 0%,
         #90B43C 40%,
         #F08418 100%);
+
+    /* --- Mực và đường kẻ: dùng chung cho mọi bảng màu ---
+       Giao diện bên trong đọc như một cuốn sổ theo dõi: nền giấy, mực đậm,
+       đường kẻ mảnh. Ba giá trị dưới đây là phần "giấy và mực" đó.
+       BỘ NÀY LÀ BỘ DUY NHẤT ĐỔI THEO CHẾ ĐỘ SÁNG/TỐI (xem khối ngay dưới).
+       Mọi chỗ trong file phải dùng var(--dlu-giay...) và var(--dlu-muc...),
+       TUYỆT ĐỐI không viết thẳng mã màu nền/chữ — viết thẳng thì chế độ tối
+       sẽ nửa sáng nửa tối, đúng lỗi đã gặp. */
+    --dlu-giay: #F7F8F2;             /* nền trang */
+    --dlu-giay-nhat: #FCFDF8;        /* nền nổi lên: thanh trên, hộp thoại */
+    --dlu-giay-vua: #F1F3EA;         /* nền ô nhập, vùng chìm */
+    --dlu-muc: #26301A;              /* mực chính */
+    --dlu-muc-rgb: 38, 48, 26;       /* kênh RGB của mực — dùng cho rgba() */
+    --dlu-muc-mo: #6E7761;           /* mực phụ, nhãn, chú thích */
+    --dlu-muc-nhat: #97A08A;         /* mực rất nhạt, chữ mờ */
+    --dlu-ke: rgba(38, 48, 26, 0.13); /* đường kẻ mảnh */
+
+    /* --- Bo góc: thang bậc có chủ ý, không dùng một cỡ cho mọi thứ --- */
+    --dlu-bo-nho: 3px;               /* nhãn, ô nhập, nút nhỏ */
+    --dlu-bo-vua: 6px;               /* thẻ, bảng, khối nội dung */
+
+    /* --- Trường đường bình độ vẽ trên nền thanh menu ---
+       Đây là hình dạng bản đồ của chính những dãy đồi ở trang đăng nhập, nên
+       hai mặt tiền của hệ thống cùng thuộc một thế giới. */
+    --dlu-binh-do: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.085' stroke-width='1'%3E%3Cpath d='M-20,40 C40,10 90,64 150,34 C200,8 230,44 260,26'/%3E%3Cpath d='M-20,88 C40,58 90,112 150,82 C200,56 230,92 260,74'/%3E%3Cpath d='M-20,136 C40,106 90,160 150,130 C200,104 230,140 260,122'/%3E%3Cpath d='M-20,184 C40,154 90,208 150,178 C200,152 230,188 260,170'/%3E%3Cpath d='M-20,232 C40,202 90,256 150,226 C200,200 230,236 260,218'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Cùng hình đó nhưng vẽ bằng NÉT MỰC, dùng được trên nền giấy sáng.
+       Bản nét trắng ở trên chỉ nhìn thấy trên nền tối (thanh menu); đem nó
+       lên nền giấy thì trắng trên giấy trắng, coi như không có gì.
+       Nét mực đặt rất mờ (0.055) vì đây là hơi thở của bảng điều khiển,
+       không phải hoạ tiết trang trí — nhìn kỹ mới thấy, nhưng có thì bảng
+       điều khiển thuộc hẳn về thế giới Đà Lạt chứ không còn là nền xám. */
+    --dlu-binh-do-muc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%2326301A' stroke-opacity='0.055' stroke-width='1'%3E%3Cpath d='M-20,40 C40,10 90,64 150,34 C200,8 230,44 260,26'/%3E%3Cpath d='M-20,88 C40,58 90,112 150,82 C200,56 230,92 260,74'/%3E%3Cpath d='M-20,136 C40,106 90,160 150,130 C200,104 230,140 260,122'/%3E%3Cpath d='M-20,184 C40,154 90,208 150,178 C200,152 230,188 260,170'/%3E%3Cpath d='M-20,232 C40,202 90,256 150,226 C200,200 230,236 260,218'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* =============================================================================
@@ -228,6 +424,47 @@
 }
 
 /* =============================================================================
+ *  PHẦN 0C — "GIẤY VÀ MỰC" KHI BẬT CHẾ ĐỘ TỐI
+ *
+ *  VÌ SAO CẦN RIÊNG MỘT KHỐI?
+ *    Chế độ tối của GLPI hoạt động bằng cách đổi các biến --tblr-* sang nền
+ *    đen. Nhưng PHẦN 4 của file này vẽ giao diện bằng "giấy và mực" với các
+ *    mã màu cứng (#F7F8F2, #FCFDF8...) và đặt !important, nên khi bật chế độ
+ *    tối chúng vẫn là màu sáng: nền trang sáng, chữ sáng của GLPI -> chữ trắng
+ *    trên nền trắng, không đọc được. Lỗi đã gặp thật.
+ *
+ *  CÁCH SỬA:
+ *    Đổi chính ba token nền/chữ ở đây thành bảng màu "Đà Lạt về đêm": nền là
+ *    mực xanh rêu rất tối (như rừng thông khi trời tắt nắng), chữ là sương
+ *    sớm. PHẦN 4 vẫn giữ nguyên vì nó chỉ tham chiếu token, không giữ màu.
+ *
+ *  ĐIỀU KIỆN KHỚP:
+ *    GLPI gắn data-glpi-theme-dark="1" lên <html> khi bảng màu đang chọn được
+ *    đánh dấu tối. Với bảng màu tự tạo, ThemeManager nhận diện qua dòng
+ *    "$is-dark: true;" trong file .scss. Ba bảng màu của đồ án hiện là bảng
+ *    SÁNG, nên khối này chỉ có tác dụng nếu người dùng chọn một bảng màu tối
+ *    của GLPI — vẫn phải đúng, không được để ra giao diện nửa vời.
+ * ============================================================================= */
+:root[data-glpi-theme-dark="1"] {
+    --dlu-giay: #171A11;
+    --dlu-giay-nhat: #1F2416;
+    --dlu-giay-vua: #232919;
+    --dlu-muc: #E6EADB;
+    --dlu-muc-rgb: 230, 234, 219;
+    --dlu-muc-mo: #A6AE97;
+    --dlu-muc-nhat: #7C8570;
+    --dlu-ke: rgba(230, 234, 219, 0.16);
+
+    /* Trường đường bình độ trên thanh menu: đổi nét trắng mờ thành nét sáng
+       hơn một chút, vì nền thanh menu ở chế độ tối cũng đã tối sẵn. */
+    --dlu-binh-do: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1'%3E%3Cpath d='M-20,40 C40,10 90,64 150,34 C200,8 230,44 260,26'/%3E%3Cpath d='M-20,88 C40,58 90,112 150,82 C200,56 230,92 260,74'/%3E%3Cpath d='M-20,136 C40,106 90,160 150,130 C200,104 230,140 260,122'/%3E%3Cpath d='M-20,184 C40,154 90,208 150,178 C200,152 230,188 260,170'/%3E%3Cpath d='M-20,232 C40,202 90,256 150,226 C200,200 230,236 260,218'/%3E%3C/g%3E%3C/svg%3E");
+
+    /* Bảng điều khiển ở chế độ tối: nền đã tối nên phải quay lại nét trắng,
+       nét mực sẽ chìm mất. Đổi đúng token, không phải sửa lại bộ chọn nào. */
+    --dlu-binh-do-muc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M-20,40 C40,10 90,64 150,34 C200,8 230,44 260,26'/%3E%3Cpath d='M-20,88 C40,58 90,112 150,82 C200,56 230,92 260,74'/%3E%3Cpath d='M-20,136 C40,106 90,160 150,130 C200,104 230,140 260,122'/%3E%3Cpath d='M-20,184 C40,154 90,208 150,178 C200,152 230,188 260,170'/%3E%3Cpath d='M-20,232 C40,202 90,256 150,226 C200,200 230,236 260,218'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* =============================================================================
  *  PHẦN 1 — ÁNH XẠ TOKEN -> BIẾN CỦA GLPI / TABLER
  *  Nhờ phần này, các thành phần dựng sẵn của GLPI (nút, liên kết, viền ô nhập,
  *  thanh menu, biểu tượng minh hoạ...) tự động đổi màu theo bảng màu đang chọn.
@@ -254,25 +491,147 @@
     --glpi-palette-color-2: var(--dlu-palette-2);
     --glpi-palette-color-3: var(--dlu-palette-3);
     --glpi-palette-color-4: var(--dlu-palette-4);
+
+    /* -------------------------------------------------------------------------
+     *  HỆ MÀU TRUNG TÍNH CỦA TABLER — PHẦN DỄ BỊ BỎ SÓT NHẤT
+     *
+     *  VÌ SAO PHẢI GHI ĐÈ CẢ NHỮNG BIẾN NÀY?
+     *
+     *  Bảng màu tự tạo thường chỉ đổi --tblr-primary (màu thương hiệu) rồi dừng.
+     *  Nhưng Tabler/GLPI còn một HỆ MÀU TRUNG TÍNH riêng, định nghĩa cứng trong
+     *  css/includes/_base.scss, KHÔNG liên quan gì tới --tblr-primary:
+     *
+     *      --tblr-body-color   #374151   <-- màu chữ của gần như MỌI thứ
+     *      --tblr-muted        #606f91   <-- xám pha XANH DƯƠNG của Tabler
+     *      --tblr-border-color #e5e7eb
+     *      --tblr-bg-surface   #fff
+     *      --glpi-itil-secondary-bg #f5f5f5   <-- nền dải nút dưới biểu mẫu
+     *      --glpi-form-header-fg    #055cad   <-- xanh dương của tiêu đề biểu mẫu
+     *
+     *  Đây chính là lý do giao diện vẫn "ra mùi GLPI gốc" dù đã đổi màu thương
+     *  hiệu: chữ trong hệ thống vẫn là xám xanh #374151 của Tabler chứ không
+     *  phải mực xanh rêu, nhãn phụ vẫn là #606f91, dải nút vẫn #f5f5f5, và tiêu
+     *  đề biểu mẫu vẫn xanh dương #055cad — những màu chưa từng có trong logo
+     *  DLU. Ba bảng màu kèm theo của GLPI đều ghi đè nhóm này (xem
+     *  css/palettes/_midnight.scss), nên đây là việc một bảng màu PHẢI làm.
+     *
+     *  Ba token dưới đây CỐ Ý KHÔNG ghi đè, vì chúng là thang xám CẤU TRÚC chứ
+     *  không phải màu thương hiệu, và GLPI dùng chúng để trộn ra hàng loạt sắc
+     *  độ (--tblr-gray-100..900, nền bảng điều khiển, viền mờ):
+     *      --tblr-light, --tblr-dark, --tblr-secondary-rgb
+     *  Đổi chúng sẽ kéo theo cả thang xám lệch khỏi mọi bảng màu của GLPI.
+     * ------------------------------------------------------------------------- */
+    --tblr-body-color: var(--dlu-muc);
+    --tblr-body-color-rgb: var(--dlu-muc-rgb);
+    --tblr-body-bg: var(--dlu-giay);
+    --tblr-bg-surface: var(--dlu-giay-nhat);
+    --tblr-bg-surface-secondary: var(--dlu-giay-vua);
+    --tblr-bg-surface-tertiary: var(--dlu-giay-vua);
+    --tblr-border-color: var(--dlu-ke);
+    --tblr-border-color-translucent: var(--dlu-ke);
+    --tblr-muted: var(--dlu-muc-mo);
+    --tblr-code-color: var(--dlu-muc);
+
+    /* --tblr-secondary là "màu chữ phụ" của Tabler (#606f91, xám pha xanh
+       dương). Nó KHÔNG chỉ dùng cho nhãn phụ: thanh trên cùng lấy
+       --tblr-navbar-color: var(--tblr-secondary), nên toàn bộ chữ trên thanh
+       ngang — đường dẫn "Trang chủ / Hỗ trợ / Phiếu yêu cầu", các nút Mẫu,
+       Bảng Kanban — đều mang màu xanh xám này. Đổi ở đây là sửa một lần cho
+       cả thanh. */
+    --tblr-secondary: var(--dlu-muc-mo);
+
+    /* Dải nút dưới biểu mẫu phiếu (Lưu / Xoá / ...) — nền xám công nghiệp của
+       GLPI, đổi thành nền giấy chìm cho khớp ngôn ngữ "giấy và mực". */
+    --glpi-itil-secondary-bg: var(--dlu-giay-vua);
+
+    /* Thanh tab: nền và chữ lấy từ bộ giấy/mực thay vì xám xanh của Tabler. */
+    --glpi-tabs-bg: transparent;
+    --glpi-tabs-fg: var(--dlu-muc-mo);
+    --glpi-tabs-active-bg: var(--dlu-giay-nhat);
+    --glpi-tabs-active-fg: var(--dlu-muc);
+    --glpi-tabs-border-color: var(--dlu-ke);
+
+    /* Tiêu đề biểu mẫu tài sản: GLPI để xanh dương #055cad — màu duy nhất còn
+       sót lại không thuộc logo DLU. Đổi sang xanh rêu đậm. */
+    --glpi-form-header-fg: var(--dlu-primary-dark);
+    --glpi-form-header-bg: rgba(var(--dlu-primary-rgb), 0.10);
+    --glpi-form-header-border-color: rgba(var(--dlu-primary-rgb), 0.34);
+    --glpi-form-header-danger-fg: var(--tblr-danger);
+    --glpi-form-header-danger-bg: rgba(204, 36, 48, 0.10);
+    --glpi-form-header-danger-border-color: rgba(204, 36, 48, 0.34);
+
+    /* Nền khi rê chuột và nhãn trên thanh menu: theo màu thương hiệu. */
+    --glpi-hover-bg: rgba(var(--dlu-primary-rgb), 0.10);
+    --glpi-mainmenu-fg-muted: rgba(255, 255, 255, 0.62);
+    --glpi-fg-secondary: var(--dlu-on-primary);
+
+    /* --- Dòng thời gian của phiếu (theo dõi, nhiệm vụ, giải pháp, tài liệu) ---
+       Bốn nhóm dưới đây là màu PHÂN LOẠI, phải đọc ra ngay là "đây là ghi chú
+       theo dõi" hay "đây là giải pháp". Giữ nguyên tinh thần phân biệt của GLPI
+       nhưng lấy sắc độ từ thiên nhiên Đà Lạt cho khớp phần còn lại. */
+    --glpi-timeline-itil-content-bg: rgba(96, 120, 36, 0.13);
+    --glpi-timeline-itil-content-fg: var(--dlu-reu-toi);
+    --glpi-timeline-itil-content-border-color: rgba(96, 120, 36, 0.40);
+    --glpi-timeline-fup-bg: var(--dlu-giay-vua);
+    --glpi-timeline-fup-fg: var(--dlu-muc-mo);
+    --glpi-timeline-fup-border-color: var(--dlu-ke);
+    --glpi-timeline-task-bg: rgba(254, 201, 92, 0.24);
+    --glpi-timeline-task-fg: #4A3A12;
+    --glpi-timeline-task-border-color: rgba(240, 132, 24, 0.42);
+    --glpi-timeline-solution-bg: rgba(62, 142, 158, 0.20);
+    --glpi-timeline-solution-fg: #1F4A54;
+    --glpi-timeline-solution-border-color: rgba(62, 142, 158, 0.42);
+    --glpi-timeline-document-bg: rgba(144, 180, 60, 0.22);
+    --glpi-timeline-document-fg: var(--dlu-reu-toi);
+    --glpi-timeline-document-border-color: rgba(144, 180, 60, 0.46);
+    --glpi-timeline-log-bg: rgba(var(--dlu-muc-rgb), 0.05);
+    --glpi-timeline-badge-bg: rgba(var(--dlu-primary-rgb), 0.14);
+    --glpi-timeline-badge-fg: var(--dlu-muc-mo);
+
+    /* Ô tìm kiếm nhanh và nhãn đếm trên thanh menu. */
+    --glpi-search-bg: rgba(255, 255, 255, 0.08);
+    --glpi-search-fg: rgba(255, 255, 255, 0.86);
+    --glpi-search-border-color: rgba(255, 255, 255, 0.24);
+    --glpi-badge-bg: rgba(var(--dlu-primary-rgb), 0.16);
+    --glpi-badge-fg: var(--dlu-primary-dark);
 }
 
 /* Chế độ tối: giữ tinh thần Đà Lạt về đêm — thông đen, đèn vàng ấm */
 :root[data-glpi-theme][data-glpi-theme-dark="1"] {
     --glpi-mainmenu-bg: var(--dlu-primary-deep);
     --glpi-mainmenu-fg: var(--dlu-on-primary-deep);
+
+    /* Chữ phân loại trên dòng thời gian: ở chế độ sáng chúng là mực đậm trên
+       nền nhạt, nhưng nền ở đây đã tối nên phải đổi sang sắc SÁNG, nếu không
+       sẽ là chữ nâu sẫm trên nền sẫm — đúng lỗi "nửa sáng nửa tối". */
+    --glpi-timeline-itil-content-fg: #CFE0A8;
+    --glpi-timeline-task-fg: #F7DFA8;
+    --glpi-timeline-solution-fg: #B6DCE6;
+    --glpi-timeline-document-fg: #CDE3A4;
+    --glpi-timeline-itil-content-bg: rgba(144, 180, 60, 0.16);
+    --glpi-timeline-task-bg: rgba(254, 201, 92, 0.15);
+    --glpi-timeline-solution-bg: rgba(62, 142, 158, 0.20);
+    --glpi-timeline-document-bg: rgba(144, 180, 60, 0.16);
+
+    /* Nhãn đếm và ô tìm kiếm trên thanh menu: nền thanh menu ở chế độ tối đã
+       là xanh rêu rất tối, nên chữ nhãn phải sáng lên. */
+    --glpi-badge-fg: #DCE8C0;
 }
 
 /* =============================================================================
  *  PHẦN 2 — LOGO DLU
  * ============================================================================= */
 :root {
-    /* File CSS này được phục vụ tại /plugins/dlubrand/css/dlu-theme.css,
-       nên đường dẫn "../pics/logos/..." giải quyết thành
-       /plugins/dlubrand/pics/logos/... — trỏ tới public/ của plugin. */
-    --glpi-logo-light: url("../pics/logos/logo-DLU-100.png");
-    --glpi-logo-dark: url("../pics/logos/logo-DLU-100.png");
-    --glpi-logo-dark-login: url("../pics/logos/logo-DLU-250.png");
-    --glpi-logo-light-login: url("../pics/logos/logo-DLU-250.png");
+    /* ĐƯỜNG DẪN TUYỆT ĐỐI LÀ CỐ Ý — ĐỪNG ĐỔI THÀNH TƯƠNG ĐỐI.
+       Lỗi đã gặp thật: để "../pics/logos/..." thì trình duyệt phân giải
+       url() theo stylesheet ĐANG DÙNG biến, không phải stylesheet khai báo.
+       GLPI dùng --glpi-logo-* trong /css_compiled/css_glpi.min.css, nên
+       "../pics/logos/..." bị hiểu thành /pics/logos/... -> 404, logo vỡ.
+       Đường dẫn tuyệt đối thì đúng trong mọi ngữ cảnh phân giải. */
+    --glpi-logo-light: url("/plugins/dlubrand/pics/logos/logo-DLU-100.png");
+    --glpi-logo-dark: url("/plugins/dlubrand/pics/logos/logo-DLU-100.png");
+    --glpi-logo-dark-login: url("/plugins/dlubrand/pics/logos/logo-DLU-250.png");
+    --glpi-logo-light-login: url("/plugins/dlubrand/pics/logos/logo-DLU-250.png");
 }
 
 /* Logo trên thanh menu: canh giữa, giữ đúng tỉ lệ, không méo */
@@ -298,22 +657,54 @@
  *  nên được chăm chút kỹ nhất.
  * ============================================================================= */
 
-/* Nền trang: gradient sương mai -> xanh rêu -> cam nắng (theo bảng màu) */
+/* Nền trang: bầu trời sớm mai trên cao nguyên, nhạt dần xuống chân đồi.
+   Không còn là một tấm gradient phủ kín trang: nửa dưới do cảnh đồi tiếp
+   quản (xem PHẦN 3B). */
 body.welcome-anonymous {
-    background: var(--dlu-login-bg) !important;
+    position: relative;
+    background: linear-gradient(180deg,
+        #FAFCF4 0%,
+        #F1F6E6 34%,
+        #E7EED8 62%,
+        #DEE7C9 100%) !important;
     background-attachment: fixed !important;
     min-height: 100vh;
+    overflow-x: hidden;
+    /* Trang đăng nhập không nằm trong body:not(.welcome-anonymous) ở PHẦN 4,
+       nên phải đặt phông riêng, nếu không nó vẫn dùng Segoe UI. */
+    font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Thẻ đăng nhập: trắng ngà, bo góc lớn, đổ bóng mềm như sương */
+/* Thẻ đăng nhập: trắng ngà, bo góc lớn, đổ bóng sâu như đang lơ lửng trước
+   dãy đồi phía sau. */
 body.welcome-anonymous .card {
+    position: relative;
+    z-index: 3;
     background: rgba(255, 255, 254, 0.97) !important;
     border: 1px solid rgba(var(--dlu-primary-rgb), 0.16) !important;
     border-radius: 16px !important;
     box-shadow:
-        0 18px 48px rgba(var(--dlu-primary-dark-rgb), 0.16),
-        0 2px 8px rgba(var(--dlu-primary-dark-rgb), 0.08) !important;
+        0 34px 68px -22px rgba(var(--dlu-primary-dark-rgb), 0.38),
+        0 12px 28px -14px rgba(var(--dlu-primary-dark-rgb), 0.20),
+        0 2px 6px rgba(var(--dlu-primary-dark-rgb), 0.06) !important;
     backdrop-filter: blur(6px);
+}
+
+/* Khối chứa thẻ cũng phải nổi lên trên cảnh đồi.
+   Đồng thời thu bề ngang: mặc định `container-tight` rộng 960px, biến thẻ
+   đăng nhập thành một tấm bảng ngang che kín phong cảnh phía sau. Cỡ 27rem
+   cho đúng dáng một thẻ đăng nhập và để cảnh đồi thở ở hai bên. */
+body.welcome-anonymous .page-anonymous,
+body.welcome-anonymous .container-tight {
+    position: relative;
+    z-index: 3;
+}
+
+body.welcome-anonymous .container-tight {
+    max-width: 27rem !important;
 }
 
 body.welcome-anonymous .card-body {
@@ -429,27 +820,269 @@ body.welcome-anonymous .footer {
     font-size: 0.82rem;
 }
 
-/* =============================================================================
- *  PHẦN 4 — GIAO DIỆN SAU KHI ĐĂNG NHẬP
- * ============================================================================= */
-
-/* --- Thanh menu dọc: bóng mềm --- */
-.navbar-vertical.navbar-expand-lg {
-    box-shadow: 0 2px 12px rgba(var(--dlu-primary-dark-rgb), 0.18);
+/* Dòng bản quyền GLPI / Teclib ở chân trang.
+   ĐÂY LÀ GHI CHÚ PHÁP LÝ, KHÔNG PHẢI YẾU TỐ THƯƠNG HIỆU — phải giữ nguyên
+   nội dung (giấy phép GPLv3 yêu cầu), nhưng KHÔNG được để nó nổi bật.
+   Lỗi cũ: quy tắc `body.welcome-anonymous a` phía trên đổ màu xanh rêu đậm
+   và cỡ 14px lên cả liên kết này, khiến dòng "GLPI Copyright (C) ... Teclib'"
+   đọc như một nhãn thương hiệu của Trường. Hạ xuống cỡ nhỏ, màu mực mờ, và
+   bỏ gạch chân để nó lùi đúng vị trí của một dòng pháp lý. */
+body.welcome-anonymous .copyright,
+body.welcome-anonymous a.copyright,
+body.welcome-anonymous .copyright a {
+    color: rgba(var(--dlu-muc-rgb), 0.42) !important;
+    font-size: 0.72rem !important;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+    letter-spacing: 0.01em;
 }
 
-/* --- Mục menu đang chọn: vạch nhấn bên trái --- */
-.navbar-vertical .nav-link.active {
-    border-left: 3px solid var(--dlu-nav-accent);
-    background: rgba(var(--dlu-nav-accent-rgb), 0.12);
+body.welcome-anonymous .copyright:hover,
+body.welcome-anonymous a.copyright:hover {
+    color: rgba(var(--dlu-muc-rgb), 0.68) !important;
+    text-decoration: underline !important;
+}
+
+/* =============================================================================
+ *  PHẦN 3B — CẢNH ĐỒI CÓ CHIỀU SÂU (trang đăng nhập)
+ *  Năm lớp đồi xếp lớp nối liền chân trang, vẽ bằng SVG nhúng sẵn nên không
+ *  cần tài nguyên ngoài và không phụ thuộc mạng. Thẻ đăng nhập nổi phía trên.
+ *
+ *  Đây là điểm khác biệt lớn nhất so với GLPI gốc: thay vì một tấm gradient
+ *  phẳng, mặt tiền của hệ thống là một phong cảnh Đà Lạt có lớp lang.
+ *
+ *  Phần tử .dlu-canh do js/dlu-canh.js dựng. Tắt JavaScript thì khối này
+ *  không tồn tại và trang trở về đúng nền gradient ở PHẦN 3 — vẫn nguyên vẹn.
+ * ============================================================================= */
+.dlu-canh {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Mỗi lớp phủ trọn khung nhìn. Khung vẽ của lớp cũng đúng tỉ lệ này, nên một
+   toạ độ y trong hình rơi thẳng xuống cùng chỗ trên màn hình, và các lớp luôn
+   chồng khít lên nhau ở mọi kích thước cửa sổ. */
+.dlu-canh__lop {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: 100% 100%;
+    will-change: transform;
+}
+
+/* Dải sương trôi ngang giữa các lớp đồi — chuyển động rất chậm nên chỉ đủ
+   gợi chuyển động, không gây phân tán. */
+.dlu-canh__suong {
+    position: absolute;
+    left: -14%;
+    right: -14%;
+    height: 130px;
+    background: linear-gradient(180deg,
+        transparent,
+        rgba(250, 252, 246, 0.92) 48%,
+        transparent);
+    filter: blur(17px);
+    will-change: transform;
+}
+
+.dlu-canh__suong--1 {
+    top: 46%;
+    animation: dlu-suong 74s ease-in-out infinite alternate;
+}
+
+.dlu-canh__suong--2 {
+    top: 66%;
+    opacity: 0.7;
+    animation: dlu-suong 96s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes dlu-suong {
+    from { transform: translate3d(-2.5%, 0, 0); }
+    to   { transform: translate3d(2.5%, 0, 0); }
+}
+
+/* Màn hình thấp hoặc cửa sổ hẹp: cảnh đồi thu lại để không tranh chỗ với
+   biểu mẫu đăng nhập. */
+@media (max-height: 700px) {
+    .dlu-canh { opacity: 0.75; }
+}
+
+@media (max-width: 640px) {
+    .dlu-canh { opacity: 0.6; }
+}
+
+/* Giảm chuyển động: cảnh vẫn hiện đầy đủ nhưng đứng yên hoàn toàn. */
+@media (prefers-reduced-motion: reduce) {
+    .dlu-canh__suong { animation: none; }
+    .dlu-canh__lop { transition: none; }
+}
+
+/* =============================================================================
+ *  PHẦN 4 — GIAO DIỆN SAU KHI ĐĂNG NHẬP
+ *
+ *  Đây là phần bị nhận ra là "GLPI gốc đổi màu" rõ nhất: lõi GLPI dựng ra thẻ
+ *  trắng bo tròn, bóng đổ mềm, tiêu đề xanh nhạt. Phần dưới đây thay hẳn ngôn
+ *  ngữ đó bằng một ngôn ngữ khác:
+ *
+ *    - Nền là GIẤY, không phải thẻ nổi: bỏ bóng đổ, bỏ bo góc lớn.
+ *    - Đường kẻ 1px thay cho bóng đổ để phân tách. Không dùng bóng để trang trí.
+ *    - Thẻ mất vỏ, chỉ còn một đường kẻ trên làm tiêu đề — nhẹ hơn hẳn khối
+ *      hộp của GLPI, và bảng dữ liệu đọc được nhiều dòng hơn trên cùng diện tích.
+ *    - Bo góc 3–6px thay cho 10px+ của Tabler.
+ *    - Chữ dùng Be Vietnam Pro (xem PHẦN 0) — cùng phông với trang giới thiệu,
+ *      để hai nơi đọc ra như một sản phẩm. Số liệu và mã dùng IBM Plex Mono,
+ *      vì mã tài sản kiểu TDL-PC-A101-001 cần các chữ số thẳng cột.
+ * ============================================================================= */
+
+/* --- Nền tổng thể: giấy ngà, không phải xám lạnh của Tabler --- */
+body:not(.welcome-anonymous) {
+    background: var(--dlu-giay);
+    color: var(--dlu-muc);
+    font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* =============================================================================
+ *  4A. THANH MENU DỌC
+ *  Thanh menu là "bìa" của cuốn sổ: nền xanh rêu đậm, in chìm trường đường
+ *  bình độ của chính những dãy đồi ở trang đăng nhập.
+ * ============================================================================= */
+.navbar-vertical.navbar-expand-lg {
+    background-color: var(--dlu-primary-dark) !important;
+    background-image: var(--dlu-binh-do) !important;
+    box-shadow: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.22);
+}
+
+/* Chế độ tối: thanh menu lùi hẳn vào bóng rừng thông. Không đổi thì nó vẫn
+   là xanh rêu sáng, chỏi hẳn với nền mực tối của cả trang. */
+:root[data-glpi-theme-dark="1"] .navbar-vertical.navbar-expand-lg {
+    background-color: var(--dlu-primary-deep) !important;
+    border-right-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Ô tìm kiếm nhanh trên thanh menu: chìm vào nền, chỉ còn một đường kẻ */
+.navbar-vertical .trigger-fuzzy {
+    color: rgba(255, 255, 255, 0.82) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: var(--dlu-bo-nho) !important;
+    background: rgba(0, 0, 0, 0.14) !important;
+}
+
+.navbar-vertical .trigger-fuzzy:hover {
+    background: rgba(0, 0, 0, 0.26) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Mục menu: chữ nhạt, không viền, không bo tròn kiểu Tabler */
+.navbar-vertical .nav-link {
+    color: rgba(255, 255, 255, 0.80) !important;
+    border-radius: 0 !important;
+    font-size: 0.9rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-left: 3px solid transparent;
+}
+
+.navbar-vertical .nav-link:hover,
+.navbar-vertical .nav-link:focus {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Mục đang mở hoặc đang chọn: vạch cam bên trái, chữ trắng, nền sáng hơn.
+   Vạch cam lấy từ logo Trường, và là dấu hiệu duy nhất đánh dấu vị trí. */
+.navbar-vertical .nav-link.active,
+.navbar-vertical .nav-link.show,
+.navbar-vertical .nav-item.active > .nav-link {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.11) !important;
+    border-left-color: var(--dlu-nav-accent);
     font-weight: 600;
 }
 
-/* --- Nút hành động chính --- */
+/* Menu con xổ xuống trong thanh dọc */
+.navbar-vertical .dropdown-menu {
+    background: rgba(0, 0, 0, 0.22);
+    border: none;
+    border-left: 3px solid rgba(255, 255, 255, 0.16);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.navbar-vertical .dropdown-item {
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.86rem;
+    border-radius: 0;
+}
+
+.navbar-vertical .dropdown-item:hover,
+.navbar-vertical .dropdown-item:focus {
+    background: rgba(255, 255, 255, 0.10);
+    color: #fff;
+}
+
+.navbar-vertical .dropdown-item.active,
+.navbar-vertical .dropdown-item:active {
+    background: var(--dlu-nav-accent);
+    color: #3A2A06;
+    font-weight: 600;
+}
+
+/* Dòng bản quyền ở chân thanh menu: mờ hẳn đi */
+.navbar-vertical p.text-start,
+.navbar-vertical .text-muted {
+    color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* =============================================================================
+ *  4B. THANH TRÊN CÙNG
+ *  Một dải giấy mỏng, ngăn với nội dung bằng đúng một đường kẻ.
+ * ============================================================================= */
+header.navbar.d-print-none {
+    background: var(--dlu-giay-nhat) !important;
+    border-bottom: 1px solid var(--dlu-ke) !important;
+    box-shadow: none !important;
+}
+
+header.navbar .breadcrumb-item,
+header.navbar .breadcrumb-item a {
+    color: var(--dlu-muc-mo);
+    font-size: 0.86rem;
+}
+
+header.navbar .breadcrumb-item.active {
+    color: var(--dlu-muc);
+    font-weight: 600;
+}
+
+/* Ô tìm kiếm trên thanh trên cùng */
+header.navbar input[type="search"],
+header.navbar .form-control {
+    background: var(--dlu-giay-vua) !important;
+    border: 1px solid var(--dlu-ke) !important;
+    border-radius: var(--dlu-bo-nho) !important;
+    box-shadow: none !important;
+}
+
+/* =============================================================================
+ *  4C. NÚT BẤM
+ *  Nút phẳng, bo nhỏ, không đổ bóng màu. Nút chính là khối xanh rêu đặc.
+ * ============================================================================= */
+.btn {
+    border-radius: var(--dlu-bo-nho) !important;
+    font-weight: 500;
+    box-shadow: none !important;
+}
+
 .btn-primary {
-    background: linear-gradient(135deg,
-        var(--dlu-btn-from) 0%,
-        var(--dlu-btn-to) 100%) !important;
+    background: var(--dlu-primary) !important;
     border-color: var(--dlu-primary) !important;
     color: #fff !important;
 }
@@ -457,40 +1090,132 @@ body.welcome-anonymous .footer {
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
-    background: linear-gradient(135deg,
-        var(--dlu-btn-from-hover) 0%,
-        var(--dlu-btn-to-hover) 100%) !important;
-    border-color: var(--dlu-btn-to-hover) !important;
+    background: var(--dlu-primary-dark) !important;
+    border-color: var(--dlu-primary-dark) !important;
 }
 
-/* Nút phụ: viền và chữ theo màu chủ đạo */
+/* Nút phụ: chỉ còn đường viền mảnh */
+.btn-outline-secondary,
+.btn-outline-primary {
+    border-color: rgba(var(--dlu-primary-rgb), 0.42) !important;
+    color: var(--dlu-primary-dark) !important;
+    background: transparent !important;
+}
+
 .btn-outline-secondary:hover,
 .btn-outline-primary:hover {
-    background: rgba(var(--dlu-primary-rgb), 0.10);
-    border-color: var(--dlu-primary);
-    color: var(--dlu-primary-dark);
+    background: rgba(var(--dlu-primary-rgb), 0.08) !important;
+    border-color: var(--dlu-primary) !important;
+    color: var(--dlu-primary-dark) !important;
 }
 
-/* --- Thẻ nội dung: bo góc, bóng nhẹ --- */
+/* =============================================================================
+ *  4D. THẺ VÀ KHỐI NỘI DUNG
+ *  Thẻ mất hẳn vỏ hộp: không bóng, không bo lớn, không viền kín. Chỉ còn một
+ *  đường kẻ mảnh phía trên làm ranh giới — nội dung đọc như các mục trong sổ.
+ * ============================================================================= */
 .card {
-    border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(var(--dlu-primary-dark-rgb), 0.09);
+    background: transparent !important;
+    border: none !important;
+    border-top: 1px solid var(--dlu-ke) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Khối có tiêu đề: đường kẻ đậm hơn một chút để tách khỏi nội dung phía trên */
+.card:has(> .card-header) {
+    border-top-color: rgba(var(--dlu-primary-rgb), 0.38) !important;
 }
 
 .card-header {
-    border-bottom: 2px solid rgba(var(--dlu-primary-rgb), 0.18);
-    font-weight: 600;
+    background: transparent !important;
+    border-bottom: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    font-weight: 700;
+    color: var(--dlu-muc);
+    letter-spacing: -0.1px;
 }
 
-/* --- Bảng dữ liệu: dòng tiêu đề nhạt màu chủ đạo --- */
+.card-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Khối có nền riêng (thông báo, hộp thoại trong trang) vẫn cần một vỏ nhẹ */
+.alert,
+.modal-content,
+.dropdown-menu:not(.navbar-vertical .dropdown-menu) {
+    border-radius: var(--dlu-bo-vua) !important;
+    border: 1px solid var(--dlu-ke) !important;
+    box-shadow: none !important;
+}
+
+.modal-content {
+    background: var(--dlu-giay-nhat) !important;
+}
+
+/* Tiêu đề trang: chữ đậm, không tô màu thương hiệu */
+.page-title,
+h1.page-header-title {
+    color: var(--dlu-muc) !important;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+/* =============================================================================
+ *  4E. BẢNG DỮ LIỆU
+ *  Đây là bề mặt làm việc chính: kỹ thuật viên nhìn bảng cả ngày. Đường kẻ
+ *  mảnh, đầu bảng đậm, dòng cao thoáng, số và mã thẳng cột.
+ * ============================================================================= */
+.table {
+    color: var(--dlu-muc);
+    border-color: var(--dlu-ke);
+}
+
 .table thead th {
-    background: rgba(var(--dlu-primary-rgb), 0.07);
-    color: var(--dlu-primary-dark);
-    border-bottom: 2px solid rgba(var(--dlu-primary-rgb), 0.25);
+    background: transparent !important;
+    color: var(--dlu-muc-mo) !important;
+    border-top: none !important;
+    border-bottom: 1px solid rgba(var(--dlu-primary-rgb), 0.42) !important;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.table tbody td {
+    border-bottom: 1px solid var(--dlu-ke);
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    vertical-align: middle;
 }
 
 .table tbody tr:hover {
-    background: rgba(var(--dlu-hover-rgb), 0.16);
+    background: rgba(var(--dlu-hover-rgb), 0.20) !important;
+}
+
+/* Mã tài sản và các mã khác: chữ đều, để các chữ số thẳng cột dọc theo bảng */
+.table code,
+code,
+kbd,
+samp,
+pre {
+    font-family: "IBM Plex Mono", "SFMono-Regular", Consolas,
+        "Liberation Mono", Menlo, "Courier New", monospace;
+    font-size: 0.86em;
+    color: var(--dlu-primary-dark);
+    background: rgba(var(--dlu-primary-rgb), 0.08);
+    border-radius: var(--dlu-bo-nho);
+    padding: 0.1em 0.36em;
+}
+
+/* Số liệu trong bảng: dùng chữ số đều để cột số không nhấp nhô */
+.table td .badge,
+.table td .badge-count {
+    font-variant-numeric: tabular-nums;
 }
 
 /* --- NHÃN TRẠNG THÁI PHIẾU YÊU CẦU (TICKET) ---
@@ -539,6 +1264,60 @@ body.welcome-anonymous .footer {
 .priority-4 { color: var(--dlu-uu-tien-4); }  /* Cao — cam cháy */
 .priority-5 { color: var(--dlu-do); }         /* Rất cao — đỏ sao */
 
+/* --- Số đếm trên thẻ thống kê và nhãn menu ---
+   VI SAO CAN GHI DE:
+     GLPI dinh nghia .primary-bg { background: #3A5693 } trong
+     css/legacy/includes/_styles.scss, kem chu thich "designed to be overridden
+     from palettes". Nhung cac bang mau cua GLPI (css/palettes/*.scss) chi dat
+     --tblr-primary-rgb chu KHONG he dong toi lop .primary-bg. Ket qua: moi
+     bang mau, ke ca bang mau cua do an, deu de lai o dem mau XANH DUONG GOC
+     #3A5693 — mot mau khong he co trong logo DLU, nam giua giao dien xanh reu.
+     Day la di san cua GLPI chu khong phai lua chon thiet ke, nen ghi de. */
+.primary-bg {
+    background: var(--dlu-primary) !important;
+}
+
+.primary-fg,
+.primary-fg:link,
+.primary-fg:hover,
+.primary-fg:focus {
+    color: #fff !important;
+}
+
+/* O dem trong bang: bo goc 10px cua GLPI la qua tron so voi bo goc 3-6px
+   cua PHAN 4. Thu nho lai cho khop ngon ngu "giay va muc". */
+span.count {
+    border-radius: var(--dlu-bo-nho);
+}
+
+/* Nut "dang bat" tren thanh tim kiem (dang sap xep / dang loc).
+   GLPI viet cung mau trong css/includes/pages/_search.scss:
+     .btn-active-sort   { background-color: #ffe0cc; }  <- dao hong
+     .btn-active-search { background-color: #cff5d1; }  <- xanh mint
+   Ca hai deu khong thuoc logo DLU va khong doi theo bang mau. Doi sang
+   sac nhat lay tu chinh bang mau (cam dat / xanh la) de nut "dang bat"
+   van noi ro trang thai ma khong lac ra khoi the gioi Da Lat. */
+.btn-active-sort {
+    background-color: rgba(240, 132, 24, 0.20) !important;
+    color: var(--dlu-reu-toi) !important;
+}
+
+.btn-active-search {
+    background-color: rgba(144, 180, 60, 0.26) !important;
+    color: var(--dlu-reu-toi) !important;
+}
+
+/* Che do toi: hai nut tren can nen toi han, khong dung sac nhat. */
+:root[data-glpi-theme-dark="1"] .btn-active-sort {
+    background-color: rgba(240, 132, 24, 0.26) !important;
+    color: var(--dlu-muc) !important;
+}
+
+:root[data-glpi-theme-dark="1"] .btn-active-search {
+    background-color: rgba(144, 180, 60, 0.30) !important;
+    color: var(--dlu-muc) !important;
+}
+
 /* --- Thanh tiến trình: gradient theo bảng màu --- */
 .progress-bar {
     background: var(--dlu-progress);
@@ -577,10 +1356,19 @@ body.welcome-anonymous .footer {
 }
 
 /* --- Hộp thoại / menu thả xuống --- */
+/* Bo góc 10px + bóng đổ ở đây là mâu thuẫn với ngôn ngữ "giấy và mực" của
+   PHẦN 4 (bo 3–6px, phân tách bằng đường kẻ chứ không bằng bóng). Menu thả
+   xuống là ngoại lệ duy nhất còn sót nên trông lạc hẳn khi mở ra. */
 .dropdown-menu {
-    border-radius: 10px;
-    border-color: rgba(var(--dlu-primary-rgb), 0.16);
-    box-shadow: 0 8px 28px rgba(var(--dlu-primary-dark-rgb), 0.14);
+    border-radius: var(--dlu-bo-nho);
+    border: 1px solid rgba(var(--dlu-primary-rgb), 0.18);
+    box-shadow: 0 4px 14px rgba(var(--dlu-primary-dark-rgb), 0.10);
+}
+
+/* Lớp phủ sau hộp thoại: Tabler dùng xám lạnh, lệch hẳn với thế giới giấy ngà.
+   Đổi sang xanh rêu tối để lớp phủ thuộc về cùng một bảng màu. */
+.modal-backdrop {
+    background-color: var(--dlu-primary-deep);
 }
 
 .dropdown-item:active,
@@ -599,6 +1387,126 @@ body.welcome-anonymous .footer {
 h1.page-header-title {
     color: var(--dlu-primary-dark);
     font-weight: 700;
+}
+
+/* =============================================================================
+ *  4F. DẢI NHẬN DIỆN DLU
+ *
+ *  VÌ SAO CẦN PHẦN NÀY?
+ *    PHẦN 4 ở trên đã đổi màu, đổi phông, bỏ vỏ thẻ — nhưng BỐ CỤC thì vẫn
+ *    nguyên của GLPI. Người từng dùng GLPI gốc vẫn nhận ra ngay: thanh trên
+ *    cùng vẫn là "breadcrumb + ô tìm kiếm + tên người dùng", y hệt bản gốc,
+ *    chỉ khác màu. Đổi màu thôi thì chưa phải là thiết kế lại.
+ *
+ *  PHẦN NÀY THÊM BA CHI TIẾT CẤU TRÚC, KHÔNG PHẢI CHI TIẾT MÀU:
+ *    4F.1  Băng tên đơn vị vận hành ở đầu thanh trên cùng.
+ *    4F.2  Dải màu ưu tiên ở mép trái từng dòng phiếu.
+ *    4F.3  Làn sương sớm trên bảng điều khiển.
+ *
+ *  Cả ba đều dựng bằng CSS + một tệp JS nhỏ, KHÔNG chạm vào lõi GLPI, nên
+ *  nâng cấp GLPI không mất. Tên đơn vị lấy từ tài liệu của chính đồ án
+ *  (tai-lieu/THONG-TIN-DAI-HOC-DA-LAT.md): Trung tâm Công nghệ thông tin
+ *  (ITC, cict.dlu.edu.vn) — đơn vị vận hành kỹ thuật của hệ thống.
+ * ============================================================================= */
+
+/* --- 4F.1 Băng tên đơn vị trên thanh đầu trang ---
+   Chèn bằng ::before lên .header-container (một flex row có sẵn, canh giữa
+   theo chiều dọc) nên băng tự nằm ở đầu hàng, trước cả breadcrumb, mà không
+   phải sửa một dòng template nào.
+
+   VÌ SAO CHỈ GHI "Trung tâm Công nghệ thông tin" MÀ KHÔNG CÓ "DLU":
+     Logo Trường đã nằm ngay bên trái, cao 79px, trong chính thanh menu dọc.
+     Viết thêm "DLU" ở đây là lặp lại điều người dùng đã nhìn thấy; còn tên
+     đơn vị vận hành thì chưa xuất hiện ở đâu trong lòng ứng dụng. Chữ ở đây
+     để làm rõ, không để trang trí.
+
+   VÌ SAO KHÔNG CẦN JS: đây là nhãn tĩnh, cùng một giá trị trên mọi trang. */
+header.navbar .header-container::before {
+    content: "Trung tâm Công nghệ thông tin";
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 9px;
+    margin-right: 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--dlu-on-primary);
+    background: var(--dlu-primary-dark);
+    border-radius: var(--dlu-bo-nho);
+}
+
+/* Dưới 1200px thanh trên cùng đã chật (breadcrumb + menu thao tác + tên người
+   dùng chen nhau), nên nhường chỗ: băng lùi lại, không đẩy tràn hàng. */
+@media (max-width: 1199.98px) {
+    header.navbar .header-container::before {
+        display: none;
+    }
+}
+
+/* --- 4F.2 Dải màu ưu tiên ở mép trái từng dòng phiếu ---
+   Bậc ưu tiên do JS (js/dlu-dai-phieu.js) đọc từ cột "Độ ưu tiên" rồi ghi
+   thành data-dlu-uu-tien="1..5" trên thẻ <tr>. Ở đây chỉ còn việc tô màu.
+
+   Màu dùng lại ĐÚNG thang "nóng dần" đã có ở PHẦN 4E để mắt không phải học
+   thêm một hệ màu nữa: xám sương -> xanh hồ -> cam đất -> cam cháy -> đỏ sao. */
+.table tbody tr[data-dlu-uu-tien] > td:first-child {
+    position: relative;
+}
+
+.table tbody tr[data-dlu-uu-tien] > td:first-child::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--dlu-uu-tien-mau, transparent);
+}
+
+.table tbody tr[data-dlu-uu-tien="1"] { --dlu-uu-tien-mau: var(--dlu-uu-tien-1); }
+.table tbody tr[data-dlu-uu-tien="2"] { --dlu-uu-tien-mau: var(--dlu-hon); }
+.table tbody tr[data-dlu-uu-tien="3"] { --dlu-uu-tien-mau: var(--dlu-cam); }
+.table tbody tr[data-dlu-uu-tien="4"] { --dlu-uu-tien-mau: var(--dlu-uu-tien-4); }
+.table tbody tr[data-dlu-uu-tien="5"] { --dlu-uu-tien-mau: var(--dlu-do); }
+
+/* Dòng đang được trỏ tới: dải sáng lên để không lẫn vào nền hover. */
+.table tbody tr[data-dlu-uu-tien]:hover > td:first-child::before {
+    box-shadow: 0 0 0 1px rgba(var(--dlu-muc-rgb), 0.22);
+}
+
+/* --- 4F.3 Bảng điều khiển: làn sương sớm trên nền giấy ---
+   Bảng điều khiển là màn hình đầu tiên sau khi đăng nhập, nhưng trước đây
+   chỉ là nền giấy trơn. Thêm hai lớp rất nhẹ:
+     - một làn sương (dải màu nhạt dần xuống) ở 300px đầu,
+     - trường đường bình độ vẽ bằng nét mực, cùng hình với thanh menu dọc,
+   để màn hình này đọc ra là của Đà Lạt chứ không phải một trang quản trị
+   trung tính nào cũng giống.
+
+   Bộ chọn bám đúng cấu trúc riêng của front/central.php. Chuỗi thật của trang:
+     MAIN#page.legacy > DIV.d-flex.flex-column > DIV.row > DIV.col
+       > DIV.d-flex.card-tabs.flex-column.horizontal > DIV.tab-content.card
+   nên không thể bám thẳng từ main xuống; phải đi qua .card-tabs — lớp chỉ có
+   ở bảng điều khiển, không xuất hiện ở các trang biểu mẫu (phiếu, thiết bị...)
+   dù chúng cũng có .tab-content. Nhờ vậy ô chọn không phủ nhầm sang biểu mẫu. */
+main#page.legacy .card-tabs > .tab-content.card {
+    /* Ba dòng dưới PHẢI có !important: mục 4D đã đặt
+       `background: transparent !important` cho MỌI .card, mà thuộc tính viết
+       tắt đó kéo theo cả background-image/repeat/position. Không có
+       !important thì làn sương bị ghi đè về trong suốt. */
+    background-image:
+        linear-gradient(180deg,
+            rgba(var(--dlu-dashboard-rgb), 0.42) 0,
+            rgba(var(--dlu-dashboard-rgb), 0) 300px),
+        var(--dlu-binh-do-muc) !important;
+    background-repeat: no-repeat, repeat !important;
+    background-position: top left, top left !important;
+    border-radius: var(--dlu-bo-vua) !important;
 }
 
 /* =============================================================================

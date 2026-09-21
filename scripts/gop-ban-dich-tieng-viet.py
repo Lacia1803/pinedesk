@@ -4,7 +4,7 @@
 ================================================================================
  GOP BAN DICH TIENG VIET CHO GLPI  (MO + MO -> MO, khong can msgfmt)
 ================================================================================
- Do an thuc tap: Xay dung he thong ho tro ky thuat (IT Helpdesk) - DH Da Lat
+ Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
  Truong Dai hoc Da Lat
 
  ------------------------------------------------------------------------------
@@ -35,6 +35,7 @@
 """
 import importlib.util
 import os
+import re
 import struct
 import subprocess
 import sys
@@ -42,7 +43,7 @@ import sys
 # -----------------------------------------------------------------------------
 # CAU HINH
 # -----------------------------------------------------------------------------
-GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'helpdesk-glpi')
+GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
 
 # File .mo goc day du trong image GLPI
 MO_GOC_TRONG_CONTAINER = '/var/www/glpi/locales/vi_VN.mo'
@@ -94,6 +95,85 @@ def nap_tu_dien_so_nhieu() -> dict:
         return getattr(mod, 'BAN_DICH_SO_NHIEU', {}) or {}
     except Exception:
         return {}
+
+
+def nap_khoa_so_nhieu_tu_po(duong_dan: str) -> list:
+    """
+    Doc file .po, tra ve danh sach khoa SO NHIEU day du ("so_it\\0so_nhieu").
+
+    VI SAO CAN DOC .po CHU KHONG DUNG .mo:
+      msgfmt BO HAN entry co msgstr rong. Voi entry so nhieu, chi can
+      msgstr[0] rong la ca entry bien mat khoi .mo. Do duoc tren ban vi_VN
+      cua GLPI: .po co 452 entry so nhieu, .mo dong goi chi con 231.
+      221 entry bi mat khoi catalog, nen _n() tra ve nguyen chuoi tieng Anh
+      DU ban dich so it da co trong tu dien.
+      Chi .po moi con giu du khoa cua so entry da mat do.
+    """
+    if not os.path.exists(duong_dan):
+        return []
+
+    with open(duong_dan, encoding='utf-8') as f:
+        noi_dung = f.read()
+
+    khoa = []
+    for entry in re.split(r'\n\s*\n', noi_dung):
+        if 'msgid' not in entry:
+            continue
+        if re.search(r'^#,\s*fuzzy', entry, re.M):
+            continue
+        if re.search(r'^msgctxt\s', entry, re.M):
+            continue
+        so_it = _lay_po(entry, 'msgid')
+        so_nhieu = _lay_po(entry, 'msgid_plural')
+        if so_it and so_nhieu:
+            khoa.append(so_it + '\0' + so_nhieu)
+    return khoa
+
+
+def _lay_po(entry: str, khoa: str) -> str:
+    """
+    Trich msgid/msgid_plural tu mot entry .po.
+
+    Noi cac dong noi tiep bang chuoi RONG: .po cat chuoi dai qua nhieu dong
+    ma khong them phan cach, va dong dau luon rong. Noi bang dau cach se
+    lam khoa sinh ra co them mot dau cach o dau -> khong bao gio khop.
+    """
+    phan = []
+    gom = False
+    for ln in entry.split('\n'):
+        s = ln.strip()
+        if s.startswith(khoa + ' ') and not s.startswith(khoa + '_'):
+            gom = True
+            phan.append(s[len(khoa) + 1:].strip())
+        elif gom and s.startswith('"'):
+            phan.append(s)
+        elif gom:
+            break
+    if not phan:
+        return ''
+    return ''.join(x.strip().strip('"') for x in phan)
+
+
+def cuu_entry_so_nhieu_bi_mat(ban_dich: dict, khoa_tu_po: list, tu_dien: dict) -> tuple:
+    """
+    Them lai cac entry SO NHIEU bi msgfmt bo khoi .mo, neu suy ra duoc ban dich.
+
+    Nguon ban dich, theo thu tu uu tien:
+      1. BAN_DICH_SO_NHIEU[so_it]   - ban dich viet tay cho dang so nhieu
+      2. ban_dich[so_it]            - ban dich so it da co trong catalog
+
+    Tra ve (dict, so_them).
+    """
+    so_them = 0
+    for k in khoa_tu_po:
+        if k in ban_dich:
+            continue
+        so_it, so_nhieu = k.split('\0', 1)
+        moi = tu_dien.get(so_it) or ban_dich.get(so_it)
+        if moi and moi not in (so_it, so_nhieu):
+            ban_dich[k] = moi
+            so_them += 1
+    return ban_dich, so_them
 
 
 def va_entry_so_nhieu(ban_dich: dict, tu_dien: dict) -> tuple:
@@ -365,6 +445,37 @@ def main():
             ok(f'Da THEM MOI {so_them} entry so nhieu (khoa day du da biet)')
         else:
             info('Khong co entry so nhieu nao can them moi.')
+
+    # --- 3d. CUU cac entry so nhieu bi msgfmt bo khoi .mo ------------------
+    #
+    # VI SAO CAN BUOC RIENG:
+    #   Buoc 3b/3c chi lam viec tren nhung entry CON trong catalog. Nhung
+    #   msgfmt bo HAN entry co msgstr rong, va voi entry so nhieu thi chi can
+    #   msgstr[0] rong la ca entry bien mat. Do tren ban vi_VN cua GLPI: .po
+    #   co 452 entry so nhieu, .mo dong goi chi con 231.
+    #   => 221 entry vang mat khoi catalog. _n() tra ve nguyen chuoi tieng
+    #      Anh, du ban dich so it da co trong tu dien.
+    #   Chi .po moi con giu khoa cua so entry da mat do, nen phai doc .po.
+    info('Buoc 3d: Cuu cac entry so nhieu bi msgfmt bo khoi .mo...')
+    po_nguon = os.path.join(HOST_TMP, 'vi_VN.po')
+    if not os.path.exists(po_nguon) or os.path.getsize(po_nguon) == 0:
+        # .po khong duoc version hoa nhung luon tai lai duoc tu image GLPI.
+        r = subprocess.run(
+            ['docker', 'exec', GLPI_CONTAINER, 'cat',
+             '/var/www/glpi/locales/vi_VN.po'],
+            capture_output=True)
+        if r.stdout:
+            with open(po_nguon, 'wb') as f:
+                f.write(r.stdout)
+            ok(f'Da tai vi_VN.po tu container ({len(r.stdout):,} byte)')
+    khoa_po = nap_khoa_so_nhieu_tu_po(po_nguon)
+    if khoa_po:
+        ban_gop, so_cuu = cuu_entry_so_nhieu_bi_mat(
+            ban_gop, khoa_po, tu_dien_so_nhieu)
+        ok(f'Da cuu {so_cuu} entry so nhieu bi thieu '
+           f'(.po co {len(khoa_po)} khoa so nhieu)')
+    else:
+        warn(f'Khong doc duoc khoa so nhieu tu {po_nguon} -> bo qua buoc nay.')
 
     # Kiem tra khong mat chuoi nao so voi ban goc
     mat = set(ban_goc) - set(ban_gop)

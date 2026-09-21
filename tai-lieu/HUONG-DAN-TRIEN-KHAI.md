@@ -1,6 +1,6 @@
-# HƯỚNG DẪN TRIỂN KHAI HỆ THỐNG IT HELPDESK (GLPI)
+# HƯỚNG DẪN TRIỂN KHAI HỆ THỐNG PINEDESK (GLPI)
 
-Tài liệu hướng dẫn cài đặt và vận hành hệ thống Hỗ trợ Kỹ thuật (IT Helpdesk)
+Tài liệu hướng dẫn cài đặt và vận hành hệ thống Hỗ trợ Kỹ thuật (PineDesk)
 dựa trên nền tảng mã nguồn mở GLPI 11.
 
 ---
@@ -13,10 +13,10 @@ Hệ thống gồm 4 thành phần, chạy trong các container Docker độc l�
 
 | Thành phần | Công nghệ | Vai trò |
 |---|---|---|
-| `helpdesk-gateway` | Nginx 1.27 | Cổng vào, HTTPS, bảo mật, chống brute-force |
-| `helpdesk-glpi` | GLPI 11 (PHP 8.2) | Ứng dụng ITSM chính |
-| `helpdesk-db` | MariaDB 10.11 | Cơ sở dữ liệu |
-| `helpdesk-redis` | Redis 7 | Cache phiên làm việc |
+| `pinedesk-gateway` | Nginx 1.27 | Cổng vào, HTTPS, bảo mật, chống brute-force |
+| `pinedesk-glpi` | GLPI 11 (PHP 8.2) | Ứng dụng ITSM chính |
+| `pinedesk-db` | MariaDB 10.11 | Cơ sở dữ liệu |
+| `pinedesk-redis` | Redis 7 | Cache phiên làm việc |
 
 ### 1.2. Sơ đồ luồng truy cập
 
@@ -25,15 +25,15 @@ Người dùng (trình duyệt)
         |
         | HTTPS :8443
         v
- [ helpdesk-gateway ]  <- Nginx: SSL, rate limit, chặn file nhạy cảm
+ [ pinedesk-gateway ]  <- Nginx: SSL, rate limit, chặn file nhạy cảm
         |
         | HTTP nội bộ :80
         v
-  [ helpdesk-glpi ]    <- GLPI: nghiệp vụ ITSM
+  [ pinedesk-glpi ]    <- GLPI: nghiệp vụ ITSM
         |          \
-        |           \-> [ helpdesk-redis ]  (cache)
+        |           \-> [ pinedesk-redis ]  (cache)
         v
-  [ helpdesk-db ]      <- MariaDB: lưu dữ liệu
+  [ pinedesk-db ]      <- MariaDB: lưu dữ liệu
 ```
 
 ### 1.3. Chức năng đáp ứng yêu cầu đề bài
@@ -56,7 +56,7 @@ Người dùng (trình duyệt)
 
 ```bash
 # Di chuyen vao thu muc goc cua du an (thay bang duong dan thuc tren may ban)
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 bash scripts/cai-dat-tat-ca.sh
 ```
 
@@ -99,7 +99,7 @@ rồi in ra kết quả từng bước (màu xanh = đạt).
 **Bước 2** — Mở Git Bash và di chuyển vào thư mục dự án:
 
 ```bash
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 ```
 
 ### 3.2. Cấu hình môi trường
@@ -164,7 +164,7 @@ file [`nginx/ssl/openssl-san.cnf`](../nginx/ssl/openssl-san.cnf):
 ```ini
 [ san ]
 DNS.1 = localhost
-DNS.2 = helpdesk.local
+DNS.2 = pinedesk.local
 DNS.3 = *.localhost
 IP.1  = 127.0.0.1
 IP.2  = ::1
@@ -178,7 +178,7 @@ Kiểm chứng:
 
 ```bash
 openssl x509 -in nginx/ssl/glpi.crt -noout -text | grep -A1 "Subject Alternative Name"
-# Phai thay: DNS:localhost, DNS:helpdesk.local, DNS:*.localhost, IP Address:127.0.0.1, ...
+# Phai thay: DNS:localhost, DNS:pinedesk.local, DNS:*.localhost, IP Address:127.0.0.1, ...
 ```
 
 > **Triển khai với tên miền thật:** sửa `nginx/conf.d/default.conf` (`server_name`)
@@ -188,17 +188,17 @@ openssl x509 -in nginx/ssl/glpi.crt -noout -text | grep -A1 "Subject Alternative
 ### 3.5. Kiểm tra kết quả
 
 ```bash
-docker ps --filter "name=helpdesk-"
+docker ps --filter "name=pinedesk-"
 ```
 
 Kết quả mong đợi — cả 4 container đều `Up`:
 
 ```
 NAMES              STATUS
-helpdesk-gateway   Up (healthy)
-helpdesk-glpi      Up
-helpdesk-db        Up (healthy)
-helpdesk-redis     Up (healthy)
+pinedesk-gateway   Up (healthy)
+pinedesk-glpi      Up
+pinedesk-db        Up (healthy)
+pinedesk-redis     Up (healthy)
 ```
 
 ---
@@ -430,7 +430,7 @@ Plugin Barcode cần **2 quyền** mới hoạt động (script cài đã tự c
 ### 6.1. Sao lưu thủ công
 
 ```bash
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 bash backup/backup.sh
 ```
 
@@ -450,12 +450,12 @@ Kết quả tạo 3 file trong `backup/`:
 **Trên Windows** — dùng Task Scheduler:
 
 1. Mở **Task Scheduler** → **Create Basic Task**
-2. Đặt tên: `Sao luu IT Helpdesk`
+2. Đặt tên: `Sao luu PineDesk`
 3. Trigger: **Daily**, chọn giờ (ví dụ 23:00)
 4. Action: **Start a program**
    - Program: `C:\Program Files\Git\bin\bash.exe`
-   - Arguments: `-c "cd /g/<DUONG-DAN-DU-AN>/glpi-helpdesk && bash backup/backup.sh"`
-     (dùng dạng POSIX của Git Bash, ví dụ `/g/glpi-helpdesk` nếu ổ G:)
+   - Arguments: `-c "cd /g/<DUONG-DAN-DU-AN>/pinedesk && bash backup/backup.sh"`
+     (dùng dạng POSIX của Git Bash, ví dụ `/g/duong-dan-du-an` nếu ổ G:)
 5. Nhấn **Finish**
 
 ### 6.3. Phục hồi dữ liệu
@@ -463,14 +463,14 @@ Kết quả tạo 3 file trong `backup/`:
 **Bước 1** — Khởi động hệ thống:
 
 ```bash
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 bash start.sh
 ```
 
 **Bước 2** — Phục hồi cơ sở dữ liệu:
 
 ```bash
-docker exec -i helpdesk-db mariadb -u root -p"<MAT-KHAU-CSDL-DA-DOI>" glpi \
+docker exec -i pinedesk-db mariadb -u root -p"<MAT-KHAU-CSDL-DA-DOI>" glpi \
     < backup/glpi_backup_YYYYMMDD_HHMMSS_db.sql
 ```
 
@@ -483,7 +483,7 @@ Giải nén đúng sẽ khôi phục cả `glpicrypt.key` (khoá mã hoá CSDL) 
 
 ```bash
 docker run --rm \
-    --volumes-from helpdesk-glpi \
+    --volumes-from pinedesk-glpi \
     -v "$(pwd -W)/backup:/backup" \
     alpine:latest \
     tar xzf /backup/glpi_backup_YYYYMMDD_HHMMSS_files.tar.gz -C /
@@ -504,7 +504,7 @@ docker-compose restart glpi
 
 ```bash
 # Di chuyen vao thu muc du an
-cd <DUONG-DAN-DU-AN>/glpi-helpdesk
+cd <DUONG-DAN-DU-AN>/pinedesk
 
 # Khoi dong he thong
 bash start.sh
@@ -513,7 +513,7 @@ bash start.sh
 docker-compose up -d
 
 # Xem trang thai cac container
-docker ps --filter "name=helpdesk-"
+docker ps --filter "name=pinedesk-"
 
 # Xem log ung dung GLPI
 docker-compose logs -f glpi
@@ -573,13 +573,13 @@ nhưng helper tương ứng không tồn tại trong PATH.
 docker info
 
 # 2. Container co dang chay khong?
-docker ps --filter "name=helpdesk-"
+docker ps --filter "name=pinedesk-"
 
 # 3. Cong 8443 co bi chiem khong?
 netstat -ano | findstr :8443
 
 # 4. Xem log gateway de tim loi
-docker logs helpdesk-gateway --tail 30
+docker logs pinedesk-gateway --tail 30
 ```
 
 **Nếu cổng bị chiếm:** Đổi `HTTPS_PORT` trong file `.env` thành cổng khác
@@ -589,10 +589,10 @@ docker logs helpdesk-gateway --tail 30
 
 ```bash
 # Kiem tra database co san sang khong
-docker exec helpdesk-db healthcheck.sh --connect --innodb_initialized
+docker exec pinedesk-db healthcheck.sh --connect --innodb_initialized
 
 # Xem log database
-docker logs helpdesk-db --tail 30
+docker logs pinedesk-db --tail 30
 ```
 
 Nếu database chưa sẵn sàng ở lần chạy đầu, đợi 30–60 giây rồi thử lại.
@@ -611,7 +611,7 @@ Nếu database chưa sẵn sàng ở lần chạy đầu, đợi 30–60 giây r
 > ```
 > Volume là **named volume** nên **KHÔNG mất dữ liệu**. Kiểm chứng alias đã đăng ký:
 > ```bash
-> docker exec helpdesk-glpi getent hosts mariadb   # phải in ra 1 địa chỉ IP
+> docker exec pinedesk-glpi getent hosts mariadb   # phải in ra 1 địa chỉ IP
 > ```
 >
 > **Đã có sẵn "phanh an toàn":** `start.sh` và `scripts/cai-dat-tat-ca.sh` dùng
@@ -636,8 +636,8 @@ Nếu database chưa sẵn sàng ở lần chạy đầu, đợi 30–60 giây r
 Nghĩa là gateway không kết nối được tới GLPI. Kiểm tra:
 
 ```bash
-docker ps --filter "name=helpdesk-glpi"
-docker logs helpdesk-glpi --tail 50
+docker ps --filter "name=pinedesk-glpi"
+docker logs pinedesk-glpi --tail 50
 docker-compose restart glpi
 ```
 
@@ -681,7 +681,7 @@ Lỗi 400 xuất hiện khi **mắt xích đó đứt**:
 Kiểm tra nhanh bằng `curl` **có** header (giả lập Nginx):
 
 ```bash
-docker exec helpdesk-glpi \
+docker exec pinedesk-glpi \
   curl -fsS -H 'X-Forwarded-Proto: https' -o /dev/null -w '%{http_code}\n' \
   http://127.0.0.1:80/
 # -> 200 hoặc 302 (tốt)  ·  400 (thiếu header -> xem bảng trên)
@@ -734,7 +734,7 @@ docker exec helpdesk-glpi \
 ## 10. CẤU TRÚC THƯ MỤC DỰ ÁN
 
 ```
-glpi-helpdesk/
+pinedesk/
 ├── docker-compose.yml          # Định nghĩa các dịch vụ Docker
 ├── .env                        # Biến môi trường (CHỨA MẬT KHẨU - không commit)
 ├── .env.example                # Mẫu cấu hình để tham khảo

@@ -74,8 +74,8 @@ const OUT = '.tmp-check';
       h1Size: (() => { const h = document.querySelector('h1'); return h ? getComputedStyle(h).fontSize : 'n/a'; })(),
       beVietnamCoDau: dungFontRieng('Be Vietnam Pro', 'Hệ thống Hỗ trợ', 400),
       beVietnamKhongDau: dungFontRieng('Be Vietnam Pro', 'Helpdesk', 400),
-      playfairCoDau: dungFontRieng('Playfair Display', 'Hỗ trợ Kỹ thuật', 700),
-      playfairKhongDau: dungFontRieng('Playfair Display', 'IT Helpdesk', 700),
+      frauncesCoDau: dungFontRieng('Fraunces', 'Hỗ trợ Kỹ thuật', 400),
+      frauncesKhongDau: dungFontRieng('Fraunces', 'PineDesk', 400),
     };
   });
   console.log('');
@@ -87,8 +87,8 @@ const OUT = '.tmp-check';
   const dong = [
     ['Be Vietnam Pro  chu co dau  ', font.beVietnamCoDau],
     ['Be Vietnam Pro  chu khong dau', font.beVietnamKhongDau],
-    ['Playfair        chu co dau  ', font.playfairCoDau],
-    ['Playfair        chu khong dau', font.playfairKhongDau],
+    ['Fraunces        chu co dau  ', font.frauncesCoDau],
+    ['Fraunces        chu khong dau', font.frauncesKhongDau],
   ];
   dong.forEach(([nhan, ok]) => console.log('  ', ok ? 'OK   ' : 'THIEU', nhan));
 
@@ -102,8 +102,9 @@ const OUT = '.tmp-check';
       navPos: g('.nav', 'position'),
       nenTrang: getComputedStyle(document.body).backgroundColor,
       chuTrang: getComputedStyle(document.body).color,
-      nutCam: g('.btn--cam', 'backgroundImage'),
-      nenHero: g('.hero', 'backgroundImage').slice(0, 60),
+      nutChinh: g('.nut--day', 'backgroundColor'),
+      nenHero: g('.mo-dau', 'backgroundImage').slice(0, 60),
+      nenMucToi: g('.muc--toi', 'backgroundColor'),
     };
   });
   console.log('');
@@ -111,8 +112,9 @@ const OUT = '.tmp-check';
   console.log('  nav position  :', mau.navPos);
   console.log('  nen than trang:', mau.nenTrang);
   console.log('  chu than trang:', mau.chuTrang);
-  console.log('  nut chinh     :', mau.nutCam);
-  console.log('  nen hero      :', mau.nenHero + '...');
+  console.log('  nut chinh     :', mau.nutChinh);
+  console.log('  nen mo dau    :', mau.nenHero + '...');
+  console.log('  nen muc toi   :', mau.nenMucToi);
 
   /* --- 3. Anchor có trỏ tới id tồn tại không -------------------------- */
   const anchor = await p.evaluate(() => {
@@ -138,6 +140,28 @@ const OUT = '.tmp-check';
   console.log('');
   console.log('=== LIEN KET TUYET DOI (nen rong) ===');
   console.log(' ', cung.length ? cung.join(', ') : '(khong co)');
+
+  /* --- 4b. Liên kết tài liệu (../tai-lieu/*.md) phải tải được --------- */
+  /* nginx chi mount ./landing vao /usr/share/nginx/html/landing nen neu
+     khong mount them tai-lieu/ va README.md thi cac the nay se 404. */
+  const taiLieu = await p.evaluate(() =>
+    Array.from(document.querySelectorAll('a[href$=".md"]'))
+      .map(a => a.getAttribute('href'))
+  );
+  console.log('');
+  console.log('=== LIEN KET TAI LIEU ===');
+  if (!taiLieu.length) {
+    console.log('  (khong co lien ket .md)');
+  } else {
+    for (const href of taiLieu) {
+      const url = new URL(href, URL).href;
+      const r = await p.evaluate(async (u) => {
+        try { const x = await fetch(u); return x.status; }
+        catch (e) { return 'LOI ' + e.message; }
+      }, url);
+      console.log(' ', r === 200 ? 'OK ' : 'HONG', String(r).padStart(4), href);
+    }
+  }
 
   /* --- 5. Cuộn hết trang để kích hoạt ảnh lười + hiệu ứng ------------- */
   await p.evaluate(async () => {
@@ -168,16 +192,29 @@ const OUT = '.tmp-check';
   const noiDung = await p.evaluate(() => ({
     cao: document.body.scrollHeight,
     soMuc: document.querySelectorAll('section').length,
-    soThe: document.querySelectorAll('.tn, .tru__item, .tk__item, .kt__item, .tl').length,
-    chuDe: document.querySelectorAll('.reveal').length,
-    daHien: document.querySelectorAll('.reveal.is-hien').length,
+    soThe: document.querySelectorAll('.the, .tl, .vai, .dv').length,
+    soTaiKhoan: document.querySelectorAll('.tk').length,
+    soLat: document.querySelectorAll('.lat').length,
+    taiKhoan: Array.from(document.querySelectorAll('.tk__ma')).map(e => e.textContent.trim()),
   }));
   console.log('');
   console.log('=== NOI DUNG ===');
   console.log('  Chieu cao trang:', noiDung.cao, 'px');
   console.log('  So muc         :', noiDung.soMuc);
   console.log('  So the         :', noiDung.soThe);
-  console.log('  The da hien thi:', noiDung.daHien, '/', noiDung.chuDe);
+  console.log('  So tai khoan   :', noiDung.soTaiKhoan, '->', noiDung.taiKhoan.join(', '));
+  console.log('  So lat mat cat :', noiDung.soLat);
+
+  /* --- 7b. Không được lẫn tài khoản bịa (không có trong seed) -------- */
+  /* Du lieu mau that chi co: ktv.an, ktv.binh, gv.cuong, gv.dung,
+     sv.hoa, sv.khanh (xem scripts/seed-du-lieu-mau.sql). */
+  const THAT = ['ktv.an', 'ktv.binh', 'gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh'];
+  const la = noiDung.taiKhoan.filter(t => !THAT.includes(t));
+  const thieu = THAT.filter(t => !noiDung.taiKhoan.includes(t));
+  console.log('');
+  console.log('=== TAI KHOAN DOI CHIEU SEED ===');
+  console.log('  Tai khoan la (khong co trong seed):', la.length ? la.join(', ') : '(khong co)');
+  console.log('  Tai khoan thieu                   :', thieu.length ? thieu.join(', ') : '(khong co)');
 
   console.log('');
   console.log('=== TAI NGUYEN LOI (4xx/5xx hoac that bai) ===');

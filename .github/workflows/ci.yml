@@ -179,13 +179,13 @@ jobs:
 
       - name: Ten mien/IP trong SAN phai xac minh duoc
         run: |
-          for h in localhost helpdesk.local; do
+          for h in localhost pinedesk.local; do
             openssl x509 -in .ci-ssl/glpi.crt -noout -checkhost "$h" \
               || { echo "[LOI] SAN khong khop hostname: $h"; exit 1; }
           done
           openssl x509 -in .ci-ssl/glpi.crt -noout -checkip 127.0.0.1 \
             || { echo "[LOI] SAN khong khop IP: 127.0.0.1"; exit 1; }
-          echo "[OK] localhost, helpdesk.local, 127.0.0.1 deu khop SAN"
+          echo "[OK] localhost, pinedesk.local, 127.0.0.1 deu khop SAN"
 
   # --------------------------------------------------------------------------
   # 5. Khong lo bi mat / duong dan tuyet doi cua may ca nhan
@@ -268,8 +268,8 @@ jobs:
         run: |
           echo "Cho toi da 5 phut de GLPI khoi dong lan dau..."
           for i in $(seq 1 60); do
-            RUNNING=$(docker ps --filter "name=helpdesk-" -q | wc -l)
-            HEALTHY=$(docker ps --filter "name=helpdesk-" --filter "health=healthy" -q | wc -l)
+            RUNNING=$(docker ps --filter "name=pinedesk-" -q | wc -l)
+            HEALTHY=$(docker ps --filter "name=pinedesk-" --filter "health=healthy" -q | wc -l)
             echo "  [${i}/60] dang chay: $RUNNING/4 | healthy: $HEALTHY/4"
             if [ "$HEALTHY" -ge 4 ]; then echo "[OK] Ca 4 container deu healthy"; exit 0; fi
             sleep 5

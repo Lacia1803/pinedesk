@@ -36,7 +36,9 @@
 | **Dữ liệu demo** | **Không có** — bảng điều khiển trống, không demo được | **1 lệnh ra 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu + 6 tài khoản 3 vai trò** | ⭐⭐⭐⭐⭐ |
 | **Triển khai** | 1 lệnh chạy container SQLite (không production) | **Docker Compose 4 container** + Nginx + MariaDB + Redis | ⭐⭐⭐⭐⭐ |
 | **HTTPS** | Không có | Nginx TLS 1.2/1.3, chứng chỉ tự ký sẵn | ⭐⭐⭐⭐ |
-| **Chống brute-force** | Không có | Rate limit 2 tầng (đăng nhập 10/phút, chung 600/phút) | ⭐⭐⭐⭐ |
+| **Chống brute-force** | Không có | Rate limit 3 tầng (đăng nhập 10/phút · chung 600/phút · **nộp phiếu 30/phút**) | ⭐⭐⭐⭐ |
+| **Chống lạm dụng nộp phiếu** | Không có | **6 tầng**: rate limit · bắt buộc đăng nhập · hạn mức phiếu/người · chống trùng · kiểm duyệt · nhật ký (xem `CHONG-LAM-DUNG.md`) | ⭐⭐⭐⭐ |
+| **SLA cấu hình sẵn** | Không có bản ghi nào | **5 mức SLA thật trong CSDL** (TTO/TTR), mỗi mức 2 mốc — *nhưng là đề xuất, chưa được Trường ban hành* | ⭐⭐⭐ |
 | **Header bảo mật** | Không cấu hình | 5 header: HSTS, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy | ⭐⭐⭐⭐ |
 | **Chặn truy cập file nhạy cảm** | Phụ thuộc máy chủ web | Chặn `.env`, `.git`, `*.sql`, `*.log`, `config/`, `files/_log/`… | ⭐⭐⭐⭐ |
 | **Sinh mã QR thiết bị** | Không có (phải tự tìm plugin) | **Đã cài + cấu hình + vá 2 lỗi** plugin Barcode; **QR đã giải mã kiểm chứng** | ⭐⭐⭐⭐⭐ |
@@ -837,6 +839,51 @@ không phải code tự viết.)*
 ---
 
 ## 4. NHỮNG ĐIỀU **CHƯA** LÀM / HẠN CHẾ
+
+> **Đọc kỹ mục này trước khi bảo vệ.** Hội đồng đánh giá cao việc người làm tự
+> biết giới hạn của mình hơn là một danh sách thành tựu không có điểm yếu.
+
+### 4.1. Giới hạn kỹ thuật
+
+| Hạng mục | Trạng thái | Ghi chú |
+|---|---|---|
+| Việt hóa 100% | ❌ **30,6%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
+| `session.cookie_secure = On` | ✅ Đã bật | Đi kèm bắt buộc `config/apache-forwarded-proto.conf` + healthcheck gửi header |
+| Chứng chỉ SSL | ⚠️ Tự ký nhưng **CÓ SAN** | Đã có SAN (`localhost`, `pinedesk.local`, `127.0.0.1`); triển khai thật nên dùng Let's Encrypt |
+| `url_base` | ⚠️ Đang là `https://localhost:8443` | Triển khai thật phải đổi tên miền, nếu không **mã QR in ra sẽ sai** |
+| Tài khoản mẫu 3 vai trò | ✅ Đã tạo | 6 tài khoản: 2 KTV, 2 giảng viên, 2 sinh viên — đã kiểm chứng đăng nhập |
+| Dữ liệu thiết bị mẫu | ✅ Đã nhập | 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu |
+| Trang Thống kê | ⚠️ Cần tham số | Phải mở từ menu Hỗ trợ → Thống kê, không gõ URL trực tiếp |
+| Đa ngôn ngữ | ✅ Việt + Anh | Các ngôn ngữ khác chưa dịch |
+| Ứng dụng di động | ❌ Không có | GLPI có bản mobile chính thức, chưa tích hợp |
+
+### 4.2. Giới hạn **nghiệp vụ** — phần hội đồng khoan sâu nhất
+
+Đây là nhóm hạn chế đã bị chỉ ra khi báo cáo tiến độ lần 1 (*"đồ án còn lý
+thuyết, chưa thực tế"*). Đồ án đã làm được một phần và **ghi rõ phần còn lại**:
+
+| # | Hạn chế | Mức độ | Đã làm gì / hướng khắc phục |
+|---|---|---|---|
+| 1 | **Chưa gặp Trung tâm CNTT (ITC) để xác nhận nhu cầu** | 🔴 Nghiêm trọng | Đã viết `BAI-TOAN-NGHIEP-VU.md` từ dữ kiện công khai (5 nhân sự ITC / 14.500+ người học / hotline 7h30–16h30). **Cần phỏng vấn 5 nhân sự ITC** để kiểm chứng |
+| 2 | **Số sự cố thực tế/tuần của trường chưa có** | 🔴 Nghiêm trọng | Ghi rõ là giả định trong `BAI-TOAN-NGHIEP-VU.md` mục 7. Không bịa số |
+| 3 | **SLA chưa được Trường ban hành** | 🟡 Trung bình | Đã tạo 5 mức SLA thật trong CSDL, nhưng là **đề xuất kỹ thuật** — cần văn bản phê duyệt của ITC |
+| 4 | **Hạn mức chống spam chưa được ITC xác nhận** | 🟡 Trung bình | Đã cấu hình (5 phiếu mở / 10 phiếu/ngày) nhưng là đề xuất. Sửa được bằng 1 câu UPDATE |
+| 5 | **Tầng kiểm duyệt (T5) chưa tự động hoá bằng mã** | 🟡 Trung bình | Dựa trên quy trình vận hành. Lý do: tự động hoá phải móc vào lõi GLPI → mất kiến trúc "tùy biến ngoài lõi" |
+| 6 | **Chưa đo tải khi nhiều người cùng nộp** | 🔴 Nghiêm trọng | Chưa kiểm thử hiệu năng. **Không dám nói "chịu được 5.000 người" khi chưa đo** |
+| 7 | **Bảo trì định kỳ chưa có lịch thật** | 🟡 Trung bình | `seed-du-lieu-mau.sql` mục 8 ghi rõ chỉ đánh dấu ngày bảo trì gần nhất cho 2 thiết bị; lịch thật phải tạo qua giao diện GLPI |
+| 8 | **Phiếu quá hạn chưa có dữ liệu demo** | 🟡 Trung bình | Chưa tạo phiếu trễ hạn để demo cảnh báo SLA |
+| 9 | **Luồng mượn/trả thiết bị chưa dựng riêng** | 🟡 Trung bình | Hiện dùng phiếu sự cố chung; luồng bàn giao chưa tách |
+| 10 | Nhật ký lạm dụng chưa có giao diện xem | 🟢 Thấp | Hiện xem bằng SQL; chưa làm màn hình cho kỹ thuật viên |
+
+### 4.3. Ba câu phải trả lời bằng sự thật, không chống đỡ
+
+1. *"Em đã nói chuyện với ITC chưa?"* → **Chưa.** Đồ án chưa được ITC phê duyệt.
+2. *"SLA này ai ban hành?"* → **Chưa ai.** Là đề xuất kỹ thuật của đồ án.
+3. *"Chịu được bao nhiêu người cùng lúc?"* → **Chưa đo được.** Không khẳng định.
+
+👉 Các câu hỏi phản biện đầy đủ + cách trả lời: [`CAU-HOI-PHAN-BIEN.md`](CAU-HOI-PHAN-BIEN.md).
+
+
 
 Ghi rõ để tránh hiểu nhầm khi bảo vệ đồ án:
 

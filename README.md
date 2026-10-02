@@ -74,13 +74,19 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 |---|---|
 | **Quản lý tài sản** | Phòng máy, máy tính, thiết bị mạng, phần mềm; hồ sơ đầy đủ kèm **mã QR** |
 | **Tiếp nhận sự cố** | Ticket theo chuẩn ITIL: máy hỏng, lỗi mạng, lỗi phần mềm, thiết bị ngoại vi |
-| **Phân công xử lý** | Giao việc cho kỹ thuật viên, theo dõi tiến độ, cam kết SLA |
-| **Bảo trì định kỳ** | Lịch bảo trì tự động, lịch sử sửa chữa theo từng thiết bị |
+| **Phân công xử lý** | Giao việc cho kỹ thuật viên, theo dõi tiến độ, **5 mức SLA cấu hình sẵn** (xem ghi chú bên dưới) |
+| **Chống lạm dụng** | 6 tầng: rate limit · bắt buộc đăng nhập · hạn mức phiếu · chống trùng · kiểm duyệt · nhật ký |
+| **Bảo trì định kỳ** | Lịch sử sửa chữa theo từng thiết bị; lịch bảo trì tạo qua giao diện GLPI |
 | **Dashboard** | Thống kê số thiết bị, sự cố, lịch bảo trì theo thời gian thực |
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
 | **Việt hoá** | Mặc định tiếng Việt, 443 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (30,6% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
 | **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
+
+> ⚠️ **Về SLA — nói rõ để tránh hiểu nhầm:** hệ thống đã cấu hình **5 mức SLA thật
+> trong CSDL** (`glpi_slas`), nhưng các con số (8h/4h/2h/1h/30p) là **đề xuất kỹ
+> thuật của đồ án**, **chưa phải cam kết đã được Trường Đại học Đà Lạt ban hành**.
+> Chi tiết: [`tai-lieu/CHONG-LAM-DUNG.md`](tai-lieu/CHONG-LAM-DUNG.md) mục 6.
 
 ## Bắt đầu nhanh
 
@@ -90,14 +96,15 @@ cd duong-dan-toi/pinedesk
 bash scripts/cai-dat-tat-ca.sh
 ```
 
-Script tự động làm 5 việc và báo kết quả từng bước:
+Script tự động làm 6 việc và báo kết quả từng bước:
 
 1. Khởi động 4 container (GLPI · MariaDB · Redis · Nginx)
 2. Nạp **danh mục nghiệp vụ**: 12 toà nhà · 65 phòng máy · 16 khoa · 10 phòng ·
    7 trung tâm · 10 trạng thái · 79 loại sự cố …
 3. Bật **plugin QR** + **plugin giao diện Đà Lạt**
 4. Nạp **bản dịch tiếng Việt** (gộp bản chính thức + bổ sung của đồ án)
-5. Kiểm tra sức khỏe hệ thống (5 hạng mục)
+5. Nạp **SLA thật + cơ chế chống lạm dụng** (hạn mức phiếu, chống trùng, nhật ký)
+6. Kiểm tra sức khỏe hệ thống (5 hạng mục)
 
 Truy cập: **https://localhost:8443** · Tài khoản: `glpi`
 ⚠️ **Đổi mật khẩu `glpi` ngay sau khi đăng nhập lần đầu.**
@@ -144,6 +151,9 @@ pinedesk/
 │   ├── nap-du-lieu-mau.sh       #   ★ Nap du lieu demo (thiet bi, phieu, tai khoan)
 │   ├── seed-du-lieu-mau.sql     #     Du lieu mau
 │   ├── viet-hoa-du-lieu.sh      #   Viet hoa DU LIEU (ten don vi, ho so quyen)
+│   ├── nap-sla-va-chong-lam-dung.sh # ★ Nap SLA that + han muc chong spam
+│   ├── seed-sla-va-chong-lam-dung.sql #  SLA + bang nhat ky/han muc
+│   ├── kiem-tra-lam-dung.sh     # ★ Phat hien spam / trung phieu theo tai khoan
 │   ├── tai-font.py              #   Tai font ve may (co subset tieng Viet)
 │   ├── tao-mo-bo-sung.py        #   Tao lop phu ban dich
 │   ├── gop-ban-dich-tieng-viet.py  # Gop ban dich (khong mat chuoi + va so nhieu)
@@ -164,6 +174,9 @@ pinedesk/
     ├── HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md # Giao dien & Viet hoa
     ├── THONG-TIN-DAI-HOC-DA-LAT.md        # Co cau to chuc DLU
     ├── SO-SANH-VOI-GLPI-GOC.md            # ★ Cai thien gi so voi ban goc
+    ├── BAI-TOAN-NGHIEP-VU.md              # ★ Do an giai quyet van de gi cua Truong
+    ├── CHONG-LAM-DUNG.md                  # ★ 6 tang chong spam (tra loi phan bien)
+    ├── CAU-HOI-PHAN-BIEN.md               # ★ Bo cau hoi hoi dong + cach tra loi
     └── anh-giao-dien/                     # Anh chup giao dien thuc te
 ```
 

@@ -5,8 +5,29 @@
 > của Trường Đại học Đà Lạt — dùng cho cây vị trí, phòng máy, khoa/trung tâm,
 > và phần thuyết minh trong báo cáo đồ án.
 >
-> **Nguồn:** website chính thức `dlu.edu.vn` (truy cập 19/09/2026).
+> **Nguồn:** website chính thức `dlu.edu.vn` (truy cập 19/09/2026; **cập nhật lại 02/10/2026**).
 > **Trạng thái:** ✅ đã dùng để tạo dữ liệu nền trong `scripts/seed-du-lieu-nen.sql`.
+>
+> ---
+>
+> ### ⚠️ ĐÍNH CHÍNH NGÀY 02/10/2026
+>
+> Rà soát lại website chính thức cho thấy **một số tên đơn vị đã thay đổi** so với
+> bản tài liệu lập ngày 19/09/2026. Cần sửa khi trích dẫn:
+>
+> | Bản cũ (19/09) | Bản đúng (02/10) | Bằng chứng |
+> |---|---|---|
+> | Trung tâm CNTT — tên miền `cict.dlu.edu.vn` | **Trung tâm Công nghệ thông tin** — tên miền thật `itc.dlu.edu.vn` (`cict` chuyển hướng 301) | `itc.dlu.edu.vn/gioi-thieu/` |
+> | Phòng Cơ sở Vật chất (`pcsvc`) | **Phòng Quản trị Cơ sở vật chất** (tên miền `pcsvc.dlu.edu.vn` vẫn đúng) | Danh mục đơn vị trên trang chủ |
+> | Phòng Chính trị và Công tác Sinh viên | **Phòng Công tác sinh viên** | Danh mục đơn vị trên trang chủ |
+> | Phòng Quản lý chất lượng (`pktkd`) | **Phòng Quản lý chất lượng và Pháp chế** | Danh mục đơn vị trên trang chủ |
+> | Phòng Quản lý Khoa học – Hợp tác Quốc tế | **Phòng Khoa học công nghệ và Hợp tác quốc tế** | Danh mục đơn vị trên trang chủ |
+> | Phòng Tài chính (`ptc`) | **Phòng Tài chính Kế hoạch** | Danh mục đơn vị trên trang chủ |
+> | Khoa Toán – Tin (`ktt`) | **Khoa Toán – Tin học** | Danh mục đơn vị trên trang chủ |
+>
+> **Chi tiết đầy đủ về nhân sự & chức năng của Trung tâm CNTT (ITC):**
+> xem [`BAI-TOAN-NGHIEP-VU.md`](BAI-TOAN-NGHIEP-VU.md) mục 2 — có danh sách
+> **5 nhân sự thật** (Giám đốc, Phó Giám đốc, 2 chuyên viên, 1 nhân viên).
 
 ---
 
@@ -98,7 +119,7 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
 
 | # | Tên đơn vị | Tên miền |
 |---|---|---|
-| 1 | **Trung tâm Công nghệ thông tin** | cict.dlu.edu.vn |
+| 1 | **Trung tâm Công nghệ thông tin** | itc.dlu.edu.vn |
 | 2 | Trung tâm Ngoại ngữ và Đào tạo nguồn nhân lực | ttnn.dlu.edu.vn |
 | 3 | Trung tâm Hỗ trợ Khởi nghiệp | khoinghiep.dlu.edu.vn |
 | 4 | Trung tâm Phân tích và Kiểm định | vnckd.dlu.edu.vn |
@@ -107,14 +128,14 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
 | — | Học viện King Sejong Đà Lạt (Viện) | kingsejongdalat.dlu.edu.vn |
 
 > **⭐ LƯU Ý QUAN TRỌNG CHO ĐỒ ÁN:**
-> **Trung tâm Công nghệ thông tin (`cict`)** là đơn vị **vận hành kỹ thuật** —
+> **Trung tâm Công nghệ thông tin (`itc`)** là đơn vị **vận hành kỹ thuật** —
 > tức là **đội ngũ kỹ thuật viên (Technician)** sử dụng hệ thống hằng ngày để
 > tiếp nhận và xử lý sự cố. Đây là **người dùng chính thứ hai** của đồ án.
 
 ### Mô hình 2 vai trò thực tế tại DLU
 
 ```
-   PHÒNG CƠ SỞ VẬT CHẤT (pcsvc)          TRUNG TÂM CNTT (cict)
+   PHÒNG QUẢN TRỊ CSVC (pcsvc)          TRUNG TÂM CNTT (itc)
    ─ Chủ quản tài sản                     ─ Đội kỹ thuật vận hành
    ─ Theo dõi thiết bị, thanh lý          ─ Tiếp nhận & xử lý sự cố
    ─ Lập kế hoạch mua sắm                 ─ Cấu hình mạng, máy chủ
@@ -163,7 +184,7 @@ Trường Đại học Đà Lạt
 ├── Giảng đường A2
 ├── Giảng đường B1
 ├── Giảng đường B2
-├── Trung tâm CNTT (CICT)
+├── Trung tâm CNTT (itc)
 ├── Thư viện
 └── Ký túc xá
 ```

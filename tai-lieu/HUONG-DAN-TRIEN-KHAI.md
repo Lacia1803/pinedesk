@@ -60,12 +60,21 @@ cd <DUONG-DAN-DU-AN>/pinedesk
 bash scripts/cai-dat-tat-ca.sh
 ```
 
-Script tự động làm 5 việc: khởi động container → nạp danh mục nghiệp vụ → bật plugin
-(QR + giao diện) → nạp bản dịch tiếng Việt → kiểm tra sức khỏe hệ thống,
-rồi in ra kết quả từng bước (màu xanh = đạt).
+Script tự động làm 6 việc: khởi động container → nạp danh mục nghiệp vụ → bật plugin
+(QR + giao diện) → nạp bản dịch tiếng Việt → **nạp SLA thật + cơ chế chống lạm dụng**
+→ kiểm tra sức khỏe hệ thống, rồi in ra kết quả từng bước (màu xanh = đạt).
 
 > Chi tiết về giao diện & Việt hoá: xem **`tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`**
 > Chi tiết về plugin QR: xem **`tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md`**
+> Chi tiết về chống lạm dụng nộp phiếu: xem **`tai-lieu/CHONG-LAM-DUNG.md`**
+
+#### Nạp riêng SLA + chống lạm dụng (nếu hệ thống đã cài trước đó)
+
+```bash
+bash scripts/nap-sla-va-chong-lam-dung.sh   # SLA thật + hạn mức + nhật ký
+bash scripts/kiem-tra-lam-dung.sh           # kiểm tra lạm dụng (báo cáo)
+bash scripts/kiem-tra-lam-dung.sh --thuc-thi # kiểm tra + ghi nhật ký vi phạm
+```
 
 ---
 

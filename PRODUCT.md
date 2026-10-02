@@ -15,8 +15,9 @@ Họ đánh giá: hệ thống có chạy thật không, kiến trúc có hợp 
 chiều sâu không, người làm có hiểu việc mình làm không, và trình bày có chỉn chu không.
 
 **Người dùng thứ cấp của sản phẩm (không phải người xem chính của trang này):**
-cán bộ Phòng Công nghệ thông tin, kỹ thuật viên, giảng viên và sinh viên trong
-Trường — người gửi phiếu sự cố và tra cứu thiết bị.
+cán bộ **Trung tâm Công nghệ thông tin (ITC)** — đơn vị vận hành hệ thống CNTT và
+tổ chức phòng thực hành máy tính của Trường — cùng kỹ thuật viên, giảng viên và
+sinh viên: người gửi phiếu sự cố và tra cứu thiết bị.
 
 ## Product Purpose
 

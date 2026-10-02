@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PineDesk — Slide bảo vệ đồ án</title>
+<style>
+  /* ==========================================================================
+     BẢNG MÀU ĐÀ LẠT (lấy từ logo Trường Đại học Đà Lạt)
+     Tự chứa — không CDN, không tài nguyên ngoài. Chạy được khi mất mạng.
+     ========================================================================== */
+  :root{
+    --cam:   #F08418;   /* cam đất  — mặt trời trong logo */
+    --reu:   #607824;   /* xanh rêu — núi, dòng chữ ĐẠI HỌC ĐÀ LẠT */
+    --la:    #90B43C;   /* xanh lá  — sườn núi phía sáng */
+    --do:    #CC2430;   /* đỏ sao   */
+    --ho:    #3E8E9E;   /* xanh hồ Xuân Hương */
+    --suong: #E8EDD8;   /* sương mù */
+    --muc:   #1E2416;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    background:var(--muc); color:#fff; overflow:hidden;
+  }
+  .slide{
+    display:none; height:100vh; padding:5vh 7vw;
+    flex-direction:column; justify-content:center;
+    background:linear-gradient(150deg,#1E2416 0%,#2B3420 55%,#1A2214 100%);
+  }
+  .slide.active{display:flex}
+  h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1;margin-bottom:.4em;color:#fff}
+  h2{font-size:clamp(1.4rem,3.2vw,2.6rem);line-height:1.2;margin-bottom:.6em}
+  .cam{color:var(--cam)} .la{color:var(--la)} .do{color:var(--do)} .ho{color:var(--ho)}
+  p,li{font-size:clamp(.95rem,1.6vw,1.5rem);line-height:1.6;color:#DDE4CE}
+  ul{list-style:none;padding-left:0}
+  li{padding-left:1.4em;position:relative;margin-bottom:.5em}
+  li::before{content:"▸";position:absolute;left:0;color:var(--cam)}
+  .so-luong{display:flex;gap:3vw;flex-wrap:wrap;margin:1.5em 0}
+  .so{flex:1;min-width:200px;border-left:6px solid var(--cam);padding-left:1.2em}
+  .so b{display:block;font-size:clamp(2.2rem,6vw,5rem);line-height:1;font-weight:800;color:var(--cam)}
+  .so span{display:block;margin-top:.5em;font-size:clamp(.85rem,1.4vw,1.2rem);color:#C6D0B4}
+  .so.reu{border-color:var(--reu)} .so.reu b{color:var(--la)}
+  .so.ho{border-color:var(--ho)}  .so.ho b{color:#7EC8D0}
+  .tag{
+    display:inline-block;padding:.25em .8em;border-radius:4px;
+    font-size:clamp(.7rem,1.2vw,1rem);font-weight:700;letter-spacing:.05em;
+    margin-bottom:1em;text-transform:uppercase;
+  }
+  .tag.ok{background:var(--reu);color:#fff}
+  .tag.warn{background:var(--cam);color:#1E2416}
+  .tag.no{background:var(--do);color:#fff}
+  code{
+    font-family:"Consolas",monospace;background:rgba(240,132,24,.15);
+    color:var(--cam);padding:.15em .5em;border-radius:4px;
+    font-size:.9em;
+  }
+  table{border-collapse:collapse;width:100%;margin-top:1em}
+  th,td{text-align:left;padding:.6em .8em;border-bottom:1px solid rgba(255,255,255,.12);
+        font-size:clamp(.8rem,1.35vw,1.15rem)}
+  th{color:var(--la);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .ghi-chu{
+    margin-top:1.5em;padding:1em 1.2em;border-left:4px solid var(--do);
+    background:rgba(204,36,48,.12);font-size:clamp(.8rem,1.3vw,1.05rem);
+  }
+  .ghi-chu.vang{border-color:var(--cam);background:rgba(240,132,24,.12)}
+  .ghi-chu b{color:#fff}
+  .dieu-huong{
+    position:fixed;bottom:2vh;right:3vw;display:flex;gap:.6em;align-items:center;
+    font-size:.85rem;color:#8A967A;z-index:10;
+  }
+  .dieu-huong button{
+    background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);
+    border-radius:4px;padding:.35em .8em;cursor:pointer;font-size:.85rem;
+  }
+  .dieu-huong button:hover{background:var(--reu)}
+  .so-trang{min-width:4em;text-align:center}
+
+  /* Tang truong phan tang (defence in depth) */
+  .tang{display:flex;gap:.5em;flex-wrap:wrap;margin-top:1em}
+  .tang div{
+    flex:1;min-width:150px;padding:.9em;border-radius:5px;text-align:center;
+    background:rgba(255,255,255,.06);border-top:4px solid var(--la);
+    font-size:clamp(.75rem,1.2vw,1rem);
+  }
+  .tang div.to{ border-top-color:var(--cam) }
+  .tang div.chua{ border-top-color:#5A6448;opacity:.65 }
+  .tang b{display:block;color:var(--la);margin-bottom:.3em}
+  .tang div.to b{color:var(--cam)}
+  .tang div.chua b{color:#8A967A}
+  @media print{
+    body{overflow:visible}
+    .slide{display:flex!important;height:auto;min-height:100vh;page-break-after:always}
+    .dieu-huong{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== SLIDE 1 — TRANG BÌA ==================== -->
+<section class="slide active">
+  <div class="tag ok">Đồ án thực tập tốt nghiệp</div>
+  <h1>PineDesk</h1>
+  <h2 class="la">Hệ thống hỗ trợ kỹ thuật — Trường Đại học Đà Lạt</h2>
+  <p style="margin-top:1.5em">
+    Xây dựng trên nền tảng mã nguồn mở <b>GLPI 11</b> —
+    quản lý phòng máy, tài sản CNTT và tiếp nhận sự cố theo quy trình ITIL.
+  </p>
+  <p style="margin-top:2.5em;font-size:.95em;color:#8A967A">
+    Dùng <code>→</code> / <code>←</code> hoặc bấm nút để chuyển slide ·
+    Bấm <code>F</code> để toàn màn hình · <code>P</code> để in/PDF
+  </p>
+</section>
+
+<!-- ==================== SLIDE 2 — ĐẶT VẤN ĐỀ ==================== -->
+<section class="slide">
+  <div class="tag warn">Vấn đề thực tế</div>
+  <h2>Ai đang đau, và đau vì đâu?</h2>
+  <div class="so-luong">
+    <div class="so">
+      <b>5</b>
+      <span>nhân sự Trung tâm Công nghệ thông tin (ITC)</span>
+    </div>
+    <div class="so reu">
+      <b>14.500+</b>
+      <span>người học phải phục vụ</span>
+    </div>
+    <div class="so ho">
+      <b>73%</b>
+      <span>thời gian trong tuần không có kênh tiếp nhận</span>
+    </div>
+  </div>
+  <ul>
+    <li>Tỉ lệ <b class="cam">1 nhân sự : 2.900 người học</b> — cao hơn 6–15 lần mức helpdesk thông thường</li>
+    <li>Hotline + email chỉ mở <b>7h30–16h30, thứ 2–6</b> → lớp tối, cuối tuần, kỳ thi rơi vào khoảng trống</li>
+    <li>Kênh phi cấu trúc (điện thoại, email) → <b class="do">thất lạc, không đo được, không truy vết</b></li>
+  </ul>
+  <div class="ghi-chu">
+    <b>Nguồn dữ kiện:</b> website chính thức <code>dlu.edu.vn</code> và
+    <code>itc.dlu.edu.vn</code>, truy cập 02/10/2026. Số sự cố thực tế mỗi tuần
+    đồ án <b>chưa có</b> — ghi rõ là giả định, không bịa số.
+  </div>
+</section>
+
+<!-- ==================== SLIDE 3 — GIẢI PHÁP ==================== -->
+<section class="slide">
+  <div class="tag ok">Giải pháp</div>
+  <h2>PineDesk lấp đúng ba khoảng trống</h2>
+  <table>
+    <tr><th>Mâu thuẫn</th><th>PineDesk giải quyết</th></tr>
+    <tr>
+      <td><b>M1</b> Quá tải người/nhân sự</td>
+      <td><b>Self-service</b> — sinh viên/giảng viên tự nộp phiếu, tự tra cứu, tự quét QR</td>
+    </tr>
+    <tr>
+      <td><b>M2</b> Cửa sổ tiếp nhận hẹp</td>
+      <td>Kênh nộp <b>24/7</b> qua HTTPS — phiếu nằm trong hàng đợi có trạng thái</td>
+    </tr>
+    <tr>
+      <td><b>M3</b> Không có kênh cấu trúc</td>
+      <td>Phiếu có <b>mã, trạng thái, người phụ trách, thiết bị, nhật ký</b> — truy vết được</td>
+    </tr>
+  </table>
+  <div class="ghi-chu vang">
+    Điểm quan trọng: khối lượng <b>điều phối thủ công</b> giảm đi nhờ tự động hoá —
+    chứ không phải thêm người.
+  </div>
+</section>
+
+<!-- ==================== SLIDE 4 — CHỐNG SPAM ⭐ ==================== -->
+<section class="slide">
+  <div class="tag warn">Câu hỏi phản biện trọng tâm</div>
+  <h2>"Sinh viên spam thì sao?"</h2>
+  <div class="tang">
+    <div class="to"><b>T1 · Nginx</b>Rate limit theo IP</div>
+    <div class="to"><b>T2 · Phiên</b>Bắt buộc đăng nhập</div>
+    <div class="to"><b>T3 · Nghiệp vụ</b>Trần phiếu/người/ngày</div>
+    <div class="to"><b>T4 · Chống trùng</b>Người + thiết bị + loại</div>
+    <div class="chua"><b>T5 · Kiểm duyệt</b>Quy trình, chưa tự động</div>
+    <div class="to"><b>T6 · Nhật ký</b>Ai, khi nào, từ đâu</div>
+  </div>
+  <div class="ghi-chu" style="margin-top:2em">
+    <b>Quyết định thiết kế đáng chú ý:</b> khuôn viên trường dùng NAT chung — cả
+    phòng máy 40 máy đi ra bằng một IP. Chặn theo IP quá chặt sẽ <b>chặn oan cả lớp</b>.
+    Vì vậy tầng mạng giữ ngưỡng rộng có chủ đích, còn <b>tầng nghiệp vụ mới siết
+    chính xác theo tài khoản</b>.
+  </div>
+  <p style="margin-top:1.2em;color:#8A967A;font-size:.95em">
+    Chi tiết: <code>tai-lieu/CHONG-LAM-DUNG.md</code> — có bằng chứng chạy thật.
+  </p>
+</section>
+
+<!-- ==================== SLIDE 5 — CHIỀU SÂU KỸ THUẬT ==================== -->
+<section class="slide">
+  <div class="tag ok">Chiều sâu kỹ thuật</div>
+  <h2>Chứng minh, đừng tuyên bố</h2>
+  <ul>
+    <li><b>Không sửa một dòng nào trong lõi GLPI</b> — toàn bộ tùy biến ở plugin,
+        cấu hình, script, dữ liệu → nâng cấp GLPI không mất công</li>
+    <li><b>4 container</b> (Nginx · GLPI · MariaDB · Redis), HTTPS TLS 1.2/1.3,
+        chứng chỉ tự ký <span class="la">có SAN</span></li>
+    <li><b>Cài bằng một lệnh</b> — 6 bước, báo kết quả từng bước</li>
+    <li><b>CI tự kiểm 6 nhóm</b>: cú pháp · ShellCheck · cấu hình · SAN ·
+        bảo mật · <b>smoke test khởi động thật 4 container</b></li>
+    <li><b>Kiểm thử chống lạm dụng trong CI</b> — pipeline đỏ nếu rate limit bị gỡ</li>
+    <li><b>Landing page chạy ngoại tuyến hoàn toàn</b> — 16 font .woff2 tự lưu, không CDN</li>
+  </ul>
+</section>
+
+<!-- ==================== SLIDE 6 — GIỚI HẠN (TRUNG THỰC) ==================== -->
+<section class="slide">
+  <div class="tag no">Nói thẳng</div>
+  <h2>Những gì đồ án <span class="do">chưa</span> làm được</h2>
+  <table>
+    <tr><th>Hạn chế</th><th>Mức độ</th></tr>
+    <tr><td><b>Chưa gặp Trung tâm CNTT (ITC)</b> để xác nhận nhu cầu</td><td class="do">Nghiêm trọng</td></tr>
+    <tr><td>Chưa có số sự cố thực tế/tuần của trường</td><td class="do">Nghiêm trọng</td></tr>
+    <tr><td>Chưa đo tải khi nhiều người cùng nộp</td><td class="do">Nghiêm trọng</td></tr>
+    <tr><td>SLA là <b>đề xuất kỹ thuật</b>, chưa được Trường ban hành</td><td class="cam">Trung bình</td></tr>
+    <tr><td>Tầng kiểm duyệt (T5) chưa tự động hoá bằng mã</td><td class="cam">Trung bình</td></tr>
+  </table>
+  <div class="ghi-chu vang" style="margin-top:1.5em">
+    Đây là đồ án <b>đề xuất</b>, chưa được ITC phê duyệt. Bước tiếp theo:
+    phỏng vấn 5 nhân sự ITC, xin số liệu thực tế, cắm thử ở một phòng máy để đo.
+  </div>
+</section>
+
+<!-- ==================== SLIDE 7 — KẾT ==================== -->
+<section class="slide">
+  <div class="tag ok">Kết luận</div>
+  <h2>Ba điều đáng nhớ về PineDesk</h2>
+  <div class="so-luong">
+    <div class="so">
+      <b>1</b>
+      <span>Bài toán có thật — 5 nhân sự, 14.500+ người học, kênh tiếp nhận hẹp</span>
+    </div>
+    <div class="so reu">
+      <b>6</b>
+      <span>tầng chống lạm dụng, có kiểm thử tự động trong CI</span>
+    </div>
+    <div class="so ho">
+      <b>0</b>
+      <span>dòng sửa trong lõi GLPI — nâng cấp không mất công</span>
+    </div>
+  </div>
+  <p style="margin-top:2em">
+    Hệ thống chạy thật, cài bằng một lệnh, có dữ liệu demo, có ảnh minh chứng,
+    và <b class="la">ghi rõ những gì chưa làm được</b>.
+  </p>
+  <p style="margin-top:2em;color:#8A967A">Cảm ơn hội đồng đã lắng nghe.</p>
+</section>
+
+<div class="dieu-huong">
+  <button onclick="chuyen(-1)">← Trước</button>
+  <span class="so-trang"><span id="hien-tai">1</span> / <span id="tong">7</span></span>
+  <button onclick="chuyen(1)">Sau →</button>
+</div>
+
+<script>
+  var slides = document.querySelectorAll('.slide');
+  var i = 0;
+  document.getElementById('tong').textContent = slides.length;
+
+  function hien(){
+    slides.forEach(function(s,n){ s.classList.toggle('active', n===i); });
+    document.getElementById('hien-tai').textContent = i+1;
+    if (location.hash !== '#'+(i+1)) history.replaceState(null,'','#'+(i+1));
+  }
+  function chuyen(d){
+    i = Math.min(Math.max(i+d, 0), slides.length-1);
+    hien();
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); chuyen(1); }
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); chuyen(-1); }
+    if(e.key==='Home'){ i=0; hien(); }
+    if(e.key==='End'){ i=slides.length-1; hien(); }
+    if(e.key==='f'||e.key==='F'){
+      if(!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+    if(e.key==='p'||e.key==='P'){ window.print(); }
+  });
+  // Mo bang so trang tren URL, vd slide.html#3
+  var h = parseInt(location.hash.replace('#',''),10);
+  if(h>0 && h<=slides.length) i = h-1;
+  hien();
+
+  // Dieu huong bang cham / vuot tren dien thoai
+  var x0=null;
+  document.addEventListener('touchstart', function(e){ x0 = e.touches[0].clientX; });
+  document.addEventListener('touchend', function(e){
+    if(x0===null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if(Math.abs(dx) > 60) chuyen(dx<0 ? 1 : -1);
+    x0 = null;
+  });
+</script>
+</body>
+</html>

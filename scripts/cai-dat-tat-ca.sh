@@ -11,7 +11,8 @@
 #     3. Bat 2 plugin: Barcode/QR (sinh ma QR cho thiet bi) + DLU Brand
 #        (giao dien Da Lat)
 #     4. Nap ban dich tieng Viet (gop ban chinh thuc + bo sung cua do an)
-#     5. Kiem tra suc khoe he thong
+#     5. Nap SLA that + co che chong lam dung (tran phieu, chong trung)
+#     6. Kiem tra suc khoe he thong
 #
 #  CHAY (tu thu muc goc cua du an):
 #     bash scripts/cai-dat-tat-ca.sh
@@ -68,7 +69,7 @@ fi
 LOI=0
 
 # ------------------------------------------------------------------------------
-step "BUOC 1/5 - Khoi dong cac container"
+step "BUOC 1/6 - Khoi dong cac container"
 # ------------------------------------------------------------------------------
 if ! docker info >/dev/null 2>&1; then
     err "Docker chua chay. Hay mo Docker Desktop roi chay lai script."
@@ -100,7 +101,7 @@ for i in $(seq 1 60); do
 done
 
 # ------------------------------------------------------------------------------
-step "BUOC 2/5 - Nap du lieu nen (danh muc nghiep vu)"
+step "BUOC 2/6 - Nap du lieu nen (danh muc nghiep vu)"
 # ------------------------------------------------------------------------------
 if [ -f "$HERE/nap-du-lieu-nen.sh" ]; then
     if bash "$HERE/nap-du-lieu-nen.sh" >/tmp/_seed.log 2>&1; then
@@ -115,7 +116,7 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-step "BUOC 3/5 - Bat cac plugin (QR code + giao dien DLU)"
+step "BUOC 3/6 - Bat cac plugin (QR code + giao dien DLU)"
 # ------------------------------------------------------------------------------
 info "Trang thai plugin truoc khi bat:"
 docker exec pinedesk-db sh -c \
@@ -157,7 +158,7 @@ docker exec pinedesk-glpi sh -c \
 ok "Da xoa cache"
 
 # ------------------------------------------------------------------------------
-step "BUOC 4/5 - Nap ban dich tieng Viet"
+step "BUOC 4/6 - Nap ban dich tieng Viet"
 # ------------------------------------------------------------------------------
 if [ -f "$HERE/tao-mo-bo-sung.py" ] && [ -f "$HERE/gop-ban-dich-tieng-viet.py" ]; then
     info "a) Tao lop phu ban dich bo sung..."
@@ -179,7 +180,27 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-step "BUOC 5/5 - Kiem tra suc khoe he thong"
+step "BUOC 5/6 - Nap SLA + co che chong lam dung"
+# ------------------------------------------------------------------------------
+# VI SAO CO BUOC NAY:
+#   README truoc day ghi he thong co "cam ket SLA", nhung CSDL GLPI KHONG co
+#   ban ghi SLA nao -> tuyen bo suong. Buoc nay tao SLA THAT + bang nhat ky
+#   chong lam dung (tran phieu/nguoi/ngay, phat hien trung).
+#   Nam NGOAI loi GLPI -> nang cap GLPI khong mat.
+if [ -f "$HERE/nap-sla-va-chong-lam-dung.sh" ]; then
+    if bash "$HERE/nap-sla-va-chong-lam-dung.sh" >/tmp/_sla.log 2>&1; then
+        grep -E '\[ OK \]|\[CANH BAO\]' /tmp/_sla.log | sed 's/^/      /'
+        ok "Da nap SLA + co che chong lam dung"
+    else
+        warn "Nap SLA that bai (xem /tmp/_sla.log)"
+        tail -5 /tmp/_sla.log | sed 's/^/      /'
+    fi
+else
+    warn "Thieu nap-sla-va-chong-lam-dung.sh -> bo qua buoc nay"
+fi
+
+# ------------------------------------------------------------------------------
+step "BUOC 6/6 - Kiem tra suc khoe he thong"
 # ------------------------------------------------------------------------------
 echo ""
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | sed 's/^/  /'

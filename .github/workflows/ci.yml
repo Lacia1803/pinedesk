@@ -298,6 +298,45 @@ jobs:
             -servername localhost 2>/dev/null \
             | openssl x509 -noout -text | grep -A1 'Subject Alternative Name'
 
+      # ----------------------------------------------------------------------
+      # Kiem tra CO CHE CHONG LAM DUNG (cau hoi phan bien: "spam thi sao?")
+      # ----------------------------------------------------------------------
+      # CI phai chung minh: endpoint nop phieu CO bi rate limit.
+      # Neu ai do xoa mat cau hinh limit_req -> job nay do ngay.
+      - name: Nop phieu phai bi gioi han tan suat (mong doi 429)
+        run: |
+          echo "Gui 40 request lien tiep toi /front/ticket.form.php..."
+          CODES=""
+          for i in $(seq 1 40); do
+            C=$(curl -sSk -o /dev/null -w '%{http_code}' \
+                 https://localhost:8443/front/ticket.form.php 2>/dev/null || echo 000)
+            CODES="$CODES $C"
+          done
+          echo "Ma tra ve:$CODES"
+          if echo "$CODES" | grep -q '429'; then
+            echo "[OK] Da phat hien HTTP 429 -> rate limit hoat dong"
+          else
+            echo "[LOI] KHONG thay 429 sau 40 request -> rate limit KHONG hoat dong"
+            echo "      Kiem tra location /front/ticket.form.php trong nginx/conf.d/default.conf"
+            exit 1
+          fi
+
+      - name: Bang SLA phai duoc tao sau khi nap
+        run: |
+          echo "Nap SLA + co che chong lam dung..."
+          bash scripts/nap-sla-va-chong-lam-dung.sh
+          N=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_slas;"')
+          echo "So SLA trong CSDL: $N"
+          [ "$N" -ge 5 ] || { echo "[LOI] Thieu SLA (mong doi >= 5)"; exit 1; }
+          echo "[OK] SLA that da nam trong CSDL, khong con la tuyen bo suong"
+
+      - name: Script kiem tra lam dung phai chay duoc
+        run: |
+          bash scripts/kiem-tra-lam-dung.sh
+          echo "[OK] Script kiem tra lam dung chay khong loi"
+
       - name: In log khi that bai
         if: failure()
         run: docker compose logs --tail=200

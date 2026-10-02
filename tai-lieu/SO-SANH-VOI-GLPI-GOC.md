@@ -870,9 +870,9 @@ thuyết, chưa thực tế"*). Đồ án đã làm được một phần và **
 | 4 | **Hạn mức chống spam chưa được ITC xác nhận** | 🟡 Trung bình | Đã cấu hình (5 phiếu mở / 10 phiếu/ngày) nhưng là đề xuất. Sửa được bằng 1 câu UPDATE |
 | 5 | **Tầng kiểm duyệt (T5) chưa tự động hoá bằng mã** | 🟡 Trung bình | Dựa trên quy trình vận hành. Lý do: tự động hoá phải móc vào lõi GLPI → mất kiến trúc "tùy biến ngoài lõi" |
 | 6 | **Chưa đo tải khi nhiều người cùng nộp** | 🔴 Nghiêm trọng | Chưa kiểm thử hiệu năng. **Không dám nói "chịu được 5.000 người" khi chưa đo** |
-| 7 | **Bảo trì định kỳ chưa có lịch thật** | 🟡 Trung bình | `seed-du-lieu-mau.sql` mục 8 ghi rõ chỉ đánh dấu ngày bảo trì gần nhất cho 2 thiết bị; lịch thật phải tạo qua giao diện GLPI |
-| 8 | **Phiếu quá hạn chưa có dữ liệu demo** | 🟡 Trung bình | Chưa tạo phiếu trễ hạn để demo cảnh báo SLA |
-| 9 | **Luồng mượn/trả thiết bị chưa dựng riêng** | 🟡 Trung bình | Hiện dùng phiếu sự cố chung; luồng bàn giao chưa tách |
+| 7 | **Bảo trì định kỳ dùng lịch GỐC của GLPI** | 🟢 Đã xử lý | Tạo 2 lịch `glpi_ticketrecurrents` (bảo trì phòng máy hàng tháng + kiểm tra thiết bị mạng hàng quý) kèm mẫu phiếu; cron `ticketrecurrent` của GLPI tự sinh phiếu. **Chưa chạy đủ 1 chu kỳ** để chứng minh tự động sinh phiếu |
+| 8 | ~~Phiếu quá hạn chưa có dữ liệu demo~~ | 🟢 Đã xử lý | Phần C của `seed-sla-va-chong-lam-dung.sql` đẩy 2 phiếu đang mở vào quá khứ → phiếu quá hạn thật, demo được cảnh báo SLA |
+| 9 | **Luồng mượn/trả dùng Reservation gốc** | 🟢 Đã xử lý | 2 thiết bị vào diện đặt mượn + 2 lượt mượn mẫu (1 đang mượn, 1 đã trả) + 1 phiếu yêu cầu mượn. Dùng `glpi_reservationitems`/`glpi_reservations` gốc, không tạo bảng riêng |
 | 10 | Nhật ký lạm dụng chưa có giao diện xem | 🟢 Thấp | Hiện xem bằng SQL; chưa làm màn hình cho kỹ thuật viên |
 
 ### 4.3. Ba câu phải trả lời bằng sự thật, không chống đỡ

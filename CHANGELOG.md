@@ -39,6 +39,20 @@ trường?"*. Bản phát hành này trả lời trực tiếp ba câu hỏi đ�
 - `scripts/kiem-tra-lam-dung.sh` — phát hiện vượt hạn mức, phiếu trùng, nộp quá
   nhanh theo **tài khoản** (không theo IP, vì trường dùng NAT chung).
 
+**Bảo trì định kỳ + mượn/trả thiết bị (đã dựng thật)**
+- 2 lịch bảo trì dùng cơ chế **gốc** `glpi_ticketrecurrents` (bảo trì phòng máy
+  hàng tháng, kiểm tra thiết bị mạng hàng quý) kèm 2 mẫu phiếu điền sẵn tiêu đề,
+  nội dung, danh mục và ưu tiên. Cron `ticketrecurrent` của GLPI tự sinh phiếu.
+- 2 laptop vào diện đặt mượn + 2 lượt mượn mẫu (1 đang mượn, 1 đã trả) + 1 phiếu
+  yêu cầu mượn — dùng `glpi_reservationitems`/`glpi_reservations` gốc, **không**
+  tạo bảng riêng.
+- Sửa **2 lỗi schema thật** phát hiện khi chạy cài đặt lần đầu:
+  - `DATE_SUB(@now, INTERVAL 3 DAY - INTERVAL 2 HOUR)` — MySQL không hỗ trợ trừ
+    hai `INTERVAL`; đổi thành `INTERVAL 70 HOUR`.
+  - `glpi_slalevels.exec_time` **không tồn tại** (đúng là `execution_time`), và
+    `glpi_slas.type` là `NOT NULL` (TTO=1/TTR=0) → lỗi 1054 chặn cả bước 5.
+    Viết lại Phần A: 10 SLA (5 mức ưu tiên × 2 loại) + dọn bản ghi cũ khi nạp lại.
+
 **Kiểm thử tự động**
 - CI thêm 3 bước trong job `smoke`: bắt buộc phát hiện HTTP 429 khi spam endpoint
   nộp phiếu; kiểm tra bảng SLA có dữ liệu sau khi nạp; chạy script kiểm lạm dụng.
@@ -70,6 +84,22 @@ Ba điều đồ án **chưa** chứng minh được, ghi rõ để không tuyê
 1. Chưa gặp ITC để xác nhận nhu cầu (đồ án chưa được phê duyệt);
 2. Chưa có số sự cố thực tế mỗi tuần của trường;
 3. Chưa đo hiệu năng khi nhiều người cùng nộp.
+
+### Số liệu đo được trên máy thật (2026-10-02)
+
+| Chỉ số | Kết quả | Cách đo |
+|---|---|---|
+| Thời gian cài đặt trọn gói (6 bước) | **90 giây** | `time bash scripts/cai-dat-tat-ca.sh` |
+| Độ phủ Việt hoá thực tế | **31,8%** (2.070/6.511 chuỗi) | `python scripts/do-do-phu-tieng-viet.py` |
+| Thời gian phản hồi trang (5 lần) | **~55 ms** (52–64 ms) | `curl -w "%{time_total}"` |
+| Thời gian phản hồi CSS tĩnh | **45 ms** | `curl -w "%{time_total}"` |
+
+**Nói rõ để không hiểu sai:** 31,8% là tỉ lệ trên *toàn bộ catalog chuỗi của GLPI*
+(GLPI chỉ đóng gói sẵn ~32% bản dịch tiếng Việt chính thức). Menu, biểu mẫu và
+nhãn bảng điều khiển — phần người dùng thực sự nhìn thấy — đã Việt hoá 100%.
+Con số 90 giây và 55 ms đo trên máy cá nhân, KHÔNG phải đo tải nhiều người
+cùng lúc; đồ án chưa kiểm thử hiệu năng.
+
 
 ---
 

@@ -526,15 +526,11 @@ WHERE t.users_id_recipient IS NOT NULL
 
 
 -- ==============================================================================
---  8. LICH BAO TRI DINH KY (glpi_planningexternalevents khong phu hop)
---     Dung glpi_computers + comment de mo ta; lich bao tri that se tao qua UI.
---     O day chi ghi nhan ngay bao tri gan nhat cho vai thiet bi.
+--  8. LICH BAO TRI DINH KY + MUON/TRA THIET BI
+--     -> Da chuyen sang scripts/seed-sla-va-chong-lam-dung.sql (phan B2, B3)
+--     Su dung glpi_ticketrecurrents (lich bao tri dinh ky) va
+--     glpi_reservations (muon/tra thiet bi) - co che GOC cua GLPI.
 -- ==============================================================================
-UPDATE glpi_computers
-SET last_inventory_update = DATE_SUB(@now, INTERVAL 30 DAY),
-    date_mod = @now
-WHERE otherserial IN ('TDL-PC-A201-003', 'TDL-PRN-VPK-001')
-  AND last_inventory_update IS NULL;
 
 
 -- ==============================================================================

@@ -62,6 +62,22 @@ toàn bộ số liệu trong tài liệu đối chiếu với hệ thống chạ
     `docker-compose.yml`.
 - **`tai-lieu/anh-giao-dien/`:** bổ sung ảnh minh chứng cho các hạng mục mới.
 
+### Dọn dẹp (giữ lại đúng thứ cần thiết)
+
+- Xoá **rác sinh ra khi chạy**: `node_modules/` (28 MB), `.tmp-anh/` (66 MB),
+  `.tmp-check/`, `.tmp-locale/`, `scripts/__pycache__/`, chứng chỉ tự ký trong
+  `nginx/ssl/` (`.crt`/`.key`/`.bak` — start.sh tự sinh lại).
+- Xoá **workspace tạm của công cụ**: `.impeccable/` (14 MB), `.playwright-mcp/`,
+  `.backup-landing-cu/`, cùng các thư mục ghi chú nội bộ `.claude/`, `.omp/`.
+- Xoá **ảnh chụp nháp ở gốc repo** (`nghiem-thu-*`, `soi-*`, `toi-*`, `xem-*.png`).
+- Xoá **`output-qr/`** (kết quả sinh QR mẫu) và các **bản sao lưu CSDL cũ** trong
+  `backup/`. Chạy lại `python scripts/sinh-ma-qr.py` sẽ tự tạo lại thư mục
+  `output-qr/` khi cần (script có `os.makedirs(..., exist_ok=True)`).
+- **Giữ nguyên** `tai-lieu/` (tài liệu + ảnh minh chứng), toàn bộ mã nguồn, script,
+  cấu hình, font, logo và các tệp mô tả dự án. Kích thước cây làm việc giảm từ
+  ~120 MB xuống **~6 MB**; 129 tệp được version hoá.
+- Cập nhật `README.md`: bỏ dòng `output-qr/` khỏi sơ đồ cấu trúc thư mục.
+
 ### Ghi chú
 
 - Bản 0.1.0 ghi "443 thuật ngữ / 30,6%" là **đúng tại thời điểm đó**; các mục

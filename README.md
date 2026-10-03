@@ -166,7 +166,6 @@ pinedesk/
 │   ├── kiem-tra-landing.js      #   Kiểm tra landing (anchor, ảnh, font, console)
 │   ├── kiem-tra-font.py         #   Đo phủ ký tự thật trong tệp font
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
-├── output-qr/                   # Kết quả sinh mã QR
 ├── backup/                      # Script sao lưu dữ liệu
 └── tai-lieu/                    # ★ Tài liệu hướng dẫn + ảnh minh chứng
     ├── HUONG-DAN-TRIEN-KHAI.md            # Triển khai & vận hành

@@ -3,6 +3,91 @@
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [0.4.0] — 2026-10-03 — "Vá ba lỗi cài máy sạch, sửa giao diện, Việt hoá dữ liệu và chuyển sang Playwright"
+
+**Bối cảnh:** tiếp tục chuẩn bị báo cáo lần 2. Bản này gỡ ba lỗi chỉ lộ ra khi
+cài trên máy sạch, đẩy nốt phần dữ liệu hiển thị sang tiếng Việt, làm lại tầng
+công cụ trình duyệt, kiểm thử lại toàn bộ chức năng theo từng vai trò và thêm
+năm cửa kiểm CI để những lỗi đó không quay lại.
+
+### Sửa (ba lỗi cài trên máy sạch)
+
+- **Sáu tài khoản demo không có hồ sơ quyền, đăng nhập là chết.** `seed-du-lieu-mau.sql`
+  gán hồ sơ theo tên tiếng Việt (`Technician`, `Self-Service`), nhưng trên máy
+  sạch GLPI tạo hồ sơ bằng tên tiếng Anh, còn `viet-hoa-du-lieu.sh` (đổi tên sang
+  tiếng Việt) lại không nằm trong luồng cài. JOIN khớp 0 dòng, nên `ktv.an`,
+  `sv.hoa` và bốn tài khoản còn lại đăng nhập trả HTTP 400 *"Bạn không có quyền
+  để kết nối"*. Kịch bản demo đăng nhập `sv.hoa` sẽ chết ngay trên bục. Nay câu
+  lệnh khớp cả hai tên, chạy theo thứ tự nào cũng đúng.
+- **Bảng điều khiển hiện chế độ minh hoạ của GLPI.** GLPI 11 bật sẵn
+  `is_demo_dashboards = 1`; chế độ này thay bảng điều khiển thật bằng dữ liệu mẫu.
+  `viet-hoa-du-lieu.sh` đã tắt nó, nhưng script không được gọi trong luồng cài.
+  Nay bước Việt hoá dữ liệu chạy ngay sau khi nạp danh mục nghiệp vụ.
+- **Thương hiệu và dải màu ưu tiên không được áp.** `cai-giao-dien.sh` đặt
+  `app_name`, dải màu ưu tiên và bảng màu mặc định, nhưng cũng không được gọi ở
+  đâu. Trên máy sạch thẻ trình duyệt hiện *"... - GLPI"* và dải màu ưu tiên vẫn
+  là hồng đỏ mặc định của GLPI. Nay script chạy ngay sau khi bật plugin.
+
+### Sửa (giao diện)
+
+- **Thanh điều hướng trang tự phục vụ gần như tàng hình.** Trang helpdesk dùng
+  `navbar-dark` (chữ kem) trên nền giấy sáng, tương phản khoảng 1,06:1. Đổi sang
+  token `--dlu-muc`, token này tự đổi giá trị theo sáng/tối (#26301A khi sáng,
+  #E6EADB khi tối). Trang kỹ thuật viên dùng `navbar-light` nên không bị.
+- **Trang tự phục vụ hoá xanh dương khi bật chế độ tối.** Bảng màu tối của GLPI
+  (`auror_dark`) gán cứng ba dải nền đầu trang thành xanh dương, trong khi phần
+  còn lại theo tông xanh rêu Đà Lạt. Nay ba dải đó bám đúng token của đồ án.
+  Lỗi lộ ra khi đo màu thật trên trình duyệt ở cả hai chế độ, không phải khi đọc
+  mã.
+
+### Thay đổi
+
+- **Chuyển công cụ trình duyệt từ Puppeteer sang Playwright.** Chín script chụp
+  ảnh và kiểm tra nay dùng `playwright-core` điều khiển Chrome có sẵn trên máy,
+  không tải thêm trình duyệt. Thêm `package.json` (khai báo `playwright-core`
+  `^1.63.0`) và viết lại `scripts/lib/browser.js` theo API Playwright.
+- **Sửa `kiem-tra-qr-va-chup-anh.js` cho đúng GLPI 11.** Bản cũ tạo một máy tính
+  thử (`PC-TEST-QR-DLU-001`) rồi thử mở `/plugins/barcode/front/barcode.php` —
+  đường dẫn này không còn ở GLPI 11 (404), và thiết bị thử làm bẩn bộ dữ liệu
+  demo 17 máy. Bản mới dùng thiết bị có sẵn, đi theo đúng luồng *Các hành động →
+  Barcode - Print QRcodes*, không tạo dữ liệu rác.
+
+### Thêm mới
+
+- **Từ điển Việt hoá: 541 → 556 thuật ngữ** (+15 mục cho trang tự phục vụ, ví dụ
+  "Báo cáo sự cố", "Đặt mượn thiết bị", "Xem phiếu của bạn"). Bản dịch vi_VN chính
+  thức của GLPI 11 để trống toàn bộ nhóm nhãn này. Độ phủ đo từ `.mo` thật:
+  31,8% → **32,0%** (2.084/6.511 chuỗi). Số liệu 31,8% / 2.070 trong tài liệu
+  được cập nhật đồng bộ theo.
+- **`scripts/kiem-tra-chuc-nang.sh` — kiểm chức năng theo vai trò.** Đăng nhập
+  thật rồi GET từng trang, đối chiếu mã HTTP: trang được phép phải 200, trang
+  Setup phải 403 với kỹ thuật viên và mọi trang trung tâm phải 403 với sinh viên.
+  Chạy được cho cả ba vai trò (quản trị / kỹ thuật viên / sinh viên).
+- **`scripts/kiem-tra-usecase.js` — ba use case thật, chạy end-to-end.** Sinh
+  viên nộp phiếu sự cố, kỹ thuật viên thấy phiếu đó trong danh sách, sinh viên
+  đặt mượn thiết bị. Kết quả đối chiếu với danh sách phiếu và danh sách đặt chỗ,
+  không chỉ kiểm mã HTTP.
+- **Năm cửa kiểm CI mới** trong job `smoke`:
+  - Tài khoản demo phải có hồ sơ quyền và đăng nhập được (chốt 0 tài khoản thiếu
+    hồ sơ, và `ktv.an`/`sv.hoa` trả HTTP 302).
+  - Dữ liệu hiển thị phải Việt hoá (đơn vị "Đại học Đà Lạt", 0 bảng điều khiển
+    tiếng Anh, `is_demo_dashboards = 0`).
+  - Thương hiệu và dải màu ưu tiên phải được đặt (`app_name = 'PineDesk DLU'`,
+    `priority_5 = '#CC2430'`).
+  - Từ điển phải đủ 556 thuật ngữ + 212 mục số nhiều.
+  - Chức năng + phân quyền theo vai trò phải hoạt động (`kiem-tra-chuc-nang.sh`
+    chạy cho `ktv.an` và `sv.hoa`).
+
+### Ghi chú
+
+- Số 541 thuật ngữ / 31,8% ghi trong bản 0.3.0 là **đúng tại thời điểm đó**; mục
+  nhật ký là bản ghi lịch sử, không sửa lại.
+- `cai-dat-tat-ca.sh` nay gọi `viet-hoa-du-lieu.sh` và `cai-giao-dien.sh`. Trước
+  đây cả hai script đều có sẵn nhưng không nằm trong luồng cài, nên máy sạch
+  thiếu cả dữ liệu Việt hoá lẫn thương hiệu.
+
+---
+
 ## [0.3.0] — 2026-10-03 — "Chuẩn hoá số liệu và vá lỗi dữ liệu mẫu cho báo cáo lần 2"
 
 **Bối cảnh:** chuẩn bị báo cáo lần 2. Trước khi trình bày, đồ án rà soát lại

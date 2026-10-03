@@ -132,15 +132,24 @@ WHERE u.name IN ('gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh')
 --   Tra cuu ho so theo TEN de khong phu thuoc vao thu tu id (id co the khac
 --   nhau giua cac ban GLPI / ngon ngu cai dat).
 --
---   'Kỹ thuật viên' -> giao dien trung tam, dung de xu ly su co.
---   'Người dùng'    -> giao dien helpdesk, dung cho nguoi bao su co.
+--   'Technician'   (sau Viet hoa: 'Kỹ thuật viên') -> giao dien trung tam.
+--   'Self-Service' (sau Viet hoa: 'Người dùng')    -> giao dien helpdesk.
+--
+--   LOI THAT da sua (0.4.0): ban cu CHI khop TEN TIENG VIET. Tren may sach,
+--   GLPI tao ho so bang ten TIENG ANH ('Technician'/'Self-Service'), con
+--   scripts/viet-hoa-du-lieu.sh — noi doi ten sang tieng Viet — lai KHONG nam
+--   trong luong cai dat. Ket qua: JOIN khop 0 dong, 6 tai khoan demo khong co
+--   ho so quyen nao => dang nhap bao "Ban khong co quyen de ket noi" (HTTP 400).
+--   Kich ban demo lai dang nhap 'sv.hoa' -> se that bai ngay tren buc.
+--   Nay khop CA HAI ten (truoc VA sau khi Viet hoa) de dung thu tu nao cung dung.
 INSERT INTO glpi_profiles_users (users_id, profiles_id, entities_id, is_recursive, is_dynamic)
 SELECT u.id, p.id, 0, 1, 0
 FROM glpi_users u
 JOIN glpi_profiles p
   ON p.name = CASE WHEN u.name IN ('ktv.an', 'ktv.binh')
-                   THEN 'Kỹ thuật viên'
-                   ELSE 'Người dùng' END
+                   THEN 'Technician' ELSE 'Self-Service' END
+  OR p.name = CASE WHEN u.name IN ('ktv.an', 'ktv.binh')
+                   THEN 'Kỹ thuật viên' ELSE 'Người dùng' END
 WHERE u.name IN ('ktv.an', 'ktv.binh', 'gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh')
   AND NOT EXISTS (SELECT 1 FROM glpi_profiles_users pu
                   WHERE pu.users_id = u.id AND pu.profiles_id = p.id);

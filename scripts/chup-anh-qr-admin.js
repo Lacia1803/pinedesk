@@ -11,42 +11,40 @@
  *    va khong tao ra anh gia.
  *
  *  CHAY (thay <mat-khau-quan-tri> bang mat khau that):
- *    NODE_PATH="$PWD/node_modules" GLPI_USER=glpi GLPI_PASS='<mat-khau-quan-tri>' \
- *      node scripts/chup-anh-qr-admin.js
+ *    GLPI_USER=glpi GLPI_PASS='<mat-khau-quan-tri>' node scripts/chup-anh-qr-admin.js
  *
  *  TAO RA
  *    - 11-cau-hinh-nhan-qr.png  : trang Cau hinh -> Barcode (form cau hinh nhan)
  *    - 13-phieu-qr-da-sinh.png  : ket qua sinh QR hang loat (file PDF)
  * ============================================================================
  */
-const puppeteer = require('puppeteer-core');
+const { launch, dangNhap, credentials, sleep } = require('./lib/browser');
 const path = require('path');
 const fs = require('fs');
 
-const { CHROME, credentials } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
 const OUT = path.join(__dirname, '..', 'tai-lieu', 'anh-giao-dien');
-const { user: USER, pass: PASS } = credentials();
+const { user: USER } = credentials();
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+/**
+ * Bam phan tu dau tien (button/a) co nhan khop bieu thuc chinh quy.
+ * @returns {Promise<boolean>} co bam duoc khong
+ */
+const bamTheoNhan = (page, src, phamVi) => page.evaluate(({ src, phamVi }) => {
+  const re = new RegExp(src, 'i');
+  const goc = phamVi ? (document.querySelector(phamVi) || document) : document;
+  const e = [...goc.querySelectorAll('button, a, input[type=submit]')]
+    .find((x) => re.test((x.innerText || x.value || '').trim()));
+  if (e) { e.click(); return true; }
+  return false;
+}, { src, phamVi });
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
 
-  const browser = await puppeteer.launch({
-    executablePath: CHROME,
-    headless: 'new',
-    args: [
-      '--ignore-certificate-errors',
-      '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--window-size=1600,1000',
-      '--lang=vi-VN',
-    ],
-    defaultViewport: { width: 1600, height: 1000, deviceScaleFactor: 1 },
+  const { context, browser, page } = await launch({
+    width: 1600, height: 1000, deviceScaleFactor: 1,
   });
-
-  const page = await browser.newPage();
   const dem = { ok: 0, bo: 0 };
 
   const luu = async (ten, target = page) => {
@@ -58,15 +56,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ------------------------------------------------------------------
   console.log('\n[1] Dang nhap (' + USER + ')...');
-  await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await sleep(1500);
-  await page.type('input[name="login_name"]', USER, { delay: 25 });
-  await page.type('input[name="login_password"]', PASS, { delay: 25 });
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {}),
-    page.click('button[type="submit"], input[type="submit"]'),
-  ]);
-  await sleep(2500);
+  await dangNhap(page, { base: BASE });
 
   const s0 = await page.evaluate(() => ({ title: document.title, path: location.pathname }));
   if (!/central/i.test(s0.path)) {
@@ -77,7 +67,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ------------------------------------------------------------------
   console.log('\n[2] Trang Cau hinh -> Barcode...');
-  await page.goto(`${BASE}/plugins/barcode/front/config.php`, { waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto(`${BASE}/plugins/barcode/front/config.php`, { waitUntil: 'networkidle', timeout: 60000 });
   await sleep(2200);
   const cfg = await page.evaluate(() => ({
     path: location.pathname,
@@ -92,10 +82,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ------------------------------------------------------------------
   console.log('\n[3] Sinh QR hang loat: tich chon may -> Cac hanh dong...');
-  await page.goto(`${BASE}/front/computer.php`, { waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto(`${BASE}/front/computer.php`, { waitUntil: 'networkidle', timeout: 60000 });
   await sleep(2500);
-  const cb = await page.$('table tbody tr input[type="checkbox"]');
-  if (!cb) {
+  const cb = page.locator('table tbody tr input[type="checkbox"]').first();
+  if (await cb.count() === 0) {
     console.log('   [BO QUA] danh sach may tinh trong, khong co gi de tich chon');
     dem.bo++;
     await browser.close();
@@ -104,17 +94,13 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   await cb.click();
   await sleep(2500);
 
-  const nut = await page.evaluateHandle(() => {
-    const all = [...document.querySelectorAll('button, a')];
-    return all.find((e) => /^Các hành động$/i.test((e.innerText || '').trim()));
-  });
-  if (!nut || !nut.asElement()) {
+  const daBam = await bamTheoNhan(page, '^Các hành động$');
+  if (!daBam) {
     console.log('   [BO QUA] khong thay nut "Cac hanh dong"');
     dem.bo++;
     await browser.close();
     process.exit(0);
   }
-  await nut.asElement().click();
   await sleep(2500);
 
   // GLPI 11 dung <select> an (select2) trong modal
@@ -154,30 +140,22 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ------------------------------------------------------------------
   console.log('\n[4] Bam Create de sinh PDF...');
-  const goBtn = await page.evaluateHandle(() => {
-    const m = document.querySelector('.modal.show') || document;
-    const all = [...m.querySelectorAll('button, input[type=submit]')];
-    return all.find((e) => /^\s*(Create|Tạo|Créer)\s*$/i.test(e.innerText || e.value || ''));
-  });
+  // Nut Create co the mo tab moi -> cho su kien 'page' cua context.
+  const choTabMoi = context.waitForEvent('page', { timeout: 15000 }).catch(() => null);
+  const daTao = await bamTheoNhan(page, '^\\s*(Create|Tạo|Créer)\\s*$', '.modal.show');
 
-  if (!goBtn || !goBtn.asElement()) {
+  if (!daTao) {
     console.log('   [BO QUA] khong thay nut Create');
     dem.bo++;
     await browser.close();
     process.exit(0);
   }
 
-  // Nut Create co the mo tab moi -> bat popup
-  const newPage = await new Promise((resolve) => {
-    browser.once('targetcreated', async (t) => resolve(await t.page()));
-    goBtn.asElement().click();
-    setTimeout(() => resolve(null), 15000);
-  });
-
+  const newPage = await choTabMoi;
   const work = newPage || page;
   await sleep(5000);
   if (newPage) {
-    await newPage.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }).catch(() => {});
+    await newPage.waitForLoadState('networkidle').catch(() => {});
   }
   console.log('   URL ket qua:', work.url());
   await luu('13-phieu-qr-da-sinh.png', work);

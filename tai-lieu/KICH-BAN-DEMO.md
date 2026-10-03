@@ -39,7 +39,7 @@ bash scripts/nap-sla-va-chong-lam-dung.sh   # SLA + chống lạm dụng
 | **Hội đồng hỏi ngoài dự kiến** | Mở `CAU-HOI-PHAN-BIEN.md` — chọn câu gần nhất rồi diễn đạt lại |
 
 👉 **Mở sẵn `tai-lieu/anh-giao-dien/` trong một cửa sổ Explorer** — bí mật sau
-cùng. Nếu máy sập, bạn vẫn còn 19 ảnh chụp giao diện thật để trình bày.
+cùng. Nếu máy sập, bạn vẫn còn 21 ảnh chụp giao diện thật để trình bày.
 
 ---
 
@@ -120,7 +120,7 @@ nghiệp vụ mới siết theo tài khoản.
 
 **Thao tác 1 — Danh sách phiếu (30 giây):**
 - Vào **Hỗ trợ → Phiếu yêu cầu**
-- > *"13 phiếu mẫu trải đủ 4 trạng thái: Mới, Được giao, Đã giải quyết, Đã đóng."*
+- > *"14 phiếu mẫu trải đủ 4 trạng thái: Mới, Được giao, Đã giải quyết, Đã đóng."*
 
 **Thao tác 2 — SLA thật (30 giây):**
 - Vào **Thiết lập → Mức dịch vụ (SLA)**

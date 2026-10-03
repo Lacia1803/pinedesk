@@ -1,35 +1,20 @@
-const puppeteer = require('puppeteer-core');
 // Duong dan Chrome + tai khoan dang nhap: lay tu scripts/lib/browser.js
 // (khong hardcode). Dat CHROME_PATH / GLPI_PASS neu can chi dinh ro.
-const { CHROME, credentials } = require('./lib/browser');
+const { launch, dangNhap, sleep } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
-const { user: USER, pass: PASS } = credentials();
 
 (async () => {
-  const b = await puppeteer.launch({
-    executablePath: CHROME,
-    headless: 'new',
-    args: ['--ignore-certificate-errors', '--no-sandbox'],
-    defaultViewport: { width: 1600, height: 1100, deviceScaleFactor: 1 },
+  const { browser, page: p } = await launch({
+    width: 1600, height: 1100, deviceScaleFactor: 1,
   });
-  const p = await b.newPage();
 
   // Dang nhap
-  await p.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise(r => setTimeout(r, 1200));
-  await p.type('input[name="login_name"]', USER, { delay: 20 });
-  await p.type('input[name="login_password"]', PASS, { delay: 20 });
-  await Promise.all([
-    p.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {}),
-    p.click('button[type="submit"], input[type="submit"]'),
-  ]);
-  await new Promise(r => setTimeout(r, 4000));
-
+  await dangNhap(p, { base: BASE });
   console.log('URL sau dang nhap:', p.url());
 
   // Vao bang dieu khien
-  await p.goto(`${BASE}/front/central.php`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise(r => setTimeout(r, 6000));
+  await p.goto(`${BASE}/front/central.php`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(6000);
 
   // Kiem tra con banner "demonstration data" khong
   const txt = await p.evaluate(() => document.body.innerText || '');
@@ -52,7 +37,7 @@ const { user: USER, pass: PASS } = credentials();
     return n;
   });
   console.log('Da an', daAn, 'bang canh bao');
-  await new Promise(r => setTimeout(r, 800));
+  await sleep(800);
 
   // Lay vai con so that
   const nums = await p.evaluate(() => {
@@ -68,5 +53,5 @@ const { user: USER, pass: PASS } = credentials();
 
   await p.screenshot({ path: 'landing/dashboard-preview.png' });
   console.log('-> da ghi landing/dashboard-preview.png');
-  await b.close();
+  await browser.close();
 })().catch(e => { console.error('LOI:', e.message); process.exit(1); });

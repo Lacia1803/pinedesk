@@ -447,7 +447,97 @@ jobs:
           [ "$ORPHAN" = "0" ] || { echo "[LOI] $ORPHAN may tinh thieu vi tri"; exit 1; }
           echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 14 phieu"
 
-      - name: Tu dien Viet hoa phai du 541 thuat ngu + 212 so nhieu
+      # ----------------------------------------------------------------------
+      # TAI KHOAN DEMO phai CO HO SO QUYEN (neu khong thi KHONG dang nhap duoc)
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.4.0: seed gan quyen theo TEN TIENG VIET ('Kỹ thuật viên'/
+      # 'Người dùng') nhung GLPI tao ho so bang TEN TIENG ANH. JOIN khop 0 dong
+      # -> 6 tai khoan demo khong co ho so -> dang nhap bao "Ban khong co quyen
+      # de ket noi" (HTTP 400). Kich ban demo lai dang nhap 'sv.hoa'.
+      # Cua nay chot: moi tai khoan demo phai co dung 1 ho so, VA dang nhap THAT
+      # qua HTTP phai tra 302 (khong phai 400).
+      - name: Tai khoan demo phai co ho so quyen va dang nhap duoc
+        run: |
+          Q() { docker exec pinedesk-db sh -c \
+                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+
+          # 1. Moi tai khoan demo phai co >= 1 ho so quyen
+          THIEU=$(Q "SELECT COUNT(*) FROM glpi_users u WHERE u.name IN
+                     ('ktv.an','ktv.binh','gv.cuong','gv.dung','sv.hoa','sv.khanh')
+                     AND NOT EXISTS (SELECT 1 FROM glpi_profiles_users pu
+                                     WHERE pu.users_id = u.id);")
+          echo "Tai khoan demo THIEU ho so quyen: $THIEU"
+          [ "$THIEU" = "0" ] || { echo "[LOI] $THIEU tai khoan demo khong co ho so quyen -> khong dang nhap duoc"; exit 1; }
+
+          # 2. Dang nhap THAT bang HTTP: phai tra 302 (thanh cong)
+          for U in ktv.an sv.hoa; do
+            JAR=$(mktemp)
+            TOK=$(curl -sSk -c "$JAR" https://localhost:8443/ \
+                  | grep -oE 'name="_glpi_csrf_token" value="[a-f0-9]+"' \
+                  | head -1 | grep -oE '[a-f0-9]{64}')
+            CODE=$(curl -sSk -b "$JAR" -c "$JAR" -o /dev/null -w '%{http_code}' \
+                   -d "login_name=$U" -d "login_password=Dlu@2026" \
+                   -d "noAUTO=0" -d "redirect=" -d "_glpi_csrf_token=$TOK" \
+                   https://localhost:8443/front/login.php)
+            rm -f "$JAR"
+            echo "  Dang nhap $U -> HTTP $CODE"
+            [ "$CODE" = "302" ] || { echo "[LOI] $U khong dang nhap duoc (HTTP $CODE)"; exit 1; }
+          done
+          echo "[OK] Tai khoan demo co ho so quyen va dang nhap duoc (302)"
+
+      # ----------------------------------------------------------------------
+      # DU LIEU HIEN THI phai duoc Viet hoa (don vi, bang dieu khien, ho so quyen)
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.4.0: scripts/viet-hoa-du-lieu.sh KHONG nam trong luong cai
+      # dat -> tren may sach don vi van la "Root entity", bang dieu khien van la
+      # "Central/Assets/Assistance" (tieng Anh).
+      - name: Du lieu hien thi phai duoc Viet hoa
+        run: |
+          bash scripts/viet-hoa-du-lieu.sh
+          Q() { docker exec pinedesk-db sh -c \
+                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+
+          E=$(Q "SELECT name FROM glpi_entities WHERE id = 0;")
+          echo "Don vi goc: $E"
+          [ "$E" = "Đại học Đà Lạt" ] || { echo "[LOI] Don vi goc chua Viet hoa: '$E'"; exit 1; }
+
+          # Bang dieu khiem khong duoc con ten tieng Anh
+          EN=$(Q "SELECT COUNT(*) FROM glpi_dashboards_dashboards
+                  WHERE name IN ('Central','Assets','Assistance','Mini tickets dashboard');")
+          echo "Bang dieu khien con ten tieng Anh: $EN"
+          [ "$EN" = "0" ] || { echo "[LOI] Con $EN bang dieu khien chua Viet hoa"; exit 1; }
+
+          # Che do du lieu minh hoa phai TAT (neu bat -> dashboard hien so gia)
+          D=$(Q "SELECT value FROM glpi_configs WHERE name = 'is_demo_dashboards';")
+          echo "is_demo_dashboards = $D"
+          [ "$D" = "0" ] || { echo "[LOI] Che do du lieu minh hoa dang BAT -> dashboard hien so gia"; exit 1; }
+          echo "[OK] Du lieu hien thi da Viet hoa + tat che do minh hoa"
+
+      # ----------------------------------------------------------------------
+      # THUONG HIEU: ten ung dung tren the trinh duyet + dai mau uu tien
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.4.0: scripts/cai-giao-dien.sh dat `app_name` (ten tren the
+      # trinh duyet), dai mau uu tien (priority_1..6) va bang mau mac dinh — nhung
+      # script nay KHONG duoc goi trong luong cai dat. Tren may sach:
+      #   - The trinh duyet hien "... - GLPI" -> lo ngay day la GLPI chua tuy bien.
+      #   - Dai mau uu tien van la hong do mac dinh GLPI (#fff2f2 -> #ff5555).
+      - name: Thuong hieu (ten ung dung) + dai mau uu tien phai duoc dat
+        run: |
+          bash scripts/cai-giao-dien.sh >/dev/null 2>&1 || true
+          Q() { docker exec pinedesk-db sh -c \
+                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+
+          APP=$(Q "SELECT value FROM glpi_configs WHERE name = 'app_name';")
+          echo "app_name = $APP"
+          [ "$APP" = "PineDesk DLU" ] || { echo "[LOI] app_name chua dat -> the trinh duyet hien '- GLPI'"; exit 1; }
+
+          # Dai mau uu tien phai la dai Da Lat, KHONG phai hong do mac dinh GLPI
+          P5=$(Q "SELECT value FROM glpi_configs WHERE name = 'priority_5';")
+          echo "priority_5 = $P5"
+          [ "$P5" = "#CC2430" ] || { echo "[LOI] priority_5 van la mac dinh GLPI ($P5) -> chua chay cai-giao-dien.sh"; exit 1; }
+          echo "[OK] Thuong hieu PineDesk + dai mau uu tien Da Lat da dat"
+
+      - name: Tu dien Viet hoa phai du 556 thuat ngu + 212 so nhieu
         run: |
           python - <<'PY'
           import re
@@ -465,15 +555,31 @@ jobs:
           don   = dem('BAN_DICH_BO_SUNG')
           nhieu = dem('BAN_DICH_SO_NHIEU')
           print(f'Thuat ngu don: {don} | Muc so nhieu: {nhieu}')
-          assert don == 541, f'mong doi 541 thuat ngu don, thuc te {don}'
+          assert don == 556, f'mong doi 556 thuat ngu don, thuc te {don}'
           assert nhieu == 212, f'mong doi 212 muc so nhieu, thuc te {nhieu}'
-          print('[OK] Tu dien Viet hoa khop tai lieu: 541 + 212')
+          print('[OK] Tu dien Viet hoa khop tai lieu: 556 + 212')
           PY
 
       - name: Script kiem tra lam dung phai chay duoc
         run: |
           bash scripts/kiem-tra-lam-dung.sh
           echo "[OK] Script kiem tra lam dung chay khong loi"
+
+      # ----------------------------------------------------------------------
+      # CHUC NANG + PHAN QUYEN: dang nhap that roi GET tung trang theo vai tro
+      # ----------------------------------------------------------------------
+      # Cua nay chot 3 dieu bang HTTP that (khong can trinh duyet):
+      #   1. Ky thuat vien mo duoc trang trung tam (200), bi chan trang Setup (403)
+      #   2. Sinh vien mo duoc cua vao tu phuc vu (200), bi chan trang trung tam (403)
+      #   3. Tai nguyen tinh (landing, CSS, logo, tai lieu) tra 200
+      # Loi that ban 0.4.0: tai khoan demo khong co ho so quyen -> dang nhap 400.
+      - name: Chuc nang + phan quyen theo vai tro phai hoat dong
+        run: |
+          echo "===== VAI TRO KY THUAT VIEN ====="
+          GLPI_USER=ktv.an GLPI_PASS='Dlu@2026' bash scripts/kiem-tra-chuc-nang.sh
+          echo ""
+          echo "===== VAI TRO TU PHUC VU (SINH VIEN) ====="
+          GLPI_USER=sv.hoa GLPI_PASS='Dlu@2026' bash scripts/kiem-tra-chuc-nang.sh
 
       - name: In log khi that bai
         if: failure()

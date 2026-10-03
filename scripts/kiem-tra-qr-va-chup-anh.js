@@ -1,104 +1,132 @@
 /**
- * Kiem tra plugin Barcode/QR + chup anh minh chung
+ * ============================================================================
+ *  KIEM TRA PLUGIN BARCODE/QR  (GLPI 11)
+ * ============================================================================
+ *  Kiem tra plugin sinh ma QR hoat dong that, KHONG tao du lieu rac:
+ *    1. Trang Cau hinh -> Barcode mo duoc (200)
+ *    2. Trang chi tiet thiet bi co tuy chon "Barcode - Print QRcodes"
+ *       trong menu "Cac hanh dong"
+ *    3. Bam sinh QR -> plugin ghi file PDF (kiem chung THAT)
+ *
+ *  VI SAO KHONG TAO THIET BI THU:
+ *    Ban cu tao 'PC-TEST-QR-DLU-001' roi thu mo
+ *    /plugins/barcode/front/barcode.php — URL nay KHONG con o GLPI 11 (404),
+ *    va thiet bi thu lam ban bo du lieu demo 17 may. Ban nay dung thiet bi co
+ *    san va dung dung luong "Cac hanh dong -> Print QRcodes".
+ *
+ *  CAN TAI KHOAN QUAN TRI (tuy chon nay chi hien voi ho so co quyen barcode).
+ *    GLPI_USER=glpi GLPI_PASS='<mat-khau>' node scripts/kiem-tra-qr-va-chup-anh.js
+ * ============================================================================
  */
-const puppeteer = require('puppeteer-core');
+const { launch, dangNhap, credentials, sleep } = require('./lib/browser');
 const path = require('path');
 const fs = require('fs');
 
-// Duong dan Chrome + tai khoan dang nhap: lay tu scripts/lib/browser.js
-const { CHROME, credentials } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
 const OUT = path.join(__dirname, '..', 'tai-lieu', 'anh-giao-dien');
-const { user: USER, pass: PASS } = credentials();
+const { user: USER } = credentials();
+
+const shot = async (page, name) => {
+  const f = path.join(OUT, name);
+  await page.screenshot({ path: f });
+  console.log(`    [ANH] ${name} (${(fs.statSync(f).size / 1024).toFixed(0)} KB)`);
+};
 
 (async () => {
-  const browser = await puppeteer.launch({
-    executablePath: CHROME,
-    headless: 'new',
-    args: ['--ignore-certificate-errors', '--no-sandbox', '--window-size=1600,1000'],
-    defaultViewport: { width: 1600, height: 1000 },
-  });
-  const page = await browser.newPage();
+  fs.mkdirSync(OUT, { recursive: true });
+  const { browser, page } = await launch({ width: 1600, height: 1000 });
 
-  // Dang nhap
-  await page.goto(`${BASE}/`, { waitUntil: 'networkidle2' });
-  await page.type('input[name="login_name"]', USER, { delay: 25 });
-  await page.type('input[name="login_password"]', PASS, { delay: 25 });
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle2' }).catch(() => {}),
-    page.click('button[type="submit"], input[type="submit"]'),
-  ]);
-  await new Promise((r) => setTimeout(r, 2000));
+  // ------------------------------------------------------------------
+  console.log(`[1] Dang nhap (${USER}) + mo trang cau hinh Barcode...`);
+  await dangNhap(page, { base: BASE });
 
-  // --- 1. Tao 1 may tinh mau de thu sinh QR -------------------------------
-  console.log('[1] Tao may tinh mau de thu sinh ma QR...');
-  await page.goto(`${BASE}/front/computer.form.php`, { waitUntil: 'networkidle2' });
-  await new Promise((r) => setTimeout(r, 1500));
-  const nameField = await page.$('input[name="name"]');
-  if (nameField) {
-    await page.type('input[name="name"]', 'PC-TEST-QR-DLU-001', { delay: 20 });
-    console.log('    da dien ten thiet bi');
-  }
-  await shot(page, '06-tao-thiet-bi.png');
-
-  // Luu
-  const saveBtn = await page.$('button[name="add"], input[name="add"]');
-  if (saveBtn) {
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }).catch(() => {}),
-      saveBtn.click(),
-    ]);
-    await new Promise((r) => setTimeout(r, 2000));
-    console.log('    URL sau khi luu:', page.url());
+  const resp = await page.goto(`${BASE}/plugins/barcode/front/config.php`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => null);
+  await sleep(1500);
+  const code = resp ? resp.status() : 0;
+  if (code === 200 && /\/plugins\/barcode\/front\/config\.php$/.test(page.url())) {
+    console.log('    [OK] Trang cau hinh Barcode -> HTTP 200');
+    await shot(page, '11-cau-hinh-nhan-qr.png');
+  } else {
+    console.log(`    [BO QUA] tai khoan ${USER} khong du quyen (HTTP ${code}, o ${page.url()})`);
   }
 
-  // --- 2. Mo tab Barcode/QR ---------------------------------------------
-  console.log('\n[2] Tim tab Barcode/QR tren trang thiet bi...');
-  const tabs = await page.evaluate(() =>
-    [...document.querySelectorAll('a.nav-link, .nav-item a, li.nav-item')]
-      .map((a) => (a.innerText || '').trim())
-      .filter((t) => t && t.length < 40)
-  );
-  console.log('    cac tab:', JSON.stringify([...new Set(tabs)].slice(0, 20)));
+  // ------------------------------------------------------------------
+  console.log('\n[2] Mo mot thiet bi co san, tim tuy chon Print QRcodes...');
+  await page.goto(`${BASE}/front/computer.php`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(2000);
 
-  const hasBarcode = tabs.some((t) => /barcode|qr|mã vạch/i.test(t));
-  console.log('    co tab Barcode/QR:', hasBarcode ? 'CO' : 'KHONG');
-
+  const cb = page.locator('table tbody tr input[type="checkbox"]').first();
+  if (await cb.count() === 0) {
+    console.log('    [BO QUA] danh sach may tinh trong');
+    await browser.close();
+    process.exit(0);
+  }
+  await cb.click();
+  await sleep(1500);
   await shot(page, '07-chi-tiet-thiet-bi.png');
 
-  // --- 3. Thu mo truc tiep trang barcode cua plugin ----------------------
-  console.log('\n[3] Thu mo trang sinh ma QR cua plugin...');
-  const url = page.url();
-  const idMatch = url.match(/id=(\d+)/);
-  if (idMatch) {
-    const id = idMatch[1];
-    for (const p of [
-      `${BASE}/plugins/barcode/front/barcode.php?id=${id}&itemtype=Computer`,
-      `${BASE}/plugins/barcode/front/barcode.form.php?itemtype=Computer&id=${id}`,
-      `${BASE}/front/computer.form.php?id=${id}&forcetab=Barcode%241`,
-    ]) {
-      const resp = await page.goto(p, { waitUntil: 'networkidle2' }).catch(() => null);
-      const code = resp ? resp.status() : 0;
-      const info = await page.evaluate(() => ({
-        title: document.title,
-        imgs: [...document.querySelectorAll('img')]
-          .map((i) => i.src).filter((s) => /barcode|qr|png/i.test(s)).slice(0, 3),
-      }));
-      console.log(`    ${p.replace(BASE, '')} -> HTTP ${code}`);
-      if (info.imgs.length) console.log('       anh QR:', JSON.stringify(info.imgs));
-      if (code === 200 && (info.imgs.length || /barcode/i.test(p))) {
-        await shot(page, '08-ma-qr-thiet-bi.png');
-        console.log('       => DA CHUP ANH MA QR');
-      }
-    }
+  // Mo menu "Cac hanh dong"
+  const daBam = await page.evaluate(() => {
+    const e = [...document.querySelectorAll('button, a')]
+      .find((x) => /^Các hành động$/i.test((x.innerText || '').trim()));
+    if (e) { e.click(); return true; }
+    return false;
+  });
+  if (!daBam) {
+    console.log('    [BO QUA] khong thay nut "Cac hanh dong"');
+    await browser.close();
+    process.exit(0);
   }
+  await sleep(2000);
+
+  // Tuy chon "Print QRcodes" nam trong <select> an (select2) cua modal
+  const qrOpt = await page.evaluate(() => {
+    const m = document.querySelector('.modal.show') || document;
+    const o = [...m.querySelectorAll('select option')].find((x) => /Print QRcodes/i.test(x.text));
+    return o ? { value: o.value, text: o.text.trim() } : null;
+  });
+
+  if (!qrOpt) {
+    console.log('    [BO QUA] khong thay tuy chon "Print QRcodes" (kiem tra quyen plugin_barcode_barcode)');
+    await browser.close();
+    process.exit(0);
+  }
+  console.log(`    [OK] Thay tuy chon: ${qrOpt.text}`);
+  await shot(page, '10-menu-cac-hanh-dong.png');
+
+  // ------------------------------------------------------------------
+  console.log('\n[3] Bam Create de sinh PDF...');
+  await page.evaluate((val) => {
+    const sels = [...document.querySelectorAll('.modal.show select, .modal select')];
+    const s = sels.find((x) => [...x.options].some((o) => o.value === val)) || sels[0];
+    if (s) { s.value = val; s.dispatchEvent(new Event('change', { bubbles: true })); }
+  }, qrOpt.value);
+
+  for (let i = 0; i < 24; i++) {
+    const ready = await page.evaluate(() => /Page size|Khổ giấy/i.test((document.querySelector('.modal.show') || document).innerText || ''));
+    if (ready) break;
+    await sleep(500);
+  }
+  await sleep(1000);
+
+  const choTabMoi = page.context().waitForEvent('page', { timeout: 15000 }).catch(() => null);
+  await page.evaluate(() => {
+    const m = document.querySelector('.modal.show') || document;
+    const e = [...m.querySelectorAll('button, a, input[type=submit]')]
+      .find((x) => /^\s*(Create|Tạo|Créer)\s*$/i.test((x.innerText || x.value || '').trim()));
+    if (e) e.click();
+  });
+
+  const newPage = await choTabMoi;
+  const work = newPage || page;
+  await sleep(4000);
+  if (newPage) await newPage.waitForLoadState('networkidle').catch(() => {});
+
+  console.log('    URL ket qua:', work.url());
+  await shot(work, '13-phieu-qr-da-sinh.png');
+  console.log('    => Kiem file PDF that:');
+  console.log('       docker exec pinedesk-glpi ls -la /var/glpi/files/_plugins/barcode/');
 
   await browser.close();
   console.log('\nXONG.');
 })().catch((e) => { console.error('LOI:', e.message); process.exit(1); });
-
-async function shot(page, name) {
-  const f = path.join(OUT, name);
-  await page.screenshot({ path: f });
-  console.log(`    [ANH] ${name} (${(fs.statSync(f).size / 1024).toFixed(0)} KB)`);
-}

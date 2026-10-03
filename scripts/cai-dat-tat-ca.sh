@@ -115,6 +115,21 @@ else
     err "Khong tim thay nap-du-lieu-nen.sh"; LOI=1
 fi
 
+# --- Viet hoa DU LIEU (ten don vi, bang dieu khien, ho so quyen) ---------------
+# BAI HOC TU LOI THAT (ban 0.4.0): truoc day buoc nay KHONG duoc goi o dau ca,
+# nen tren may sach don vi goc van la "Root entity", cac bang dieu khien van la
+# "Central / Assets / Assistance" (tieng Anh) du menu da Viet hoa. Goi ngay sau
+# khi nap danh muc de du lieu hien thi dung tieng Viet.
+if [ -f "$HERE/viet-hoa-du-lieu.sh" ]; then
+    if bash "$HERE/viet-hoa-du-lieu.sh" >/tmp/_viethoa.log 2>&1; then
+        ok "Da Viet hoa du lieu (don vi, bang dieu khien, ho so quyen)"
+    else
+        warn "Viet hoa du lieu that bai (xem /tmp/_viethoa.log)"
+    fi
+else
+    warn "Khong tim thay viet-hoa-du-lieu.sh -> bo qua"
+fi
+
 # ------------------------------------------------------------------------------
 step "BUOC 3/6 - Bat cac plugin (QR code + giao dien DLU)"
 # ------------------------------------------------------------------------------
@@ -215,6 +230,25 @@ ok "Da cap quyen sinh ma QR"
 docker exec pinedesk-glpi sh -c \
   'rm -rf /var/glpi/files/_cache/* 2>/dev/null' || true
 ok "Da xoa cache"
+
+# --- Cai giao dien "Da Lat": bang mau + logo + ten ung dung ------------------
+# BAI HOC TU LOI THAT (ban 0.4.0): cai-giao-dien.sh dat `app_name` (ten tren the
+# trinh duyet), dai mau uu tien (priority_1..6) va bang mau mac dinh — nhung
+# script nay KHONG duoc goi o dau trong luong cai dat. Hau qua tren may sach:
+#   - The trinh duyet hien "... - GLPI" thay vi "... - PineDesk DLU" -> lo ngay
+#     day la GLPI chua tuy bien.
+#   - Dai mau uu tien van la hong do mac dinh cua GLPI (#fff2f2 -> #ff5555),
+#     lech han the gioi Da Lat.
+# Goi ngay sau khi bat plugin (logo duoc copy vao thu muc public/ cua plugin).
+if [ -f "$HERE/cai-giao-dien.sh" ]; then
+    if bash "$HERE/cai-giao-dien.sh" >/tmp/_giaodien.log 2>&1; then
+        ok "Da cai giao dien Da Lat (bang mau + logo + ten ung dung)"
+    else
+        warn "Cai giao dien that bai (xem /tmp/_giaodien.log)"
+    fi
+else
+    warn "Khong tim thay cai-giao-dien.sh -> bo qua"
+fi
 
 # ------------------------------------------------------------------------------
 step "BUOC 4/6 - Nap ban dich tieng Viet"

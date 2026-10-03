@@ -1,7 +1,7 @@
 /* Chụp riêng từng khu vực để soi chi tiết.
    Trang không còn hiệu ứng xuất hiện khi cuộn, nên chỉ cần cuộn tới đúng khu
    rồi chụp — không phải chờ khối hiện ra. */
-const puppeteer = require('puppeteer-core');
+const { chromium } = require('playwright-core');
 const fs = require('fs');
 // Duong dan Chrome: lay tu scripts/lib/browser.js (dat CHROME_PATH neu can)
 const { CHROME } = require('./lib/browser');
@@ -26,17 +26,20 @@ const cho = (ms) => new Promise(r => setTimeout(r, ms));
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
-  const b = await puppeteer.launch({
-    executablePath: CHROME, headless: 'new',
-    args: ['--ignore-certificate-errors', '--no-sandbox'],
-    defaultViewport: { width: 1440, height: 1000 },
+  const b = await chromium.launch({
+    executablePath: CHROME, headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
   });
-  const p = await b.newPage();
-  await p.goto(URL, { waitUntil: 'networkidle2', timeout: 60000 });
+  const ctx = await b.newContext({
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1440, height: 1000 },
+  });
+  const p = await ctx.newPage();
+  await p.goto(URL, { waitUntil: 'networkidle', timeout: 60000 });
 
   for (const [ten, sel] of KHU) {
-    const el = await p.$(sel);
-    if (!el) { console.log('KHONG THAY', sel); continue; }
+    const el = p.locator(sel).first();
+    if (await el.count() === 0) { console.log('KHONG THAY', sel); continue; }
 
     // Cuon toi khu nay roi cho anh luoi (neu co) tai xong
     await p.evaluate(async (s) => {

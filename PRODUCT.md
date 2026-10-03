@@ -50,13 +50,14 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
 Đã xác nhận, có thật trong hệ thống:
 
 - Quản lý tài sản: 17 máy tính, 5 màn hình, 3 máy in, 9 thiết bị mạng, 10 phần mềm.
-- 13 phiếu sự cố mẫu trải đủ các trạng thái.
+- 13 phiếu sự cố mẫu trải đủ các trạng thái, cộng 1 phiếu mượn thiết bị (14 phiếu
+  khi cài đầy đủ).
 - 6 tài khoản mẫu, 3 vai trò (quản trị, kỹ thuật viên, người dùng), mật khẩu chung `Dlu@2026`.
 - Mã tài sản theo quy ước thật: `TDL-PC-A101-001`.
-- 541 thuật ngữ Việt hoá bổ sung + 212 mục dạng số nhiều; menu, biểu mẫu và nhãn
+- 556 thuật ngữ Việt hoá bổ sung + 212 mục dạng số nhiều; menu, biểu mẫu và nhãn
   dashboard đã Việt hoá.
 - 79 loại sự cố được phân loại sẵn; 12 toà nhà, 54 phòng máy, 16 khoa.
-- 5 tài liệu tiếng Việt trong `tai-lieu/`, cộng `README.md`.
+- 10 tài liệu tiếng Việt trong `tai-lieu/`, cộng `README.md` và bộ slide bảo vệ.
 - Ảnh dashboard thật: `landing/dashboard-preview.png` (sinh từ hệ thống đang chạy,
   dữ liệu thật, đã Việt hoá).
 
@@ -84,7 +85,7 @@ Ràng buộc:
 - `landing/qr-sample.png` — mã QR mẫu của một thiết bị.
 - `landing/fonts/` — 16 tệp font `.woff2` có subset tiếng Việt.
 - Bộ biểu tượng SVG nội bộ nhúng sẵn trong `landing/index.html`.
-- `tai-lieu/anh-giao-dien/` — 19 ảnh minh chứng giao diện thực tế, được README
+- `tai-lieu/anh-giao-dien/` — 21 ảnh minh chứng giao diện thực tế, được README
   nhúng trực tiếp. Phần lớn sinh bằng `node scripts/chup-lai-anh-minh-chung.js`
   (cần `GLPI_PASS`), ảnh landing do `scripts/kiem-tra-landing.js`, ảnh nhãn QR do
   `scripts/sinh-ma-qr.py`. Hai ảnh luồng in qua plugin Barcode cần tài khoản quản

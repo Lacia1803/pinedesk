@@ -455,6 +455,24 @@
     --dlu-muc-nhat: #7C8570;
     --dlu-ke: rgba(230, 234, 219, 0.16);
 
+    /* BA DẢI NỀN TRANG TỰ PHỤC VỤ Ở CHẾ ĐỘ TỐI.
+       VÌ SAO CẦN:
+         GLPI gán cứng ba biến này trong bảng màu tối của nó (auror_dark.scss):
+             --glpi-helpdesk-header:          hsl(213.9deg, 27.1%, 30.7%)
+             --glpi-helpdesk-tiles-section-bg: hsl(213.9deg, 27.1%, 25.7%)
+             --glpi-helpdesk-tabs-section-bg:  hsl(213.9deg, 27.1%, 20.7%)
+         Ba giá trị đó là XANH DƯƠNG. Nền sáng thì chúng vẫn được suy ra từ
+         --glpi-mainmenu-bg (xanh rêu Đà Lạt), nhưng sang chế độ tối thì bị ghim
+         màu cứng -> dải đầu trang tự phục vụ hoá xanh dương, lệch hẳn khỏi tông
+         xanh rêu của phần còn lại (đã chụp ảnh kiểm chứng).
+       CÁCH SỬA:
+         Đưa cả ba về đúng tông Đà Lạt về đêm. Dải đầu trang lấy lại đúng công
+         thức gốc của GLPI (suy từ màu thanh menu) nhưng hạ độ sáng xuống cho
+         hợp nền tối; hai dải còn lại dùng token nền của đồ án. */
+    --glpi-helpdesk-header: hsl(from var(--glpi-mainmenu-bg) h s 24%);
+    --glpi-helpdesk-tiles-section-bg: var(--dlu-giay-vua);
+    --glpi-helpdesk-tabs-section-bg: var(--dlu-giay);
+
     /* Trường đường bình độ trên thanh menu: đổi nét trắng mờ thành nét sáng
        hơn một chút, vì nền thanh menu ở chế độ tối cũng đã tối sẵn. */
     --dlu-binh-do: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.07' stroke-width='1'%3E%3Cpath d='M-20,40 C40,10 90,64 150,34 C200,8 230,44 260,26'/%3E%3Cpath d='M-20,88 C40,58 90,112 150,82 C200,56 230,92 260,74'/%3E%3Cpath d='M-20,136 C40,106 90,160 150,130 C200,104 230,140 260,122'/%3E%3Cpath d='M-20,184 C40,154 90,208 150,178 C200,152 230,188 260,170'/%3E%3Cpath d='M-20,232 C40,202 90,256 150,226 C200,200 230,236 260,218'/%3E%3C/g%3E%3C/svg%3E");
@@ -1060,6 +1078,41 @@ header.navbar .breadcrumb-item a {
 header.navbar .breadcrumb-item.active {
     color: var(--dlu-muc);
     font-weight: 600;
+}
+
+/* --- 4B-bis. TƯƠNG PHẢN THANH TRÊN CÙNG CỦA TRANG TỰ PHỤC VỤ -------------
+   VÌ SAO CẦN:
+     Trang tự phục vụ (Helpdesk) dựng thanh này với class `navbar-dark` — Tabler
+     hiểu là "nền tối" nên đặt màu chữ kem #F5F2E8 (--dlu-on-primary). Nhưng
+     4B ngay trên đã đổi nền thanh thành GIẤY SÁNG (--dlu-giay-nhat). Kết quả:
+     chữ kem trên nền giấy -> các mục "Trang chủ / Tạo phiếu yêu cầu / Phiếu
+     yêu cầu / Các đặt chỗ / FAQ" gần như vô hình (đã chụp ảnh kiểm chứng).
+   VÌ SAO CHỈ NHẮM `navbar-dark`:
+     Các trang kỹ thuật viên/quản trị dựng thanh bằng `navbar-light` nên chữ đã
+     đúng màu mực — không dính lỗi. Chỉ trang tự phục vụ mang `navbar-dark`.
+   Đây là chữ trên nền SÁNG nên phải là mực, không phải màu chữ-trên-nền-tối. */
+header.navbar.navbar-dark {
+    color: var(--dlu-muc);
+}
+
+header.navbar.navbar-dark .nav-link,
+header.navbar.navbar-dark .dropdown-toggle {
+    /* --dlu-muc là mực chính, TỰ ĐỔI theo chế độ: #26301A ở nền sáng,
+       #E6EADB ở chế độ tối. Dùng nó để chữ đọc được ở CẢ HAI chế độ — nếu
+       ghim một màu đậm cố định thì chế độ tối (nền #1F2416) sẽ thành chữ sẫm
+       trên nền sẫm. */
+    color: var(--dlu-muc) !important;
+    /* Tabler đặt opacity .7 cho nav-link của navbar-dark (mặc định nền tối nên
+       chữ kem mờ đi vẫn đủ tương phản). Trên nền giấy sáng thì .7 làm chữ mờ
+       hẳn -> ép về 1. */
+    opacity: 1 !important;
+}
+
+header.navbar.navbar-dark .nav-link:hover,
+header.navbar.navbar-dark .nav-link:focus,
+header.navbar.navbar-dark .nav-link.active,
+header.navbar.navbar-dark .dropdown-toggle:hover {
+    color: var(--dlu-primary) !important;
 }
 
 /* Ô tìm kiếm trên thanh trên cùng */

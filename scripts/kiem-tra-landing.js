@@ -3,7 +3,7 @@
    Kiểm: tài nguyên tải được, kiểu chữ nội bộ, anchor, ảnh, lỗi console.
    Dùng:  node scripts/kiem-tra-landing.js
    --------------------------------------------------------------------------- */
-const puppeteer = require('puppeteer-core');
+const { chromium } = require('playwright-core');
 const fs = require('fs');
 const path = require('path');
 
@@ -16,13 +16,17 @@ const OUT = '.tmp-check';
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
 
-  const b = await puppeteer.launch({
+  const b = await chromium.launch({
     executablePath: CHROME,
-    headless: 'new',
-    args: ['--ignore-certificate-errors', '--no-sandbox'],
-    defaultViewport: { width: 1440, height: 1000 },
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
   });
-  const p = await b.newPage();
+  // Chung chi tu ky cua do an -> phai bo qua loi chung chi.
+  const ctx = await b.newContext({
+    ignoreHTTPSErrors: true,
+    viewport: { width: 1440, height: 1000 },
+  });
+  const p = await ctx.newPage();
 
   const hong = [];          // request thất bại / trả mã lỗi
   const loiConsole = [];
@@ -30,7 +34,7 @@ const OUT = '.tmp-check';
   p.on('response', r => { if (r.status() >= 400) hong.push(r.status() + ' ' + r.url()); });
   p.on('console', m => { if (m.type() === 'error') loiConsole.push(m.text().slice(0, 220)); });
 
-  const resp = await p.goto(URL_TRANG, { waitUntil: 'networkidle2', timeout: 60000 });
+  const resp = await p.goto(URL_TRANG, { waitUntil: 'networkidle', timeout: 60000 });
   await new Promise(r => setTimeout(r, 2500));
 
   console.log('HTTP:', resp.status());

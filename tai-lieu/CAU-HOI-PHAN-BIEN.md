@@ -182,7 +182,7 @@ cập nhật.
 ### D2. "GLPI có sẵn hết rồi, em làm được gì?"
 
 > **Trả lời:** GLPI cho em **lõi nghiệp vụ** (ticket, asset, SLA) — em không viết
-> lại. Việc của em: Việt hoá (541 thuật ngữ + 212 mục), giao diện Đà Lạt, dữ liệu
+> lại. Việc của em: Việt hoá (556 thuật ngữ + 212 mục), giao diện Đà Lạt, dữ liệu
 > nghiệp vụ DLU, hạ tầng 4 container + HTTPS + bảo mật, chống lạm dụng, CI, tài
 > liệu, và **cài bằng một lệnh**. Toàn bộ nằm ngoài lõi → nâng cấp GLPI không mất.
 

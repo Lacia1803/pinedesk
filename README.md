@@ -79,7 +79,7 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 | **Bảo trì định kỳ** | Lịch sử sửa chữa theo từng thiết bị; lịch bảo trì tạo qua giao diện GLPI |
 | **Dashboard** | Thống kê số thiết bị, sự cố, lịch bảo trì theo thời gian thực |
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
-| **Việt hoá** | Mặc định tiếng Việt, 541 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (31,8% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
+| **Việt hoá** | Mặc định tiếng Việt, 556 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (32,0% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
 | **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
@@ -134,6 +134,7 @@ pinedesk/
 ├── .github/workflows/ci.yml     # ★ Pipeline kiểm tra tự động (6 nhóm)
 ├── docker-compose.yml           # Định nghĩa 4 dịch vụ Docker
 ├── .env                         # Biến môi trường (chứa mật khẩu)
+├── package.json                 # Khai báo playwright-core (công cụ trình duyệt)
 ├── start.sh                     # Khởi động hệ thống
 ├── config/                      # Cấu hình PHP (QR, bảo mật)
 ├── nginx/                       # Gateway: HTTPS, rate limit, bảo mật
@@ -159,10 +160,12 @@ pinedesk/
 │   ├── gop-ban-dich-tieng-viet.py  # Gộp bản dịch (không mất chuỗi + và số nhiều)
 │   ├── do-do-phu-tieng-viet.py  #   Đo tỉ lệ Việt hoá
 │   ├── bo-sung-tieng-viet.py    #   Từ điển thuật ngữ (đơn + số nhiều)
-│   ├── chup-lai-anh-minh-chung.js  # Chụp 19 ảnh minh chứng (một màn hình một ảnh)
+│   ├── chup-lai-anh-minh-chung.js  # Chụp ảnh minh chứng (một màn hình một ảnh)
 │   ├── chup-anh-qr-admin.js     #   Chụp luồng in QR (cần tài khoản quản trị)
 │   ├── chup-anh-dashboard.js    #   Chụp ảnh bảng điều khiển cho landing page
 │   ├── chup-anh-tung-khu.js     #   Chụp riêng từng khu để soi thiết kế
+│   ├── kiem-tra-chuc-nang.sh    # ★ Kiểm chức năng + phân quyền theo vai trò
+│   ├── kiem-tra-usecase.js      # ★ Ba use case thật chạy end-to-end (Playwright)
 │   ├── kiem-tra-landing.js      #   Kiểm tra landing (anchor, ảnh, font, console)
 │   ├── kiem-tra-font.py         #   Đo phủ ký tự thật trong tệp font
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
@@ -177,6 +180,7 @@ pinedesk/
     ├── CHONG-LAM-DUNG.md                  # ★ 6 tầng chống spam (trả lời phản biện)
     ├── CAU-HOI-PHAN-BIEN.md               # ★ Bộ câu hỏi hội đồng + cách trả lời
     ├── KICH-BAN-DEMO.md                   # ★ Kịch bản trình diễn 7 phút + dự phòng
+    ├── BAO-CAO-THUC-TAP.md                # ★ Báo cáo thực tập tốt nghiệp (đầy đủ)
     ├── slide-bao-ve.html                  # ★ 7 slide bảo vệ, chạy ngoại tuyến
     └── anh-giao-dien/                     # Ảnh chụp giao diện thực tế
 ```
@@ -190,7 +194,8 @@ bash scripts/nap-du-lieu-mau.sh
 ```
 
 Kết quả: **17 máy tính · 5 màn hình · 3 máy in · 9 thiết bị mạng · 10 phần mềm ·
-13 phiếu sự cố (đủ 4 trạng thái) · 6 tài khoản 3 vai trò**.
+13 phiếu sự cố (đủ 4 trạng thái) · 6 tài khoản 3 vai trò**. Riêng bản cài đầy đủ
+(`cai-dat-tat-ca.sh`) nạp thêm **1 phiếu mượn thiết bị**, nâng tổng số phiếu lên **14**.
 
 | Tài khoản | Mật khẩu | Vai trò |
 |---|---|---|
@@ -238,7 +243,7 @@ sườn đồi, đưa chuột lên một lớp thì dải tương ứng sáng l�
 - Ảnh dashboard trong trang sinh tự động bằng `node scripts/chup-anh-dashboard.js`
   (dữ liệu thật, đã Việt hoá, đã ẩn banner cảnh báo kỹ thuật).
 
-**Tài liệu trong trang:** sáu thẻ tài liệu trỏ tới `tai-lieu/*.md` và `README.md`
+**Tài liệu trong trang:** mười hai thẻ tài liệu trỏ tới `tai-lieu/*.md` và `README.md`
 ở gốc mã nguồn. Gateway mount thêm hai đường dẫn này và phục vụ dưới dạng
 `text/plain` để mở xem ngay trên trình duyệt (xem `nginx/conf.d/default.conf`).
 
@@ -272,9 +277,14 @@ python scripts/kiem-tra-font.py      # Đo phủ ký tự thật trong tệp fon
 
 # Chụp ảnh giao diện (cần đăng nhập) — mật khẩu lấy từ biến môi trường:
 #   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
-node   scripts/chup-lai-anh-minh-chung.js # Chụp 19 ảnh minh chứng cho README
+node   scripts/chup-lai-anh-minh-chung.js # Chụp ảnh minh chứng cho README
 node   scripts/chup-anh-dashboard.js # Chụp lại ảnh dashboard cho landing page
 #   Hai ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
+
+# Kiểm tra chức năng (dùng chung công cụ Playwright, cần đăng nhập):
+#   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-chuc-nang.sh
+bash   scripts/kiem-tra-chuc-nang.sh  # Mở từng trang chức năng, kiểm 200 + phân quyền 403
+node   scripts/kiem-tra-usecase.js    # Use case thật: nộp phiếu, đặt mượn thiết bị
 
 # Vận hành
 bash start.sh                        # Khởi động
@@ -297,6 +307,7 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 | [`CAU-HOI-PHAN-BIEN.md`](tai-lieu/CAU-HOI-PHAN-BIEN.md) | Bộ câu hỏi hội đồng thường hỏi + cách trả lời kèm bằng chứng |
 | [`KICH-BAN-DEMO.md`](tai-lieu/KICH-BAN-DEMO.md) | Kịch bản trình diễn 7 phút, kèm phương án dự phòng |
 | [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 7 slide bảo vệ, tự chứa, chạy được khi không có mạng |
+| [`BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | **Báo cáo thực tập tốt nghiệp** — toàn bộ quá trình, kết quả và hạn chế |
 
 ## Kiểm thử tự động (CI)
 

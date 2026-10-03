@@ -31,16 +31,16 @@
 
 ### A.2. Kiểm tra tiếng Việt — **CÂU TRẢ LỜI TRUNG THỰC**
 
-> ⚠️ **CHƯA ĐẠT 100% TIẾNG VIỆT — hiện tại là 31,8%.**
+> ⚠️ **CHƯA ĐẠT 100% TIẾNG VIỆT — hiện tại là 32,0%.**
 
 Số liệu đo bằng `scripts/do-do-phu-tieng-viet.py` (đọc file `.mo` thật trong GLPI):
 
 | Chỉ số | Số lượng |
 |---|---|
 | Tổng số chuỗi GLPI cần dịch | 6.511 |
-| Đã dịch | 2.070 |
-| Còn thiếu | 4.441 |
-| **Tỉ lệ hiện tại** | **31,8%** |
+| Đã dịch | 2.084 |
+| Còn thiếu | 4.427 |
+| **Tỉ lệ hiện tại** | **32,0%** |
 
 > **Bổ sung phiên 19/09:** đã Việt hóa thêm **9 nhãn thẻ đếm trạng thái phiếu** trên
 > trang Hỗ trợ — đây là các nhãn *nổi bật nhất* của trang nhưng bản dịch `vi_VN`
@@ -238,7 +238,7 @@ khiến một số chỗ **vẫn hiện tiếng Anh dù từ điển đã có b�
 
 Bản dịch `vi_VN` chính thức của GLPI để nguyên `msgstr[0] "Ticket"` (chưa dịch) ở
 entry số nhiều. Vì từ điển chỉ tác động lên entry **đơn**, dạng số nhiều **không
-bao giờ được vá** — nên bảng điều khiển hiện `13 Ticket` trong khi mọi thẻ khác
+bao giờ được vá** — nên bảng điều khiển hiện `14 Ticket` trong khi mọi thẻ khác
 đã là tiếng Việt.
 
 **Cách khắc phục trong đồ án:** thêm bảng `BAN_DICH_SO_NHIEU` (212 mục) và hàm
@@ -294,13 +294,14 @@ python scripts/gop-ban-dich-tieng-viet.py
 # Đo tỉ lệ Việt hoá
 python scripts/do-do-phu-tieng-viet.py
 
-# Chụp 19 ảnh minh chứng trong README (một màn hình một ảnh)
+# Chụp ảnh minh chứng trong README (một màn hình một ảnh)
 # - Mật khẩu KHÔNG hardcode: truyền qua GLPI_PASS.
-# - NODE_PATH trỏ tới node_modules có puppeteer-core (cài bằng `npm i puppeteer-core`).
+# - Cần cài phụ thuộc một lần: `npm install` (cài playwright-core, điều khiển
+#   Chrome có sẵn trên máy — KHÔNG tải thêm trình duyệt).
 # - Nếu Chrome không nằm ở đường dẫn mặc định, đặt thêm CHROME_PATH.
 # - Hai ảnh luồng in QR cần quyền quản trị, chụp riêng bằng scripts/chup-anh-qr-admin.js.
+npm install
 GLPI_USER=ktv.an GLPI_PASS='<mật khẩu>' \
-NODE_PATH="<DUONG-DAN>/node_modules" \
   node scripts/chup-lai-anh-minh-chung.js
 
 # Sinh mã QR cho thiết bị
@@ -328,7 +329,7 @@ pinedesk/
 │   ├── tao-mo-bo-sung.py          ← tạo lớp phủ bản dịch
 │   ├── gop-ban-dich-tieng-viet.py ← gộp bản dịch (không mất chuỗi)
 │   ├── do-do-phu-tieng-viet.py    ← đo tỉ lệ Việt hoá
-│   ├── chup-lai-anh-minh-chung.js ← chụp 19 ảnh minh chứng (một màn hình một ảnh)
+│   ├── chup-lai-anh-minh-chung.js ← chụp ảnh minh chứng (một màn hình một ảnh)
 │   └── sinh-ma-qr.py              ← sinh mã QR thiết bị
 └── tai-lieu/anh-giao-dien/        ← ảnh chụp giao diện thực tế
 ```

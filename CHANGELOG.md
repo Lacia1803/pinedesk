@@ -3,6 +3,73 @@
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [0.3.0] — 2026-10-03 — "Chuẩn hoá số liệu và vá lỗi dữ liệu mẫu cho báo cáo lần 2"
+
+**Bối cảnh:** chuẩn bị báo cáo lần 2. Trước khi trình bày, đồ án rà soát lại
+toàn bộ số liệu trong tài liệu đối chiếu với hệ thống chạy thật, và chạy cài
+đặt trên **máy sạch (xoá sạch volume)** để kiểm chứng.
+
+### Sửa (lỗi thật tìm thấy khi cài trên máy sạch)
+
+- **Dữ liệu mẫu âm thầm thiếu 4 thiết bị.** `seed-du-lieu-mau.sql` tham chiếu
+  tên vị trí **không khớp** với `seed-du-lieu-nen.sql`:
+  - `'Văn phòng Khoa Toán - Tin'` — sai, tên đúng là `'Văn phòng Khoa Toán - Tin học'`
+  - `'Phòng Lab C101'` — sai, tên đúng là `'Phòng thí nghiệm C101'`
+
+  Vì câu lệnh dùng `JOIN glpi_locations … ON l.name = s.loc`, các dòng không
+  khớp bị **bỏ qua trong im lặng**: thiếu **2 laptop, 1 máy in và 4 thiết bị
+  mạng** (kết quả thực tế chỉ 15 máy tính / 2 máy in / 5 thiết bị mạng thay vì
+  17 / 3 / 9). Đã sửa tên cho khớp; nay cài sạch cho đủ **17 máy tính · 5 màn
+  hình · 3 máy in · 9 thiết bị mạng · 10 phần mềm · 13 phiếu**.
+- **`scripts/kiem-tra-landing.js`:** biến `const URL = '…'` che khuất hàm tạo
+  `URL` toàn cục của Node, khiến phần kiểm liên kết tài liệu **luôn báo lỗi
+  `URL is not a constructor`** và bỏ qua toàn bộ phần kiểm còn lại. Đổi tên
+  thành `URL_TRANG`. Nay script kiểm được đủ 10 liên kết tài liệu (đều HTTP 200).
+- **`scripts/kiem-tra-tieng-viet.py`:** đo tỉ lệ Việt hoá từ file `.po` (đếm
+  thô theo dòng) nên ra một con số khác (36,3%) và **mâu thuẫn** với
+  `do-do-phu-tieng-viet.py` (đọc `.mo` thật). Viết lại để cùng đọc `.mo` đang
+  cài — hai script nay cho **cùng kết quả 31,8%**.
+
+### Sửa (số liệu tài liệu cho khớp hệ thống thật)
+
+- **Số phòng máy: 65 → 54.** Con số 65 không tái lập được trên máy sạch; seed
+  thực tế dựng **12 toà nhà + 54 phòng máy/lab = 67 vị trí**. Sửa ở `README.md`,
+  `PRODUCT.md`, `landing/index.html`, `BAI-TOAN-NGHIEP-VU.md`, `SO-SANH-VOI-GLPI-GOC.md`.
+- **Từ điển Việt hoá: 443 → 541 thuật ngữ.** Từ điển đã được bổ sung lên 541
+  nhưng tài liệu còn ghi 443. Sửa đồng bộ toàn bộ tài liệu và landing page.
+- **Độ phủ Việt hoá: 30,6% → 31,8%** (2.070/6.511 chuỗi, đo lại từ `.mo` thật).
+  Sửa ở `README.md`, `HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`, `HUONG-DAN-TRIEN-KHAI.md`,
+  `SO-SANH-VOI-GLPI-GOC.md`.
+- **Số dòng script:** làm mới **17 dòng** trong bảng kiểm kê `SO-SANH-VOI-GLPI-GOC.md`
+  (nhiều file đã dài thêm mà bảng chưa cập nhật).
+- Nêu rõ nguồn gốc các con số danh mục: "11 nguồn tiếp nhận" = 5 nguồn của đồ án
+  + 6 nguồn gốc GLPI; "11 nhóm phần mềm" = 10 của đồ án + 1 gốc GLPI.
+
+### Thêm mới
+
+- **Trang giới thiệu:** thêm 2 thẻ tài liệu (`KICH-BAN-DEMO.md`, `slide-bao-ve.html`)
+  — từ 9 lên 11 liên kết; nêu đúng "mười tài liệu".
+- **`nginx/conf.d/default.conf`:** thêm `location` riêng cho
+  `/tai-lieu/slide-bao-ve.html` trả `text/html` — trước đây bị `location /tai-lieu/`
+  ép `text/plain` nên slide hiện ra dưới dạng văn bản thô thay vì trình chiếu.
+- **CI (`smoke`):** thêm 2 cửa kiểm mới chống lệch số liệu:
+  - *"Danh mục nghiệp vụ phải khớp số liệu tài liệu"* — chốt 12 toà nhà / 54 phòng
+    / 67 vị trí / 79 loại sự cố.
+  - *"Dữ liệu demo phải đủ 34 tài sản"* — chốt 17 máy tính / 5 màn hình / 3 máy in
+    / 9 thiết bị mạng / 10 phần mềm / 14 phiếu, và **không thiết bị nào thiếu vị trí**
+    (chính là lỗi JOIN ở trên).
+  - CI cũng mount thêm `tai-lieu/` và `README.md` khi chạy `nginx -t` cho khớp
+    `docker-compose.yml`.
+- **`tai-lieu/anh-giao-dien/`:** bổ sung ảnh minh chứng cho các hạng mục mới.
+
+### Ghi chú
+
+- Bản 0.1.0 ghi "443 thuật ngữ / 30,6%" là **đúng tại thời điểm đó**; các mục
+  trong nhật ký là bản ghi lịch sử, không sửa lại.
+- Việc kiểm chứng được thực hiện bằng cách **xoá sạch volume** rồi cài lại từ đầu
+  (`docker compose down -v` → `up -d` → `cai-dat-tat-ca.sh`), không dựa vào dữ
+  liệu còn sót lại từ lần chạy trước.
+
 ---
 
 ## [0.2.0] — 2026-10-02 — "Từ lý thuyết sang nghiệp vụ thật"

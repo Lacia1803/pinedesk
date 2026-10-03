@@ -149,6 +149,8 @@ jobs:
             -v "$PWD/nginx/conf.d:/etc/nginx/conf.d:ro" \
             -v "$PWD/nginx/ssl:/etc/nginx/ssl:ro" \
             -v "$PWD/landing:/usr/share/nginx/html/landing:ro" \
+            -v "$PWD/tai-lieu:/usr/share/nginx/html/tai-lieu:ro" \
+            -v "$PWD/README.md:/usr/share/nginx/html/README.md:ro" \
             nginx:1.27-alpine nginx -t
 
   # --------------------------------------------------------------------------
@@ -292,6 +294,40 @@ jobs:
           [ "$CODE" = "200" ] || [ "$CODE" = "302" ] || { echo "[LOI] Trang GLPI tra $CODE"; exit 1; }
           echo "[OK] GLPI phan hoi $CODE"
 
+      # ----------------------------------------------------------------------
+      # Plugin phai duoc CAI + BAT that su (khong chi UPDATE bang tay)
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.3.0: tren CSDL sach, bang glpi_plugins RONG nen
+      # UPDATE ... SET state=1 khop 0 dong -> giao dien Da Lat + logo + QR
+      # deu 404 du script bao [OK]. Job nay chay dung luong cai plugin cua
+      # GLPI (plugin:install + plugin:activate) roi kiem tra CSS/logo that.
+      - name: Plugin QR + giao dien DLU phai hoat dong that
+        run: |
+          bash scripts/cai-plugin-qrcode.sh
+          docker exec -u www-data pinedesk-glpi sh -c \
+            'cd /var/www/glpi && php bin/console plugin:install dlubrand -u glpi' || true
+          docker exec -u www-data pinedesk-glpi sh -c \
+            'cd /var/www/glpi && php bin/console plugin:activate dlubrand' || true
+
+          N=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_plugins WHERE state=1;"' | tr -d '\r')
+          echo "Plugin dang bat: $N"
+          [ "$N" -ge 2 ] || { echo "[LOI] Phai co >= 2 plugin dang bat, thuc te $N"; exit 1; }
+
+          echo "--- CSS giao dien Da Lat ---"
+          C=$(curl -sSk -o /dev/null -w '%{http_code}' \
+              https://localhost:8443/plugins/dlubrand/css/dlu-theme.css)
+          echo "  HTTP $C"
+          [ "$C" = "200" ] || { echo "[LOI] CSS giao dien Da Lat tra $C (plugin chua bat?)"; exit 1; }
+
+          echo "--- Logo DLU qua plugin ---"
+          L=$(curl -sSk -o /dev/null -w '%{http_code}' \
+              https://localhost:8443/plugins/dlubrand/pics/logos/logo-DLU-100.png)
+          echo "  HTTP $L"
+          [ "$L" = "200" ] || { echo "[LOI] Logo DLU tra $L"; exit 1; }
+          echo "[OK] Plugin + giao dien Da Lat hoat dong that"
+
       - name: Kiem tra TLS co SAN khi handshake that
         run: |
           echo | openssl s_client -connect localhost:8443 \
@@ -352,6 +388,87 @@ jobs:
           echo "So luot muon: $V"
           [ "$V" -ge 2 ] || { echo "[LOI] Thieu luot muon (mong doi >= 2)"; exit 1; }
           echo "[OK] Lich bao tri + luong muon/tra da nam trong CSDL"
+
+      # ----------------------------------------------------------------------
+      # Kiem tra DANH MUC NGHIEP VU (du lieu nen) - chan tai lieu sai so lieu
+      # ----------------------------------------------------------------------
+      # Cac con so trong README/tai-lieu phai khop CSDL that. Neu ai sua seed
+      # ma quen cap nhat tai lieu (hoac nguoc lai), job nay do ngay.
+      - name: Danh muc nghiep vu phai khop so lieu tai lieu
+        run: |
+          bash scripts/nap-du-lieu-nen.sh
+          Q() { docker exec pinedesk-db sh -c \
+                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+
+          B=$(Q "SELECT COUNT(*) FROM glpi_locations WHERE level = 2;")
+          R=$(Q "SELECT COUNT(*) FROM glpi_locations WHERE level = 3;")
+          L=$(Q "SELECT COUNT(*) FROM glpi_locations;")
+          C=$(Q "SELECT COUNT(*) FROM glpi_itilcategories;")
+          echo "Toa nha (cap 2): $B | Phong may/lab (cap 3): $R | Vi tri (tong): $L"
+          echo "Loai su co (2 cap): $C"
+
+          [ "$B" = "12" ] || { echo "[LOI] Toa nha: mong doi 12, thuc te $B"; exit 1; }
+          [ "$R" = "54" ] || { echo "[LOI] Phong may: mong doi 54, thuc te $R"; exit 1; }
+          [ "$L" = "67" ] || { echo "[LOI] Vi tri (tong): mong doi 67, thuc te $L"; exit 1; }
+          [ "$C" = "79" ] || { echo "[LOI] Loai su co: mong doi 79, thuc te $C"; exit 1; }
+          echo "[OK] Danh muc nghiep vu khop: 12 toa nha / 54 phong / 67 vi tri / 79 loai su co"
+
+      # ----------------------------------------------------------------------
+      # Du lieu demo phai du, KHONG duoc am tham mat thiet bi
+      # ----------------------------------------------------------------------
+      # Tung co loi that: seed-du-lieu-mau.sql tham chieu ten vi tri khong
+      # khop voi seed-du-lieu-nen.sql ('Văn phòng Khoa Toán - Tin' vs
+      # '... - Tin học'), khien JOIN vi tri that bai va 4 thiet bi bi bo qua
+      # trong im lang. Job nay chot so luong de khong tai dien.
+      - name: Du lieu demo phai du 34 tai san (khong mat thiet bi)
+        run: |
+          bash scripts/nap-du-lieu-mau.sh
+          Q() { docker exec pinedesk-db sh -c \
+                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+
+          PC=$(Q "SELECT COUNT(*) FROM glpi_computers;")
+          MON=$(Q "SELECT COUNT(*) FROM glpi_monitors;")
+          PRN=$(Q "SELECT COUNT(*) FROM glpi_printers;")
+          NET=$(Q "SELECT COUNT(*) FROM glpi_networkequipments;")
+          SW=$(Q "SELECT COUNT(*) FROM glpi_softwares;")
+          TK=$(Q "SELECT COUNT(*) FROM glpi_tickets;")
+          echo "May tinh: $PC | Man hinh: $MON | May in: $PRN | Thiet bi mang: $NET"
+          echo "Phan mem: $SW | Phieu: $TK"
+
+          [ "$PC" = "17" ]  || { echo "[LOI] May tinh: mong doi 17, thuc te $PC"; exit 1; }
+          [ "$MON" = "5" ]  || { echo "[LOI] Man hinh: mong doi 5, thuc te $MON"; exit 1; }
+          [ "$PRN" = "3" ]  || { echo "[LOI] May in: mong doi 3, thuc te $PRN"; exit 1; }
+          [ "$NET" = "9" ]  || { echo "[LOI] Thiet bi mang: mong doi 9, thuc te $NET"; exit 1; }
+          [ "$SW" = "10" ]  || { echo "[LOI] Phan mem: mong doi 10, thuc te $SW"; exit 1; }
+          [ "$TK" = "14" ]  || { echo "[LOI] Phieu: mong doi 14 (13 demo + 1 phieu muon), thuc te $TK"; exit 1; }
+
+          # Moi tai san phai co vi tri (level 3) hop le -> bat loi ten vi tri lech
+          ORPHAN=$(Q "SELECT COUNT(*) FROM glpi_computers WHERE locations_id = 0;")
+          [ "$ORPHAN" = "0" ] || { echo "[LOI] $ORPHAN may tinh thieu vi tri"; exit 1; }
+          echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 14 phieu"
+
+      - name: Tu dien Viet hoa phai du 541 thuat ngu + 212 so nhieu
+        run: |
+          python - <<'PY'
+          import re
+          s = open('scripts/bo-sung-tieng-viet.py', encoding='utf-8').read()
+          def dem(name):
+              i = s.index(name + ' = {')
+              j = s.index('{', i) + 1
+              start = j
+              depth = 1
+              while depth:
+                  if s[j] == '{': depth += 1
+                  elif s[j] == '}': depth -= 1
+                  j += 1
+              return len(re.findall(r'\n\s*"((?:[^"\\]|\\.)*)"\s*:', s[start:j]))
+          don   = dem('BAN_DICH_BO_SUNG')
+          nhieu = dem('BAN_DICH_SO_NHIEU')
+          print(f'Thuat ngu don: {don} | Muc so nhieu: {nhieu}')
+          assert don == 541, f'mong doi 541 thuat ngu don, thuc te {don}'
+          assert nhieu == 212, f'mong doi 212 muc so nhieu, thuc te {nhieu}'
+          print('[OK] Tu dien Viet hoa khop tai lieu: 541 + 212')
+          PY
 
       - name: Script kiem tra lam dung phai chay duoc
         run: |

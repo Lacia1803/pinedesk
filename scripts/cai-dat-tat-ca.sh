@@ -123,10 +123,69 @@ docker exec pinedesk-db sh -c \
   'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "SELECT directory,state FROM glpi_plugins;"' \
   2>/dev/null | sed 's/^/      /'
 
-docker exec pinedesk-db sh -c \
-  'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "UPDATE glpi_plugins SET state=1 WHERE directory IN (\"barcode\",\"dlubrand\");"' \
-  >/dev/null 2>&1
-ok "Da bat plugin barcode (QR) va dlubrand (giao dien Da Lat)"
+# --- Cai + bat plugin dung co che CUA GLPI -----------------------------------
+# BAI HOC TU LOI THAT (ban 0.3.0): ban cu chi chay
+#     UPDATE glpi_plugins SET state=1 WHERE directory IN ('barcode','dlubrand')
+# Tren MAY SACH bang glpi_plugins RONG, cau UPDATE khop 0 dong -> plugin
+# KHONG duoc bat, ma script van bao "[OK]". Hau qua: toan bo giao dien Da Lat,
+# logo va plugin QR deu 404 (da kiem chung bang curl).
+#
+# Cach dung: goi CLI chinh thuc cua GLPI 11 (plugin:install + plugin:activate).
+#   - `-u www-data`: chay dung nguoi dung webserver, tranh canh bao quyen.
+#   - Tuy chon `-u glpi` (user dang nhap) CHI co o plugin:install, KHONG co o
+#     plugin:activate -> truyen khac nhau cho tung lenh.
+activate_plugin() {   # $1 = ten thu muc plugin
+    local dir="$1"
+    local co_mat
+    co_mat=$(docker exec pinedesk-glpi sh -c \
+        "test -f /var/www/glpi/plugins/$dir/setup.php && echo CO" 2>/dev/null)
+    if [ "$co_mat" != "CO" ]; then
+        warn "Plugin '$dir' khong co trong thu muc plugins -> bo qua"
+        return 1
+    fi
+    # Buoc 1: dang ky plugin (tao dong trong glpi_plugins) neu chua co.
+    local state
+    state=$(docker exec pinedesk-db sh -c \
+        "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \
+         \"SELECT state FROM glpi_plugins WHERE directory='$dir';\"" 2>/dev/null | tr -d '\r')
+    if [ -z "$state" ]; then
+        docker exec -u www-data pinedesk-glpi sh -c \
+          "cd /var/www/glpi && php bin/console plugin:install $dir -u glpi" \
+          >/dev/null 2>&1 || true
+    fi
+    # Buoc 2: bat plugin.
+    docker exec -u www-data pinedesk-glpi sh -c \
+      "cd /var/www/glpi && php bin/console plugin:activate $dir" \
+      >/dev/null 2>&1 || true
+    # Buoc 3: kiem chung THAT SU da bat chua (state=1).
+    state=$(docker exec pinedesk-db sh -c \
+        "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \
+         \"SELECT state FROM glpi_plugins WHERE directory='$dir';\"" 2>/dev/null | tr -d '\r')
+    if [ "$state" = "1" ]; then
+        ok "Plugin '$dir' da bat (state=1)"
+    else
+        err "Plugin '$dir' CHUA bat duoc (state='${state:-khong co}')"
+        return 1
+    fi
+}
+
+# Plugin barcode (QR): tai tu GitHub neu thieu (khong co san trong image GLPI).
+if [ ! -f "$HERE/cai-plugin-qrcode.sh" ]; then
+    warn "Thieu cai-plugin-qrcode.sh -> bo qua plugin QR"
+else
+    if ! docker exec pinedesk-glpi sh -c \
+         'test -f /var/www/glpi/plugins/barcode/setup.php' 2>/dev/null; then
+        info "Chua co plugin barcode -> tai & cai..."
+        if bash "$HERE/cai-plugin-qrcode.sh" >/tmp/_qrcode.log 2>&1; then
+            ok "Da cai plugin barcode (QR)"
+        else
+            warn "Cai plugin barcode that bai (xem /tmp/_qrcode.log) — bo qua"
+        fi
+    fi
+fi
+# Plugin giao dien DLU: da mount san tu docker-compose.yml.
+activate_plugin barcode    || true
+activate_plugin dlubrand   || { err "Khong bat duoc plugin giao dien DLU"; LOI=1; }
 
 # --- QUAN TRONG: thu muc xuat file QR cua plugin barcode ---------------------
 # Plugin ghi file PDF vao GLPI_PLUGIN_DOC_DIR.'/barcode/' = /var/glpi/files/_plugins/barcode/.

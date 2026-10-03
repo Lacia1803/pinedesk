@@ -79,7 +79,7 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 | **Bảo trì định kỳ** | Lịch sử sửa chữa theo từng thiết bị; lịch bảo trì tạo qua giao diện GLPI |
 | **Dashboard** | Thống kê số thiết bị, sự cố, lịch bảo trì theo thời gian thực |
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
-| **Việt hoá** | Mặc định tiếng Việt, 443 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (30,6% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
+| **Việt hoá** | Mặc định tiếng Việt, 541 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (31,8% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
 | **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
@@ -91,7 +91,7 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 ## Bắt đầu nhanh
 
 ```bash
-# Di chuyen vao thu muc goc cua du an (thay bang duong dan thuc tren may ban)
+# Di chuyển vào thư mục gốc của dự án (thay bằng đường dẫn thực trên máy bạn)
 cd duong-dan-toi/pinedesk
 bash scripts/cai-dat-tat-ca.sh
 ```
@@ -99,7 +99,7 @@ bash scripts/cai-dat-tat-ca.sh
 Script tự động làm 6 việc và báo kết quả từng bước:
 
 1. Khởi động 4 container (GLPI · MariaDB · Redis · Nginx)
-2. Nạp **danh mục nghiệp vụ**: 12 toà nhà · 65 phòng máy · 16 khoa · 10 phòng ·
+2. Nạp **danh mục nghiệp vụ**: 12 toà nhà · 54 phòng máy · 16 khoa · 10 phòng ·
    7 trung tâm · 10 trạng thái · 79 loại sự cố …
 3. Bật **plugin QR** + **plugin giao diện Đà Lạt**
 4. Nạp **bản dịch tiếng Việt** (gộp bản chính thức + bổ sung của đồ án)
@@ -114,7 +114,7 @@ từ biến môi trường `GLPI_PASS` (không truyền qua tham số dòng lệ
 ## Kiến trúc
 
 ```
-Nguoi dung --HTTPS:8443--> [ Nginx Gateway ]
+Người dùng --HTTPS:8443--> [ Nginx Gateway ]
                                     |
                           HTTP:80   |
                                     v
@@ -131,53 +131,55 @@ Database và Redis chỉ giao tiếp trong mạng nội bộ Docker, không lộ
 
 ```
 pinedesk/
-├── .github/workflows/ci.yml     # ★ Pipeline kiem tra tu dong (6 nhom)
-├── docker-compose.yml           # Dinh nghia 4 dich vu Docker
-├── .env                         # Bien moi truong (chua mat khau)
-├── start.sh                     # Khoi dong he thong
-├── config/                      # Cau hinh PHP (QR, bao mat)
-├── nginx/                       # Gateway: HTTPS, rate limit, bao mat
-│   └── ssl/openssl-san.cnf      #   Cau hinh sinh chung chi SSL (co SAN)
-├── themes/                      # Dang ky bang mau Da Lat (chi co ten file, KHONG chua mau)
-├── plugins/dlubrand/            # Plugin giao dien Da Lat (CSS + logo) — NGUON MAU DUY NHAT
-├── landing/                     # ★ Trang gioi thieu du an (nginx phuc vu tai /landing/)
-│   ├── index.html               #   Noi dung trang
-│   ├── assets/css/style.css     #   Thiet ke rieng (Da Lat + DLU)
-│   ├── fonts/                   #   16 tep .woff2 tu luu — chay duoc khi khong co mang
-│   └── dashboard-preview.png    #   Anh bang dieu khien (sinh tu du lieu that)
-├── scripts/                     # ★ Tat ca script tu dong hoa
-│   ├── cai-dat-tat-ca.sh        #   Cai toan bo, 1 lenh
-│   ├── nap-du-lieu-nen.sh       #   Nap danh muc nghiep vu
-│   ├── nap-du-lieu-mau.sh       #   ★ Nap du lieu demo (thiet bi, phieu, tai khoan)
-│   ├── seed-du-lieu-mau.sql     #     Du lieu mau
-│   ├── viet-hoa-du-lieu.sh      #   Viet hoa DU LIEU (ten don vi, ho so quyen)
-│   ├── nap-sla-va-chong-lam-dung.sh # ★ Nap SLA that + han muc chong spam
-│   ├── seed-sla-va-chong-lam-dung.sql #  SLA + bang nhat ky/han muc
-│   ├── kiem-tra-lam-dung.sh     # ★ Phat hien spam / trung phieu theo tai khoan
-│   ├── tai-font.py              #   Tai font ve may (co subset tieng Viet)
-│   ├── tao-mo-bo-sung.py        #   Tao lop phu ban dich
-│   ├── gop-ban-dich-tieng-viet.py  # Gop ban dich (khong mat chuoi + va so nhieu)
-│   ├── do-do-phu-tieng-viet.py  #   Do ti le Viet hoa
-│   ├── bo-sung-tieng-viet.py    #   Tu dien thuat ngu (don + so nhieu)
-│   ├── chup-lai-anh-minh-chung.js  # Chup 19 anh minh chung (mot man hinh mot anh)
-│   ├── chup-anh-qr-admin.js     #   Chup luong in QR (can tai khoan quan tri)
-│   ├── chup-anh-dashboard.js    #   Chup anh bang dieu khien cho landing page
-│   ├── chup-anh-tung-khu.js     #   Chup rieng tung khu de soi thiet ke
-│   ├── kiem-tra-landing.js      #   Kiem tra landing (anchor, anh, font, console)
-│   ├── kiem-tra-font.py         #   Do phu ky tu that trong tep font
-│   └── sinh-ma-qr.py            #   Sinh ma QR hang loat
-├── output-qr/                   # Ket qua sinh ma QR
-├── backup/                      # Script sao luu du lieu
-└── tai-lieu/                    # ★ Tai lieu huong dan + anh minh chung
-    ├── HUONG-DAN-TRIEN-KHAI.md            # Trien khai & van hanh
-    ├── HUONG-DAN-PLUGIN-QRCODE.md         # Plugin sinh ma QR
-    ├── HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md # Giao dien & Viet hoa
-    ├── THONG-TIN-DAI-HOC-DA-LAT.md        # Co cau to chuc DLU
-    ├── SO-SANH-VOI-GLPI-GOC.md            # ★ Cai thien gi so voi ban goc
-    ├── BAI-TOAN-NGHIEP-VU.md              # ★ Do an giai quyet van de gi cua Truong
-    ├── CHONG-LAM-DUNG.md                  # ★ 6 tang chong spam (tra loi phan bien)
-    ├── CAU-HOI-PHAN-BIEN.md               # ★ Bo cau hoi hoi dong + cach tra loi
-    └── anh-giao-dien/                     # Anh chup giao dien thuc te
+├── .github/workflows/ci.yml     # ★ Pipeline kiểm tra tự động (6 nhóm)
+├── docker-compose.yml           # Định nghĩa 4 dịch vụ Docker
+├── .env                         # Biến môi trường (chứa mật khẩu)
+├── start.sh                     # Khởi động hệ thống
+├── config/                      # Cấu hình PHP (QR, bảo mật)
+├── nginx/                       # Gateway: HTTPS, rate limit, bảo mật
+│   └── ssl/openssl-san.cnf      #   Cấu hình sinh chứng chỉ SSL (có SAN)
+├── themes/                      # Đăng ký bảng màu Đà Lạt (chỉ có tên file, KHÔNG chứa màu)
+├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (CSS + logo) — NGUỒN MÀU DUY NHẤT
+├── landing/                     # ★ Trang giới thiệu dự án (nginx phục vụ tại /landing/)
+│   ├── index.html               #   Nội dung trang
+│   ├── assets/css/style.css     #   Thiết kế riêng (Đà Lạt + DLU)
+│   ├── fonts/                   #   16 tệp .woff2 tự lưu — chạy được khi không có mạng
+│   └── dashboard-preview.png    #   Ảnh bảng điều khiển (sinh từ dữ liệu thật)
+├── scripts/                     # ★ Tất cả script tự động hoá
+│   ├── cai-dat-tat-ca.sh        #   Cài toàn bộ, 1 lệnh
+│   ├── nap-du-lieu-nen.sh       #   Nạp danh mục nghiệp vụ
+│   ├── nap-du-lieu-mau.sh       #   ★ Nạp dữ liệu demo (thiết bị, phiếu, tài khoản)
+│   ├── seed-du-lieu-mau.sql     #     Dữ liệu mẫu
+│   ├── viet-hoa-du-lieu.sh      #   Việt hoá DỮ LIỆU (tên đơn vị, hồ sơ quyền)
+│   ├── nap-sla-va-chong-lam-dung.sh # ★ Nạp SLA thật + hạn mức chống spam
+│   ├── seed-sla-va-chong-lam-dung.sql #  SLA + bảng nhật ký/hạn mức
+│   ├── kiem-tra-lam-dung.sh     # ★ Phát hiện spam / trùng phiếu theo tài khoản
+│   ├── tai-font.py              #   Tải font về máy (có subset tiếng Việt)
+│   ├── tao-mo-bo-sung.py        #   Tạo lớp phủ bản dịch
+│   ├── gop-ban-dich-tieng-viet.py  # Gộp bản dịch (không mất chuỗi + và số nhiều)
+│   ├── do-do-phu-tieng-viet.py  #   Đo tỉ lệ Việt hoá
+│   ├── bo-sung-tieng-viet.py    #   Từ điển thuật ngữ (đơn + số nhiều)
+│   ├── chup-lai-anh-minh-chung.js  # Chụp 19 ảnh minh chứng (một màn hình một ảnh)
+│   ├── chup-anh-qr-admin.js     #   Chụp luồng in QR (cần tài khoản quản trị)
+│   ├── chup-anh-dashboard.js    #   Chụp ảnh bảng điều khiển cho landing page
+│   ├── chup-anh-tung-khu.js     #   Chụp riêng từng khu để soi thiết kế
+│   ├── kiem-tra-landing.js      #   Kiểm tra landing (anchor, ảnh, font, console)
+│   ├── kiem-tra-font.py         #   Đo phủ ký tự thật trong tệp font
+│   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
+├── output-qr/                   # Kết quả sinh mã QR
+├── backup/                      # Script sao lưu dữ liệu
+└── tai-lieu/                    # ★ Tài liệu hướng dẫn + ảnh minh chứng
+    ├── HUONG-DAN-TRIEN-KHAI.md            # Triển khai & vận hành
+    ├── HUONG-DAN-PLUGIN-QRCODE.md         # Plugin sinh mã QR
+    ├── HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md # Giao diện & Việt hoá
+    ├── THONG-TIN-DAI-HOC-DA-LAT.md        # Cơ cấu tổ chức DLU
+    ├── SO-SANH-VOI-GLPI-GOC.md            # ★ Cải thiện gì so với bản gốc
+    ├── BAI-TOAN-NGHIEP-VU.md              # ★ Đồ án giải quyết vấn đề gì của Trường
+    ├── CHONG-LAM-DUNG.md                  # ★ 6 tầng chống spam (trả lời phản biện)
+    ├── CAU-HOI-PHAN-BIEN.md               # ★ Bộ câu hỏi hội đồng + cách trả lời
+    ├── KICH-BAN-DEMO.md                   # ★ Kịch bản trình diễn 7 phút + dự phòng
+    ├── slide-bao-ve.html                  # ★ 7 slide bảo vệ, chạy ngoại tuyến
+    └── anh-giao-dien/                     # Ảnh chụp giao diện thực tế
 ```
 
 ## Dữ liệu demo
@@ -248,39 +250,39 @@ bảng ký tự thật trong tệp font với chữ có trên trang).
 ## Lệnh thường dùng
 
 ```bash
-# Cai dat & du lieu
-bash scripts/cai-dat-tat-ca.sh       # Cai toan bo he thong (1 lenh)
-bash scripts/nap-du-lieu-nen.sh      # Chi nap lai danh muc nghiep vu
-bash scripts/nap-du-lieu-mau.sh      # Nap du lieu demo (thiet bi, phieu, tai khoan)
-bash scripts/cai-giao-dien.sh        # Chi cai lai giao dien Da Lat
+# Cài đặt & dữ liệu
+bash scripts/cai-dat-tat-ca.sh       # Cài toàn bộ hệ thống (1 lệnh)
+bash scripts/nap-du-lieu-nen.sh      # Chỉ nạp lại danh mục nghiệp vụ
+bash scripts/nap-du-lieu-mau.sh      # Nạp dữ liệu demo (thiết bị, phiếu, tài khoản)
+bash scripts/cai-giao-dien.sh        # Chỉ cài lại giao diện Đà Lạt
 
-# Tieng Viet
+# Tiếng Việt
 python scripts/tao-mo-bo-sung.py
 python scripts/gop-ban-dich-tieng-viet.py
 python scripts/do-do-phu-tieng-viet.py
-bash   scripts/viet-hoa-du-lieu.sh   # Viet hoa du lieu (ten don vi, ho so quyen)
+bash   scripts/viet-hoa-du-lieu.sh   # Việt hoá dữ liệu (tên đơn vị, hồ sơ quyền)
 
-# Ma QR
-python scripts/sinh-ma-qr.py         # Sinh QR hang loat (du phong)
+# Mã QR
+python scripts/sinh-ma-qr.py         # Sinh QR hàng loạt (dự phòng)
 
 # Landing page
-python scripts/tai-font.py           # Tai font ve may (can mang, chi chay 1 lan)
-node   scripts/kiem-tra-landing.js   # Kiem tra landing (anchor, anh, font, console)
-node   scripts/chup-anh-tung-khu.js  # Chup rieng tung khu de soi thiet ke
-python scripts/kiem-tra-font.py      # Do phu ky tu that trong tep font
+python scripts/tai-font.py           # Tải font về máy (cần mạng, chỉ chạy 1 lần)
+node   scripts/kiem-tra-landing.js   # Kiểm tra landing (anchor, ảnh, font, console)
+node   scripts/chup-anh-tung-khu.js  # Chụp riêng từng khu để soi thiết kế
+python scripts/kiem-tra-font.py      # Đo phủ ký tự thật trong tệp font
 
-# Chup anh giao dien (can dang nhap) — mat khau lay tu bien moi truong:
+# Chụp ảnh giao diện (cần đăng nhập) — mật khẩu lấy từ biến môi trường:
 #   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
-node   scripts/chup-lai-anh-minh-chung.js # Chup 19 anh minh chung cho README
-node   scripts/chup-anh-dashboard.js # Chup lai anh dashboard cho landing page
-#   Hai anh luong in QR can quyen quan tri: node scripts/chup-anh-qr-admin.js
+node   scripts/chup-lai-anh-minh-chung.js # Chụp 19 ảnh minh chứng cho README
+node   scripts/chup-anh-dashboard.js # Chụp lại ảnh dashboard cho landing page
+#   Hai ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
 
-# Van hanh
-bash start.sh                        # Khoi dong
+# Vận hành
+bash start.sh                        # Khởi động
 docker-compose logs -f glpi          # Xem log
-docker-compose stop                  # Dung tam thoi
-docker-compose down                  # Tat hoan toan
-bash backup/backup.sh                # Sao luu du lieu
+docker-compose stop                  # Dừng tạm thời
+docker-compose down                  # Tắt hoàn toàn
+bash backup/backup.sh                # Sao lưu dữ liệu
 ```
 
 ## Tài liệu
@@ -288,10 +290,14 @@ bash backup/backup.sh                # Sao luu du lieu
 | Tài liệu | Nội dung |
 |---|---|
 | [`HUONG-DAN-TRIEN-KHAI.md`](tai-lieu/HUONG-DAN-TRIEN-KHAI.md) | Cài đặt, cấu hình nghiệp vụ, sao lưu, xử lý sự cố |
-| [`HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`](tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md) | Tuỳ biến giao diện Đà Lạt & Việt hoá |
 | [`HUONG-DAN-PLUGIN-QRCODE.md`](tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md) | Cài & dùng plugin sinh mã QR |
-| [`THONG-TIN-DAI-HOC-DA-LAT.md`](tai-lieu/THONG-TIN-DAI-HOC-DA-LAT.md) | Cơ cấu tổ chức DLU, ánh xạ vào hệ thống |
+| [`HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`](tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md) | Tuỳ biến giao diện Đà Lạt & Việt hoá |
 | [`SO-SANH-VOI-GLPI-GOC.md`](tai-lieu/SO-SANH-VOI-GLPI-GOC.md) | **Đã cải thiện gì so với GLPI gốc** — bảng đối chiếu chi tiết |
+| [`BAI-TOAN-NGHIEP-VU.md`](tai-lieu/BAI-TOAN-NGHIEP-VU.md) | **Bài toán nghiệp vụ** — đồ án giải quyết vấn đề gì của Trường |
+| [`CHONG-LAM-DUNG.md`](tai-lieu/CHONG-LAM-DUNG.md) | **Sáu tầng chống lạm dụng** nộp phiếu — trả lời câu hỏi phản biện |
+| [`CAU-HOI-PHAN-BIEN.md`](tai-lieu/CAU-HOI-PHAN-BIEN.md) | Bộ câu hỏi hội đồng thường hỏi + cách trả lời kèm bằng chứng |
+| [`KICH-BAN-DEMO.md`](tai-lieu/KICH-BAN-DEMO.md) | Kịch bản trình diễn 7 phút, kèm phương án dự phòng |
+| [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 7 slide bảo vệ, tự chứa, chạy được khi không có mạng |
 
 ## Kiểm thử tự động (CI)
 

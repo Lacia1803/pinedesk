@@ -48,7 +48,7 @@ Người dùng (trình duyệt)
 | Phân công người xử lý, theo dõi tiến độ | **Assignment**, **SLA**, **Timeline** trên ticket |
 | Dashboard thống kê | Module **Dashboards** (kéo thả, biểu đồ tùy chỉnh) |
 | Quản lý phần mềm cài đặt | Module **Software** (quản lý phần mềm trên từng máy) |
-| Việt hóa | Gói `vi_VN` + lớp phủ bổ sung của đồ án → **30,6%** (xem mục 5.4) |
+| Việt hóa | Gói `vi_VN` + lớp phủ bổ sung của đồ án → **31,8%** (xem `HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md` mục A.2) |
 | Tùy biến giao diện | Bảng màu "Đà Lạt" (SCSS) + plugin `dlubrand` ghi đè CSS |
 | Bảo mật, an toàn dữ liệu | HTTPS, rate limit, chặn file nhạy cảm, phân quyền, sao lưu |
 
@@ -298,7 +298,7 @@ bảng màu trên.
 > bash scripts/nap-du-lieu-nen.sh
 > ```
 >
-> Script tự tạo: **12 tòa nhà · 65 phòng máy · 10 trạng thái · 24 hãng ·
+> Script tự tạo: **12 tòa nhà · 54 phòng máy · 10 trạng thái · 24 hãng ·
 > 35 loại thiết bị · 55 model · 10 loại sự cố cấp 1 · 69 loại cấp 2 ·
 > 11 nguồn tiếp nhận · 11 hình thức xử lý · 11 nhóm phần mềm**.
 >

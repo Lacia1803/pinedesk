@@ -29,7 +29,7 @@
 
 | Hạng mục | GLPI 11 gốc | Bản đồ án (pinedesk) | Mức cải thiện |
 |---|---|---|---|
-| **Ngôn ngữ giao diện** | Tiếng Anh mặc định; có sẵn ~32% tiếng Việt | Mặc định **tiếng Việt**, **443 thuật ngữ + 212 mục số nhiều** dịch bổ sung, phủ **30,6%→toàn bộ menu** | ⭐⭐⭐⭐ |
+| **Ngôn ngữ giao diện** | Tiếng Anh mặc định; có sẵn ~28% tiếng Việt | Mặc định **tiếng Việt**, **541 thuật ngữ + 212 mục số nhiều** dịch bổ sung, phủ **31,8%→toàn bộ menu** | ⭐⭐⭐⭐ |
 | **Giao diện / thương hiệu** | Bảng màu `auror` của Teclib, ngôn ngữ thẻ nổi bo tròn + bóng đổ | **Bảng màu "Đà Lạt"** lấy từ logo DLU (3 bảng màu) **+ ngôn ngữ hình ảnh riêng**: nền giấy/mực đậm/đường kẻ mảnh, thẻ mất vỏ hộp, bo góc 3–6px, đầu bảng in hoa, số liệu chữ đều | ⭐⭐⭐⭐⭐ |
 | **Logo** | Logo Teclib / GLPI | **Logo chính thức ĐH Đà Lạt** ở mọi trang | ⭐⭐⭐⭐⭐ |
 | **Dữ liệu nền** | **Rỗng hoàn toàn** — phải tự nhập | **Dựng sẵn 23 nhóm danh mục** theo cơ cấu thật của DLU | ⭐⭐⭐⭐⭐ |
@@ -61,10 +61,10 @@
 | Hạng mục | Số liệu |
 |---|---|
 | Tổng chuỗi cần dịch (catalog gốc) | 6.511 |
-| Bản gốc đã có tiếng Việt | ~2.100 |
-| **Thuật ngữ dịch bổ sung do đồ án viết** | **405** |
-| Chuỗi tiếng Việt đang dùng trong GLPI | 2.668 |
-| Tỉ lệ đo được trên giao diện thực tế | **30,6%** (2.701/6.511) |
+| Bản gốc đã có tiếng Việt | 1.831 |
+| **Thuật ngữ dịch bổ sung do đồ án viết** | **541** (đơn) + 212 (dạng số nhiều) |
+| Chuỗi tiếng Việt đang dùng trong GLPI | 2.070 |
+| Tỉ lệ đo được trên giao diện thực tế | **31,8%** (2.070/6.511) |
 
 **Cách làm — điểm kỹ thuật đáng chú ý:**
 
@@ -82,7 +82,7 @@ Script `gop-ban-dich-tieng-viet.py` làm đúng việc gộp này, đảm bảo 
 
 **Trả lời thẳng câu hỏi "đã 100% tiếng Việt chưa?"**
 
-> **CHƯA.** Hiện là **30,6%**. Nhưng cần hiểu đúng con số này:
+> **CHƯA.** Hiện là **31,8%**. Nhưng cần hiểu đúng con số này:
 >
 > - Đây là tỉ lệ trên **toàn bộ catalog**, kể cả các chuỗi kỹ thuật dài mà người dùng cuối không bao giờ thấy (thông báo lỗi CLI, log hệ thống, cảnh báo cron, SQL…).
 > - **Giao diện người dùng thực sự chạm vào** — menu chính (Tài sản / Hỗ trợ / Quản lý / Công cụ / Quản trị / Cấu hình), thanh bên, tiêu đề bảng, nhãn biểu mẫu, nút bấm, nhãn trạng thái phiếu — **gần như 100% tiếng Việt**.
@@ -110,7 +110,7 @@ các entry có ký tự `\0`. Xem **lỗi #11** ở mục 2.12.
 
 | Script | Chức năng |
 |---|---|
-| `bo-sung-tieng-viet.py` | Từ điển `BAN_DICH_BO_SUNG` — **443 thuật ngữ** (đơn) + `BAN_DICH_SO_NHIEU` — **212 mục** (dạng số nhiều) |
+| `bo-sung-tieng-viet.py` | Từ điển `BAN_DICH_BO_SUNG` — **541 thuật ngữ** (đơn) + `BAN_DICH_SO_NHIEU` — **212 mục** (dạng số nhiều) |
 | `tao-mo-bo-sung.py` | Biên dịch từ điển thành file `.mo` |
 | `gop-ban-dich-tieng-viet.py` | **GỘP** lõi + bổ sung (không mất chuỗi) + **vá/thêm entry số nhiều** |
 | `dich-tu-dong-giao-dien.py` | Dịch tự động theo từ điển + mẫu câu (1.231 dòng) |
@@ -312,14 +312,15 @@ là đúng đắn**, còn đặt ở `.scss` sẽ gây hiểu nhầm.
 
 | # | Danh mục | Số lượng | Giá trị thực tế |
 |---|---|---|---|
-| 1 | **Vị trí** (3 cấp) | **78** | 1 khuôn viên → **12 tòa nhà** → **65 phòng máy/lab** |
+| 1 | **Vị trí** (3 cấp) | **67** | 1 khuôn viên → **12 tòa nhà** → **54 phòng máy/lab** |
 | 2 | Trạng thái thiết bị | 10 | Đang dùng, đang sửa, chờ thanh lý, thanh lý… |
 | 3 | Hãng sản xuất | 24 | Dell, HP, Lenovo, Asus, Acer, Epson, Canon… |
-| 4 | Loại thiết bị | 41 | 5 loại máy tính + 5 màn hình + 5 máy in + 12 ngoại vi + 8 thiết bị mạng + 11 nhóm phần mềm |
+| 4 | Loại thiết bị | 35 | 5 loại máy tính + 5 màn hình + 5 máy in + 12 ngoại vi + 8 thiết bị mạng |
 | 5 | Model thiết bị | 55 | 20 model máy tính + 10 màn hình + 10 máy in + 15 thiết bị mạng |
 | 6 | **Loại sự cố** (2 cấp) | **79** | **10 nhóm chính + 69 chi tiết** |
-| 7 | Nguồn tiếp nhận sự cố | 11 | **Báo qua mã QR**, điện thoại, email, trực tiếp, cổng thông tin |
+| 7 | Nguồn tiếp nhận sự cố | 11 | 5 nguồn của đồ án (**Báo qua mã QR**…) + 6 nguồn gốc của GLPI |
 | 8 | Hình thức xử lý | 11 | Thay linh kiện, cài lại OS, vệ sinh, đổi dự phòng… |
+| 9 | Nhóm phần mềm | 11 | 10 nhóm của đồ án + 1 mục gốc của GLPI |
 | 10 | **Nhóm / đơn vị** | **36** | **Cơ cấu tổ chức THẬT của DLU** (xem dưới) |
 
 **Đặc biệt — Mục 10: Cơ cấu tổ chức thật của Trường Đại học Đà Lạt**
@@ -402,7 +403,7 @@ Mặc định dùng **SQLite**, không HTTPS, không cache, không reverse proxy
 | `upload_max_filesize` / `post_max_size` | 64M | Đính kèm ảnh sự cố, hồ sơ thiết bị |
 | `memory_limit` | 512M | GLPI 11 + báo cáo lớn |
 | `max_execution_time` / `max_input_time` | 600s | Xuất báo cáo, sinh QR hàng loạt |
-| `max_input_vars` | 5000 | Biểu mẫu nhiều trường |
+| `max_input_vars` | 5.000 | Biểu mẫu nhiều trường |
 | `date.timezone` | `Asia/Ho_Chi_Minh` | Giờ Việt Nam |
 | **`session.cookie_httponly`** | **On** | **Chặn JavaScript đọc cookie phiên — chống XSS đánh cắp phiên** |
 | **`session.cookie_samesite`** | **Strict** | **Chặn cookie gửi chéo trang — chống CSRF (mức cao nhất)** |
@@ -531,8 +532,8 @@ location ~* /(config|files/_log|files/_cron|files/_dumps|files/_sessions)/ { den
 | `nap-du-lieu-nen.sh` | 71 | Nạp dữ liệu nền |
 | `seed-du-lieu-nen.sql` | **664** | 23 nhóm danh mục nghiệp vụ |
 | `cai-plugin-qrcode.sh` | 197 | Cài + cấu hình plugin QR |
-| `cai-giao-dien.sh` | 125 | Cài giao diện |
-| `cai-ban-dich.sh` | 118 | Cài bản dịch |
+| `cai-giao-dien.sh` | 152 | Cài giao diện |
+| `cai-ban-dich.sh` | 78 | Cài bản dịch |
 | `backup/backup.sh` | — | Sao lưu CSDL + files + config, tự dọn bản cũ |
 
 **`cai-dat-tat-ca.sh` — 5 bước tự động:**
@@ -585,8 +586,7 @@ location ~* /(config|files/_log|files/_cron|files/_dumps|files/_sessions)/ { den
 | Script | Công cụ | Kiểm tra gì |
 |---|---|---|
 | `do-do-phu-tieng-viet.py` | Python | Đọc `.mo` **thực tế trong container**, đo tỉ lệ Việt hóa, phân loại chuỗi thiếu theo nhóm nghiệp vụ |
-| `kiem-tra-tieng-viet.py` | Python | Kiểm tra chất lượng bản dịch |
-| `chup-anh-giao-dien.js` | Puppeteer + Chrome | Đăng nhập thật, **chụp 6 màn hình**, assert `lang`/`theme`/`title` |
+| `kiem-tra-tieng-viet.py` | Python | Đo tỉ lệ Việt hóa từ `.mo` **đang cài trong GLPI** (cùng công thức với `do-do-phu-tieng-viet.py`) |
 | `chup-lai-anh-minh-chung.js` | Puppeteer + Chrome | Chụp **19 ảnh minh chứng** cho README, mỗi màn hình một ảnh, tự bỏ qua trang thiếu quyền |
 | `chup-anh-qr-admin.js` | Puppeteer + Chrome | Chụp luồng in QR qua plugin Barcode bằng tài khoản quản trị |
 | `kiem-tra-massive-qr.js` | Puppeteer + Chrome | **Kiểm tra luồng sinh QR qua Massive Action** end-to-end |
@@ -699,7 +699,7 @@ phục vụ trình diễn trước hội đồng.
 |---|---|
 | Khung cảnh Đà Lạt | Năm lớp đồi xếp chồng nhạt dần, rừng thông ở lớp gần nhất, hai dải sương trôi — vẽ bằng SVG |
 | Cửa sổ sản phẩm | Khung trình duyệt chứa ảnh dashboard thật, đặt trên sườn đồi |
-| Quy mô | 4 chỉ số thật: 4 dịch vụ · 34 tài sản · 443 thuật ngữ Việt hoá · 0đ bản quyền |
+| Quy mô | 4 chỉ số thật: 4 dịch vụ · 34 tài sản · 541 thuật ngữ Việt hoá · 0đ bản quyền |
 | Tính năng nổi bật | Mã QR · Quy trình sự cố ITIL · Dashboard thống kê · An toàn dữ liệu |
 | Mặt cắt kiến trúc | Năm lớp xếp chồng như sườn đồi, đưa chuột lên một lớp thì dải tương ứng sáng lên |
 | Bốn dịch vụ Docker | `pinedesk-gateway` · `pinedesk-glpi` · `pinedesk-db` · `pinedesk-redis`, kèm lệnh chạy |
@@ -764,32 +764,32 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 
 | Đường dẫn | Dòng | Mô tả |
 |---|---|---|
-| `plugins/dlubrand/setup.php` | 208 | Plugin giao diện DLU — 3 hook |
-| `plugins/dlubrand/public/css/dlu-theme.css` | 633 | ★ **NGUỒN MÀU DUY NHẤT** cho giao diện GLPI — token `--dlu-*` cho cả 3 bảng màu + ánh xạ + trang đăng nhập |
+| `plugins/dlubrand/setup.php` | 203 | Plugin giao diện DLU — 3 hook |
+| `plugins/dlubrand/public/css/dlu-theme.css` | 1.541 | ★ **NGUỒN MÀU DUY NHẤT** cho giao diện GLPI — token `--dlu-*` cho cả 3 bảng màu + ánh xạ + trang đăng nhập |
 | `themes/da_lat.scss` | 21 | Giấy đăng ký bảng màu Đà Lạt (chính) — **không chứa mã màu** |
 | `themes/da_lat_nang.scss` | 25 | Giấy đăng ký bảng màu Đà Lạt — Nắng — **không chứa mã màu** |
 | `themes/da_lat_suong.scss` | 22 | Giấy đăng ký bảng màu Đà Lạt — Sương — **không chứa mã màu** |
 | `themes/dlu-logo.png` | — | Logo DLU |
-| `scripts/cai-dat-tat-ca.sh` | 257 | ⭐ Cài 5 bước, 1 lệnh |
+| `scripts/cai-dat-tat-ca.sh` | 281 | ⭐ Cài 5 bước, 1 lệnh |
 | `scripts/lib/compose-guard.sh` | 85 | Phanh an toàn: tự `down` khi cờ `internal` của mạng đã lệch |
 | `start.sh` | 168 | Khởi động + tạo SSL tự động + cảnh báo mật khẩu mặc định |
 | `scripts/seed-du-lieu-nen.sql` | 664 | 23 nhóm dữ liệu nghiệp vụ |
 | `scripts/nap-du-lieu-nen.sh` | 71 | Nạp dữ liệu nền |
-| `scripts/seed-du-lieu-mau.sql` | 530 | ⭐ **Dữ liệu mẫu demo** (thiết bị, phiếu, phần mềm, thiết bị mạng) |
+| `scripts/seed-du-lieu-mau.sql` | 554 | ⭐ **Dữ liệu mẫu demo** (thiết bị, phiếu, phần mềm, thiết bị mạng) |
 | `scripts/nap-du-lieu-mau.sh` | 164 | ⭐ Nạp dữ liệu mẫu + đặt mật khẩu tài khoản demo |
-| `scripts/bo-sung-tieng-viet.py` | 1.007 | Từ điển 443 thuật ngữ (dạng đơn **+ 212 mục dạng số nhiều**) |
-| `scripts/gop-ban-dich-tieng-viet.py` | 449 | Gộp bản dịch (không mất chuỗi) + **vá/thêm entry số nhiều** |
-| `scripts/tao-mo-bo-sung.py` | 321 | Biên dịch `.mo` thuần Python (tự tải `.po` khi thiếu) |
+| `scripts/bo-sung-tieng-viet.py` | 1.239 | Từ điển 541 thuật ngữ (dạng đơn **+ 212 mục dạng số nhiều**) |
+| `scripts/gop-ban-dich-tieng-viet.py` | 560 | Gộp bản dịch (không mất chuỗi) + **vá/thêm entry số nhiều** |
+| `scripts/tao-mo-bo-sung.py` | 334 | Biên dịch `.mo` thuần Python (tự tải `.po` khi thiếu) |
 | `scripts/dich-tu-dong-giao-dien.py` | 1.231 | Dịch tự động (tự tải `.po` khi thiếu) |
-| `scripts/do-do-phu-tieng-viet.py` | 242 | Đo tỉ lệ Việt hóa (tự tải `.po` khi thiếu) |
-| `scripts/kiem-tra-tieng-viet.py` | 203 | Kiểm tra chất lượng dịch (tự tải `.po` khi thiếu) |
+| `scripts/do-do-phu-tieng-viet.py` | 246 | Đo tỉ lệ Việt hóa (tự tải `.po` khi thiếu) |
+| `scripts/kiem-tra-tieng-viet.py` | 221 | Đo tỉ lệ Việt hóa từ `.mo` đang cài (tự tải `.po` khi thiếu) |
 | `scripts/viet-hoa-du-lieu.sh` | 74 | ⭐ **Việt hoá DỮ LIỆU** (tên đơn vị, hồ sơ quyền, tên dashboard) |
-| `scripts/tai-font.py` | 77 | ⭐ Tải font `.woff2` (tách đúng theo tập ký tự) |
-| `scripts/kiem-tra-font.py` | 181 | ⭐ Đọc **bảng ký tự thật** trong tệp font, đối chiếu chữ trên trang |
+| `scripts/tai-font.py` | 117 | ⭐ Tải font `.woff2` (tách đúng theo tập ký tự) |
+| `scripts/kiem-tra-font.py` | 194 | ⭐ Đọc **bảng ký tự thật** trong tệp font, đối chiếu chữ trên trang |
 | `scripts/sinh-ma-qr.py` | 342 | Sinh QR dự phòng |
 | `scripts/cai-plugin-qrcode.sh` | 197 | Cài plugin QR |
-| `scripts/cai-giao-dien.sh` | 125 | Cài giao diện |
-| `scripts/cai-ban-dich.sh` | 118 | Cài bản dịch (`tai` = chỉ tải `.po`) |
+| `scripts/cai-giao-dien.sh` | 152 | Cài giao diện |
+| `scripts/cai-ban-dich.sh` | 78 | Cài bản dịch (`tai` = chỉ tải `.po`) |
 | `scripts/chup-lai-anh-minh-chung.js` | 253 | ⭐ **Chụp 19 ảnh minh chứng** cho README (một màn hình một ảnh, bỏ qua trang thiếu quyền) |
 | `scripts/chup-anh-qr-admin.js` | 192 | ⭐ Chụp luồng in QR qua plugin Barcode (cần tài khoản quản trị) |
 | `scripts/chup-anh-giao-dien.js` | 170 | Chụp ảnh giao diện |
@@ -797,9 +797,9 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 | `scripts/kiem-tra-qr-va-chup-anh.js` | 104 | Kiểm tra + chụp QR |
 | `scripts/chup-anh-dashboard.js` | 72 | ⭐ Chụp ảnh dashboard thật cho landing page |
 | `scripts/chup-anh-tung-khu.js` | 61 | ⭐ Chụp riêng từng khu để soi thiết kế |
-| `scripts/kiem-tra-landing.js` | 195 | ⭐ Kiểm tra landing (anchor, ảnh, font, console) |
-| `landing/index.html` | 662 | ⭐ **Trang giới thiệu dự án** (thiết kế riêng theo cảnh quan Đà Lạt) |
-| `landing/assets/css/style.css` | 1.249 | ⭐ **CSS tự viết** cho landing (không dùng Tailwind) |
+| `scripts/kiem-tra-landing.js` | 242 | ⭐ Kiểm tra landing (anchor, ảnh, font, console) |
+| `landing/index.html` | 760 | ⭐ **Trang giới thiệu dự án** (thiết kế riêng theo cảnh quan Đà Lạt) |
+| `landing/assets/css/style.css` | 1.269 | ⭐ **CSS tự viết** cho landing (không dùng Tailwind) |
 | `tai-lieu/HUONG-DAN-TRIEN-KHAI.md` | — | Hướng dẫn triển khai |
 | `tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md` | — | Hướng dẫn plugin QR |
 | `tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md` | — | Giao diện & Việt hóa |
@@ -847,7 +847,7 @@ không phải code tự viết.)*
 
 | Hạng mục | Trạng thái | Ghi chú |
 |---|---|---|
-| Việt hóa 100% | ❌ **30,6%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
+| Việt hóa 100% | ❌ **31,8%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
 | `session.cookie_secure = On` | ✅ Đã bật | Đi kèm bắt buộc `config/apache-forwarded-proto.conf` + healthcheck gửi header |
 | Chứng chỉ SSL | ⚠️ Tự ký nhưng **CÓ SAN** | Đã có SAN (`localhost`, `pinedesk.local`, `127.0.0.1`); triển khai thật nên dùng Let's Encrypt |
 | `url_base` | ⚠️ Đang là `https://localhost:8443` | Triển khai thật phải đổi tên miền, nếu không **mã QR in ra sẽ sai** |
@@ -889,7 +889,7 @@ Ghi rõ để tránh hiểu nhầm khi bảo vệ đồ án:
 
 | Hạng mục | Trạng thái | Ghi chú |
 |---|---|---|
-| Việt hóa 100% | ❌ **30,6%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
+| Việt hóa 100% | ❌ **31,8%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
 | Mật khẩu mặc định | ⚠️ **Chưa đổi** | Mật khẩu `glpi` **không hardcode trong mã** — script đọc từ biến môi trường `GLPI_PASS`. Khi triển khai thật phải đổi mật khẩu trong `.env` và tài khoản `glpi` |
 | `session.cookie_secure = On` | ✅ **Đã bật** | Cookie phiên chỉ gửi qua HTTPS. Đi kèm **bắt buộc**: `config/apache-forwarded-proto.conf` (chuyển tiếp tín hiệu HTTPS từ nginx) + healthcheck gửi header — thiếu 1 trong 2 là GLPI chặn mọi trang bằng HTTP 400 |
 | Tài khoản mẫu 3 vai trò | ✅ **Đã tạo** | 6 tài khoản: 2 KTV, 2 giảng viên, 2 sinh viên — đã kiểm chứng đăng nhập được |
@@ -910,7 +910,7 @@ Bản gốc GLPI 11 là một **framework ITSM mạnh** nhưng ở trạng thái
 
 Đồ án đã biến nó thành một **hệ thống hỗ trợ kỹ thuật hoàn chỉnh, mang bản sắc Trường Đại học Đà Lạt**, với 6 nhóm cải thiện chính:
 
-1. **Bản địa hóa** — Việt hóa cả giao diện lẫn trang đăng nhập (443 thuật ngữ + 212 mục dạng số nhiều bổ sung)
+1. **Bản địa hóa** — Việt hóa cả giao diện lẫn trang đăng nhập (541 thuật ngữ + 212 mục dạng số nhiều bổ sung)
 2. **Nhận diện thương hiệu** — Bảng màu "Đà Lạt" lấy từ logo DLU, phủ mọi trang
 3. **Dữ liệu nghiệp vụ** — 23 nhóm danh mục dựng sẵn theo cơ cấu tổ chức **thật** của DLU
 4. **Dữ liệu demo** — 1 lệnh ra ngay hệ thống có sống, sẵn sàng trình diễn

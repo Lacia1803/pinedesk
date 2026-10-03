@@ -9,7 +9,8 @@ const path = require('path');
 
 // Duong dan Chrome: lay tu scripts/lib/browser.js (dat CHROME_PATH neu can)
 const { CHROME } = require('./lib/browser');
-const URL = 'https://localhost:8443/landing/';
+// Khong dat ten la "URL": se che khuat ham tao URL toan cuc cua Node.
+const URL_TRANG = 'https://localhost:8443/landing/';
 const OUT = '.tmp-check';
 
 (async () => {
@@ -29,7 +30,7 @@ const OUT = '.tmp-check';
   p.on('response', r => { if (r.status() >= 400) hong.push(r.status() + ' ' + r.url()); });
   p.on('console', m => { if (m.type() === 'error') loiConsole.push(m.text().slice(0, 220)); });
 
-  const resp = await p.goto(URL, { waitUntil: 'networkidle2', timeout: 60000 });
+  const resp = await p.goto(URL_TRANG, { waitUntil: 'networkidle2', timeout: 60000 });
   await new Promise(r => setTimeout(r, 2500));
 
   console.log('HTTP:', resp.status());
@@ -145,21 +146,30 @@ const OUT = '.tmp-check';
   /* nginx chi mount ./landing vao /usr/share/nginx/html/landing nen neu
      khong mount them tai-lieu/ va README.md thi cac the nay se 404. */
   const taiLieu = await p.evaluate(() =>
-    Array.from(document.querySelectorAll('a[href$=".md"]'))
+    Array.from(document.querySelectorAll('a[href$=".md"], a[href$=".html"]'))
       .map(a => a.getAttribute('href'))
+      .filter(h => h.includes('tai-lieu/'))
   );
   console.log('');
   console.log('=== LIEN KET TAI LIEU ===');
   if (!taiLieu.length) {
     console.log('  (khong co lien ket .md)');
   } else {
+    let hongTl = 0;
     for (const href of taiLieu) {
-      const url = new URL(href, URL).href;
+      const url = new URL(href, URL_TRANG).href;
       const r = await p.evaluate(async (u) => {
         try { const x = await fetch(u); return x.status; }
         catch (e) { return 'LOI ' + e.message; }
       }, url);
+      if (r !== 200) hongTl++;
       console.log(' ', r === 200 ? 'OK ' : 'HONG', String(r).padStart(4), href);
+    }
+    if (hongTl) {
+      console.log('  [LOI] ' + hongTl + ' lien ket tai lieu khong tai duoc');
+      console.log('        Kiem tra mount tai-lieu/ va README.md trong nginx/conf.d/default.conf');
+      await b.close();
+      process.exit(1);
     }
   }
 

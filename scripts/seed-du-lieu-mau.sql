@@ -207,10 +207,10 @@ SELECT s.name, s.serial, s.otherserial, @entity, l.id,
        0, 0, @now, @now, s.comment
 FROM (
     SELECT 'TDL-LAP-001' AS name, 'SN-LAP-0001' AS serial, 'TDL-LAP-001' AS otherserial,
-           'Văn phòng Khoa Toán - Tin' AS loc, 'Latitude 5420' AS cmodel, 'Dell' AS brand,
+           'Văn phòng Khoa Toán - Tin học' AS loc, 'Latitude 5420' AS cmodel, 'Dell' AS brand,
            'Laptop giang vien' AS comment UNION ALL
     SELECT 'TDL-LAP-002', 'SN-LAP-0002', 'TDL-LAP-002',
-           'Văn phòng Khoa Toán - Tin', 'Latitude 5420', 'Dell', 'Laptop giang vien' UNION ALL
+           'Văn phòng Khoa Toán - Tin học', 'Latitude 5420', 'Dell', 'Laptop giang vien' UNION ALL
     SELECT 'TDL-LAP-003', 'SN-LAP-0003', 'TDL-LAP-003',
            'Phòng máy A102', 'ThinkPad E14', 'Lenovo', 'Laptop muon sinh vien'
 ) s
@@ -297,7 +297,7 @@ FROM (
            'Phòng máy A201', 'Máy in laser đen trắng', 'imageCLASS LBP2900', 'Canon', 'Đang sử dụng',
            'May in phong may A201' UNION ALL
     SELECT 'TDL-PRN-VPK-001', 'PR-VPK-0001', 'TDL-PRN-VPK-001',
-           'Văn phòng Khoa Toán - Tin', 'Máy in laser đen trắng', 'imageCLASS LBP2900', 'Canon',
+           'Văn phòng Khoa Toán - Tin học', 'Máy in laser đen trắng', 'imageCLASS LBP2900', 'Canon',
            'Chờ linh kiện', 'Het muc in, cho thay'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
@@ -328,22 +328,22 @@ FROM (
            'Phòng máy B201', 'Bộ chuyển mạch (Switch)', 'TL-SG1024D',
            'TP-Link', 'Đang sửa chữa', 'Switch phong may B201, dang sua cong quang' UNION ALL
     SELECT 'TDL-SW-C101-001', 'SW-C101-0001', 'TDL-SW-C101-001',
-           'Phòng Lab C101', 'Bộ chuyển mạch (Switch)', 'Catalyst 2960-48TT-L',
+           'Phòng thí nghiệm C101', 'Bộ chuyển mạch (Switch)', 'Catalyst 2960-48TT-L',
            'Cisco', 'Đang bảo trì định kỳ', 'Switch 48 cong phong Lab C101' UNION ALL
     SELECT 'TDL-AP-A101-001', 'AP-A101-0001', 'TDL-AP-A101-001',
            'Phòng máy A101', 'Bộ phát WiFi (Access Point)', 'DIR-825',
            'D-Link', 'Đang hoạt động tốt', 'Bo phat WiFi phong may A101' UNION ALL
     SELECT 'TDL-AP-C101-001', 'AP-C101-0001', 'TDL-AP-C101-001',
-           'Phòng Lab C101', 'Bộ phát WiFi (Access Point)', 'AR617VW',
+           'Phòng thí nghiệm C101', 'Bộ phát WiFi (Access Point)', 'AR617VW',
            'Huawei', 'Trong kho', 'Bo phat WiFi du phong' UNION ALL
     SELECT 'TDL-AP-GD-B1-001', 'AP-GDB1-0001', 'TDL-AP-GD-B1-001',
            'Giảng đường B1', 'Bộ phát WiFi (Access Point)', 'AR617VW',
            'Huawei', 'Đang hoạt động tốt', 'Bo phat WiFi giang duong B1' UNION ALL
     SELECT 'TDL-RT-VPK-001', 'RT-VPK-0001', 'TDL-RT-VPK-001',
-           'Văn phòng Khoa Toán - Tin', 'Bộ định tuyến (Router)', 'TL-ER605',
+           'Văn phòng Khoa Toán - Tin học', 'Bộ định tuyến (Router)', 'TL-ER605',
            'TP-Link', 'Đang hoạt động tốt', 'Router can bang tai van phong khoa' UNION ALL
     SELECT 'TDL-NAS-VPK-001', 'NAS-VPK-0001', 'TDL-NAS-VPK-001',
-           'Văn phòng Khoa Toán - Tin', 'Thiết bị NAS', 'DGS-1210-24',
+           'Văn phòng Khoa Toán - Tin học', 'Thiết bị NAS', 'DGS-1210-24',
            'Ubiquiti', 'Hỏng', 'Thiet bi NAS luu tru, hong o cung'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3

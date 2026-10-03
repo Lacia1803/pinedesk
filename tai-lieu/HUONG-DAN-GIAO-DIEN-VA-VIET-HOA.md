@@ -31,16 +31,16 @@
 
 ### A.2. Kiểm tra tiếng Việt — **CÂU TRẢ LỜI TRUNG THỰC**
 
-> ⚠️ **CHƯA ĐẠT 100% TIẾNG VIỆT — hiện tại là 30,6%.**
+> ⚠️ **CHƯA ĐẠT 100% TIẾNG VIỆT — hiện tại là 31,8%.**
 
 Số liệu đo bằng `scripts/do-do-phu-tieng-viet.py` (đọc file `.mo` thật trong GLPI):
 
 | Chỉ số | Số lượng |
 |---|---|
 | Tổng số chuỗi GLPI cần dịch | 6.511 |
-| Đã dịch | 1.993 |
-| Còn thiếu | 4.518 |
-| **Tỉ lệ hiện tại** | **30,6%** |
+| Đã dịch | 2.070 |
+| Còn thiếu | 4.441 |
+| **Tỉ lệ hiện tại** | **31,8%** |
 
 > **Bổ sung phiên 19/09:** đã Việt hóa thêm **9 nhãn thẻ đếm trạng thái phiếu** trên
 > trang Hỗ trợ — đây là các nhãn *nổi bật nhất* của trang nhưng bản dịch `vi_VN`
@@ -54,7 +54,7 @@ Số liệu đo bằng `scripts/do-do-phu-tieng-viet.py` (đọc file `.mo` th�
 
 1. **GLPI chỉ đóng gói sẵn ~32% bản dịch tiếng Việt chính thức.** Đây là giới hạn của
    chính GLPI, không phải lỗi của đồ án.
-2. **4.552 chuỗi còn thiếu hầu hết là chuỗi kỹ thuật dài**, ví dụ:
+2. **4.441 chuỗi còn thiếu hầu hết là chuỗi kỹ thuật dài**, ví dụ:
    - `2 primary or foreign keys are using signed integers. Run the "php bin/console
      migration:unsigned_keys" command to migrate them.`
    - Thông báo lỗi hệ thống, mô tả tham số CLI, cảnh báo bảo mật.

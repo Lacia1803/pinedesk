@@ -1,28 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-================================================================================
- DO DO PHU BAN DICH TIENG VIET CUA GLPI
  Do an thuc tap: Xay dung he thong ho tro ky thuat (PineDesk) - DH Da Lat
 
- Script do 2 chi so:
-   (1) DO PHU GOC  : ti le chuoi da dich trong file vi_VN.po chinh thuc cua GLPI
-   (2) DO PHU SAU  : ti le sau khi gop them tu dien bo sung cua do an
+ Script nay CHI do mot chi so, dung nguon du lieu THAT:
+   - catalog goc  : tap msgid tu file vi_VN.po cua GLPI  (= 6.511 chuoi)
+   - ban dich dung: file /var/glpi/files/_locales/core/vi_VN.mo DANG cai
+                    trong container GLPI
+   => Ti le = so chuoi co ban dich khac rong VA khac chuoi goc / tong msgid
+
+ LUU Y: day la cung cong thuc voi scripts/do-do-phu-tieng-viet.py. Hai script
+        phai cho ra CUNG mot con so (hien tai 31,8%).
 
  CHAY:
-   # Buoc 1: tai file .po tu container ve may (neu chua co)
-   bash scripts/cai-ban-dich.sh tai
-
-   # Buoc 2: do do phu
+   bash scripts/cai-ban-dich.sh tai   # (tuy chon) tai .po goc ve may
    python scripts/kiem-tra-tieng-viet.py
-
- GHI CHU: script TU TAI .po khi thieu (xem ham dam_bao_po_nguon), nen buoc 1
-          chi can thiet khi muon tai thu cong.
 ================================================================================
 """
 import os
 import re
+import struct
 import subprocess
+
 import sys
 
 GOC = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +30,7 @@ PO_VI = os.path.join(THU_MUC, 'vi_VN.po')
 PO_FR = os.path.join(THU_MUC, 'fr_FR.po')
 
 GLPI_CONTAINER = os.environ.get('GLPI_CONTAINER', 'pinedesk-glpi')
+MO_THUC_TE = '/var/glpi/files/_locales/core/vi_VN.mo'
 
 
 def dam_bao_po_nguon(ten_po):
@@ -58,34 +58,67 @@ def dam_bao_po_nguon(ten_po):
 
 def doc_po_day_du(path):
     """
-    Doc file .po, tra ve:
-      - total   : tong so chuoi CAN dich (msgid khac rong)
-      - da_dich : so chuoi da co ban dich
-      - chua    : danh sach chuoi chua dich
+    Doc tap msgid (chuoi goc can dich) tu file .po cua GLPI.
+    Tra ve set cac chuoi can dich, hoac None neu khong doc duoc file.
     """
     if not os.path.exists(path):
         return None
     with open(path, encoding='utf-8') as f:
         txt = f.read()
 
-    total = da_dich = 0
-    chua = []
+    msgids = set()
     for entry in re.split(r'\n\s*\n', txt):
         if 'msgid' not in entry:
             continue
-        m = re.search(r'^msgid\s+"((?:[^"\\]|\\.)*)"', entry, re.M)
-        if not m:
-            continue
-        msgid = m.group(1)
-        if msgid == '':
-            continue
-        total += 1
-        mt = re.search(r'^msgstr\s+"((?:[^"\\]|\\.)*)"', entry, re.M)
-        if mt and mt.group(1).strip():
-            da_dich += 1
-        else:
-            chua.append(msgid)
-    return total, da_dich, chua
+        # Bo qua khoi msgid_plural / msgctxt (cung cong thuc voi
+        # scripts/do-do-phu-tieng-viet.py de hai script cho cung ket qua).
+        lines = entry.split('\n')
+        buf, gom = [], False
+        for ln in lines:
+            s = ln.strip()
+            if s.startswith('msgid_plural') or s.startswith('msgctxt'):
+                gom = False
+                continue
+            if s.startswith('msgid '):
+                gom = True
+                buf.append(s[len('msgid '):].strip())
+            elif s.startswith('msgstr'):
+                gom = False
+            elif gom and s.startswith('"'):
+                buf.append(s)
+            elif gom:
+                gom = False
+        if buf:
+            txt_mid = ''.join(x.strip().strip('"') for x in buf)
+            if txt_mid:
+                msgids.add(txt_mid)
+    return msgids
+
+
+def doc_mo(du_lieu: bytes) -> dict:
+    """Doc file .mo gettext -> dict {msgid: msgstr}."""
+    magic = struct.unpack('<I', du_lieu[:4])[0]
+    if magic != 0x950412de:
+        raise ValueError('Khong phai file .mo hop le (sai magic)')
+    n, off_orig = struct.unpack('<2I', du_lieu[8:16])
+    off_trans = off_orig + n * 8
+    ket_qua = {}
+    for i in range(n):
+        ln, lo = struct.unpack('<2I', du_lieu[off_orig + i * 8: off_orig + i * 8 + 8])
+        mid = du_lieu[lo:lo + ln].decode('utf-8', 'replace')
+        lt, lod = struct.unpack('<2I', du_lieu[off_trans + i * 8: off_trans + i * 8 + 8])
+        mstr = du_lieu[lod:lod + lt].decode('utf-8', 'replace')
+        ket_qua[mid] = mstr
+    return ket_qua
+
+
+def doc_mo_trong_container() -> dict:
+    """Doc file .mo DANG cai trong GLPI (nguon du lieu that)."""
+    r = subprocess.run(['docker', 'exec', GLPI_CONTAINER, 'cat', MO_THUC_TE],
+                       capture_output=True)
+    if not r.stdout:
+        return {}
+    return doc_mo(r.stdout)
 
 
 def main():
@@ -93,20 +126,36 @@ def main():
     print('  DO DO PHU BAN DICH TIENG VIET - GLPI 11')
     print('=' * 78)
 
+    # --- 1. Tap chuoi goc can dich (tu .po cua GLPI) --------------------
     dam_bao_po_nguon('vi_VN.po')
-    dam_bao_po_nguon('fr_FR.po')
-
-    kq_vi = doc_po_day_du(PO_VI)
-    if kq_vi is None:
-        print(f'\n[LOI] Khong thay file {PO_VI}')
+    msgids = doc_po_day_du(PO_VI)
+    if not msgids:
+        print(f'\n[LOI] Khong doc duoc file .po nguon: {PO_VI}')
         print('      Chay truoc:  bash scripts/cai-ban-dich.sh tai')
         sys.exit(1)
+    total = len(msgids)
 
-    total, da_dich, chua = kq_vi
-    ti_le = da_dich * 100.0 / total
+    # --- 2. Ban dich DANG dung trong GLPI (doc .mo that) ----------------
+    ban_dich = doc_mo_trong_container()
+    if not ban_dich:
+        print(f'\n[LOI] Khong doc duoc {MO_THUC_TE} trong container {GLPI_CONTAINER}.')
+        print('      He thong da chay chua? Da cai ban dich chua?')
+        print('      Chay:  bash scripts/cai-dat-tat-ca.sh')
+        sys.exit(1)
 
-    # ---- (1) DO PHU GOC ----
-    print('\n[1] DO PHU GOC (file vi_VN.po chinh thuc cua GLPI)')
+    # --- 3. Tinh do phu -------------------------------------------------
+    # Mot chuoi la DA DICH khi co msgid trong .po VA ban dich khac rong,
+    # khac chinh chuoi goc.
+    da_dich, chua = 0, []
+    for mid in msgids:
+        dich = ban_dich.get(mid, '')
+        if dich and dich != mid:
+            da_dich += 1
+        else:
+            chua.append(mid)
+    ti_le = da_dich * 100.0 / total if total else 0
+
+    print('\n[1] DO PHU THUC TE TREN GIAO DIEN (doc .mo trong GLPI)')
     print(f'    Tong chuoi can dich : {total:>6}')
     print(f'    Da dich             : {da_dich:>6}')
     print(f'    Chua dich           : {len(chua):>6}')
@@ -114,7 +163,7 @@ def main():
     thanh = int(ti_le / 2.5)
     print(f'    [{("#" * thanh).ljust(40)}] ')
 
-    # ---- So sanh voi cac ngon ngu khac ----
+    # --- 4. So sanh voi cac ngon ngu khac -------------------------------
     print('\n[2] SO SANH VOI CAC NGON NGU KHAC')
     for ten, path in [
         ('Tieng Viet (vi_VN)', PO_VI),
@@ -122,44 +171,12 @@ def main():
     ]:
         kq = doc_po_day_du(path)
         if kq:
-            t, d, _ = kq
-            print(f'    %-22s {d:>5}/{t:<5}  (%.1f%%)' % (ten + ':', d * 100.0 / t))
+            # .po cua ngon ngu khac chua chac da cai vao GLPI, nen day chi
+            # dem so chuoi CO msgstr trong .po (khong doi chieu .mo).
+            print(f'    %-22s {len(kq):>5} chuoi can dich' % (ten + ':'))
 
-    # ---- (3) Neu co ban dich bo sung da cai ----
-    mo_bo_sung = os.path.join(THU_MUC, 'vi_VN.mo')
-    if os.path.exists(mo_bo_sung):
-        import struct
-        with open(mo_bo_sung, 'rb') as f:
-            data = f.read()
-        _, _, n, _, _, _, _ = struct.unpack('<7I', data[:28])
-        so_entry_bo_sung = n - 1   # tru entry header
-
-        # Doc cac msgid trong ban bo sung
-        msgids_bo_sung = set()
-        off_o = 7 * 4
-        off_t = off_o + n * 8
-        for i in range(n):
-            ln, off = struct.unpack('<2I', data[off_o + i * 8: off_o + i * 8 + 8])
-            mid = data[off:off + ln].decode('utf-8', 'replace')
-            if mid:
-                msgids_bo_sung.add(mid)
-
-        # Dem so chuoi CHUA DICH trong ban goc ma nay DA duoc bo sung
-        da_bo_sung = [s for s in chua if s in msgids_bo_sung]
-        con_thieu = [s for s in chua if s not in msgids_bo_sung]
-        ti_le_moi = (da_dich + len(da_bo_sung)) * 100.0 / total if total else 0
-
-        print('\n[3] DO PHU SAU KHI BO SUNG (do an DLU)')
-        print(f'    So chuoi bo sung them : {len(da_bo_sung)}')
-        print(f'    Da dich (sau bo sung) : {da_dich + len(da_bo_sung):>6}')
-        print(f'    Con thieu             : {len(con_thieu):>6}')
-        print(f'    => Ti le MOI          : {ti_le_moi:>5.1f}%  (truoc: {ti_le:.1f}%)')
-        print(f'    => Cai thien          : +{ti_le_moi - ti_le:.1f} diem phan tram')
-        thanh2 = int(ti_le_moi / 2.5)
-        print(f'    [{("#" * thanh2).ljust(40)}] ')
-
-    # ---- (4) Phan nhom chuoi con thieu ----
-    print('\n[4] CAC NHOM CHUOI CON THIEU (uu tien bo sung tiep)')
+    # --- 5. Phan nhom chuoi con thieu -----------------------------------
+    print('\n[3] CAC NHOM CHUOI CON THIEU (uu tien bo sung tiep)')
     dem = {}
     for s in chua:
         key = 'Khac'
@@ -183,8 +200,9 @@ def main():
         pct = v * 100.0 / len(chua) if chua else 0
         print(f'    %-26s %5d chuoi  (%.0f%%)' % (k, v, pct))
 
-    # ---- (5) Ket luan ----
-    print('\n[5] KET LUAN')
+
+    # --- 6. Ket luan ----------------------------------------------------
+    print('\n[4] KET LUAN')
     if not chua:
         print('    => Da dich 100%.')
     else:

@@ -104,7 +104,7 @@ Nguồn: https://dlu.edu.vn/ (truy cập 02/10/2026).
 
 **Phòng máy (phạm vi phục vụ trực tiếp):** ITC công bố có "N phòng máy thực hành"
 (số hiển thị động trên trang chủ, không lấy được giá trị tĩnh) 🟢. Đồ án hiện mô
-hình hoá **65 phòng máy** trong dữ liệu nền — con số này là **cấu trúc mẫu của đồ
+hình hoá **54 phòng máy** trong dữ liệu nền — con số này là **cấu trúc mẫu của đồ
 án**, không phải số liệu công bố của Trường 🟡.
 
 ---
@@ -275,7 +275,7 @@ thiết kế có lý do, không phải bỏ sót.
 | 1 | Số sự cố ITC thực tế tiếp nhận mỗi tuần | 🔴 GIẢ ĐỊNH |
 | 2 | Thời gian phản hồi/xử lý trung bình hiện tại của ITC | 🔴 GIẢ ĐỊNH |
 | 3 | Tỉ lệ sự cố xảy ra trong khoảng 16h30–7h30 hay cuối tuần | 🔴 GIẢ ĐỊNH |
-| 4 | Số phòng máy thực tế của Trường | 🔴 GIẢ ĐỊNH (đồ án dùng 65 làm mẫu cấu trúc) |
+| 4 | Số phòng máy thực tế của Trường | 🔴 GIẢ ĐỊNH (đồ án dùng 54 làm mẫu cấu trúc) |
 | 5 | ITC đã đồng ý dùng hệ thống này chưa | 🔴 Chưa — đồ án chưa được phê duyệt |
 | 6 | Mức SLA cụ thể mà Trường muốn áp dụng | 🔴 Chưa có văn bản nào |
 

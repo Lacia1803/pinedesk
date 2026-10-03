@@ -53,9 +53,9 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
 - 13 phiếu sự cố mẫu trải đủ các trạng thái.
 - 6 tài khoản mẫu, 3 vai trò (quản trị, kỹ thuật viên, người dùng), mật khẩu chung `Dlu@2026`.
 - Mã tài sản theo quy ước thật: `TDL-PC-A101-001`.
-- 443 thuật ngữ Việt hoá bổ sung + 212 mục dạng số nhiều; menu, biểu mẫu và nhãn
+- 541 thuật ngữ Việt hoá bổ sung + 212 mục dạng số nhiều; menu, biểu mẫu và nhãn
   dashboard đã Việt hoá.
-- 79 loại sự cố được phân loại sẵn; 12 toà nhà, 65 phòng máy, 16 khoa.
+- 79 loại sự cố được phân loại sẵn; 12 toà nhà, 54 phòng máy, 16 khoa.
 - 5 tài liệu tiếng Việt trong `tai-lieu/`, cộng `README.md`.
 - Ảnh dashboard thật: `landing/dashboard-preview.png` (sinh từ hệ thống đang chạy,
   dữ liệu thật, đã Việt hoá).

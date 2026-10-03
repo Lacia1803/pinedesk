@@ -511,6 +511,8 @@ Giai đoạn cuối là lúc em kiểm chứng lại toàn bộ đề tài bằn
 
 Cả ba lỗi có cùng một nguyên nhân gốc: các script cần thiết đã có sẵn nhưng không nằm trong luồng cài đặt. Cách sửa là đưa chúng vào đúng thứ tự trong `cai-dat-tat-ca.sh`, và thêm năm cửa kiểm mới vào pipeline CI để những lỗi này không quay lại.
 
+Khi đẩy lên GitHub, chính pipeline bắt thêm một lỗi thứ tư mà em chưa thấy khi chạy tay: bước nạp SLA bị đặt trước bước nạp dữ liệu mẫu. Phần mượn/trả trong tệp SLA dựa trên hai laptop và hai tài khoản do dữ liệu mẫu tạo ra, nên khi chạy sai thứ tự, các câu lệnh đó khớp 0 dòng mà không báo lỗi, và cửa kiểm "Dữ liệu bảo trì + mượn thiết bị" thấy 0 thiết bị cho mượn thay vì 2. Em đổi thứ tự cho danh mục và dữ liệu mẫu chạy trước, đồng thời cho script nạp SLA tự kiểm phần bảo trì và mượn/trả để báo rõ khi thiếu dữ liệu mẫu. Đây là lần đầu pipeline phát hiện một lỗi thật mà chạy tay trên máy em không lộ ra.
+
 Cũng trong phiên bản 0.4.0, em chuyển công cụ trình duyệt từ Puppeteer sang Playwright, sửa hai lỗi giao diện chỉ lộ ra khi đo màu thật trên trình duyệt ở cả chế độ sáng và tối, viết thêm hai script kiểm thử mới (`kiem-tra-chuc-nang.sh` kiểm chức năng theo vai trò và `kiem-tra-usecase.js` chạy ba use case thật), và dọn dẹp toàn bộ rác sinh ra khi chạy.
 
 Bảng dưới tóm tắt tiến độ theo giai đoạn.
@@ -519,7 +521,7 @@ Bảng dưới tóm tắt tiến độ theo giai đoạn.
 |---|---|---|---|---|
 | 1. Dựng nền tảng | 21/09 – 22/09/2026 | 6 | 0.1.0 | Hạ tầng 4 container, HTTPS, giao diện, plugin QR, CI |
 | 2. Từ lý thuyết sang nghiệp vụ | 02/10/2026 | 4 | 0.2.0 | Bài toán nghiệp vụ, chống lạm dụng, SLA thật, bảo trì, mượn/trả |
-| 3. Chuẩn hóa và vá lỗi máy sạch | 03/10/2026 | 2 | 0.3.0, 0.4.0 | Vá 6 lỗi, chuyển Playwright, thêm kiểm thử, dọn dẹp |
+| 3. Chuẩn hóa và vá lỗi máy sạch | 03/10/2026 | 2 | 0.3.0, 0.4.0 | Vá 7 lỗi, chuyển Playwright, thêm kiểm thử, dọn dẹp |
 
 *Bảng 4.1. Nhật ký thực hiện theo giai đoạn*
 

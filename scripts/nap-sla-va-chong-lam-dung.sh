@@ -97,6 +97,31 @@ else
 fi
 
 info "Bảng nhật ký + hạn mức chống lạm dụng đã tạo."
+
+# --- 4. Kiểm chứng phần BẢO TRÌ + MƯỢN/TRẢ ------------------------------------
+# Phần B2/B3 của tệp SQL chỉ tạo được khi ĐÃ có dữ liệu mẫu: 2 lượt mượn dựa
+# trên laptop 'TDL-LAP-001'/'TDL-LAP-003' và người mượn 'sv.hoa'/'gv.cuong',
+# tất cả đều do nap-du-lieu-mau.sh sinh ra. Thiếu dữ liệu mẫu thì các câu
+# lệnh có guard 'WHERE @lap IS NOT NULL' bỏ qua trong im lặng. Kiểm ở đây để
+# báo rõ thay vì để người dùng tưởng đã có dữ liệu mượn.
+RI=$(docker exec -i "$DB_CONTAINER" sh -c \
+    "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME -N -B -e \
+     \"SELECT COUNT(*) FROM glpi_reservationitems;\"")
+RV=$(docker exec -i "$DB_CONTAINER" sh -c \
+    "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME -N -B -e \
+     \"SELECT COUNT(*) FROM glpi_reservations;\"")
+TR=$(docker exec -i "$DB_CONTAINER" sh -c \
+    "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME -N -B -e \
+     \"SELECT COUNT(*) FROM glpi_ticketrecurrents;\"")
+
+if [ "${RI:-0}" -ge 2 ] && [ "${RV:-0}" -ge 2 ]; then
+    ok "Đã tạo $TR lịch bảo trì + $RI thiết bị cho mượn + $RV lượt mượn"
+else
+    warn "Chưa có dữ liệu mượn/trả (thiết bị cho mượn: ${RI:-0}, lượt mượn: ${RV:-0})."
+    info "Phần này cần DỮ LIỆU MẪU. Chạy trước:  bash scripts/nap-du-lieu-mau.sh"
+    info "rồi chạy lại script này. (Lịch bảo trì hiện có: ${TR:-0}.)"
+fi
+
 info "Kiểm tra lạm dụng:  bash scripts/kiem-tra-lam-dung.sh"
 
 echo ""

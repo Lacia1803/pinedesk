@@ -85,6 +85,25 @@ năm cửa kiểm CI để những lỗi đó không quay lại.
   - Chức năng + phân quyền theo vai trò phải hoạt động (`kiem-tra-chuc-nang.sh`
     chạy cho `ktv.an` và `sv.hoa`).
 
+### Sửa (thứ tự nạp dữ liệu)
+
+- **CI nạp SLA trước khi có dữ liệu mẫu, nên phần mượn/trả bị bỏ qua trong im
+  lặng.** `seed-sla-va-chong-lam-dung.sql` tạo 2 lượt mượn cho hai laptop
+  `TDL-LAP-001`/`TDL-LAP-003` và 1 phiếu mượn của `sv.hoa`; cả ba đều do
+  `nap-du-lieu-mau.sh` sinh ra. CI lại chạy bước SLA trước bước dữ liệu mẫu, nên
+  các câu lệnh có guard `WHERE @lap IS NOT NULL` khớp 0 dòng và không báo lỗi.
+  Cửa kiểm "Dữ liệu bảo trì + mượn thiết bị" vì thế thấy 0 thiết bị cho mượn
+  thay vì 2. Nay hai bước danh mục và dữ liệu mẫu chạy **trước** bước SLA, đúng
+  như phần đầu tệp SQL đã ghi.
+- **`nap-sla-va-chong-lam-dung.sh` nay tự kiểm phần bảo trì + mượn/trả.** Trước
+  đây script chỉ kiểm SLA và im lặng với phần phụ thuộc dữ liệu mẫu. Nay nếu
+  thiếu dữ liệu mẫu, script in cảnh báo kèm hướng dẫn chạy `nap-du-lieu-mau.sh`
+  rồi chạy lại, thay vì để người dùng tưởng đã có dữ liệu mượn.
+- **Đính chính hai tài liệu.** `README.md` và `SO-SANH-VOI-GLPI-GOC.md` ghi
+  `cai-dat-tat-ca.sh` là có ngay 14 phiếu, nhưng script đó không nạp dữ liệu mẫu.
+  Nay ghi rõ: chạy `nap-du-lieu-mau.sh` để có 13 phiếu, rồi
+  `nap-sla-va-chong-lam-dung.sh` để thêm phiếu mượn thứ 14.
+
 ### Ghi chú
 
 - Số 541 thuật ngữ / 31,8% ghi trong bản 0.3.0 là **đúng tại thời điểm đó**; mục

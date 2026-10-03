@@ -194,8 +194,13 @@ bash scripts/nap-du-lieu-mau.sh
 ```
 
 Kết quả: **17 máy tính · 5 màn hình · 3 máy in · 9 thiết bị mạng · 10 phần mềm ·
-13 phiếu sự cố (đủ 4 trạng thái) · 6 tài khoản 3 vai trò**. Riêng bản cài đầy đủ
-(`cai-dat-tat-ca.sh`) nạp thêm **1 phiếu mượn thiết bị**, nâng tổng số phiếu lên **14**.
+13 phiếu sự cố (đủ 4 trạng thái) · 6 tài khoản 3 vai trò**.
+
+Muốn có thêm **1 phiếu mượn thiết bị** (nâng tổng số phiếu lên **14**), chạy tiếp
+`bash scripts/nap-sla-va-chong-lam-dung.sh` **sau khi** đã nạp dữ liệu mẫu. Phần
+mượn/trả trong script đó dựa trên 2 laptop (`TDL-LAP-001`, `TDL-LAP-003`) và tài
+khoản `sv.hoa`, `gv.cuong` do `nap-du-lieu-mau.sh` tạo ra; chạy trước khi có dữ
+liệu mẫu thì phần này bị bỏ qua.
 
 | Tài khoản | Mật khẩu | Vai trò |
 |---|---|---|

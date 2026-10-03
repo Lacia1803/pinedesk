@@ -357,37 +357,15 @@ jobs:
             exit 1
           fi
 
-      - name: Bang SLA phai duoc tao sau khi nap
-        run: |
-          echo "Nap SLA + co che chong lam dung..."
-          bash scripts/nap-sla-va-chong-lam-dung.sh
-          N=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_slas;"')
-          echo "So SLA trong CSDL: $N"
-          [ "$N" -ge 5 ] || { echo "[LOI] Thieu SLA (mong doi >= 5)"; exit 1; }
-          echo "[OK] SLA that da nam trong CSDL, khong con la tuyen bo suong"
-
-      - name: Du lieu bao tri + muon thiet bi phai duoc tao
-        run: |
-          R=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_ticketrecurrents;"')
-          echo "So lich bao tri dinh ky: $R"
-          [ "$R" -ge 2 ] || { echo "[LOI] Thieu lich bao tri (mong doi >= 2)"; exit 1; }
-
-          I=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_reservationitems;"')
-          echo "So thiet bi cho muon: $I"
-          [ "$I" -ge 2 ] || { echo "[LOI] Thieu thiet bi cho muon (mong doi >= 2)"; exit 1; }
-
-          V=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_reservations;"')
-          echo "So luot muon: $V"
-          [ "$V" -ge 2 ] || { echo "[LOI] Thieu luot muon (mong doi >= 2)"; exit 1; }
-          echo "[OK] Lich bao tri + luong muon/tra da nam trong CSDL"
+      # ======================================================================
+      # THU TU NAP DU LIEU LA BAT BUOC: danh muc -> du lieu mau -> SLA
+      # ======================================================================
+      # Loi that: CI nap SLA TRUOC khi co du lieu mau. seed SLA tao 2 luot
+      # muon cho laptop 'TDL-LAP-001'/'TDL-LAP-003' va 1 phieu muon cua
+      # 'sv.hoa' - ca ba deu do nap-du-lieu-mau.sh tao ra. Khi thieu, cac
+      # cau lenh dat muon co guard 'WHERE @lap IS NOT NULL' nen lang le bo
+      # qua, va cua kiem ben duoi bao 'Thieu thiet bi cho muon' (0 thay vi 2).
+      # Vi vay hai buoc danh muc + du lieu mau phai chay TRUOC buoc SLA.
 
       # ----------------------------------------------------------------------
       # Kiem tra DANH MUC NGHIEP VU (du lieu nen) - chan tai lieu sai so lieu
@@ -420,6 +398,9 @@ jobs:
       # khop voi seed-du-lieu-nen.sql ('Văn phòng Khoa Toán - Tin' vs
       # '... - Tin học'), khien JOIN vi tri that bai va 4 thiet bi bi bo qua
       # trong im lang. Job nay chot so luong de khong tai dien.
+      # LUU Y: o buoc nay chi co 13 phieu cua du lieu mau; phieu thu 14 (phieu
+      # muon thiet bi) do buoc SLA ngay sau tao ra, nen con so 14 duoc chot o
+      # buoc "Du lieu bao tri + muon thiet bi".
       - name: Du lieu demo phai du 34 tai san (khong mat thiet bi)
         run: |
           bash scripts/nap-du-lieu-mau.sh
@@ -433,19 +414,58 @@ jobs:
           SW=$(Q "SELECT COUNT(*) FROM glpi_softwares;")
           TK=$(Q "SELECT COUNT(*) FROM glpi_tickets;")
           echo "May tinh: $PC | Man hinh: $MON | May in: $PRN | Thiet bi mang: $NET"
-          echo "Phan mem: $SW | Phieu: $TK"
+          echo "Phan mem: $SW | Phieu (du lieu mau): $TK"
 
           [ "$PC" = "17" ]  || { echo "[LOI] May tinh: mong doi 17, thuc te $PC"; exit 1; }
           [ "$MON" = "5" ]  || { echo "[LOI] Man hinh: mong doi 5, thuc te $MON"; exit 1; }
           [ "$PRN" = "3" ]  || { echo "[LOI] May in: mong doi 3, thuc te $PRN"; exit 1; }
           [ "$NET" = "9" ]  || { echo "[LOI] Thiet bi mang: mong doi 9, thuc te $NET"; exit 1; }
           [ "$SW" = "10" ]  || { echo "[LOI] Phan mem: mong doi 10, thuc te $SW"; exit 1; }
-          [ "$TK" = "14" ]  || { echo "[LOI] Phieu: mong doi 14 (13 demo + 1 phieu muon), thuc te $TK"; exit 1; }
+          [ "$TK" = "13" ]  || { echo "[LOI] Phieu du lieu mau: mong doi 13, thuc te $TK"; exit 1; }
 
           # Moi tai san phai co vi tri (level 3) hop le -> bat loi ten vi tri lech
           ORPHAN=$(Q "SELECT COUNT(*) FROM glpi_computers WHERE locations_id = 0;")
           [ "$ORPHAN" = "0" ] || { echo "[LOI] $ORPHAN may tinh thieu vi tri"; exit 1; }
-          echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 14 phieu"
+          echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 13 phieu"
+
+      - name: Bang SLA phai duoc tao sau khi nap
+        run: |
+          echo "Nap SLA + co che chong lam dung..."
+          bash scripts/nap-sla-va-chong-lam-dung.sh
+          N=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_slas;"')
+          echo "So SLA trong CSDL: $N"
+          [ "$N" -ge 5 ] || { echo "[LOI] Thieu SLA (mong doi >= 5)"; exit 1; }
+          echo "[OK] SLA that da nam trong CSDL, khong con la tuyen bo suong"
+
+      - name: Du lieu bao tri + muon thiet bi phai duoc tao
+        run: |
+          R=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_ticketrecurrents;"')
+          echo "So lich bao tri dinh ky: $R"
+          [ "$R" -ge 2 ] || { echo "[LOI] Thieu lich bao tri (mong doi >= 2)"; exit 1; }
+
+          I=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_reservationitems;"')
+          echo "So thiet bi cho muon: $I"
+          [ "$I" -ge 2 ] || { echo "[LOI] Thieu thiet bi cho muon (mong doi >= 2)"; exit 1; }
+
+          V=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_reservations;"')
+          echo "So luot muon: $V"
+          [ "$V" -ge 2 ] || { echo "[LOI] Thieu luot muon (mong doi >= 2)"; exit 1; }
+
+          # Phieu thu 14 (phieu yeu cau muon thiet bi) do buoc SLA vua tao.
+          TK=$(docker exec pinedesk-db sh -c \
+              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+               "SELECT COUNT(*) FROM glpi_tickets;"')
+          echo "Tong so phieu: $TK"
+          [ "$TK" = "14" ] || { echo "[LOI] Phieu: mong doi 14 (13 demo + 1 phieu muon), thuc te $TK"; exit 1; }
+          echo "[OK] Lich bao tri + luong muon/tra da nam trong CSDL (14 phieu)"
 
       # ----------------------------------------------------------------------
       # TAI KHOAN DEMO phai CO HO SO QUYEN (neu khong thi KHONG dang nhap duoc)

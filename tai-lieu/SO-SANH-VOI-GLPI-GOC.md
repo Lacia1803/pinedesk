@@ -20,8 +20,8 @@
 | Bản gốc dùng được ngay chưa? | Chưa. Bản gốc là tiếng Anh, giao diện Teclib, **không có dữ liệu**, chạy bằng 1 container SQLite. |
 | Điểm khác biệt lớn nhất là gì? | **Việt hóa + giao diện Đà Lạt + dữ liệu nghiệp vụ dựng sẵn + tự động hóa 1 lệnh + hạ tầng bảo mật.** |
 | Nâng cấp GLPI lên 11.1 có mất tùy biến? | **Không** — vì tùy biến nằm ngoài lõi. |
-| Đã kiểm thử thật chưa? | **Rồi.** 13 lỗi im lặng đã tìm ra và khắc phục — xem **mục 2.12**. |
-| Demo cho hội đồng có cần nhập liệu không? | Không. `bash scripts/cai-dat-tat-ca.sh` là có ngay 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 14 phiếu. |
+| Đã kiểm thử thật chưa? | **Rồi.** 14 lỗi im lặng đã tìm ra và khắc phục — xem **mục 2.12**. |
+| Demo cho hội đồng có cần nhập liệu không? | Không. `bash scripts/cai-dat-tat-ca.sh` dựng sẵn danh mục nghiệp vụ, giao diện, SLA; chạy thêm `bash scripts/nap-du-lieu-mau.sh` là có 17 máy tính + 5 màn hình + 3 máy in + 9 thiết bị mạng + 10 phần mềm + 13 phiếu, rồi `bash scripts/nap-sla-va-chong-lam-dung.sh` để thêm 1 phiếu mượn thiết bị (tổng 14 phiếu). |
 
 ---
 
@@ -46,7 +46,7 @@
 | **Sao lưu** | Không có sẵn | `backup/backup.sh` — CSDL + files + config, tự dọn bản cũ | ⭐⭐⭐⭐ |
 | **Tài liệu** | Tài liệu tiếng Anh trực tuyến | **10 tài liệu tiếng Việt** viết riêng cho đồ án | ⭐⭐⭐⭐ |
 | **Trang giới thiệu** | Không có | **Landing page thiết kế riêng** theo bản sắc Đà Lạt & DLU — chạy được **offline** | ⭐⭐⭐⭐⭐ |
-| **Kiểm thử tự động** | Không | 9 script kiểm thử (dịch, font, ảnh giao diện, luồng QR, landing) — **đã phát hiện 13 lỗi thật** | ⭐⭐⭐⭐ |
+| **Kiểm thử tự động** | Không | 9 script kiểm thử (dịch, font, ảnh giao diện, luồng QR, landing) — **đã phát hiện 14 lỗi thật** | ⭐⭐⭐⭐ |
 
 ---
 
@@ -680,8 +680,9 @@ không thể thấy bằng cách đọc mã nguồn.
 | 11 | **Nhãn "Ticket" trên dashboard vẫn tiếng Anh** dù từ điển đã có `Ticket → Phiếu yêu cầu` | Thẻ số liệu hiện `14 Ticket`, trong khi **mọi thẻ khác đã tiếng Việt** | GLPI gọi `_n()` → `translatePlural()` → tra **entry có `msgid_plural`**, **không** dùng entry `msgid` đơn. Bản dịch `vi_VN` chính thức để `msgstr[0] "Ticket"` (chưa dịch) ở entry số nhiều. Từ điển chỉ tác động lên entry đơn → **không chạm tới entry số nhiều** | Thêm bảng `BAN_DICH_SO_NHIEU` + hàm `va_entry_so_nhieu()` vá thẳng entry có ký tự `\0` |
 | 12 | **Sửa `landing/index.html` nhưng trang vẫn hiển thị bản cũ** | File trên host 22.062 bytes (đã sửa), trong container vẫn 21.800 bytes (bản cũ); **file mới tạo không xuất hiện** | Bind mount `./landing:/usr/share/nginx/html/landing:ro` của Docker Desktop trên Windows **ngừng lan truyền thay đổi** — `docker restart` cũng **không** khôi phục | `docker-compose up -d --force-recreate nginx`. Kiểm chứng bằng cách tạo **file đánh dấu** trên host rồi `ls` trong container |
 | 13 | **Chữ tiếng Việt bị hụt khoảng cách, dấu hiện sai** (`Hệ thô  ng`) | Chữ **có dấu** rơi về font hệ thống, chữ **không dấu** dùng font chính → hai mặt chữ khác nhau trên cùng một dòng | Script tải font đặt **trùng tên tệp** cho hai tập ký tự khác nhau: `...-vietnamese.woff2` và `...-latin.woff2` cùng ghi vào **một** tên → **tập tải sau ghi đè tập trước**, tệp còn lại thiếu ký tự Latin | Đặt tên tệp kèm tên tập ký tự (`be-vietnam-pro-400-vietnamese.woff2`). Thêm `scripts/kiem-tra-font.py` đọc **bảng ký tự thật** trong tệp `.woff2` để bắt đúng loại lỗi này |
+| 14 | **Phần mượn/trả thiết bị trống dù script báo thành công** | Cửa kiểm CI thấy **0 thiết bị cho mượn** thay vì 2; chạy tay trên máy đã có sẵn dữ liệu thì không thấy | Pipeline nạp SLA **trước** khi có dữ liệu mẫu. Phần mượn/trả trong tệp SLA dựa trên hai laptop và hai tài khoản do dữ liệu mẫu tạo ra; câu lệnh có guard `WHERE @lap IS NOT NULL` nên khớp 0 dòng **trong im lặng** | Đổi thứ tự CI: danh mục → dữ liệu mẫu → SLA. Cho `nap-sla-va-chong-lam-dung.sh` tự kiểm phần bảo trì + mượn/trả và cảnh báo khi thiếu dữ liệu mẫu |
 
-> **Bài học chung:** cả 13 lỗi đều **im lặng** — không crash, không báo lỗi rõ ràng.
+> **Bài học chung:** cả 14 lỗi đều **im lặng** — không crash, không báo lỗi rõ ràng.
 > Chỉ phát hiện được bằng cách **chạy thật rồi kiểm chứng kết quả đầu ra**
 > (giải mã lại mã QR, đọc header HTTP thật, đọc log GLPI, mở trình duyệt thật).
 >
@@ -924,7 +925,7 @@ Bản gốc GLPI 11 là một **framework ITSM mạnh** nhưng ở trạng thái
 
 **Điểm quan trọng nhất về mặt kỹ thuật:** toàn bộ tùy biến **nằm ngoài mã nguồn lõi** — nhờ plugin, theme và config. Điều này đáp ứng đúng yêu cầu của giảng viên: *"không làm lại từ đầu, tận dụng mã nguồn mở"*, đồng thời **vẫn giữ được khả năng nâng cấp** về sau.
 
-**Về kiểm thử:** đồ án đã được kiểm thử bằng **trình duyệt thật** và **giải mã ngược mã QR** để xác minh kết quả đầu ra, qua đó phát hiện và khắc phục **13 lỗi im lặng** (xem mục 2.12) — trong đó có 1 lỗi **làm yếu bảo mật** và 1 lỗi khiến **mã QR in ra không dùng được**. Đây là minh chứng cho việc kiểm thử thực chất, không chỉ chạy script cho có.
+**Về kiểm thử:** đồ án đã được kiểm thử bằng **trình duyệt thật** và **giải mã ngược mã QR** để xác minh kết quả đầu ra, qua đó phát hiện và khắc phục **14 lỗi im lặng** (xem mục 2.12) — trong đó có 1 lỗi **làm yếu bảo mật** và 1 lỗi khiến **mã QR in ra không dùng được**. Đây là minh chứng cho việc kiểm thử thực chất, không chỉ chạy script cho có.
 
 ---
 

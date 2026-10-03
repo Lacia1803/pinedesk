@@ -165,8 +165,12 @@ else
   echo "       (khong doc duoc GLPI_DB_PASSWORD tu .env)"
 fi
 
-# Kich hoat (enable) neu da cai
-docker exec -u www-data "$GLPI_CONTAINER" php /var/www/glpi/bin/console plugin:activate barcode -u glpi 2>&1 | tail -3 || true
+# Kich hoat (enable) neu da cai.
+# LUU Y: khac voi 'plugin:install', lenh 'plugin:activate' cua GLPI 11 KHONG co
+# tuy chon '-u <user>'. Neu truyen '-u glpi' thi Symfony coi do la tham so la va
+# chi in ra phan tro giup, plugin khong duoc bat (state van = 4). Vi vay KHONG
+# truyen '-u' o day.
+docker exec -u www-data "$GLPI_CONTAINER" php /var/www/glpi/bin/console plugin:activate barcode 2>&1 | tail -3 || true
 
 echo
 echo "==================================================================="

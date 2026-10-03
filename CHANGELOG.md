@@ -54,6 +54,13 @@ năm cửa kiểm CI để những lỗi đó không quay lại.
 
 ### Thêm mới
 
+- **`tai-lieu/BAO-CAO-THUC-TAP.md` — báo cáo thực tập viết theo định dạng của
+  Trường Đại học Đà Lạt.** Viết lại từ đầu: trang bìa, lời cảm ơn, nhận xét đơn
+  vị thực tập (chỗ ký), mục lục, danh mục từ viết tắt / bảng biểu / hình ảnh;
+  phần mở đầu và 5 chương (tổng quan đơn vị thực tập, cơ sở lý thuyết, phân tích
+  và thiết kế, triển khai và kiểm thử, đánh giá); kết luận và kiến nghị, tài liệu
+  tham khảo, phụ lục. Mục 4.1 kể tiến độ theo ba giai đoạn từ 21/09 đến
+  03/10/2026, kể cả những lần phải làm lại.
 - **Từ điển Việt hoá: 541 → 556 thuật ngữ** (+15 mục cho trang tự phục vụ, ví dụ
   "Báo cáo sự cố", "Đặt mượn thiết bị", "Xem phiếu của bạn"). Bản dịch vi_VN chính
   thức của GLPI 11 để trống toàn bộ nhóm nhãn này. Độ phủ đo từ `.mo` thật:

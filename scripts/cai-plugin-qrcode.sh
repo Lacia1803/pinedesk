@@ -92,8 +92,10 @@ SRC_DIR="$(find "extract" -mindepth 1 -maxdepth 1 -type d | head -1)"
 [ -n "$SRC_DIR" ] && [ -d "$SRC_DIR" ] || { err "Khong tim thay thu muc plugin sau khi giai nen"; exit 1; }
 [ -f "$SRC_DIR/vendor/autoload.php" ] || { err "Goi tai ve thieu thu muc vendor/ - khong the cai."; exit 1; }
 ok "Thu muc nguon: $(basename "$SRC_DIR") (co vendor/ day du)"
-# Lay duong dan kieu WINDOWS (C:\...) vi 'docker cp' khong hieu '/g/...' cua Git Bash
-SRC_DIR_WIN="$(cd "$SRC_DIR" && pwd -W 2>/dev/null || echo "$WORKDIR/$SRC_DIR")"
+# Duong dan tuyet doi cua thu muc plugin.
+# - Tren Git Bash (Windows): 'pwd -W' tra ve dang 'C:/...' vi 'docker cp' khong hieu '/g/...'.
+# - Tren Linux (vd: runner CI): 'pwd -W' khong ton tai nen dung 'pwd' thuong.
+SRC_DIR_ABS="$(cd "$SRC_DIR" && { pwd -W 2>/dev/null || pwd; })"
 
 # --- 3. Copy vao volume plugin cua GLPI --------------------------------------
 info "Copy plugin vao volume pinedesk-glpi-plugins..."
@@ -103,7 +105,7 @@ docker volume inspect pinedesk-glpi-plugins >/dev/null 2>&1 || docker volume cre
 
 # Copy bang 'docker cp' -> container tam
 CID="$(docker create -v pinedesk-glpi-plugins:/dest alpine:3.20 sh -c 'sleep 1')"
-docker cp "$SRC_DIR_WIN/." "$CID:/dest/${PLUGIN_NAME}"
+docker cp "$SRC_DIR_ABS/." "$CID:/dest/${PLUGIN_NAME}"
 docker start "$CID" >/dev/null
 docker exec "$CID" chown -R 33:33 "/dest/${PLUGIN_NAME}" 2>/dev/null || true
 docker rm -f "$CID" >/dev/null 2>&1 || true

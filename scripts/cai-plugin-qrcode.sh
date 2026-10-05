@@ -147,7 +147,10 @@ INSTALL_OK=0
 if docker exec -u www-data "$GLPI_CONTAINER" php /var/www/glpi/bin/console plugin:install barcode -u glpi 2>&1 | tee /dev/stderr | grep -qiE 'Plugin .* installed|has been installed'; then
   INSTALL_OK=1
 fi
-# Thu lai khong chi dinh user (mot so ban GLPI dat ten khac)
+# Thu lai neu lan dau khong bat duoc ket qua tu output. LUU Y NGUOC CHIEU:
+# plugin:install BAT BUOC phai co `-u` (thieu `-u` console dung lai hoi
+# "User to use:" roi huy, da do bang lenh that); nguoc lai plugin:activate
+# KHONG nhan `-u`. Hai lenh khac nhau ve tham so.
 if [ "$INSTALL_OK" -eq 0 ]; then
   docker exec -u www-data "$GLPI_CONTAINER" php /var/www/glpi/bin/console plugin:install barcode -u glpi 2>&1 | tail -5 || true
 fi
@@ -165,8 +168,31 @@ else
   echo "       (khong doc duoc GLPI_DB_PASSWORD tu .env)"
 fi
 
-# Kich hoat (enable) neu da cai
-docker exec -u www-data "$GLPI_CONTAINER" php /var/www/glpi/bin/console plugin:activate barcode -u glpi 2>&1 | tail -3 || true
+# Kich hoat (enable) neu da cai.
+# BAI HOC TU LOI THAT (CI bat duoc sau khi them cua dem plugin): tuy chon
+# `-u glpi` CHI co o plugin:install, KHONG co o plugin:activate cua GLPI 11.
+# Truyen `-u` vao activate lam console in usage roi thoat ma loi, bi `|| true`
+# che mat -> tren may sach barcode ket o state=4 (da cai, chua bat) va chi con
+# 2 plugin bat thay vi 3. Da do truc tiep `plugin:activate --help` de xac nhan.
+docker exec -u www-data "$GLPI_CONTAINER" php /var/www/glpi/bin/console plugin:activate barcode 2>&1 | tail -3 || true
+
+# Kiem chung THAT SU da bat chua (state=1). Khong tin ma tra ve cua lenh:
+# plugin:activate tra loi ca khi plugin DA bat (chay lai lan 2), do khong
+# phai loi that, nhung cung khong phai bang chung da bat. Xem state trong CSDL.
+if [ -n "$GLPI_DB_PASSWORD" ]; then
+  STATE=$(docker exec "$DB_CONTAINER" sh -c '
+    MYSQL_PWD="$MARIADB_PASSWORD" mariadb -u "$MARIADB_USER" "$MARIADB_DATABASE" \
+      -N -B -e "SELECT state FROM glpi_plugins WHERE directory='"'"'barcode'"'"';"' \
+    2>/dev/null | tr -d '\r' || true)
+  if [ "$STATE" = "1" ]; then
+    ok "Plugin barcode da bat (state=1)"
+  else
+    err "Plugin barcode CHUA bat duoc (state='${STATE:-khong co ban ghi}')"
+    exit 1
+  fi
+else
+  warn "Khong doc duoc mat khau CSDL tu .env -> bo qua buoc kiem chung state"
+fi
 
 echo
 echo "==================================================================="

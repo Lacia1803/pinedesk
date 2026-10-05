@@ -86,17 +86,29 @@ Kết quả mong đợi (rút gọn):
     -> Trang thai plugin trong CSDL:
        name     version  state
        Barcode  2.7.1    4          <- 4 = da cai, chua bat
+Processing plugin "barcode"...
+Plugin "barcode" has been activated.
+[ OK ] Plugin barcode da bat (state=1)
 ```
 
-### Bước 2 — Kích hoạt
+### Bước 2 — Kích hoạt (script tự làm)
 
-Nếu script dừng ở `state = 4` (đã cài, chưa bật), chạy thêm:
+Script tự chạy `plugin:activate barcode` và **kiểm chứng lại bằng `state = 1`**
+trong CSDL. Nếu bước kiểm chứng thất bại, script dừng với mã lỗi 1 thay vì báo
+thành công giả.
+
+Trường hợp hiếm gặp cần kích hoạt tay (ví dụ script dừng giữa chừng vì mất kết
+nối):
 
 ```bash
 docker exec -u www-data pinedesk-glpi php /var/www/glpi/bin/console plugin:activate barcode
 ```
 
 → Kết quả: **`Plugin "barcode" has been activated.`**
+
+**Lưu ý:** `plugin:activate` **không nhận** tham số `-u glpi` (khác với
+`plugin:install`, lệnh này **bắt buộc** có `-u`). Truyền `-u` vào `activate` sẽ
+khiến lệnh không bật plugin mà không báo lỗi rõ ràng.
 
 ### Bước 3 — Kiểm tra
 
@@ -339,15 +351,14 @@ cd <DUONG-DAN-DU-AN>/pinedesk
 # 1. Plugin co dang Enabled?
 docker exec -u www-data pinedesk-glpi php /var/www/glpi/bin/console plugin:list
 
-# 2. Trang thai trong CSDL
-source .env
-docker exec pinedesk-db mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
-  -e "SELECT name,version,state FROM glpi_plugins;"
+# 2. Trang thai trong CSDL (doc mat khau tu .env cua container, khong lo ra argv)
+docker exec pinedesk-db sh -c 'MYSQL_PWD="$MARIADB_PASSWORD" mariadb \
+  -u "$MARIADB_USER" glpi -e "SELECT name,version,state FROM glpi_plugins;"'
 #   1 = ACTIVATED (tot nhat) | 2 = NOTINSTALLED | 3 = TOBECONFIGURED | 4 = NOTACTIVATED
 
 # 3. Bang du lieu cua plugin da tao chua?
-docker exec pinedesk-db mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
-  -e "SHOW TABLES LIKE '%barcode%';"
+docker exec pinedesk-db sh -c 'MYSQL_PWD="$MARIADB_PASSWORD" mariadb \
+  -u "$MARIADB_USER" glpi -e "SHOW TABLES LIKE '"'"'%barcode%'"'"';"'
 #   Phai thay: glpi_plugin_barcode_configs, glpi_plugin_barcode_configs_types
 
 # 4. Thu sinh 1 ma QR that

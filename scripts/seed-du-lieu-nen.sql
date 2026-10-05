@@ -137,7 +137,7 @@ FROM (
     SELECT 'Phòng Quản lý Đào tạo', 'Khu hành chính H1', 'Phòng ban chức năng' UNION ALL
     SELECT 'Phòng Tài chính Kế hoạch', 'Khu hành chính H1', 'Phòng ban chức năng' UNION ALL
     SELECT 'Phòng Công tác Sinh viên', 'Khu hành chính H1', 'Phòng ban chức năng' UNION ALL
-    SELECT 'Phòng Khoa học Công nghệ', 'Khu hành chính H1', 'Phòng ban chức năng' UNION ALL
+    SELECT 'Phòng Khoa học công nghệ và Hợp tác quốc tế', 'Khu hành chính H1', 'Phòng ban chức năng' UNION ALL
     SELECT 'Văn phòng Đoàn - Hội', 'Khu hành chính H1', 'Văn phòng đoàn thể' UNION ALL
 
     -- Khu dich vu
@@ -145,6 +145,29 @@ FROM (
     SELECT 'Nhà xe sinh viên', 'Khu dịch vụ', 'Khu gửi xe'
 ) p
 WHERE NOT EXISTS (SELECT 1 FROM glpi_locations WHERE name = p.name);
+
+-- 1.4. DON VI TRI CU DO DOI TEN (ban seed cu -> ban hien tai).
+--      Vong NOT EXISTS o tren chi THEM dong moi, khong xoa dong cu; cac ban
+--      seed truoc day dat ten khac cho cung mot phong (vi du
+--      'Phòng Khoa học Công nghệ' -> 'Phòng Khoa học công nghệ và Hợp tác
+--      quốc tế'). Tren may da cai tu ban cu, dong cu con nam lai -> dem ra
+--      55 phong trong khi tai lieu va CI chot 54.
+--      Chi xoa khi: (a) dong thay the moi DA ton tai, (b) khong con bat ky
+--      tham chieu nao (khong co phong con, khong gan cho thiet bi/phieu/
+--      nguoi dung). Chay lai nhieu lan vo hai.
+DELETE FROM glpi_locations
+ WHERE name = 'Phòng Khoa học Công nghệ'
+   AND level = 3
+   AND EXISTS (SELECT 1 FROM (SELECT id FROM glpi_locations WHERE name = 'Phòng Khoa học công nghệ và Hợp tác quốc tế' AND level = 3) n)
+   AND NOT EXISTS (SELECT 1 FROM (SELECT locations_id FROM glpi_locations) c WHERE c.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_computers x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_monitors x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_printers x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_networkequipments x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_peripherals x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_phones x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_tickets x WHERE x.locations_id = glpi_locations.id)
+   AND NOT EXISTS (SELECT 1 FROM glpi_users x WHERE x.locations_id = glpi_locations.id);
 
 
 -- ==============================================================================
@@ -511,16 +534,34 @@ WHERE NOT EXISTS (
 -- ==============================================================================
 --  7. NGUON TIEP NHAN SU CO (glpi_requesttypes)
 -- ==============================================================================
+-- LUU Y: INSERT voi is_helpdesk_default = 0 cho MOI dong, roi chuyen co mac
+-- dinh bang khoi UPDATE ngay ben duoi. Ly do:
+--   1. GLPI chi cho phep DUNG MOT dong is_helpdesk_default = 1. Cach dat co
+--      ngay trong INSERT nhu ban cu chi an toan o lan chay dau; cac lan sau
+--      vong NOT EXISTS bo qua nen co cu (dong khac) van giu =1 -> hai dong =1.
+--      RequestType::getDefault('helpdesk') se tra ve dong DAU TIEN theo id,
+--      tuc dong cu chu khong phai 'Bao qua cong thong tin'.
+--   2. glpi_configs.default_requesttypes_id phai tro ve dung id cua dong mang
+--      co do; Ticket::prepareInputForAdd dung gia tri nay khi phieu thieu
+--      requesttypes_id (vi du phieu tao bang API hoac Form).
 INSERT INTO glpi_requesttypes (name, is_helpdesk_default, is_followup_default, is_mail_default, is_mailfollowup_default, is_active, is_ticketheader, is_itilfollowup, date_creation, date_mod)
-SELECT r.name, r.is_helpdesk_default, 0, 0, 0, 1, 1, 0, NOW(), NOW()
+SELECT r.name, 0, 0, 0, 0, 1, 1, 0, NOW(), NOW()
 FROM (
-    SELECT 'Báo qua mã QR' AS name, 0 AS is_helpdesk_default UNION ALL
-    SELECT 'Báo qua điện thoại', 0 UNION ALL
-    SELECT 'Báo qua email', 0 UNION ALL
-    SELECT 'Báo trực tiếp tại ITC', 0 UNION ALL
-    SELECT 'Báo qua cổng thông tin', 1
+    SELECT 'Báo qua mã QR' AS name UNION ALL
+    SELECT 'Báo qua điện thoại' UNION ALL
+    SELECT 'Báo qua email' UNION ALL
+    SELECT 'Báo trực tiếp tại ITC' UNION ALL
+    SELECT 'Báo qua cổng thông tin'
 ) r
 WHERE NOT EXISTS (SELECT 1 FROM glpi_requesttypes WHERE name = r.name);
+
+-- Chuyen co mac dinh ve 'Bao qua cong thong tin' (idempotent, chay lai vo hai):
+-- xoa co o moi dong khac truoc, roi dat co dung mot dong, roi tro config theo id.
+UPDATE glpi_requesttypes SET is_helpdesk_default = 0 WHERE is_helpdesk_default = 1;
+UPDATE glpi_requesttypes SET is_helpdesk_default = 1 WHERE name = 'Báo qua cổng thông tin';
+UPDATE glpi_configs
+   SET value = (SELECT id FROM glpi_requesttypes WHERE name = 'Báo qua cổng thông tin' LIMIT 1)
+ WHERE name = 'default_requesttypes_id' AND context = 'core';
 
 
 -- ==============================================================================
@@ -575,7 +616,7 @@ SELECT s.ten, CONCAT('Khoa > ', s.ten), 2,
        (SELECT id FROM (SELECT id FROM glpi_groups WHERE name='Khoa' LIMIT 1) x),
        s.ghi_chu, 0, 1, NOW(), NOW()
 FROM (
-    SELECT 'Khoa Toán – Tin' AS ten, 'Khoa phụ trách phòng máy tính toán' AS ghi_chu UNION ALL
+    SELECT 'Khoa Toán – Tin học' AS ten, 'Khoa phụ trách phòng máy tính toán' AS ghi_chu UNION ALL
     SELECT 'Khoa Công nghệ Thông tin', 'Khoa có mật độ thiết bị cao nhất - nhiều phòng máy chuyên ngành' UNION ALL
     SELECT 'Khoa Vật lý và Kỹ thuật hạt nhân', 'Có phòng thí nghiệm chuyên sâu' UNION ALL
     SELECT 'Khoa Hóa học và Môi trường', 'Có phòng thí nghiệm hóa học' UNION ALL
@@ -604,12 +645,12 @@ SELECT s.ten, CONCAT('Phòng chức năng > ', s.ten), 2,
 FROM (
     SELECT 'Phòng Tổ chức – Hành chính' AS ten, NULL AS ghi_chu UNION ALL
     SELECT 'Phòng Quản lý Đào tạo', NULL UNION ALL
-    SELECT 'Phòng Chính trị và Công tác Sinh viên', NULL UNION ALL
-    SELECT 'Phòng Quản lý chất lượng', NULL UNION ALL
-    SELECT 'Phòng Quản lý Khoa học – Hợp tác Quốc tế', NULL UNION ALL
+    SELECT 'Phòng Công tác sinh viên', NULL UNION ALL
+    SELECT 'Phòng Quản lý chất lượng và Pháp chế', NULL UNION ALL
+    SELECT 'Phòng Khoa học công nghệ và Hợp tác quốc tế', NULL UNION ALL
     SELECT 'Phòng Thanh tra', NULL UNION ALL
-    SELECT 'Phòng Tài chính', NULL UNION ALL
-    SELECT 'Phòng Cơ sở Vật chất', 'ĐƠN VỊ CHỦ QUẢN TÀI SẢN - khách hàng chính của hệ thống' UNION ALL
+    SELECT 'Phòng Tài chính Kế hoạch', NULL UNION ALL
+    SELECT 'Phòng Quản trị Cơ sở vật chất', 'ĐƠN VỊ CHỦ QUẢN TÀI SẢN - khách hàng chính của hệ thống' UNION ALL
     SELECT 'Phòng Quản lý Đào tạo Sau Đại học', NULL UNION ALL
     SELECT 'Phòng Tạp chí và Truyền thông', NULL
 ) s
@@ -635,6 +676,30 @@ FROM (
 WHERE NOT EXISTS (
     SELECT 1 FROM (SELECT name FROM glpi_groups) g WHERE g.name = s.ten
 );
+
+
+-- 10.5. DON NHOM CU DO DOI TEN (ban seed cu -> ban hien tai).
+--       Cung ly do nhu 1.4: NOT EXISTS chi them, khong xoa. Sau khi
+--       Trường đổi tên các phòng chức năng, may da cai tu ban cu con giu
+--       6 nhom cu -> dem ra 42 nhom trong khi tai lieu chot 36.
+--       Chi xoa khi: (a) nhom thay the moi DA ton tai, (b) khong con bat ky
+--       tham chieu nao (khong co nhom con, khong gan cho nguoi dung/phieu/
+--       danh muc). Chay lai nhieu lan vo hai.
+DELETE FROM glpi_groups
+ WHERE name IN (
+     'Khoa Toán – Tin',
+     'Phòng Chính trị và Công tác Sinh viên',
+     'Phòng Quản lý chất lượng',
+     'Phòng Quản lý Khoa học – Hợp tác Quốc tế',
+     'Phòng Tài chính',
+     'Phòng Cơ sở Vật chất'
+ )
+ AND NOT EXISTS (SELECT 1 FROM (SELECT groups_id FROM glpi_groups) c WHERE c.groups_id = glpi_groups.id)
+ AND NOT EXISTS (SELECT 1 FROM glpi_groups_users x WHERE x.groups_id = glpi_groups.id)
+ AND NOT EXISTS (SELECT 1 FROM glpi_groups_tickets x WHERE x.groups_id = glpi_groups.id)
+ AND NOT EXISTS (SELECT 1 FROM glpi_groups_items x WHERE x.groups_id = glpi_groups.id)
+ AND NOT EXISTS (SELECT 1 FROM glpi_itilcategories x WHERE x.groups_id = glpi_groups.id)
+ AND NOT EXISTS (SELECT 1 FROM glpi_users x WHERE x.groups_id = glpi_groups.id);
 
 
 -- ==============================================================================

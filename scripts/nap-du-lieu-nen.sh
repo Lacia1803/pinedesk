@@ -31,16 +31,11 @@ if [ ! -f .env ]; then
     echo "[LOI] Khong tim thay file .env"
     exit 1
 fi
-# Doc .env bang vong lap (an toan voi gia tri co khoang trang, bo qua comment).
-# Xoa \r o cuoi: file .env tao bang Notepad tren Windows dung CRLF.
-while IFS='=' read -r _key _val; do
-    _key="${_key%$'\r'}"
-    _val="${_val%$'\r'}"
-    case "$_key" in
-        ''|\#*) continue ;;
-    esac
-    export "$_key=$_val"
-done < .env
+# Doc .env bang bo doc AN TOAN dung chung cua du an (scripts/lib/doc-env.sh):
+# doc tung dong, bo \r (CRLF cua Notepad), KHONG thuc thi noi dung file.
+# shellcheck source=scripts/lib/doc-env.sh
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/doc-env.sh"
+doc_env .env || exit 1
 echo "[OK] Da doc file cau hinh"
 echo ""
 
@@ -50,11 +45,14 @@ echo "     Script co the chay lai nhieu lan, khong tao du lieu trung."
 echo ""
 
 # ---------- Nap du lieu ----------
-docker exec -i pinedesk-db mariadb \
-    -u root \
-    -p"$DB_ROOT_PASSWORD" \
-    --default-character-set=utf8mb4 \
-    "${GLPI_DB_NAME:-glpi}" < scripts/seed-du-lieu-nen.sql
+# BAO MAT: khong truyen mat khau qua -p tren dong lenh (se lo trong argv cua
+# tien trinh docker tren may host). Shell ben trong container doc
+# $MARIADB_ROOT_PASSWORD (bien san co cua container) roi gan cho MYSQL_PWD.
+docker exec -i pinedesk-db sh -c \
+    'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb \
+        -u root \
+        --default-character-set=utf8mb4 \
+        "$1"' _ "${GLPI_DB_NAME:-glpi}" < scripts/seed-du-lieu-nen.sql
 
 echo ""
 echo "=============================================================="
@@ -62,7 +60,7 @@ echo "   HOAN TAT"
 echo "=============================================================="
 echo ""
 echo "   Buoc tiep theo:"
-echo "     1. Mo trinh duyet: https://localhost:8443"
+echo "     1. Mo trinh duyet: https://localhost:${HTTPS_PORT:-8443}"
 echo "     2. Dang nhap va kiem tra cac muc:"
 echo "        - Assets > Locations      (vi tri phong may)"
 echo "        - Assets > Computers      (loai may tinh)"

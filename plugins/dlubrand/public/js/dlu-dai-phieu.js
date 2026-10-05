@@ -50,14 +50,16 @@
 (function () {
     'use strict';
 
-    /* Nhãn tiếng Việt -> bậc ưu tiên (1 = rất thấp, 5 = rất cao).
-       Khớp với locales/vi_VN.po: "Very low", "Low", "Medium", "High", "Very high". */
+    /* Nhãn tiếng Việt -> bậc ưu tiên (1 = rất thấp, 6 = Chính).
+       Khớp với locales/vi_VN.po: "Very low", "Low", "Medium", "High",
+       "Very high", "Major" (mức 6 = "Chính"). */
     var NHAN_SANG_BAC = {
         'Rất thấp': 1,
         'Thấp': 2,
         'Trung bình': 3,
         'Cao': 4,
-        'Rất cao': 5
+        'Rất cao': 5,
+        'Chính': 6
     };
 
     /* Số hiệu cột "Độ ưu tiên" trong bảng danh sách của GLPI. */

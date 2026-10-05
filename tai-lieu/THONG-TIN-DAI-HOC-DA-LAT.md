@@ -64,7 +64,7 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
 
 | # | Tên khoa | Tên miền |
 |---|---|---|
-| 1 | Khoa Toán – Tin | ktt.dlu.edu.vn |
+| 1 | Khoa Toán – Tin học | ktt.dlu.edu.vn |
 | 2 | Khoa Công nghệ Thông tin | cntt.dlu.edu.vn |
 | 3 | Khoa Vật lý và Kỹ thuật hạt nhân | vl.dlu.edu.vn |
 | 4 | Khoa Hóa học và Môi trường | khhmt.dlu.edu.vn |
@@ -85,7 +85,7 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
 
 - **Khoa Công nghệ Thông tin** — phòng máy chuyên ngành (lập trình, mạng, AI).
   Đây là đơn vị có **mật độ thiết bị cao nhất** → ưu tiên triển khai trước.
-- **Khoa Toán – Tin** — phòng máy tính toán, thực hành tin học cơ bản.
+- **Khoa Toán – Tin học** — phòng máy tính toán, thực hành tin học cơ bản.
 - **Các khoa còn lại** — phòng máy dùng chung, chủ yếu là máy tính để bàn
   phục vụ giảng dạy đại cương.
 
@@ -97,21 +97,21 @@ Dùng để tạo **nhóm (Groups)** và **cây vị trí** trong GLPI — mỗi
 |---|---|---|
 | 1 | Phòng Tổ chức – Hành chính | tchc.dlu.edu.vn |
 | 2 | Phòng Quản lý Đào tạo | pqldt.dlu.edu.vn |
-| 3 | Phòng Chính trị và Công tác Sinh viên | pctsv.dlu.edu.vn |
-| 4 | Phòng Quản lý chất lượng | pktkd.dlu.edu.vn |
-| 5 | Phòng Quản lý Khoa học – Hợp tác Quốc tế | pkhht.dlu.edu.vn |
+| 3 | Phòng Công tác sinh viên | pctsv.dlu.edu.vn |
+| 4 | Phòng Quản lý chất lượng và Pháp chế | pktkd.dlu.edu.vn |
+| 5 | Phòng Khoa học công nghệ và Hợp tác quốc tế | pkhht.dlu.edu.vn |
 | 6 | Phòng Thanh tra | dlu.edu.vn |
-| 7 | Phòng Tài chính | ptc.dlu.edu.vn |
-| 8 | **Phòng Cơ sở Vật chất** | pcsvc.dlu.edu.vn |
+| 7 | Phòng Tài chính Kế hoạch | ptc.dlu.edu.vn |
+| 8 | **Phòng Quản trị Cơ sở vật chất** | pcsvc.dlu.edu.vn |
 | 9 | Phòng Quản lý Đào tạo Sau Đại học | sdh.dlu.edu.vn |
 | 10 | Phòng Tạp chí và Truyền thông | ptctt.dlu.edu.vn |
 
 > **⭐ LƯU Ý QUAN TRỌNG CHO ĐỒ ÁN:**
-> **Phòng Cơ sở Vật chất (`pcsvc`)** là đơn vị **quản lý tài sản, cơ sở vật chất**
+> **Phòng Quản trị Cơ sở vật chất (`pcsvc`)** là đơn vị **quản lý tài sản, cơ sở vật chất**
 > của Trường. Trong thực tế, đây chính là **đơn vị chủ quản của PineDesk** —
 > tức là **khách hàng chính** của đồ án. Khi thuyết minh, hãy nêu rõ:
 > hệ thống được xây dựng để phục vụ nghiệp vụ quản lý & hỗ trợ kỹ thuật cho
-> Phòng Cơ sở Vật chất và Trung tâm Công nghệ thông tin.
+> Phòng Quản trị Cơ sở vật chất và Trung tâm Công nghệ thông tin.
 
 ---
 

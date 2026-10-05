@@ -14,7 +14,7 @@ Hệ thống gồm 4 thành phần, chạy trong các container Docker độc l�
 | Thành phần | Công nghệ | Vai trò |
 |---|---|---|
 | `pinedesk-gateway` | Nginx 1.27 | Cổng vào, HTTPS, bảo mật, chống brute-force |
-| `pinedesk-glpi` | GLPI 11 (PHP 8.2) | Ứng dụng ITSM chính |
+| `pinedesk-glpi` | GLPI 11 (PHP 8.4) | Ứng dụng ITSM chính |
 | `pinedesk-db` | MariaDB 10.11 | Cơ sở dữ liệu |
 | `pinedesk-redis` | Redis 7 | Cache phiên làm việc |
 
@@ -48,7 +48,7 @@ Người dùng (trình duyệt)
 | Phân công người xử lý, theo dõi tiến độ | **Assignment**, **SLA**, **Timeline** trên ticket |
 | Dashboard thống kê | Module **Dashboards** (kéo thả, biểu đồ tùy chỉnh) |
 | Quản lý phần mềm cài đặt | Module **Software** (quản lý phần mềm trên từng máy) |
-| Việt hóa | Gói `vi_VN` + lớp phủ bổ sung của đồ án → **31,8%** (xem `HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md` mục A.2) |
+| Việt hóa | Gói `vi_VN` + lớp phủ bổ sung của đồ án → **32,0%** (xem `HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md` mục A.2) |
 | Tùy biến giao diện | Bảng màu "Đà Lạt" (SCSS) + plugin `dlubrand` ghi đè CSS |
 | Bảo mật, an toàn dữ liệu | HTTPS, rate limit, chặn file nhạy cảm, phân quyền, sao lưu |
 
@@ -57,11 +57,12 @@ Người dùng (trình duyệt)
 ```bash
 # Di chuyen vao thu muc goc cua du an (thay bang duong dan thuc tren may ban)
 cd <DUONG-DAN-DU-AN>/pinedesk
+cp .env.example .env      # roi mo .env va doi het mat khau mau truoc khi chay
 bash scripts/cai-dat-tat-ca.sh
 ```
 
 Script tự động làm 6 việc: khởi động container → nạp danh mục nghiệp vụ → bật plugin
-(QR + giao diện) → nạp bản dịch tiếng Việt → **nạp SLA thật + cơ chế chống lạm dụng**
+(QR + giao diện + chặn hạn mức) → nạp bản dịch tiếng Việt → **nạp SLA thật + cơ chế chống lạm dụng**
 → kiểm tra sức khỏe hệ thống, rồi in ra kết quả từng bước (màu xanh = đạt).
 
 > Chi tiết về giao diện & Việt hoá: xem **`tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`**
@@ -205,7 +206,7 @@ Kết quả mong đợi — cả 4 container đều `Up`:
 ```
 NAMES              STATUS
 pinedesk-gateway   Up (healthy)
-pinedesk-glpi      Up
+pinedesk-glpi      Up (healthy)
 pinedesk-db        Up (healthy)
 pinedesk-redis     Up (healthy)
 ```
@@ -298,7 +299,7 @@ bảng màu trên.
 > bash scripts/nap-du-lieu-nen.sh
 > ```
 >
-> Script tự tạo: **12 tòa nhà · 54 phòng máy · 10 trạng thái · 24 hãng ·
+> Script tự tạo: **12 tòa nhà · 54 phòng · 10 trạng thái · 24 hãng ·
 > 35 loại thiết bị · 55 model · 10 loại sự cố cấp 1 · 69 loại cấp 2 ·
 > 11 nguồn tiếp nhận · 11 hình thức xử lý · 11 nhóm phần mềm**.
 >
@@ -387,13 +388,13 @@ Script tạo cây nhóm 2 cấp khớp **cơ cấu tổ chức thật** của Tr
 ```
 Nhóm (Groups)
 ├── Khoa (16)
-│   ├── Khoa Toán – Tin
+│   ├── Khoa Toán – Tin học
 │   ├── Khoa Công nghệ Thông tin        ← mật độ thiết bị cao nhất
 │   ├── Khoa Vật lý và Kỹ thuật hạt nhân
 │   ├── Khoa Hóa học và Môi trường
 │   ├── ... (12 khoa còn lại)
 ├── Phòng chức năng (10)
-│   ├── Phòng Cơ sở Vật chất           ← ĐƠN VỊ CHỦ QUẢN TÀI SẢN
+│   ├── Phòng Quản trị Cơ sở vật chất  ← ĐƠN VỊ CHỦ QUẢN TÀI SẢN
 │   ├── Phòng Quản lý Đào tạo
 │   └── ... (8 phòng còn lại)
 └── Trung tâm và Viện (7)
@@ -412,7 +413,7 @@ Vào **Cấu hình** → **Người dùng** → **Hồ sơ** (Profiles)
 | Hồ sơ | Quyền hạn | Dành cho |
 |---|---|---|
 | Super-Admin | Toàn quyền | Quản trị viên hệ thống |
-| Admin | Quản lý nhưng không sửa cấu hình lõi | Cán bộ Phòng Cơ sở Vật chất |
+| Admin | Quản lý nhưng không sửa cấu hình lõi | Cán bộ Phòng Quản trị Cơ sở vật chất |
 | Technician | Xử lý ticket, cập nhật thiết bị | Kỹ thuật viên Trung tâm CNTT |
 | Self-Service | Chỉ tạo ticket, xem thiết bị của mình | Sinh viên, giảng viên |
 
@@ -596,6 +597,22 @@ docker logs pinedesk-gateway --tail 30
 
 **Nếu cổng bị chiếm:** Đổi `HTTPS_PORT` trong file `.env` thành cổng khác
 (ví dụ `9443`), rồi chạy lại `docker-compose up -d`.
+
+Từ bản này, cổng mới **tự động áp cho cả hai chỗ từng hardcode `8443`:**
+redirect HTTP→HTTPS của nginx (nhờ cơ chế template, xem mục 11.3) và
+`url_base` mà script cài đặt ghi vào CSDL. Riêng `url_base` cần chạy lại
+script cài đặt (hoặc đặt tay) để cập nhật:
+
+```bash
+docker exec -u www-data pinedesk-glpi sh -c \
+  'cd /var/www/glpi && php bin/console config:set url_base "https://localhost:9443" --no-interaction'
+```
+
+Sau khi đổi cổng, nhớ tạo lại gateway để template được xử lý lại:
+
+```bash
+docker compose up -d nginx
+```
 
 ### 8.3. GLPI báo lỗi kết nối cơ sở dữ liệu
 
@@ -796,7 +813,7 @@ pinedesk/
 | MariaDB | 10.11 LTS | GPL v2 |
 | Redis | 7 Alpine | BSD |
 | Nginx | 1.27 Alpine | BSD-2 |
-| PHP | 8.2 | PHP License |
+| PHP | 8.4 | PHP License |
 
 ### 11.2. Cổng và giao thức
 
@@ -825,9 +842,14 @@ for f in scripts/*.js scripts/lib/*.js; do node --check "$f"; done
 docker compose config --quiet
 
 # 4. Cau hinh Nginx (can them --add-host vi upstream 'glpi' chi co trong Docker)
+#    LUU Y: default.conf la TEMPLATE (con bien HTTPS_PORT trong redirect) nen
+#    phai mount vao /etc/nginx/templates + truyen -e HTTPS_PORT. Entrypoint cua
+#    image nginx chay envsubst sinh ra /etc/nginx/conf.d/default.conf truoc khi
+#    thuc thi lenh `nginx -t`.
 docker run --rm --add-host glpi:127.0.0.1 \
+  -e HTTPS_PORT=8443 \
   -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
-  -v "$PWD/nginx/conf.d:/etc/nginx/conf.d:ro" \
+  -v "$PWD/nginx/conf.d/default.conf:/etc/nginx/templates/default.conf.template:ro" \
   -v "$PWD/nginx/ssl:/etc/nginx/ssl:ro" \
   -v "$PWD/landing:/usr/share/nginx/html/landing:ro" \
   nginx:1.27-alpine nginx -t

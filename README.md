@@ -79,7 +79,7 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 | **Bảo trì định kỳ** | Lịch sử sửa chữa theo từng thiết bị; lịch bảo trì tạo qua giao diện GLPI |
 | **Dashboard** | Thống kê số thiết bị, sự cố, lịch bảo trì theo thời gian thực |
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
-| **Việt hoá** | Mặc định tiếng Việt, 541 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (31,8% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
+| **Việt hoá** | Mặc định tiếng Việt, 556 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (32,0% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
 | **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
@@ -93,15 +93,19 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 ```bash
 # Di chuyển vào thư mục gốc của dự án (thay bằng đường dẫn thực trên máy bạn)
 cd duong-dan-toi/pinedesk
+cp .env.example .env     # rồi mở .env và đổi TẤT CẢ mật khẩu mẫu
 bash scripts/cai-dat-tat-ca.sh
 ```
+
+Script kiểm tra `.env` trước khi khởi động: thiếu file, hoặc mật khẩu còn
+nguyên chuỗi mẫu `<DOI_MAT_KHAU_MANH_TAI_DAY>`, đều bị từ chối kèm hướng dẫn.
 
 Script tự động làm 6 việc và báo kết quả từng bước:
 
 1. Khởi động 4 container (GLPI · MariaDB · Redis · Nginx)
-2. Nạp **danh mục nghiệp vụ**: 12 toà nhà · 54 phòng máy · 16 khoa · 10 phòng ·
+2. Nạp **danh mục nghiệp vụ**: 12 toà nhà · 54 phòng · 16 khoa · 10 phòng ·
    7 trung tâm · 10 trạng thái · 79 loại sự cố …
-3. Bật **plugin QR** + **plugin giao diện Đà Lạt**
+3. Bật **plugin QR** + **plugin giao diện Đà Lạt** + **plugin chặn hạn mức phiếu**
 4. Nạp **bản dịch tiếng Việt** (gộp bản chính thức + bổ sung của đồ án)
 5. Nạp **SLA thật + cơ chế chống lạm dụng** (hạn mức phiếu, chống trùng, nhật ký)
 6. Kiểm tra sức khỏe hệ thống (5 hạng mục)
@@ -140,6 +144,9 @@ pinedesk/
 │   └── ssl/openssl-san.cnf      #   Cấu hình sinh chứng chỉ SSL (có SAN)
 ├── themes/                      # Đăng ký bảng màu Đà Lạt (chỉ có tên file, KHÔNG chứa màu)
 ├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (CSS + logo) — NGUỒN MÀU DUY NHẤT
+├── plugins/pinedesk/            # ★ Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
+│   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
+│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (37 điểm kiểm)
 ├── landing/                     # ★ Trang giới thiệu dự án (nginx phục vụ tại /landing/)
 │   ├── index.html               #   Nội dung trang
 │   ├── assets/css/style.css     #   Thiết kế riêng (Đà Lạt + DLU)
@@ -154,12 +161,14 @@ pinedesk/
 │   ├── nap-sla-va-chong-lam-dung.sh # ★ Nạp SLA thật + hạn mức chống spam
 │   ├── seed-sla-va-chong-lam-dung.sql #  SLA + bảng nhật ký/hạn mức
 │   ├── kiem-tra-lam-dung.sh     # ★ Phát hiện spam / trùng phiếu theo tài khoản
+│   ├── kiem-tra-chuc-nang.sh    # ★ Kiểm thử chức năng theo vai trò (KTV/sinh viên)
+│   ├── quet-bi-mat.sh           #   Quét bí mật hardcode (CI chạy)
 │   ├── tai-font.py              #   Tải font về máy (có subset tiếng Việt)
 │   ├── tao-mo-bo-sung.py        #   Tạo lớp phủ bản dịch
 │   ├── gop-ban-dich-tieng-viet.py  # Gộp bản dịch (không mất chuỗi + và số nhiều)
 │   ├── do-do-phu-tieng-viet.py  #   Đo tỉ lệ Việt hoá
 │   ├── bo-sung-tieng-viet.py    #   Từ điển thuật ngữ (đơn + số nhiều)
-│   ├── chup-lai-anh-minh-chung.js  # Chụp 19 ảnh minh chứng (một màn hình một ảnh)
+│   ├── chup-lai-anh-minh-chung.js  # Chụp tối đa 16 ảnh minh chứng (một màn hình một ảnh)
 │   ├── chup-anh-qr-admin.js     #   Chụp luồng in QR (cần tài khoản quản trị)
 │   ├── chup-anh-dashboard.js    #   Chụp ảnh bảng điều khiển cho landing page
 │   ├── chup-anh-tung-khu.js     #   Chụp riêng từng khu để soi thiết kế
@@ -265,6 +274,9 @@ bash   scripts/viet-hoa-du-lieu.sh   # Việt hoá dữ liệu (tên đơn vị,
 python scripts/sinh-ma-qr.py         # Sinh QR hàng loạt (dự phòng)
 
 # Landing page
+#   Các script Node bên dưới cần gói puppeteer-core. Cài một lần:
+#     npm i puppeteer-core
+#   (hoặc trỏ NODE_PATH tới thư mục node_modules đã có sẵn gói này)
 python scripts/tai-font.py           # Tải font về máy (cần mạng, chỉ chạy 1 lần)
 node   scripts/kiem-tra-landing.js   # Kiểm tra landing (anchor, ảnh, font, console)
 node   scripts/chup-anh-tung-khu.js  # Chụp riêng từng khu để soi thiết kế
@@ -272,7 +284,7 @@ python scripts/kiem-tra-font.py      # Đo phủ ký tự thật trong tệp fon
 
 # Chụp ảnh giao diện (cần đăng nhập) — mật khẩu lấy từ biến môi trường:
 #   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
-node   scripts/chup-lai-anh-minh-chung.js # Chụp 19 ảnh minh chứng cho README
+node   scripts/chup-lai-anh-minh-chung.js # Chụp tối đa 16 ảnh minh chứng cho README
 node   scripts/chup-anh-dashboard.js # Chụp lại ảnh dashboard cho landing page
 #   Hai ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
 

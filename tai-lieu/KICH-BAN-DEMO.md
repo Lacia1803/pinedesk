@@ -98,6 +98,12 @@ bash scripts/kiem-tra-lam-dung.sh
 > *"Đây là tầng nghiệp vụ. Nginx chặn theo IP, nhưng phòng máy dùng NAT chung nên
 > chặn theo IP sẽ chặn oan cả lớp — nên phải đếm theo tài khoản."*
 
+**Bước 2b — Chứng minh chặn thật bằng plugin (30 giây, tuỳ chọn):**
+
+Nếu còn giờ: đang đăng nhập `sv.hoa`, nộp liên tiếp đến phiếu thứ 6 đang mở →
+hệ thống **chặn ngay kèm thông báo tiếng Việt** ("Bạn đang có 5 phiếu chưa xử lý
+xong..."). Đây là bằng chứng tầng nghiệp vụ chạy thật, không chỉ báo cáo.
+
 **Bước 3 — Chứng minh rate limit (30 giây):**
 
 Chạy lệnh này **trước buổi bảo vệ để có ảnh**, hoặc demo trực tiếp nếu tự tin:
@@ -192,7 +198,7 @@ tiền tố `TDL` là mã trường DLU.
 |---|---|
 | *"Em đã gặp ITC chưa?"* | **"Dạ chưa."** Rồi nêu kế hoạch phỏng vấn |
 | *"SLA này ai ban hành?"* | **"Chưa ai — là đề xuất của em."** |
-| *"Sinh viên spam thì sao?"* | 6 tầng; chỉ rõ 2 tầng đã dựng + demo 429 |
+| *"Sinh viên spam thì sao?"* | 6 tầng; T1/T3/T4/T6 đã dựng thật, chỉ T5 còn ở mức quy trình; demo 429 + chặn phiếu thứ 6 |
 | *"Sao không dùng Google Form?"* | Không phân công / không SLA / không truy vết / NAT & 5 nhân sự |
 | *"Chịu được mấy nghìn người?"* | **"Em chưa đo, nên không dám khẳng định."** |
 

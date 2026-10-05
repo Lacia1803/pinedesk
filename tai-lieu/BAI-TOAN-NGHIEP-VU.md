@@ -104,7 +104,8 @@ Nguồn: https://dlu.edu.vn/ (truy cập 02/10/2026).
 
 **Phòng máy (phạm vi phục vụ trực tiếp):** ITC công bố có "N phòng máy thực hành"
 (số hiển thị động trên trang chủ, không lấy được giá trị tĩnh) 🟢. Đồ án hiện mô
-hình hoá **54 phòng máy** trong dữ liệu nền — con số này là **cấu trúc mẫu của đồ
+hình hoá **54 phòng** trong dữ liệu nền (16 phòng máy thực hành, 8 phòng thí
+nghiệm, còn lại là phòng học và phòng ban). Con số này là **cấu trúc mẫu của đồ
 án**, không phải số liệu công bố của Trường 🟡.
 
 ---
@@ -244,19 +245,22 @@ có thể trình diễn**, không phải "GLPI có sẵn".
 
 | Tầng | Cơ chế | Chặn được | Trạng thái |
 |---|---|---|---|
-| **T1 — Mạng (Nginx)** | Rate limit theo IP cho endpoint nộp phiếu & form đăng nhập; `limit_req_status 429` | R1, R6 | 🟢 đã có cho đăng nhập; xem ghi chú mục 6.3 |
+| **T1 — Mạng (Nginx)** | Rate limit theo IP cho endpoint nộp phiếu & form đăng nhập; `limit_req_status 429` | R1, R6 | 🟢 đã có cho cả đăng nhập lẫn mọi đường nộp phiếu |
 | **T2 — Phiên (GLPI)** | Yêu cầu đăng nhập để nộp phiếu (không có nộp ẩn danh) | R5 | 🟢 có sẵn |
-| **T3 — Nghiệp vụ** | Trần số phiếu đang mở / người; chặn theo cửa sổ thời gian | R1, R2 | 🟡 đang triển khai |
-| **T4 — Chống trùng** | Cảnh báo khi cùng người + cùng thiết bị + cùng loại sự cố trong cửa sổ ngắn | R2 | 🟡 đang triển khai |
-| **T5 — Kiểm duyệt** | Phiếu mới mặc định vào trạng thái chờ kỹ thuật viên xác nhận trước khi giao việc | R3, R4 | 🟡 đang triển khai |
-| **T6 — Nhật ký** | Ghi log IP + tài khoản + thời điểm cho mọi lần tạo phiếu | R5 | 🟢 có sẵn trong GLPI |
+| **T3 — Nghiệp vụ** | Trần phiếu đang mở (5) và trần phiếu/ngày (10) theo tài khoản, thực thi bằng plugin ngoài lõi | R1, R2 | 🟢 đã dựng thật (`plugins/pinedesk`) |
+| **T4 — Chống trùng** | Chặn phiếu trùng cùng người + cùng thiết bị (hoặc cùng loại sự cố + cùng vị trí) trong cửa sổ 30 phút | R2 | 🟢 đã dựng thật (`plugins/pinedesk`) |
+| **T5 — Kiểm duyệt** | Phiếu mới mặc định vào trạng thái chờ kỹ thuật viên xác nhận trước khi giao việc | R3, R4 | 🟡 quy trình vận hành, chưa tự động hoá bằng mã |
+| **T6 — Nhật ký** | Ghi log IP + tài khoản + thời điểm cho mọi lần tạo phiếu, kể cả lần bị chặn | R5 | 🟢 đã dựng thật (bảng riêng của plugin) |
 
 ### 6.3. Ghi chú kỹ thuật quan trọng
 
-**Nginx hiện chỉ rate-limit ở `/front/login.php` và `/index.php`** 🟢 (xem
-`nginx/conf.d/default.conf`). Endpoint nộp phiếu `/front/ticket.form.php`
-**chưa được giới hạn**. Đây chính là lỗ hổng hội đồng có thể chỉ ra — và đồ án
-đang bổ sung. Chi tiết và bằng chứng sau khi sửa: `tai-lieu/CHONG-LAM-DUNG.md`.
+**Nginx rate-limit mọi đường nộp phiếu** 🟢 (xem `nginx/conf.d/default.conf`):
+`/front/(ticket|problem|change).form.php`, đường biểu mẫu GLPI 11
+`/Form/SubmitAnswers` và `/Form/ValidateAnswers`, cùng `/apirest.php` và
+`/api.php`. Tầng nghiệp vụ do plugin `plugins/pinedesk` thực thi ngay tại thời
+điểm tạo phiếu (hook `PRE_ITEM_ADD` của GLPI): vượt trần phiếu mở hoặc trần
+phiếu/ngày thì phiếu không được ghi, trùng phiếu thì cũng vậy. Chi tiết và bằng
+chứng đo được: `tai-lieu/CHONG-LAM-DUNG.md`.
 
 **Vì sao không đặt rate limit quá chặt cho endpoint nghiệp vụ:** khuôn viên trường
 dùng NAT chung → nhiều người học chung một IP ra ngoài. Nếu chặn theo IP quá gắt,

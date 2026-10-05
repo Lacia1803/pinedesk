@@ -46,6 +46,10 @@ compose_up_an_toan() {
     fi
 
     # --- Phat hien 'internal' da doi (chi khi co Python de doc JSON) ----------
+    # LUU Y: canh bao (khong doc duoc config / loi inspect) phai in ra STDERR,
+    # khong duoc lot vao $da_doi — neu lot vao, doan duoi se hieu nham la
+    # "mang da doi" va tu dong chay `docker compose down` (hanh vi sai).
+    # $da_doi chi chua CAC DONG CHENH LECH that su.
     local da_doi=""
     if [ -n "$py" ]; then
         da_doi="$(
@@ -54,6 +58,9 @@ import json, subprocess, sys
 try:
     cfg = json.load(sys.stdin)
 except Exception:
+    # Khong doc duoc cau hinh compose -> KHONG the kiem tra; bao dong de
+    # nguoi dung biet (truoc day loi nay bi nuot im lang).
+    print("  - [CANH BAO] Khong doc duoc `docker compose config` (JSON) -> bo qua kiem tra mang.", file=sys.stderr)
     sys.exit(0)
 for key, net in (cfg.get("networks") or {}).items():
     name = net.get("name") or key
@@ -62,12 +69,25 @@ for key, net in (cfg.get("networks") or {}).items():
         ["docker", "network", "inspect", name, "--format", "{{.Internal}}"],
         capture_output=True, text=True)
     if r.returncode != 0:
-        continue                       # mang chua ton tai -> bo qua
+        # Phan biet "mang chua ton tai" (binh thuong, bo qua) voi loi khac
+        # (daemon loi, quyen...) - loi khac phai bao dong, khong duoc nuot.
+        err = (r.stderr or "").lower()
+        if "no such network" in err or "not found" in err:
+            continue
+        print(f"  - [CANH BAO] Khong kiem tra duoc mang {name}: {r.stderr.strip()}", file=sys.stderr)
+        continue
     have = r.stdout.strip().lower() == "true"
     if want != have:
         print(f"  - {name}: khai bao internal={want}, thuc te={have}")
-' 2>/dev/null
+'
         )" || true
+    else
+        # Khong co Python -> kiem tra 'internal' bi BO QUA. Phai noi ro, neu
+        # khong nguoi dung tuong he thong da duoc bao ve (false-negative im lang).
+        echo "  [LUU Y] Khong tim thay Python (python3/python) -> bo qua kiem tra"
+        echo "          co 'internal' cua mang. Neu vua doi gia tri nay trong"
+        echo "          docker-compose.yml, hay chay 'docker compose down' thu cong"
+        echo "          truoc khi 'up' de tranh loi mat ket noi CSDL."
     fi
 
     if [ -n "$da_doi" ]; then

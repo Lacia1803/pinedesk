@@ -8,11 +8,15 @@
 #
 #    1. Cu phap shell (bash -n) + shellcheck
 #    2. Cu phap Python (py_compile) + cu phap JavaScript (node --check)
-#    3. Cau hinh docker-compose hop le (docker compose config)
-#    4. Cau hinh Nginx hop le (nginx -t trong container that)
-#    5. Chung chi SSL sinh duoc va CO Subject Alternative Name (SAN)
-#    6. Khong lo mat khau / duong dan tuyet doi cua may ca nhan
-#    7. Smoke test: khoi dong that 4 container roi kiem tra HTTP
+#    3. Cu phap PHP cua plugin (php -l, cung dong PHP 8.4 voi container GLPI)
+#    4. Cau hinh docker-compose hop le (docker compose config)
+#    5. Cau hinh Nginx hop le (nginx -t trong container that)
+#    6. Chung chi SSL sinh duoc va CO Subject Alternative Name (SAN)
+#    7. Khong lo mat khau / duong dan tuyet doi cua may ca nhan
+#    8. Smoke test: khoi dong that 4 container roi kiem tra HTTP + nghiep vu
+#
+#  THU TU NAP DU LIEU (bat buoc, xem chu thich trong job smoke):
+#    danh muc -> du lieu mau -> Viet hoa -> SLA + chong lam dung
 # ==============================================================================
 
 name: CI
@@ -35,10 +39,10 @@ permissions:
 jobs:
 
   # --------------------------------------------------------------------------
-  # 1. Kiem tra cu phap: shell, Python, JavaScript
+  # 1. Kiem tra cu phap: shell, Python, JavaScript, PHP
   # --------------------------------------------------------------------------
   syntax:
-    name: Cu phap (shell / Python / JS)
+    name: Cu phap (shell / Python / JS / PHP)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,28 +55,58 @@ jobs:
         with:
           node-version: '22'
 
+      # `set -e` + `bash -n` tran: mot file loi la job do ngay.
+      # (Ban cu thieu, nhung bash -n hi hong hiem khi nen khong thay;
+      #  van dat cho chac - loi cu phap shell la loi chan hoan toan.)
       - name: Cu phap shell (bash -n)
         run: |
+          set -e
           mapfile -t FILES < <(find . -name '*.sh' -not -path './node_modules/*')
           echo "Kiem tra ${#FILES[@]} file shell"
           for f in "${FILES[@]}"; do
-            bash -n "$f" && echo "  [OK] $f"
+            bash -n "$f"
+            echo "  [OK] $f"
           done
 
       - name: Cu phap Python (py_compile)
         run: |
+          set -e
           mapfile -t FILES < <(find . -name '*.py' -not -path './node_modules/*')
           echo "Kiem tra ${#FILES[@]} file Python"
-          python -m py_compile "${FILES[@]}" && echo "  [OK] tat ca file Python"
+          python -m py_compile "${FILES[@]}"
+          echo "  [OK] tat ca file Python"
 
+      # Quet CA scripts/ lan plugins/*/public/js (ban cu chi quet scripts/).
       - name: Cu phap JavaScript (node --check)
         run: |
-          mapfile -t FILES < <(find scripts -name '*.js' 2>/dev/null || true)
+          set -e
+          mapfile -t FILES < <(find . -name '*.js' -not -path './node_modules/*' -not -path './.git/*')
           if [ ${#FILES[@]} -eq 0 ]; then echo "Khong co file JS"; exit 0; fi
           echo "Kiem tra ${#FILES[@]} file JS"
           for f in "${FILES[@]}"; do
-            node --check "$f" && echo "  [OK] $f"
+            node --check "$f"
+            echo "  [OK] $f"
           done
+
+      # Plugin PHP (pinedesk, dlubrand) la ma nguon THAT SU chay tren he thong.
+      # Khong lint PHP nghia la mot loi cu phap trong hook.php se chi lo ra khi
+      # smoke test chay — hoac te hon, khi nguoi dung bam "Tao phieu" tren may
+      # that. Dung PHP 8.4 — dung dong voi container GLPI tren may that
+      # (da kiem chung: pinedesk-glpi chay PHP 8.4.13) de lint.
+      - name: Cu phap PHP (php -l)
+        run: |
+          docker run --rm -v "$PWD:/app" -w /app php:8.4-cli sh -c '
+            set -e
+            FILES=$(find plugins -name "*.php" -not -path "*/vendor/*")
+            if [ -z "$FILES" ]; then echo "Khong co file PHP"; exit 0; fi
+            N=0
+            for f in $FILES; do
+              php -l "$f" >/dev/null
+              echo "  [OK] $f"
+              N=$((N+1))
+            done
+            echo "Kiem tra $N file PHP: tat ca hop le"
+          '
 
   # --------------------------------------------------------------------------
   # 2. Lint shell nang cao (shellcheck)
@@ -114,6 +148,20 @@ jobs:
           echo "--- Cac dich vu duoc dinh nghia ---"
           docker compose config --services
 
+      # Bao ve: moi bien mat khau trong compose PHAI co cu phap ${VAR:?...}.
+      # Thieu guard -> `docker compose up` voi .env thieu bien se chay voi
+      # mat khau RONG thay vi dung han (da xay ra that voi GLPI_DB_PASSWORD).
+      - name: Moi bien mat khau trong compose phai co guard :?
+        run: |
+          for v in GLPI_DB_PASSWORD DB_ROOT_PASSWORD REDIS_PASSWORD; do
+            if ! grep -qF "\${$v:?" docker-compose.yml; then
+              echo "[LOI] Bien $v trong docker-compose.yml thieu guard ':?'"
+              echo "      (mat khau rong lam he thong mo cong khai)"
+              exit 1
+            fi
+            echo "  [OK] $v co guard :?"
+          done
+
       - name: Kiem tra moi service deu co healthcheck
         run: |
           docker compose config --format json | jq -r '
@@ -143,10 +191,15 @@ jobs:
         run: |
           # --add-host glpi:127.0.0.1: nginx -t phan giai upstream "glpi" luc
           # nap cau hinh. Ngoai mang Docker khong co ten nay -> phai tro tam.
+          # default.conf la TEMPLATE (con ${HTTPS_PORT}): phai mount vao
+          # /etc/nginx/templates va truyen -e HTTPS_PORT. Entrypoint cua image
+          # nginx se chay envsubst sinh ra /etc/nginx/conf.d/default.conf
+          # TRUOC khi thuc thi lenh `nginx -t`.
           docker run --rm \
             --add-host glpi:127.0.0.1 \
+            -e HTTPS_PORT=8443 \
             -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
-            -v "$PWD/nginx/conf.d:/etc/nginx/conf.d:ro" \
+            -v "$PWD/nginx/conf.d/default.conf:/etc/nginx/templates/default.conf.template:ro" \
             -v "$PWD/nginx/ssl:/etc/nginx/ssl:ro" \
             -v "$PWD/landing:/usr/share/nginx/html/landing:ro" \
             -v "$PWD/tai-lieu:/usr/share/nginx/html/tai-lieu:ro" \
@@ -218,16 +271,21 @@ jobs:
 
       - name: Khong co duong dan tuyet doi cua may ca nhan trong ma nguon
         run: |
-          # Cac mau duong dan chi ton tai tren may cua mot nguoi
+          # Cac mau duong dan chi ton tai tren may cua mot nguoi.
+          # Quet ca *.md/*.html: tai lieu huong dan cung khong duoc lo duong
+          # dan ca nhan cua nguoi viet (vi du C:\Users\<ten-that>\...).
           if grep -rIn --exclude-dir=.git --exclude-dir=node_modules \
               -E 'C:[/\\]Users[/\\][A-Za-z]|/Users/[a-z]|/home/[a-z]+/' \
               --include='*.sh' --include='*.py' --include='*.js' \
-              --include='*.yml' --include='*.yaml' --include='*.conf' . ; then
+              --include='*.yml' --include='*.yaml' --include='*.conf' \
+              --include='*.md' --include='*.html' . ; then
             echo "[LOI] Phat hien duong dan tuyet doi cua may ca nhan (hardcode)"
             exit 1
           fi
           echo "[OK] Khong co duong dan tuyet doi hardcode"
 
+      # Tai lieu/landing la thu cong khai qua nginx -> quet ca .md/.html.
+      # (CHONG-LAM-DUNG.md / slide-bao-ve.html tung chua mat khau that.)
       - name: Khong co mat khau hardcode trong ma nguon
         run: |
           # Dung script quet theo HINH DANG thay vi liet ke gia tri cu the.
@@ -235,13 +293,30 @@ jobs:
           # va chi quet *.sh/*.py/*.js nen bo sot .md/.yml.
           bash scripts/quet-bi-mat.sh
 
+      # Tai lieu duoc phuc vu cong khai qua nginx (README.md, tai-lieu/*.md,
+      # slide-bao-ve.html). Moi file nam trong tai-lieu/ deu bi allowlist cua
+      # nginx chan TRU .md/.png/.html — nhung file .docx/.pdf lo tay commit
+      # se bi tu choi 404 (khong lo), con .md/.html van phuc vu duoc.
+      # Cua nay chan viec commit tai lieu CA NHAN (de cuong, bao cao nhap...)
+      # vao thu muc cong khai.
+      - name: Khong commit tai lieu ca nhan vao thu muc cong khai
+        run: |
+          BAD=$(git ls-files tai-lieu | grep -Ev '\.(md|png|html)$' || true)
+          if [ -n "$BAD" ]; then
+            echo "[LOI] File khong thuoc loai duoc phep trong tai-lieu/:"
+            echo "$BAD"
+            echo "      (chi .md/.png/.html duoc phep - xem nginx allowlist)"
+            exit 1
+          fi
+          echo "[OK] tai-lieu/ chi chua .md/.png/.html"
+
   # --------------------------------------------------------------------------
   # 6. Smoke test: khoi dong that toan bo he thong
   # --------------------------------------------------------------------------
   smoke:
     name: Smoke test (khoi dong that)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -295,25 +370,91 @@ jobs:
           echo "[OK] GLPI phan hoi $CODE"
 
       # ----------------------------------------------------------------------
+      # TLS: chung chi phai xac minh duoc CA hostname lan chu ky
+      # ----------------------------------------------------------------------
+      # Khong chi kiem "co SAN" - phai chung minh handshake THAT SU xac minh
+      # duoc: dung chinh glpi.crt lam CA va bat -verify_return_error.
+      # Neu ai do sinh chung chi thieu SAN hoac sai hostname -> job do ngay.
+      - name: TLS phai xac minh duoc hostname khi handshake that
+        run: |
+          # OpenSSL >= 3.5 (ubuntu-latest dang chuyen sang) co the in
+          # 'Verify return code' nhieu lan hoac khong in khi handshake loi
+          # giua chung -> doc het output, lay LAN XUAT HIEN CUOI, va doi
+          # chieu ca 'Verification: OK' lam chung cu phu.
+          OUT=$(echo | openssl s_client -connect localhost:8443 \
+            -servername localhost -CAfile nginx/ssl/glpi.crt \
+            -verify_hostname localhost -verify_return_error 2>&1)
+          echo "$OUT" | grep -E 'Verify return code|Verification' || true
+          RC=$(echo "$OUT" | grep -oE 'Verify return code: [0-9]+' | grep -oE '[0-9]+' | tail -1)
+          [ "$RC" = "0" ] || { echo "[LOI] Xac minh TLS that bai (code ${RC:-khong-doc-duoc})"; exit 1; }
+          echo "[OK] TLS xac minh duoc hostname + chu ky (code 0)"
+
+      # ----------------------------------------------------------------------
+      # REDIS: phai duoc noi that lam cache (khong chi chay khong)
+      # ----------------------------------------------------------------------
+      # Loi that: Redis chay tu docker-compose nhung GLPI khong duoc noi vao
+      # -> tuyen bo "cache phien lam viec" la suong. Kiem chung THAT SU:
+      #  1. File cau hinh cache sinh ra trong volume glpi_config
+      #  2. Xoa sach Redis -> tai 1 trang -> Redis CO key moi (GLPI ghi that)
+      #
+      # LUU Y: tren may sach, cai-dat-tat-ca.sh moi la thu tao cache.php
+      # (cache:configure). CI khong chay script do, nen phai cau hinh cache
+      # ngay tai day — DSN doc tu bien moi truong cua container redis
+      # (mat khau khong bao gio nam trong argv tren may host).
+      - name: Redis phai duoc noi that lam cache cho GLPI
+        run: |
+          if ! docker exec pinedesk-glpi sh -c 'test -f /var/glpi/config/cache.php' 2>/dev/null \
+             || ! docker exec pinedesk-glpi sh -c 'grep -q redis /var/glpi/config/cache.php' 2>/dev/null; then
+            echo "  cache.php chua co / chua tro ve Redis -> cau hinh bang cache:configure"
+            RP=$(docker exec pinedesk-redis printenv REDISCLI_AUTH | tr -d '\r')
+            printf 'redis://:%s@redis:6379/0' "$RP" | \
+              docker exec -i -u www-data pinedesk-glpi sh -c \
+                'IFS= read -r DSN; cd /var/www/glpi && php bin/console cache:configure --dsn="$DSN" --no-interaction'
+          fi
+          docker exec pinedesk-glpi sh -c 'test -f /var/glpi/config/cache.php' \
+            || { echo "[LOI] /var/glpi/config/cache.php khong ton tai -> cache:configure that bai"; exit 1; }
+          docker exec pinedesk-glpi sh -c 'grep -q redis /var/glpi/config/cache.php' \
+            || { echo "[LOI] cache.php khong tro ve Redis"; exit 1; }
+          echo "  [OK] cache.php tro ve Redis"
+
+          docker exec pinedesk-redis sh -c 'redis-cli --no-auth-warning -a "$REDISCLI_AUTH" FLUSHALL' >/dev/null
+          curl -sSk -o /dev/null https://localhost:8443/
+          sleep 1
+          KEYS=$(docker exec pinedesk-redis sh -c \
+                 'redis-cli --no-auth-warning -a "$REDISCLI_AUTH" DBSIZE' | tr -d '\r')
+          echo "  Redis keys sau khi tai 1 trang: $KEYS"
+          [ "$KEYS" -ge 1 ] || { echo "[LOI] Redis van rong -> GLPI KHONG dung Redis lam cache"; exit 1; }
+          echo "[OK] Redis duoc dung that (GLPI ghi cache)"
+
+      # ----------------------------------------------------------------------
       # Plugin phai duoc CAI + BAT that su (khong chi UPDATE bang tay)
       # ----------------------------------------------------------------------
       # Loi that ban 0.3.0: tren CSDL sach, bang glpi_plugins RONG nen
       # UPDATE ... SET state=1 khop 0 dong -> giao dien Da Lat + logo + QR
       # deu 404 du script bao [OK]. Job nay chay dung luong cai plugin cua
       # GLPI (plugin:install + plugin:activate) roi kiem tra CSS/logo that.
-      - name: Plugin QR + giao dien DLU phai hoat dong that
+      #
+      # LUU Y VE `|| true`: plugin:install/activate tra ma loi khi plugin DA
+      # duoc cai/bat (chay lai lan 2) — do KHONG phai loi that. Nhung phai
+      # kiem chung THAT SU bang state=1 + HTTP 200 ben duoi, khong duoc tin
+      # vao ma tra ve cua lenh.
+      - name: Plugin QR + giao dien DLU + chan han muc phai hoat dong that
         run: |
           bash scripts/cai-plugin-qrcode.sh
           docker exec -u www-data pinedesk-glpi sh -c \
             'cd /var/www/glpi && php bin/console plugin:install dlubrand -u glpi' || true
           docker exec -u www-data pinedesk-glpi sh -c \
             'cd /var/www/glpi && php bin/console plugin:activate dlubrand' || true
+          docker exec -u www-data pinedesk-glpi sh -c \
+            'cd /var/www/glpi && php bin/console plugin:install pinedesk -u glpi' || true
+          docker exec -u www-data pinedesk-glpi sh -c \
+            'cd /var/www/glpi && php bin/console plugin:activate pinedesk' || true
 
           N=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
+              'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot glpi -N -B -e \
                "SELECT COUNT(*) FROM glpi_plugins WHERE state=1;"' | tr -d '\r')
           echo "Plugin dang bat: $N"
-          [ "$N" -ge 2 ] || { echo "[LOI] Phai co >= 2 plugin dang bat, thuc te $N"; exit 1; }
+          [ "$N" -ge 3 ] || { echo "[LOI] Phai co >= 3 plugin dang bat, thuc te $N"; exit 1; }
 
           echo "--- CSS giao dien Da Lat ---"
           C=$(curl -sSk -o /dev/null -w '%{http_code}' \
@@ -326,68 +467,23 @@ jobs:
               https://localhost:8443/plugins/dlubrand/pics/logos/logo-DLU-100.png)
           echo "  HTTP $L"
           [ "$L" = "200" ] || { echo "[LOI] Logo DLU tra $L"; exit 1; }
-          echo "[OK] Plugin + giao dien Da Lat hoat dong that"
 
-      - name: Kiem tra TLS co SAN khi handshake that
-        run: |
-          echo | openssl s_client -connect localhost:8443 \
-            -servername localhost 2>/dev/null \
-            | openssl x509 -noout -text | grep -A1 'Subject Alternative Name'
+          echo "--- Plugin pinedesk da bat (state=1) ---"
+          P=$(docker exec pinedesk-db sh -c \
+              "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \
+               \"SELECT state FROM glpi_plugins WHERE directory='pinedesk';\"" | tr -d '\r')
+          [ "$P" = "1" ] || { echo "[LOI] Plugin pinedesk chua bat (state='$P')"; exit 1; }
+          echo "[OK] Plugin + giao dien Da Lat + chan han muc hoat dong that"
 
-      # ----------------------------------------------------------------------
-      # Kiem tra CO CHE CHONG LAM DUNG (cau hoi phan bien: "spam thi sao?")
-      # ----------------------------------------------------------------------
-      # CI phai chung minh: endpoint nop phieu CO bi rate limit.
-      # Neu ai do xoa mat cau hinh limit_req -> job nay do ngay.
-      - name: Nop phieu phai bi gioi han tan suat (mong doi 429)
-        run: |
-          echo "Gui 40 request lien tiep toi /front/ticket.form.php..."
-          CODES=""
-          for i in $(seq 1 40); do
-            C=$(curl -sSk -o /dev/null -w '%{http_code}' \
-                 https://localhost:8443/front/ticket.form.php 2>/dev/null || echo 000)
-            CODES="$CODES $C"
-          done
-          echo "Ma tra ve:$CODES"
-          if echo "$CODES" | grep -q '429'; then
-            echo "[OK] Da phat hien HTTP 429 -> rate limit hoat dong"
-          else
-            echo "[LOI] KHONG thay 429 sau 40 request -> rate limit KHONG hoat dong"
-            echo "      Kiem tra location /front/ticket.form.php trong nginx/conf.d/default.conf"
-            exit 1
-          fi
-
-      - name: Bang SLA phai duoc tao sau khi nap
-        run: |
-          echo "Nap SLA + co che chong lam dung..."
-          bash scripts/nap-sla-va-chong-lam-dung.sh
-          N=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_slas;"')
-          echo "So SLA trong CSDL: $N"
-          [ "$N" -ge 5 ] || { echo "[LOI] Thieu SLA (mong doi >= 5)"; exit 1; }
-          echo "[OK] SLA that da nam trong CSDL, khong con la tuyen bo suong"
-
-      - name: Du lieu bao tri + muon thiet bi phai duoc tao
-        run: |
-          R=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_ticketrecurrents;"')
-          echo "So lich bao tri dinh ky: $R"
-          [ "$R" -ge 2 ] || { echo "[LOI] Thieu lich bao tri (mong doi >= 2)"; exit 1; }
-
-          I=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_reservationitems;"')
-          echo "So thiet bi cho muon: $I"
-          [ "$I" -ge 2 ] || { echo "[LOI] Thieu thiet bi cho muon (mong doi >= 2)"; exit 1; }
-
-          V=$(docker exec pinedesk-db sh -c \
-              'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -B -e \
-               "SELECT COUNT(*) FROM glpi_reservations;"')
-          echo "So luot muon: $V"
-          [ "$V" -ge 2 ] || { echo "[LOI] Thieu luot muon (mong doi >= 2)"; exit 1; }
-          echo "[OK] Lich bao tri + luong muon/tra da nam trong CSDL"
+      # ======================================================================
+      # THU TU NAP DU LIEU LA BAT BUOC: danh muc -> du lieu mau -> Viet hoa -> SLA
+      # ======================================================================
+      # Loi that: CI nap SLA TRUOC khi co du lieu mau. seed SLA tao 2 luot
+      # muon cho laptop 'TDL-LAP-001'/'TDL-LAP-003' va 1 phieu muon cua
+      # 'sv.hoa' - ca ba deu do nap-du-lieu-mau.sh tao ra. Khi thieu, cac
+      # cau lenh dat muon co guard 'WHERE @lap IS NOT NULL' nen lang le bo
+      # qua, va cua kiem ben duoi bao 'Thieu thiet bi cho muon' (0 thay vi 2).
+      # Vi vay hai buoc danh muc + du lieu mau phai chay TRUOC buoc SLA.
 
       # ----------------------------------------------------------------------
       # Kiem tra DANH MUC NGHIEP VU (du lieu nen) - chan tai lieu sai so lieu
@@ -398,7 +494,7 @@ jobs:
         run: |
           bash scripts/nap-du-lieu-nen.sh
           Q() { docker exec pinedesk-db sh -c \
-                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
 
           B=$(Q "SELECT COUNT(*) FROM glpi_locations WHERE level = 2;")
           R=$(Q "SELECT COUNT(*) FROM glpi_locations WHERE level = 3;")
@@ -420,11 +516,14 @@ jobs:
       # khop voi seed-du-lieu-nen.sql ('Văn phòng Khoa Toán - Tin' vs
       # '... - Tin học'), khien JOIN vi tri that bai va 4 thiet bi bi bo qua
       # trong im lang. Job nay chot so luong de khong tai dien.
+      # LUU Y: o buoc nay chi co 13 phieu cua du lieu mau; phieu thu 14 (phieu
+      # muon thiet bi) do buoc SLA ngay sau tao ra, nen con so 14 duoc chot o
+      # buoc "Du lieu bao tri + muon thiet bi".
       - name: Du lieu demo phai du 34 tai san (khong mat thiet bi)
         run: |
           bash scripts/nap-du-lieu-mau.sh
           Q() { docker exec pinedesk-db sh -c \
-                  "mariadb -uroot -p\"\$MARIADB_ROOT_PASSWORD\" glpi -N -B -e \"$1\""; }
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
 
           PC=$(Q "SELECT COUNT(*) FROM glpi_computers;")
           MON=$(Q "SELECT COUNT(*) FROM glpi_monitors;")
@@ -433,21 +532,244 @@ jobs:
           SW=$(Q "SELECT COUNT(*) FROM glpi_softwares;")
           TK=$(Q "SELECT COUNT(*) FROM glpi_tickets;")
           echo "May tinh: $PC | Man hinh: $MON | May in: $PRN | Thiet bi mang: $NET"
-          echo "Phan mem: $SW | Phieu: $TK"
+          echo "Phan mem: $SW | Phieu (du lieu mau): $TK"
 
           [ "$PC" = "17" ]  || { echo "[LOI] May tinh: mong doi 17, thuc te $PC"; exit 1; }
           [ "$MON" = "5" ]  || { echo "[LOI] Man hinh: mong doi 5, thuc te $MON"; exit 1; }
           [ "$PRN" = "3" ]  || { echo "[LOI] May in: mong doi 3, thuc te $PRN"; exit 1; }
           [ "$NET" = "9" ]  || { echo "[LOI] Thiet bi mang: mong doi 9, thuc te $NET"; exit 1; }
           [ "$SW" = "10" ]  || { echo "[LOI] Phan mem: mong doi 10, thuc te $SW"; exit 1; }
-          [ "$TK" = "14" ]  || { echo "[LOI] Phieu: mong doi 14 (13 demo + 1 phieu muon), thuc te $TK"; exit 1; }
+          [ "$TK" = "13" ]  || { echo "[LOI] Phieu du lieu mau: mong doi 13, thuc te $TK"; exit 1; }
 
           # Moi tai san phai co vi tri (level 3) hop le -> bat loi ten vi tri lech
           ORPHAN=$(Q "SELECT COUNT(*) FROM glpi_computers WHERE locations_id = 0;")
           [ "$ORPHAN" = "0" ] || { echo "[LOI] $ORPHAN may tinh thieu vi tri"; exit 1; }
-          echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 14 phieu"
 
-      - name: Tu dien Viet hoa phai du 541 thuat ngu + 212 so nhieu
+          # NGAY THANG PHIEU PHAI HOP LY: date_creation khong duoc muon hon
+          # 'date' (phieu tao sau khi su co xay ra la vo ly). Loi that: ban
+          # seed cu dat date_creation = @now trong khi date/solvedate qua khu
+          # -> lech den -672 gio, hien ngay tren danh sach phieu.
+          BAD=$(Q "SELECT COUNT(*) FROM glpi_tickets WHERE is_deleted=0 AND date IS NOT NULL AND date_creation > date;")
+          [ "$BAD" = "0" ] || { echo "[LOI] $BAD phieu co date_creation > date (vo ly)"; exit 1; }
+          NEG=$(Q "SELECT COUNT(*) FROM glpi_tickets WHERE solvedate IS NOT NULL AND solvedate < date_creation;")
+          [ "$NEG" = "0" ] || { echo "[LOI] $NEG phieu giai quyet TRUOC khi tao"; exit 1; }
+          echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 13 phieu"
+          echo "[OK] Ngay thang phieu hop ly (khong con date_creation > date)"
+
+      # ----------------------------------------------------------------------
+      # Seed phai IDEMPOTENT ke ca khi phieu demo da doi trang thai
+      # ----------------------------------------------------------------------
+      # Loi that: guard NOT EXISTS cua 6.1-6.4 tung loc them `status = 1` (hoac
+      # 2/5/6). Khi demo bam "Tiep nhan" (1 -> 2), lan chay lai seed coi phieu do
+      # la "chua co" va insert lai -> nhan doi phieu. Buoc nay doi trang thai
+      # that roi chay lai de bat hoi quy.
+      - name: Seed idempotent (doi trang thai phieu roi chay lai)
+        run: |
+          Q() { docker exec pinedesk-db sh -c \
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
+
+          # Gia lap demo: phieu "Moi" duoc tiep nhan -> status 2.
+          Q "UPDATE glpi_tickets SET status = 2
+               WHERE name = 'Máy không khởi động được' AND status = 1;"
+
+          bash scripts/nap-du-lieu-mau.sh
+
+          TK=$(Q "SELECT COUNT(*) FROM glpi_tickets;")
+          echo "Tong so phieu sau khi chay lai: $TK"
+          [ "$TK" = "13" ] || { echo "[LOI] Chay lai seed lam doi so phieu: mong doi 13, thuc te $TK (guard theo trang thai bi hoi quy?)"; exit 1; }
+
+          N=$(Q "SELECT COUNT(*) FROM glpi_tickets WHERE name = 'Máy không khởi động được';")
+          echo "So phieu 'May khong khoi dong duoc': $N"
+          [ "$N" = "1" ] || { echo "[LOI] Phieu demo bi nhan doi: $N ban ghi"; exit 1; }
+
+          # Tra trang thai ve ban dau de cac buoc sau (va demo) nhat quan.
+          Q "UPDATE glpi_tickets SET status = 1 WHERE name = 'Máy không khởi động được';"
+          echo "[OK] Seed idempotent: chay lai khong nhan doi phieu"
+
+      # ----------------------------------------------------------------------
+      # Viet hoa DU LIEU hien thi (don vi, bang dieu khien, ho so quyen)
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.4.0: scripts/viet-hoa-du-lieu.sh KHONG nam trong luong
+      # cai dat -> tren may sach don vi van la "Root entity", bang dieu khien
+      # van la "Central/Assets/Assistance" (tieng Anh).
+      - name: Du lieu hien thi phai duoc Viet hoa
+        run: |
+          bash scripts/viet-hoa-du-lieu.sh
+          Q() { docker exec pinedesk-db sh -c \
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
+
+          E=$(Q "SELECT name FROM glpi_entities WHERE id = 0;")
+          echo "Don vi goc: $E"
+          [ "$E" = "Đại học Đà Lạt" ] || { echo "[LOI] Don vi goc chua Viet hoa: '$E'"; exit 1; }
+
+          # Bang dieu khien khong duoc con ten tieng Anh
+          EN=$(Q "SELECT COUNT(*) FROM glpi_dashboards_dashboards
+                  WHERE name IN ('Central','Assets','Assistance','Mini tickets dashboard');")
+          echo "Bang dieu khien con ten tieng Anh: $EN"
+          [ "$EN" = "0" ] || { echo "[LOI] Con $EN bang dieu khien chua Viet hoa"; exit 1; }
+
+          # Che do du lieu minh hoa phai TAT (neu bat -> dashboard hien so gia)
+          D=$(Q "SELECT value FROM glpi_configs WHERE name = 'is_demo_dashboards';")
+          echo "is_demo_dashboards = $D"
+          [ "$D" = "0" ] || { echo "[LOI] Che do du lieu minh hoa dang BAT -> dashboard hien so gia"; exit 1; }
+          echo "[OK] Du lieu hien thi da Viet hoa + tat che do minh hoa"
+
+      # ----------------------------------------------------------------------
+      # THUONG HIEU: ten ung dung tren the trinh duyet + dai mau uu tien
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.4.0: scripts/cai-giao-dien.sh dat `app_name` (ten tren the
+      # trinh duyet), dai mau uu tien (priority_1..6) va bang mau mac dinh — nhung
+      # script nay KHONG duoc goi trong luong cai dat. Tren may sach:
+      #   - The trinh duyet hien "... - GLPI" -> lo ngay day la GLPI chua tuy bien.
+      #   - Dai mau uu tien van la hong do mac dinh GLPI (#fff2f2 -> #ff5555).
+      - name: Thuong hieu (ten ung dung) + dai mau uu tien phai duoc dat
+        run: |
+          bash scripts/cai-giao-dien.sh
+          Q() { docker exec pinedesk-db sh -c \
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
+
+          APP=$(Q "SELECT value FROM glpi_configs WHERE name = 'app_name';")
+          echo "app_name = $APP"
+          [ "$APP" = "PineDesk DLU" ] || { echo "[LOI] app_name chua dat -> the trinh duyet hien '- GLPI'"; exit 1; }
+
+          # Dai mau uu tien phai la dai Da Lat, KHONG phai hong do mac dinh GLPI
+          P5=$(Q "SELECT value FROM glpi_configs WHERE name = 'priority_5';")
+          echo "priority_5 = $P5"
+          [ "$P5" = "#CC2430" ] || { echo "[LOI] priority_5 van la mac dinh GLPI ($P5) -> chua chay cai-giao-dien.sh"; exit 1; }
+          echo "[OK] Thuong hieu PineDesk + dai mau uu tien Da Lat da dat"
+
+      # ----------------------------------------------------------------------
+      # TAI KHOAN DEMO phai CO HO SO QUYEN (neu khong thi KHONG dang nhap duoc)
+      # ----------------------------------------------------------------------
+      # Loi that ban 0.4.0: seed gan quyen theo TEN TIENG VIET ('Kỹ thuật viên'/
+      # 'Người dùng') nhung GLPI tao ho so bang TEN TIENG ANH. JOIN khop 0 dong
+      # -> 6 tai khoan demo khong co ho so -> dang nhap bao "Ban khong co quyen
+      # de ket noi" (HTTP 400). Kich ban demo lai dang nhap 'sv.hoa'.
+      # Cua nay chot: moi tai khoan demo phai co dung 1 ho so, VA dang nhap THAT
+      # qua HTTP phai tra 302 (khong phai 400).
+      - name: Tai khoan demo phai co ho so quyen va dang nhap duoc
+        run: |
+          Q() { docker exec pinedesk-db sh -c \
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
+
+          # 1. Moi tai khoan demo phai co >= 1 ho so quyen
+          THIEU=$(Q "SELECT COUNT(*) FROM glpi_users u WHERE u.name IN
+                     ('ktv.an','ktv.binh','gv.cuong','gv.dung','sv.hoa','sv.khanh')
+                     AND NOT EXISTS (SELECT 1 FROM glpi_profiles_users pu
+                                     WHERE pu.users_id = u.id);")
+          echo "Tai khoan demo THIEU ho so quyen: $THIEU"
+          [ "$THIEU" = "0" ] || { echo "[LOI] $THIEU tai khoan demo khong co ho so quyen -> khong dang nhap duoc"; exit 1; }
+
+          # 2. Dang nhap THAT bang HTTP: phai tra 302 (thanh cong)
+          # Mat khau dua vao qua FILE (--data @file) thay vi -d tren dong lenh:
+          # tham so dong lenh hien trong `ps` cho moi tien trinh cung may, con
+          # noi dung file chi chu so huu doc duoc (chmod 600).
+          for U in ktv.an sv.hoa; do
+            JAR=$(mktemp)
+            BODY=$(mktemp)
+            chmod 600 "$BODY"
+            TOK=$(curl -sSk -c "$JAR" https://localhost:8443/ \
+                  | grep -oE 'name="_glpi_csrf_token" value="[a-f0-9]+"' \
+                  | head -1 | grep -oE '[a-f0-9]{64}')
+            printf 'login_name=%s&login_password=%s&noAUTO=0&redirect=&_glpi_csrf_token=%s' \
+                   "$U" 'Dlu@2026' "$TOK" > "$BODY"
+            CODE=$(curl -sSk -b "$JAR" -c "$JAR" -o /dev/null -w '%{http_code}' \
+                   --data "@$BODY" \
+                   https://localhost:8443/front/login.php)
+            rm -f "$JAR" "$BODY"
+            echo "  Dang nhap $U -> HTTP $CODE"
+            [ "$CODE" = "302" ] || { echo "[LOI] $U khong dang nhap duoc (HTTP $CODE)"; exit 1; }
+          done
+          echo "[OK] Tai khoan demo co ho so quyen va dang nhap duoc (302)"
+
+      # ----------------------------------------------------------------------
+      # SLA + bao tri + muon/tra phai duoc tao THAT
+      # ----------------------------------------------------------------------
+      # Phai chay SAU khi co du lieu mau (xem chu thich THU TU NAP DU LIEU).
+      - name: Bang SLA + bao tri + muon thiet bi phai duoc tao
+        run: |
+          echo "Nap SLA + co che chong lam dung..."
+          bash scripts/nap-sla-va-chong-lam-dung.sh
+          Q() { docker exec pinedesk-db sh -c \
+                  "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mariadb -uroot glpi -N -B -e \"$1\""; }
+
+          N=$(Q "SELECT COUNT(*) FROM glpi_slas;")
+          echo "So SLA trong CSDL: $N"
+          [ "$N" -ge 5 ] || { echo "[LOI] Thieu SLA (mong doi >= 5)"; exit 1; }
+
+          # SLM: GLPI nhom SLA theo SLM (Service Level Manager). Khong co SLM
+          # thi menu "Muc dich vu" trong UI trong/khong nhom duoc.
+          SLM=$(Q "SELECT COUNT(*) FROM glpi_slms;")
+          echo "So SLM: $SLM"
+          [ "$SLM" -ge 1 ] || { echo "[LOI] Thieu SLM (glpi_slms rong)"; exit 1; }
+
+          # Moi SLA phai thuoc mot SLM (slms_id > 0)
+          UNLINKED=$(Q "SELECT COUNT(*) FROM glpi_slas WHERE slms_id = 0;")
+          echo "SLA chua gan SLM: $UNLINKED"
+          [ "$UNLINKED" = "0" ] || { echo "[LOI] $UNLINKED SLA chua gan SLM"; exit 1; }
+
+          R=$(Q "SELECT COUNT(*) FROM glpi_ticketrecurrents;")
+          echo "So lich bao tri dinh ky: $R"
+          [ "$R" -ge 2 ] || { echo "[LOI] Thieu lich bao tri (mong doi >= 2)"; exit 1; }
+
+          I=$(Q "SELECT COUNT(*) FROM glpi_reservationitems;")
+          echo "So thiet bi cho muon: $I"
+          [ "$I" -ge 2 ] || { echo "[LOI] Thieu thiet bi cho muon (mong doi >= 2)"; exit 1; }
+
+          V=$(Q "SELECT COUNT(*) FROM glpi_reservations;")
+          echo "So luot muon: $V"
+          [ "$V" -ge 2 ] || { echo "[LOI] Thieu luot muon (mong doi >= 2)"; exit 1; }
+
+          # Phieu thu 14 (phieu yeu cau muon thiet bi) do buoc SLA vua tao.
+          TK=$(Q "SELECT COUNT(*) FROM glpi_tickets;")
+          echo "Tong so phieu: $TK"
+          [ "$TK" = "14" ] || { echo "[LOI] Phieu: mong doi 14 (13 demo + 1 phieu muon), thuc te $TK"; exit 1; }
+
+          # Phieu muon phai dung NGHIEP VU: type=2 (Yeu cau, khong phai Su co),
+          # da giai quyet phai co solvedate, va co vi tri.
+          BAD=$(Q "SELECT COUNT(*) FROM glpi_tickets
+                    WHERE name = 'Mượn laptop cho đồ án môn Mạng máy tính'
+                      AND (type <> 2 OR solvedate IS NULL OR locations_id = 0);")
+          echo "Phieu muon sai nghiep vu: $BAD"
+          [ "$BAD" = "0" ] || { echo "[LOI] Phieu muon thiet bi sai (type/solvedate/vi tri)"; exit 1; }
+
+          # Kiem tra LAI hop dong ngay thang sau khi buoc SLA chay.
+          # Buoc "Du lieu demo" (chay truoc do) da kiem tra mot lan, nhung
+          # seed-sla-va-chong-lam-dung.sql C.2 dat date/time_to_own/time_to_resolve
+          # vao qua khu — neu quen dat date_creation thi phieu "tao sau khi su co
+          # xay ra" (date_creation > date, lech am tren UI). CI phai bat lai o day.
+          D1=$(Q "SELECT COUNT(*) FROM glpi_tickets
+                   WHERE is_deleted = 0 AND date IS NOT NULL AND date_creation > date;")
+          echo "Phieu co date_creation > date: $D1"
+          [ "$D1" = "0" ] || { echo "[LOI] $D1 phieu co ngay tao sau ngay su co (date_creation > date)"; exit 1; }
+
+          # time_to_own (han nhan xu ly) khong duoc som hon luc tao phieu.
+          D2=$(Q "SELECT COUNT(*) FROM glpi_tickets
+                   WHERE is_deleted = 0 AND time_to_own IS NOT NULL AND time_to_own < date_creation;")
+          echo "Phieu co time_to_own < date_creation: $D2"
+          [ "$D2" = "0" ] || { echo "[LOI] $D2 phieu co han nhan xu ly som hon ngay tao"; exit 1; }
+
+          echo "[OK] SLA + SLM + bao tri + muon/tra da nam trong CSDL (14 phieu)"
+
+      # ----------------------------------------------------------------------
+      # Co che chan han muc phai CHAN THAT (khong chi la script bao cao)
+      # ----------------------------------------------------------------------
+      # Harness tao user tam + phieu that trong container roi kiem chung:
+      # vuot tran phieu mo -> bi chan; phieu trung -> bi chan; KTV/cron -> mien
+      # tru; nhat ky T6 duoc ghi. Chay SAU buoc nap danh muc vi can loai su co
+      # + vi tri that. Harness tu don sach du lieu test khi xong.
+      - name: Co che chan han muc phai hoat dong that
+        run: |
+          docker exec -u www-data pinedesk-glpi \
+            php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
+
+      # ----------------------------------------------------------------------
+      # Tu dien Viet hoa: so luong phai khop tai lieu
+      # ----------------------------------------------------------------------
+      # Ban dich bo sung cua do an la con so duoc neu trong bao cao
+      # ("bo sung 556 thuat ngu don + 212 muc so nhieu"). Sua tu dien ma quen
+      # cap nhat tai lieu (hoac nguoc lai) -> job nay do.
+      - name: Tu dien Viet hoa phai du 556 thuat ngu + 212 so nhieu
         run: |
           python - <<'PY'
           import re
@@ -465,15 +787,145 @@ jobs:
           don   = dem('BAN_DICH_BO_SUNG')
           nhieu = dem('BAN_DICH_SO_NHIEU')
           print(f'Thuat ngu don: {don} | Muc so nhieu: {nhieu}')
-          assert don == 541, f'mong doi 541 thuat ngu don, thuc te {don}'
+          assert don == 556, f'mong doi 556 thuat ngu don, thuc te {don}'
           assert nhieu == 212, f'mong doi 212 muc so nhieu, thuc te {nhieu}'
-          print('[OK] Tu dien Viet hoa khop tai lieu: 541 + 212')
+          print('[OK] Tu dien Viet hoa khop tai lieu: 556 + 212')
           PY
 
       - name: Script kiem tra lam dung phai chay duoc
         run: |
           bash scripts/kiem-tra-lam-dung.sh
           echo "[OK] Script kiem tra lam dung chay khong loi"
+
+      # ----------------------------------------------------------------------
+      # CHUC NANG + PHAN QUYEN: dang nhap that roi GET tung trang theo vai tro
+      # ----------------------------------------------------------------------
+      # Cua nay chot 3 dieu bang HTTP that (khong can trinh duyet):
+      #   1. Ky thuat vien mo duoc trang trung tam (200), bi chan trang Setup (403)
+      #   2. Sinh vien mo duoc cua vao tu phuc vu (200), bi chan trang trung tam (403)
+      #   3. Tai nguyen tinh (landing, CSS, logo, tai lieu) tra 200
+      - name: Chuc nang + phan quyen theo vai tro phai hoat dong
+        run: |
+          echo "===== VAI TRO KY THUAT VIEN ====="
+          GLPI_USER=ktv.an GLPI_PASS='Dlu@2026' bash scripts/kiem-tra-chuc-nang.sh
+          echo ""
+          echo "===== VAI TRO TU PHUC VU (SINH VIEN) ====="
+          GLPI_USER=sv.hoa GLPI_PASS='Dlu@2026' bash scripts/kiem-tra-chuc-nang.sh
+
+      # ----------------------------------------------------------------------
+      # XFF: header gia mao phai bi GHI DE (khong tin du lieu client gui)
+      # ----------------------------------------------------------------------
+      # Loi that: $proxy_add_x_forwarded_for noi gia tri client tu gui vao
+      # TRUOC $remote_addr -> gia mao duoc IP trong nhat ky dang nhap.
+      #
+      # Cua nay gui 1 dang nhap THAT BAI (sai mat khau) kem header
+      # X-Forwarded-For gia roi kiem chung event.log cua GLPI:
+      #   - Phai thay dong "Dang nhap that bai cho kiem.tra.xff" (chung minh
+      #     viec ghi nhat ky co that — use_log_in_files=1 la mac dinh GLPI 11,
+      #     xac nhan trong install/empty_data.php)
+      #   - Phai KHONG thay IP gia 6.6.6.6 o bat ky dau trong event.log
+      # (dung dang nhap that bai de khong tao phien thanh cong nao).
+      # LUU Y: dat SAU cac buoc dang nhap that (tai khoan demo + vai tro) va
+      # TRUOC cac buoc bom request — flood se lam nghen zone dang nhap ~1 phut.
+      - name: X-Forwarded-For gia mao phai bi ghi de
+        run: |
+          # Mat khau sai KHONG duoc viet dang literal 'login_password=...' —
+          # script quet bi mat (P2) quet chinh file workflow nay va se bao
+          # dong nay la bi mat hardcode. Dat vao bien roi truyen qua $BIEN.
+          SAI_PW="zzz-khong-dung"
+          JAR=$(mktemp)
+          TOK=$(curl -sSk -c "$JAR" https://localhost:8443/ \
+                | grep -oE 'name="_glpi_csrf_token" value="[a-f0-9]+"' \
+                | head -1 | grep -oE '[a-f0-9]{64}')
+          CODE=$(curl -sSk -b "$JAR" -c "$JAR" -o /dev/null -w '%{http_code}' \
+            -H "X-Forwarded-For: 6.6.6.6" \
+            -d "login_name=kiem.tra.xff" -d "login_password=$SAI_PW" \
+            -d "noAUTO=0" -d "redirect=" -d "_glpi_csrf_token=$TOK" \
+            https://localhost:8443/front/login.php)
+          rm -f "$JAR"
+          echo "  Dang nhap that bai tra HTTP $CODE (mong doi 400)"
+          [ "$CODE" = "400" ] || { echo "[LOI] Mong doi 400 khi sai mat khau, thuc te $CODE"; exit 1; }
+          sleep 2
+
+          if docker exec pinedesk-glpi sh -c \
+             'grep -q "6.6.6.6" /var/glpi/logs/event.log' 2>/dev/null; then
+            echo "[LOI] GLPI ghi nhan IP GIA (6.6.6.6) -> XFF KHONG bi ghi de!"
+            echo "      Kiem tra 'proxy_set_header X-Forwarded-For \$remote_addr'"
+            exit 1
+          fi
+          if ! docker exec pinedesk-glpi sh -c \
+               'grep -q "kiem.tra.xff" /var/glpi/logs/event.log' 2>/dev/null; then
+            echo "[LOI] Khong thay dong dang nhap that bai cua kiem.tra.xff trong event.log"
+            echo "      (khong kiem chung duoc - kiem tra use_log_in_files)"
+            exit 1
+          fi
+          echo "[OK] IP gia 6.6.6.6 KHONG xuat hien trong nhat ky -> XFF da bi ghi de"
+
+      # ----------------------------------------------------------------------
+      # CHONG LAM DUNG TANG MANG: rate limit phai chan CA DUONG LACH
+      # ----------------------------------------------------------------------
+      # Loi that: regex location neo `$` don thuan nen URI kem PATH_INFO
+      # (/front/login.php/x) van toi duoc script nhung KHONG khop location
+      # -> lach sach rate limit (da do: 30 request /front/login.php/x ->
+      # 0 lan 429). Cac location da duoc sua thanh neo `(/|$)`; cua nay
+      # chung minh duong lach do da bi chan.
+      #
+      # DAT CUOI CUNG: cac vong bom request lam nghen cac zone rate limit
+      # khoang 1 phut (login_zone 10r/m burst 5, ticket_zone 30r/m burst 10)
+      # -> moi buoc dang nhap phai chay TRUOC buoc nay.
+      # burst: login 5 + 20@10r/m ~= 125s; ticket 10 + 15@30r/m = 40s
+      # -> 25 request/URL la du va nhanh nhat.
+      - name: Duong lach PATH_INFO phai bi rate limit (mong doi 429)
+        run: |
+          for U in /front/login.php/x /front/ticket.form.php/x \
+                   /front/problem.form.php/x /apirest.php/x \
+                   /Form/SubmitAnswers/x; do
+            CODES=""
+            for i in $(seq 1 25); do
+              C=$(curl -sSk -o /dev/null -w '%{http_code}' \
+                   "https://localhost:8443$U" 2>/dev/null || echo 000)
+              CODES="$CODES $C"
+            done
+            if echo "$CODES" | grep -q '429'; then
+              echo "  [OK] $U -> co 429"
+            else
+              echo "[LOI] $U KHONG bi rate limit sau 25 request"
+              echo "      Ma tra ve:$CODES"
+              echo "      Kiem tra neo regex '(/|$)' trong nginx/conf.d/default.conf"
+              exit 1
+            fi
+          done
+          echo "[OK] Moi duong lach PATH_INFO deu bi chan (429)"
+
+      # ----------------------------------------------------------------------
+      # GLPI 11: duong NOP PHIEU KIEU MOI (/Form/SubmitAnswers) cung phai bi
+      # rate limit nhu duong cu /front/ticket.form.php
+      # ----------------------------------------------------------------------
+      # Loi tung ton tai: bieu mau Service Catalog (RendererController.js) gui
+      # POST toi /Form/SubmitAnswers, nhung route nay KHONG nam trong
+      # ticket_zone -> roi vao general_zone (600r/m, burst 200) — yeu hon
+      # khoang 20 lan. Da do thuc te: 12 POST lien tiep -> 0 lan 429.
+      # Buoc nay chay SAU vong bom PATH_INFO (ticket_zone dang nghen): neu
+      # location da duoc noi dung zone thi chi can vai request la thay 429;
+      # neu ai do xoa location, request roi ve general_zone (con thoang) ->
+      # 25 request lien tiep van khong co 429 -> job do ngay.
+      # ----------------------------------------------------------------------
+      - name: Form/SubmitAnswers phai bi rate limit nhu ticket.form.php (mong doi 429)
+        run: |
+          CODES=""
+          for i in $(seq 1 25); do
+            C=$(curl -sSk -o /dev/null -w '%{http_code}' \
+                 -X POST "https://localhost:8443/Form/SubmitAnswers" 2>/dev/null || echo 000)
+            CODES="$CODES $C"
+          done
+          if echo "$CODES" | grep -q '429'; then
+            echo "  [OK] /Form/SubmitAnswers -> co 429"
+          else
+            echo "[LOI] /Form/SubmitAnswers KHONG bi rate limit sau 25 request"
+            echo "      Ma tra ve:$CODES"
+            echo "      Kiem tra location ^/Form/(SubmitAnswers|ValidateAnswers) trong nginx/conf.d/default.conf"
+            exit 1
+          fi
 
       - name: In log khi that bai
         if: failure()

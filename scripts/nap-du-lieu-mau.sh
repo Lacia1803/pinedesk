@@ -41,6 +41,11 @@ cd "$ROOT" || exit 1
 export MSYS_NO_PATHCONV=1
 export MSYS2_ARG_CONV_EXCL='*'
 
+# Doc .env AN TOAN (de in dung cong HTTPS trong thong bao cuoi).
+# shellcheck source=scripts/lib/doc-env.sh
+. "$HERE/lib/doc-env.sh"
+doc_env "$ROOT/.env" || true
+
 MAT_KHAU_MAC_DINH="Dlu@2026"
 SQL_FILE="$HERE/seed-du-lieu-mau.sql"
 
@@ -65,7 +70,7 @@ fi
 echo "[1/4] Dang nap du lieu mau (thiet bi, phieu su co, phan mem)..."
 
 DB_ERR=$(docker exec -i pinedesk-db sh -c \
-    'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi' < "$SQL_FILE" 2>&1 | grep -i "^ERROR" || true)
+    'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot glpi' < "$SQL_FILE" 2>&1 | grep -i "^ERROR" || true)
 
 if [ -n "$DB_ERR" ]; then
     echo "[LOI] Nap du lieu that bai:"
@@ -108,7 +113,7 @@ rm -f "$TMP_HASH"
 
 docker exec pinedesk-db sh -c '
     H=$(cat /tmp/hash.txt)
-    mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -e "
+    MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot glpi -e "
         UPDATE glpi_users
         SET password = \"$H\",
             password_last_update = NOW(),
@@ -125,7 +130,7 @@ echo ""
 echo "[3/4] Kiem tra chat luong du lieu (cac truong bat buoc)..."
 
 NULL_CHECK=$(docker exec pinedesk-db sh -c '
-    mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi -N -e "
+    MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot glpi -N -e "
         SELECT COUNT(*) FROM glpi_computers
           WHERE computermodels_id IS NULL OR computermodels_id = 0
              OR manufacturers_id IS NULL OR manufacturers_id = 0
@@ -148,7 +153,7 @@ echo "[4/4] Ket qua:"
 echo ""
 
 docker exec -i pinedesk-db sh -c \
-    'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi' < "$SQL_FILE" 2>/dev/null | tail -15
+    'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -uroot glpi' < "$SQL_FILE" 2>/dev/null | tail -15
 
 echo ""
 echo "=============================================================="
@@ -160,5 +165,5 @@ echo "   ktv.an    | ktv.binh    -> Ky thuat vien"
 echo "   gv.cuong  | gv.dung     -> Giang vien"
 echo "   sv.hoa    | sv.khanh    -> Sinh vien"
 echo ""
-echo " Truy cap: https://localhost:8443"
+echo " Truy cap: https://localhost:${HTTPS_PORT:-8443}"
 echo ""

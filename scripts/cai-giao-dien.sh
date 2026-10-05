@@ -74,13 +74,13 @@ ok "Da xoa cache"
 # --- 4. Dat bang mau "Da Lat" lam mac dinh -----------------------------------
 info "Dat bang mau 'da_lat' lam mac dinh..."
 THEME_KEY="${THEME_KEY:-da_lat}"
-ENV_FILE="$WORKDIR/.env"
-if [ -f "$ENV_FILE" ]; then
-  set -a
-  # shellcheck source=/dev/null
-  . "$ENV_FILE"
-  set +a
-fi
+# Dung bo doc AN TOAN dung chung (scripts/lib/doc-env.sh) — KHONG `source`
+# (source thuc thi noi dung file nhu ma lenh; xem giai thich dau thu vien).
+# shellcheck source=scripts/lib/doc-env.sh
+. "$WORKDIR/scripts/lib/doc-env.sh"
+doc_env "$WORKDIR/.env" || true
+# Dia chi HTTPS bam theo HTTPS_PORT trong .env (truoc day hardcode 8443).
+URL_BASE="https://localhost:${HTTPS_PORT:-8443}"
 DB_CONTAINER="${DB_CONTAINER:-pinedesk-db}"
 if [ -n "${GLPI_DB_PASSWORD:-}" ]; then
   # GLPI luu bang mau dang chon trong: session (glpipalette).
@@ -98,18 +98,27 @@ if [ -n "${GLPI_DB_PASSWORD:-}" ]; then
   # trong bang glpi_configs nen phai INSERT; bang co khoa duy nhat (context,
   # name) nen dung ON DUPLICATE KEY UPDATE de chay lai script khong loi.
   # Ten 'PineDesk DLU' phai KHOP voi ten hien tren landing page (PineDesk).
-  docker exec "$DB_CONTAINER" mariadb -u "${GLPI_DB_USER:-glpi_user}" -p"$GLPI_DB_PASSWORD" glpi -e "
-    UPDATE glpi_users SET palette='$THEME_KEY' WHERE palette IS NULL OR palette='';
-    INSERT INTO glpi_configs (context, name, value) VALUES ('core', 'app_name', 'PineDesk DLU')
-      ON DUPLICATE KEY UPDATE value='PineDesk DLU';
-    UPDATE glpi_configs SET value='#EDF0E4' WHERE name='priority_1';
-    UPDATE glpi_configs SET value='#CFE0DE' WHERE name='priority_2';
-    UPDATE glpi_configs SET value='#F6D9A8' WHERE name='priority_3';
-    UPDATE glpi_configs SET value='#F0A870' WHERE name='priority_4';
-    UPDATE glpi_configs SET value='#CC2430' WHERE name='priority_5';
-    UPDATE glpi_configs SET value='#9E1A24' WHERE name='priority_6';
-  " 2>/dev/null && ok "Da dat bang mau mac dinh = $THEME_KEY + dai mau uu tien + ten ung dung" \
-    || warn "Khong cap nhat duoc CSDL"
+  # BAO MAT: khong dung -p"$GLPI_DB_PASSWORD" (lo trong argv tren host).
+  # De shell trong container doc $MARIADB_PASSWORD cua chinh no -> MYSQL_PWD.
+  # Cau SQL truyen qua stdin (heredoc) nen khong nam trong argv.
+  if docker exec -i "$DB_CONTAINER" sh -c '
+        MYSQL_PWD="$MARIADB_PASSWORD" mariadb -u "$MARIADB_USER" "$MARIADB_DATABASE"
+      ' <<SQL 2>/dev/null
+UPDATE glpi_users SET palette='$THEME_KEY' WHERE palette IS NULL OR palette='';
+INSERT INTO glpi_configs (context, name, value) VALUES ('core', 'app_name', 'PineDesk DLU')
+  ON DUPLICATE KEY UPDATE value='PineDesk DLU';
+UPDATE glpi_configs SET value='#EDF0E4' WHERE name='priority_1';
+UPDATE glpi_configs SET value='#CFE0DE' WHERE name='priority_2';
+UPDATE glpi_configs SET value='#F6D9A8' WHERE name='priority_3';
+UPDATE glpi_configs SET value='#F0A870' WHERE name='priority_4';
+UPDATE glpi_configs SET value='#CC2430' WHERE name='priority_5';
+UPDATE glpi_configs SET value='#9E1A24' WHERE name='priority_6';
+SQL
+  then
+    ok "Da dat bang mau mac dinh = $THEME_KEY + dai mau uu tien + ten ung dung"
+  else
+    warn "Khong cap nhat duoc CSDL"
+  fi
 else
   warn "Khong doc duoc mat khau CSDL -> bo qua"
 fi
@@ -120,7 +129,7 @@ sleep 2
 while IFS= read -r key; do
   [ -n "$key" ] || continue
   code=$(curl -sk -o /dev/null -w "%{http_code}" \
-    "https://localhost:8443/front/css.php?file=${key}&is_custom_theme=1" 2>/dev/null || echo "000")
+    "$URL_BASE/front/css.php?file=${key}&is_custom_theme=1" 2>/dev/null || echo "000")
   if [ "$code" = "200" ]; then
     ok "  ${key}: HTTP 200 (bien dich thanh cong)"
   else
@@ -134,7 +143,7 @@ echo "  HOAN TAT CAI GIAO DIEN"
 echo "==================================================================="
 echo
 echo "  CHON BANG MAU (tren trinh duyet):"
-echo "    1. Mo https://localhost:8443"
+echo "    1. Mo $URL_BASE"
 echo "    2. Vao:  Thiet lap cua toi (My settings)"
 echo "    3. Muc 'Giao dien' (Interface) -> chon bang mau:"
 echo "         · Da lat          -> Xanh reu DLU (mac dinh, khuyen dung)"

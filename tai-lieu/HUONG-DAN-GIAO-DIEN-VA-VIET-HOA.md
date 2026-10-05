@@ -15,7 +15,7 @@
 | Trang đăng nhập | Nền gradient xanh rêu Đà Lạt, logo DLU, dải 3 màu | Ảnh `anh-giao-dien/01-*.png` |
 | Bảng điều khiển | Menu xanh rêu đậm, thẻ số liệu theo màu DLU | Ảnh `02-*.png` |
 | Toàn bộ trang con | Cùng bảng màu, logo DLU ở góc trên trái | Ảnh `03-`, `04-`, `05-` |
-| Logo | Hiển thị đúng (HTTP 200) | `/pics/logos/logo-DLU-100.png` |
+| Logo | Hiển thị đúng (HTTP 200) | `/plugins/dlubrand/pics/logos/logo-DLU-100.png` |
 
 **Bảng màu trích từ logo chính thức ĐH Đà Lạt:**
 
@@ -31,16 +31,16 @@
 
 ### A.2. Kiểm tra tiếng Việt — **CÂU TRẢ LỜI TRUNG THỰC**
 
-> ⚠️ **CHƯA ĐẠT 100% TIẾNG VIỆT — hiện tại là 31,8%.**
+> ⚠️ **CHƯA ĐẠT 100% TIẾNG VIỆT — hiện tại là 32,0%.**
 
 Số liệu đo bằng `scripts/do-do-phu-tieng-viet.py` (đọc file `.mo` thật trong GLPI):
 
 | Chỉ số | Số lượng |
 |---|---|
 | Tổng số chuỗi GLPI cần dịch | 6.511 |
-| Đã dịch | 2.070 |
-| Còn thiếu | 4.441 |
-| **Tỉ lệ hiện tại** | **31,8%** |
+| Đã dịch | 2.084 |
+| Còn thiếu | 4.427 |
+| **Tỉ lệ hiện tại** | **32,0%** |
 
 > **Bổ sung phiên 19/09:** đã Việt hóa thêm **9 nhãn thẻ đếm trạng thái phiếu** trên
 > trang Hỗ trợ — đây là các nhãn *nổi bật nhất* của trang nhưng bản dịch `vi_VN`
@@ -54,7 +54,7 @@ Số liệu đo bằng `scripts/do-do-phu-tieng-viet.py` (đọc file `.mo` th�
 
 1. **GLPI chỉ đóng gói sẵn ~32% bản dịch tiếng Việt chính thức.** Đây là giới hạn của
    chính GLPI, không phải lỗi của đồ án.
-2. **4.441 chuỗi còn thiếu hầu hết là chuỗi kỹ thuật dài**, ví dụ:
+2. **4.427 chuỗi còn thiếu hầu hết là chuỗi kỹ thuật dài**, ví dụ:
    - `2 primary or foreign keys are using signed integers. Run the "php bin/console
      migration:unsigned_keys" command to migrate them.`
    - Thông báo lỗi hệ thống, mô tả tham số CLI, cảnh báo bảo mật.
@@ -64,14 +64,14 @@ Số liệu đo bằng `scripts/do-do-phu-tieng-viet.py` (đọc file `.mo` th�
 
 | Nhóm | Số chuỗi | Tỉ lệ |
 |---|---|---|
-| Khác (chuỗi hệ thống dài) | 2.956 | 65,1% |
-| Người dùng / Quyền | 300 | 6,6% |
-| Sự cố / Phiếu | 299 | 6,6% |
-| Mạng / Kết nối | 291 | 6,4% |
-| Thiết bị / Tài sản | 249 | 5,5% |
-| Cấu hình / Hệ thống | 242 | 5,3% |
-| Phần mềm / Bản quyền | 119 | 2,6% |
-| Thống kê / Dashboard | 55 | 1,2% |
+| Khác (chuỗi hệ thống dài) | 2.889 | 65,3% |
+| Người dùng / Quyền | 293 | 6,6% |
+| Sự cố / Phiếu | 283 | 6,4% |
+| Mạng / Kết nối | 287 | 6,5% |
+| Thiết bị / Tài sản | 238 | 5,4% |
+| Cấu hình / Hệ thống | 235 | 5,3% |
+| Phần mềm / Bản quyền | 118 | 2,7% |
+| Thống kê / Dashboard | 51 | 1,2% |
 | Bảo trì / Hợp đồng | 33 | 0,7% |
 
 **Điểm mạnh:** các phần **người dùng nhìn thấy nhiều nhất đã gần như 100% tiếng Việt** —
@@ -294,7 +294,10 @@ python scripts/gop-ban-dich-tieng-viet.py
 # Đo tỉ lệ Việt hoá
 python scripts/do-do-phu-tieng-viet.py
 
-# Chụp 19 ảnh minh chứng trong README (một màn hình một ảnh)
+# Chụp ảnh minh chứng trong README (một màn hình một ảnh)
+# Script này tạo tối đa 16 ảnh; 3 ảnh còn lại của bộ 19 do script khác tạo:
+#   12-ket-qua-sinh-qr.png  <- scripts/kiem-tra-massive-qr.js
+#   16/17-landing-*.png     <- scripts/kiem-tra-landing.js
 # - Mật khẩu KHÔNG hardcode: truyền qua GLPI_PASS.
 # - NODE_PATH trỏ tới node_modules có puppeteer-core (cài bằng `npm i puppeteer-core`).
 # - Nếu Chrome không nằm ở đường dẫn mặc định, đặt thêm CHROME_PATH.
@@ -316,7 +319,7 @@ pinedesk/
 ├── plugins/dlubrand/              ← plugin giao diện Đà Lạt
 │   ├── setup.php                  ← đăng ký hook ADD_CSS + POST_INIT
 │   └── public/
-│       ├── css/dlu-theme.css      ← ★ NGUỒN MÀU DUY NHẤT cho giao diện GLPI (~21 KB, token --dlu-*)
+│       ├── css/dlu-theme.css      ← ★ NGUỒN MÀU DUY NHẤT cho giao diện GLPI (~67 KB, token --dlu-*)
 │       └── pics/logos/            ← logo DLU
 ├── themes/                        ← "giấy đăng ký" bảng màu (KHÔNG chứa mã màu)
 │   ├── da_lat.scss                ← đăng ký bảng màu chính (xanh rêu)
@@ -328,7 +331,7 @@ pinedesk/
 │   ├── tao-mo-bo-sung.py          ← tạo lớp phủ bản dịch
 │   ├── gop-ban-dich-tieng-viet.py ← gộp bản dịch (không mất chuỗi)
 │   ├── do-do-phu-tieng-viet.py    ← đo tỉ lệ Việt hoá
-│   ├── chup-lai-anh-minh-chung.js ← chụp 19 ảnh minh chứng (một màn hình một ảnh)
+│   ├── chup-lai-anh-minh-chung.js ← chụp tối đa 16 ảnh minh chứng (một màn hình một ảnh)
 │   └── sinh-ma-qr.py              ← sinh mã QR thiết bị
 └── tai-lieu/anh-giao-dien/        ← ảnh chụp giao diện thực tế
 ```

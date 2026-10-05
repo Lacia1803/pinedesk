@@ -18,14 +18,13 @@ set -euo pipefail
 GLPI_CONTAINER="${GLPI_CONTAINER:-pinedesk-glpi}"
 PLUGIN_NAME="barcode"
 PLUGIN_VERSION="2.7.1"
-# Nap bien tu file .env (GLPI_DB_USER, GLPI_DB_PASSWORD...) de truy van CSDL
-ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
-if [ -f "$ENV_FILE" ]; then
-  set -a
-  # shellcheck disable=SC1090
-  . "$ENV_FILE"
-  set +a
-fi
+# Nap bien tu file .env (GLPI_DB_USER, GLPI_DB_PASSWORD...) de truy van CSDL.
+# Dung bo doc AN TOAN dung chung (scripts/lib/doc-env.sh) — KHONG `source`
+# (source thuc thi noi dung file nhu ma lenh va am tham cat cut mat khau
+# chua ky tu dac biet; xem giai thich dau file thu vien).
+# shellcheck source=scripts/lib/doc-env.sh
+. "$(cd "$(dirname "$0")/.." && pwd)/scripts/lib/doc-env.sh"
+doc_env "$(cd "$(dirname "$0")/.." && pwd)/.env" || true
 GLPI_DB_USER="${GLPI_DB_USER:-glpi_user}"
 GLPI_DB_PASSWORD="${GLPI_DB_PASSWORD:-}"
 DB_CONTAINER="${DB_CONTAINER:-pinedesk-db}"
@@ -93,7 +92,7 @@ SRC_DIR="$(find "extract" -mindepth 1 -maxdepth 1 -type d | head -1)"
 [ -f "$SRC_DIR/vendor/autoload.php" ] || { err "Goi tai ve thieu thu muc vendor/ - khong the cai."; exit 1; }
 ok "Thu muc nguon: $(basename "$SRC_DIR") (co vendor/ day du)"
 # Lay duong dan kieu WINDOWS (C:\...) vi 'docker cp' khong hieu '/g/...' cua Git Bash
-SRC_DIR_WIN="$(cd "$SRC_DIR" && pwd -W 2>/dev/null || echo "$WORKDIR/$SRC_DIR")"
+SRC_DIR_WIN="$(cd "$SRC_DIR" && { pwd -W 2>/dev/null || pwd; })"
 
 # --- 3. Copy vao volume plugin cua GLPI --------------------------------------
 info "Copy plugin vao volume pinedesk-glpi-plugins..."
@@ -156,9 +155,12 @@ fi
 echo
 echo "    -> Trang thai plugin trong CSDL:"
 if [ -n "$GLPI_DB_PASSWORD" ]; then
-  docker exec "$DB_CONTAINER" mariadb -u "$GLPI_DB_USER" -p"$GLPI_DB_PASSWORD" glpi \
-    -e "SELECT name, version, state FROM glpi_plugins WHERE directory='barcode';" 2>/dev/null \
-    | sed 's/^/       /' || echo "       (chua co ban ghi - can cai qua giao dien web)"
+  # BAO MAT: khong dung -p"$GLPI_DB_PASSWORD" (lo trong argv tren host).
+  # Shell trong container doc $MARIADB_PASSWORD cua chinh no -> MYSQL_PWD.
+  docker exec "$DB_CONTAINER" sh -c '
+    MYSQL_PWD="$MARIADB_PASSWORD" mariadb -u "$MARIADB_USER" "$MARIADB_DATABASE" \
+      -e "SELECT name, version, state FROM glpi_plugins WHERE directory='"'"'barcode'"'"';"' \
+    2>/dev/null | sed 's/^/       /' || echo "       (chua co ban ghi - can cai qua giao dien web)"
 else
   echo "       (khong doc duoc GLPI_DB_PASSWORD tu .env)"
 fi

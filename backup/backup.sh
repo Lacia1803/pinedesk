@@ -32,21 +32,11 @@ _winpath() {
 }
 
 # ---------- Doc cau hinh tu .env ----------
-if [ ! -f "$PROJECT_DIR/.env" ]; then
-    echo "[LOI] Khong tim thay file .env tai $PROJECT_DIR/.env"
-    exit 1
-fi
-# Doc .env bang vong lap (an toan voi gia tri co khoang trang, bo qua comment).
-# Xoa \r o cuoi: file .env tao bang Notepad tren Windows dung CRLF, neu giu \r
-# thi mat khau se sai.
-while IFS='=' read -r _key _val; do
-    _key="${_key%$'\r'}"
-    _val="${_val%$'\r'}"
-    case "$_key" in
-        ''|\#*) continue ;;
-    esac
-    export "$_key=$_val"
-done < "$PROJECT_DIR/.env"
+# Dung bo doc AN TOAN dung chung cua du an (scripts/lib/doc-env.sh): doc tung
+# dong, bo \r (CRLF cua Notepad), khong THUC THI noi dung file nhu shell.
+# shellcheck source=scripts/lib/doc-env.sh
+. "$PROJECT_DIR/scripts/lib/doc-env.sh"
+doc_env "$PROJECT_DIR/.env" || exit 1
 
 # Git Bash tren Windows: MSYS tu dong doi "/var/glpi" thanh
 # "C:/Program Files/Git/var/glpi" khi truyen lam tham so cho docker.
@@ -57,7 +47,14 @@ export MSYS2_ARG_CONV_EXCL='*'
 # ---------- Xu ly tham so dong lenh ----------
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --keep) KEEP="$2"; shift 2 ;;
+        --keep)
+            # Chan gia tri sai: --keep 0 (hoac am, hoac chu) se lam vong xoa
+            # ben duoi xoa LUON ban vua tao. KEEP phai la so nguyen >= 1.
+            if ! [[ "${2:-}" =~ ^[0-9]+$ ]] || [ "${2:-0}" -lt 1 ]; then
+                echo "[LOI] --keep can la so nguyen >= 1 (nhan duoc: '${2:-}')"
+                exit 1
+            fi
+            KEEP="$2"; shift 2 ;;
         --dir)  BACKUP_DIR="$2"; shift 2 ;;
         *) shift ;;
     esac
@@ -83,14 +80,28 @@ fi
 echo "[1/4] Dang sao luu co so du lieu..."
 DB_FILE="$BACKUP_DIR/${BACKUP_NAME}_db.sql"
 
-docker exec pinedesk-db mariadb-dump \
-    -u root \
-    -p"$DB_ROOT_PASSWORD" \
-    --single-transaction \
-    --routines \
-    --triggers \
-    --events \
-    "${GLPI_DB_NAME:-glpi}" > "$DB_FILE" 2>/dev/null
+# BAO MAT: KHONG truyen mat khau qua tham so -p tren dong lenh. Shell tren may
+# host mo rong "$DB_ROOT_PASSWORD" truoc khi goi docker -> mat khau nam trong
+# argv cua tien trinh docker tren host, ai chay 'ps' cung doc duoc.
+# Cach dung: de shell BEN TRONG container tu doc $MARIADB_ROOT_PASSWORD (bien
+# moi truong san co cua container) roi gan cho MYSQL_PWD cua tien trinh con —
+# mat khau khong bao gio xuat hien trong argv cua bat ky tien trinh nao.
+# (MYSQL_PWD la bien chuan cua MariaDB/MySQL client; khong hien thi trong ps.)
+#
+# KHONG giau stderr: neu dump that bai thi phai thay loi that (sai mat khau,
+# mat ket noi...) thay vi chi thay "file trong".
+if ! docker exec -i pinedesk-db sh -c \
+        'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb-dump \
+            -u root \
+            --single-transaction \
+            --routines \
+            --triggers \
+            --events \
+            "$1"' _ "${GLPI_DB_NAME:-glpi}" > "$DB_FILE"; then
+    echo "      [LOI] Lenh sao luu CSDL that bai (xem thong bao phia tren)!"
+    rm -f "$DB_FILE"
+    exit 1
+fi
 
 if [ -s "$DB_FILE" ]; then
     echo "      [OK] $(basename "$DB_FILE") - $(du -h "$DB_FILE" | cut -f1)"
@@ -160,12 +171,26 @@ else
 fi
 
 # ---------- 5. Don dep ban sao luu cu ----------
-echo "[4/4] Don dep ban sao luu cu (giu $KEEP ban gan nhat)..."
+echo "[4/4] Don dep ban sao luu cu (giu $KEEP bo gan nhat)..."
+# Xoa theo TUNG BO (moc thoi gian), KHONG theo tung loai tep.
+# VI SAO: moi lan sao luu sinh ra 3 tep CUNG mot moc thoi gian
+# (…_db.sql, …_files.tar.gz, …_config.tar.gz) hop thanh mot BO. Neu xoa rieng
+# tung loai ("giu 7 tep db, 7 tep files, 7 tep config"), khi co mot bo KHUYET
+# (lan sao luu that bai giua chung -> chi co db, khong co files) thi hai danh
+# sach tro ve hai bo khac nhau -> xoa mat db cua bo van con files, de lai bo
+# khuyet khong the phuc hoi. Xoa theo bo giu dung ngu nghia "giu N ban gan nhat".
 cd "$BACKUP_DIR"
-for pattern in "glpi_backup_*_db.sql" "glpi_backup_*_files.tar.gz" "glpi_backup_*_config.tar.gz"; do
-    ls -t $pattern 2>/dev/null | tail -n +$((KEEP + 1)) | while read -r old; do
-        rm -f "$old"
-        echo "      Da xoa: $old"
+MOC="$(
+    ls -1 glpi_backup_*_db.sql glpi_backup_*_files.tar.gz glpi_backup_*_config.tar.gz 2>/dev/null \
+        | sed -E 's/^glpi_backup_([0-9]{8}_[0-9]{6})_.*$/\1/' \
+        | sort -r -u
+)"
+printf '%s\n' "$MOC" | tail -n +$((KEEP + 1)) | while read -r old; do
+    [ -n "$old" ] || continue
+    for f in glpi_backup_"${old}"_*; do
+        [ -e "$f" ] || continue
+        rm -f "$f"
+        echo "      Da xoa: $f"
     done
 done
 

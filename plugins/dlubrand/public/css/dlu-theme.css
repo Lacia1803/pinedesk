@@ -229,9 +229,10 @@
     --dlu-tren-do: #8E1A22;
     --dlu-tren-hon: #2A6270;
 
-    /* --- Độ ưu tiên: dải màu nóng dần (1 = rất thấp, 5 = rất cao) --- */
+    /* --- Độ ưu tiên: dải màu nóng dần (1 = rất thấp, 6 = Chính) --- */
     --dlu-uu-tien-1: #7A8C7D;    /* xám sương */
     --dlu-uu-tien-4: #E05A20;    /* cam cháy */
+    --dlu-uu-tien-6: #8E1A22;    /* đỏ sẫm — mức "Chính" (Major)
 
     /* --- Vạch nhấn 3 màu logo DLU (dùng ở thẻ đăng nhập) --- */
     --dlu-vach-logo: linear-gradient(90deg,
@@ -632,6 +633,11 @@
     --glpi-logo-dark: url("/plugins/dlubrand/pics/logos/logo-DLU-100.png");
     --glpi-logo-dark-login: url("/plugins/dlubrand/pics/logos/logo-DLU-250.png");
     --glpi-logo-light-login: url("/plugins/dlubrand/pics/logos/logo-DLU-250.png");
+    /* Bản VUÔNG cho menu thu gọn (--glpi-logo-reduced). Thiếu 2 biến này thì
+       menu thu gọn vẫn hiện logo GLPI gốc giữa giao diện Đà Lạt
+       (lõi dùng ở css/includes/components/_global-menu.scss). */
+    --glpi-logo-light-reduced: url("/plugins/dlubrand/pics/logos/logo-DLU-100sq.png");
+    --glpi-logo-dark-reduced: url("/plugins/dlubrand/pics/logos/logo-DLU-100sq.png");
 }
 
 /* Logo trên thanh menu: canh giữa, giữ đúng tỉ lệ, không méo */
@@ -1451,10 +1457,11 @@ header.navbar .header-container::before {
 
 /* --- 4F.2 Dải màu ưu tiên ở mép trái từng dòng phiếu ---
    Bậc ưu tiên do JS (js/dlu-dai-phieu.js) đọc từ cột "Độ ưu tiên" rồi ghi
-   thành data-dlu-uu-tien="1..5" trên thẻ <tr>. Ở đây chỉ còn việc tô màu.
+   thành data-dlu-uu-tien="1..6" trên thẻ <tr>. Ở đây chỉ còn việc tô màu.
 
    Màu dùng lại ĐÚNG thang "nóng dần" đã có ở PHẦN 4E để mắt không phải học
-   thêm một hệ màu nữa: xám sương -> xanh hồ -> cam đất -> cam cháy -> đỏ sao. */
+   thêm một hệ màu nữa: xám sương -> xanh hồ -> cam đất -> cam cháy -> đỏ sao
+   -> đỏ sẫm (mức 6 "Chính" = Major, GLPI có sẵn nhưng ít dùng). */
 .table tbody tr[data-dlu-uu-tien] > td:first-child {
     position: relative;
 }
@@ -1474,6 +1481,7 @@ header.navbar .header-container::before {
 .table tbody tr[data-dlu-uu-tien="3"] { --dlu-uu-tien-mau: var(--dlu-cam); }
 .table tbody tr[data-dlu-uu-tien="4"] { --dlu-uu-tien-mau: var(--dlu-uu-tien-4); }
 .table tbody tr[data-dlu-uu-tien="5"] { --dlu-uu-tien-mau: var(--dlu-do); }
+.table tbody tr[data-dlu-uu-tien="6"] { --dlu-uu-tien-mau: var(--dlu-uu-tien-6); }
 
 /* Dòng đang được trỏ tới: dải sáng lên để không lẫn vào nền hover. */
 .table tbody tr[data-dlu-uu-tien]:hover > td:first-child::before {

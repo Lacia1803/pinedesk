@@ -40,7 +40,7 @@ ok "Container CSDL '$DB_CONTAINER' đang chạy"
 
 # --- 1. Bảng glpi_slas phải tồn tại (do GLPI tạo khi cài) ---------------------
 HAS_SLAS=$(docker exec -i "$DB_CONTAINER" sh -c \
-    "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME -N -B -e \
+    "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME -N -B -e \
      \"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='glpi_slas';\"")
 
 if [ "$HAS_SLAS" != "1" ]; then
@@ -62,7 +62,7 @@ fi
 # Nạp qua stdin (tránh lỗi nháy kép của Git Bash trên Windows).
 set +e
 KQ=$(docker exec -i "$DB_CONTAINER" sh -c \
-      "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME" < "$SQL_FILE" 2>&1)
+      "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME" < "$SQL_FILE" 2>&1)
 RC=$?
 set -e
 
@@ -77,10 +77,10 @@ echo "$KQ" | sed 's/^/      /'
 step "Kiểm chứng"
 
 SLAS=$(docker exec -i "$DB_CONTAINER" sh -c \
-    "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME -N -B -e \
+    "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME -N -B -e \
      \"SELECT COUNT(*) FROM glpi_slas WHERE name LIKE 'SLA - Ưu tiên%';\"")
 LEVELS=$(docker exec -i "$DB_CONTAINER" sh -c \
-    "mysql -uroot -p\"\$MARIADB_ROOT_PASSWORD\" $DB_NAME -N -B -e \
+    "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME -N -B -e \
      \"SELECT COUNT(*) FROM glpi_slalevels l JOIN glpi_slas s ON s.id=l.slas_id
         WHERE s.name LIKE 'SLA - Ưu tiên%';\"")
 
@@ -94,6 +94,30 @@ if [ "$LEVELS" -ge 10 ]; then
     ok "Đã tạo $LEVELS mốc thời gian (TTO + TTR cho mỗi SLA)"
 else
     warn "Chỉ có $LEVELS mốc (mong đợi 10)"
+fi
+
+# --- 4. Kiểm chứng phần BẢO TRÌ + MƯỢN/TRẢ ------------------------------------
+# Phần B2/B3 của tệp SQL chỉ tạo được khi ĐÃ có dữ liệu mẫu: 2 lượt mượn dựa
+# trên laptop 'TDL-LAP-001'/'TDL-LAP-003' và người mượn 'sv.hoa'/'gv.cuong',
+# tất cả đều do nap-du-lieu-mau.sh sinh ra. Thiếu dữ liệu mẫu thì các câu
+# lệnh có guard 'WHERE @lap IS NOT NULL' bỏ qua trong im lặng. Kiểm ở đây để
+# báo rõ thay vì để người dùng tưởng đã có dữ liệu mượn.
+RI=$(docker exec -i "$DB_CONTAINER" sh -c \
+    "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME -N -B -e \
+     \"SELECT COUNT(*) FROM glpi_reservationitems;\"")
+RV=$(docker exec -i "$DB_CONTAINER" sh -c \
+    "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME -N -B -e \
+     \"SELECT COUNT(*) FROM glpi_reservations;\"")
+TR=$(docker exec -i "$DB_CONTAINER" sh -c \
+    "MYSQL_PWD=\"\$MARIADB_ROOT_PASSWORD\" mysql -uroot $DB_NAME -N -B -e \
+     \"SELECT COUNT(*) FROM glpi_ticketrecurrents;\"")
+
+if [ "${RI:-0}" -ge 2 ] && [ "${RV:-0}" -ge 2 ]; then
+    ok "Đã tạo $TR lịch bảo trì + $RI thiết bị cho mượn + $RV lượt mượn"
+else
+    warn "Chưa có dữ liệu mượn/trả (thiết bị cho mượn: ${RI:-0}, lượt mượn: ${RV:-0})."
+    info "Phần này cần DỮ LIỆU MẪU. Chạy trước:  bash scripts/nap-du-lieu-mau.sh"
+    info "rồi chạy lại script này. (Lịch bảo trì hiện có: ${TR:-0}.)"
 fi
 
 info "Bảng nhật ký + hạn mức chống lạm dụng đã tạo."

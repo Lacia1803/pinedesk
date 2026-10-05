@@ -77,16 +77,20 @@ sự ITC trước buổi bảo vệ thì đây là **điểm cộng rất lớn*
 
 ### B1. "Sinh viên spam nộp phiếu thì sao?"
 
-> **Trả lời:** Em thiết kế 6 tầng, nhưng phải nói thẳng trạng thái:
-> - 🟢 **Đã có:** rate limit đăng nhập (Nginx), bắt buộc đăng nhập mới nộp được
->   (GLPI), nhật ký hành động;
-> - 🟡 **Đang bổ sung:** rate limit cho endpoint nộp phiếu; trần số phiếu đang mở
->   mỗi người; chống trùng; kiểm duyệt trước khi giao việc.
+> **Trả lời:** Em thiết kế 6 tầng, trạng thái thật từng tầng:
+> - 🟢 **Đã dựng thật:** rate limit mọi đường nộp phiếu (Nginx, 30 request/phút
+>   mỗi IP); trần phiếu đang mở (5) và trần phiếu/ngày (10) theo tài khoản, do
+>   plugin ngoài lõi thực thi ngay lúc tạo phiếu; chặn phiếu trùng trong 30 phút;
+>   nhật ký mọi lần tạo phiếu kể cả lần bị chặn;
+> - 🟡 **Còn ở mức quy trình:** kiểm duyệt mức ưu tiên trước khi giao việc (kỹ
+>   thuật viên tự soát).
 >
-> **Cách trình diễn:** bấm nộp liên tục → nhận **HTTP 429**; đó là bằng chứng
-> sống, không phải lời nói.
+> **Cách trình diễn:** bấm nộp liên tục → nhận **HTTP 429**; nộp phiếu thứ 6
+> đang mở bằng tài khoản sinh viên → bị chặn kèm thông báo tiếng Việt. Đó là
+> bằng chứng sống, không phải lời nói.
 
-**Bằng chứng:** `tai-lieu/CHONG-LAM-DUNG.md`, `nginx/conf.d/default.conf`.
+**Bằng chứng:** `tai-lieu/CHONG-LAM-DUNG.md`, `nginx/conf.d/default.conf`,
+`plugins/pinedesk/`.
 
 ### B2. "Tại sao rate limit đặt theo IP mà không theo tài khoản?"
 
@@ -99,27 +103,34 @@ sự ITC trước buổi bảo vệ thì đây là **điểm cộng rất lớn*
 
 ### B3. "Nếu sinh viên nộp trùng cùng một sự cố 5 lần?"
 
-> **Trả lời:** Cơ chế chống trùng dựa trên bộ ba (người yêu cầu + thiết bị + loại
-> sự cố) trong một cửa sổ thời gian; nếu trùng thì gom vào phiếu đang mở thay vì
-> tạo phiếu mới. Trạng thái: 🟡 đang triển khai.
+> **Trả lời:** Plugin `pinedesk` chặn ngay lúc tạo phiếu: nếu cùng thiết bị
+> (hoặc cùng loại sự cố + cùng vị trí) đã có phiếu chưa đóng trong 30 phút qua,
+> phiếu mới bị chặn và hệ thống chỉ luôn sang phiếu cũ kèm thông báo tiếng Việt.
+> Người dùng không phải tự nhớ đã báo chưa; phiếu trùng không vào hàng đợi.
+
+**Bằng chứng:** `plugins/pinedesk/hook.php` (T4), `tai-lieu/CHONG-LAM-DUNG.md`
+mục 3.3; kịch bản kiểm thử `plugins/pinedesk/tests/kiem-thu-han-muc.php`.
 
 ### B4. "Nếu kẻ xấu dùng bot nộp hàng loạt?"
 
 > **Trả lời:** Bot phải vượt qua bước đăng nhập trước, và bước đăng nhập đã bị
-> giới hạn 10 request/phút mỗi IP với `limit_req_status 429`. Endpoint nộp phiếu
-> đang được thêm giới hạn tương tự. Ngoài ra mọi lần tạo phiếu đều ghi log IP +
-> tài khoản để truy vết sau.
+> giới hạn 10 request/phút mỗi IP với `limit_req_status 429`. Mọi đường nộp
+> phiếu, kể cả đường biểu mẫu mới của GLPI 11, đều nằm trong zone 30 request/phút.
+> Kể cả qua được tầng mạng, bot còn gặp trần phiếu theo tài khoản và chống trùng
+> ở tầng nghiệp vụ. Mọi lần tạo phiếu đều ghi log IP + tài khoản để truy vết sau.
 
 **Bằng chứng:** `nginx/nginx.conf` (khai báo `login_zone`), `nginx/conf.d/default.conf`.
 
 ### B5. "Cơ chế này em đã kiểm thử chưa?"
 
-> **Trả lời — trung thực:** phần đã bật thì có kiểm chứng (rate limit đăng nhập
-> được test trong CI); phần đang bổ sung thì có kịch bản kiểm thử tự động.
-> Em không nói "đã chống spam hoàn hảo" — em nói "đã có tầng, có kiểm thử, có
-> nhật ký để cải thiện tiếp".
+> **Trả lời — trung thực:** các tầng đã dựng đều có kiểm thử tự động chạy trong
+> CI: rate limit trả 429, chặn vượt hạn mức, chặn phiếu trùng, ép trường dữ liệu
+> khi tạo phiếu (`plugins/pinedesk/tests/kiem-thu-han-muc.php`, 37 điểm kiểm).
+> Tầng kiểm duyệt (T5) thì chỉ có quy trình, chưa có mã. Em không nói "đã chống
+> spam hoàn hảo" — em nói "đã có tầng, có kiểm thử, có nhật ký để cải thiện tiếp".
 
-**Bằng chứng:** `.github/workflows/ci.yml` (job `smoke` + hygiene).
+**Bằng chứng:** `.github/workflows/ci.yml` (job `smoke` + hygiene),
+`plugins/pinedesk/tests/kiem-thu-han-muc.php`.
 
 ---
 
@@ -138,7 +149,8 @@ sự ITC trước buổi bảo vệ thì đây là **điểm cộng rất lớn*
 
 > **Trả lời:** Đây là rủi ro thật (R4 trong tài liệu). Cơ chế: phiếu mới vào hàng
 > đợi để kỹ thuật viên **xác nhận mức ưu tiên** trước khi giao việc, chứ không để
-> người yêu cầu tự quyết định thứ tự xử lý. Trạng thái: 🟡 đang triển khai.
+> người yêu cầu tự quyết định thứ tự xử lý. Trạng thái: 🟡 quy trình vận hành,
+> chưa tự động hoá bằng mã, em nói thẳng thay vì nhận là đã có.
 
 **Bằng chứng:** `BAI-TOAN-NGHIEP-VU.md` mục 6.1 (R4), 6.2 (T5).
 
@@ -182,7 +194,7 @@ cập nhật.
 ### D2. "GLPI có sẵn hết rồi, em làm được gì?"
 
 > **Trả lời:** GLPI cho em **lõi nghiệp vụ** (ticket, asset, SLA) — em không viết
-> lại. Việc của em: Việt hoá (541 thuật ngữ + 212 mục), giao diện Đà Lạt, dữ liệu
+> lại. Việc của em: Việt hoá (556 thuật ngữ + 212 mục), giao diện Đà Lạt, dữ liệu
 > nghiệp vụ DLU, hạ tầng 4 container + HTTPS + bảo mật, chống lạm dụng, CI, tài
 > liệu, và **cài bằng một lệnh**. Toàn bộ nằm ngoài lõi → nâng cấp GLPI không mất.
 

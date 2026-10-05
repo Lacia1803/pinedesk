@@ -3,6 +3,121 @@
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [0.4.0] — 2026-10-05 — "Chặn lạm dụng thật và vá lỗ hổng toàn hệ thống"
+
+**Bối cảnh:** sau báo cáo lần 2, đồ án rà lại toàn bộ điểm yếu đã biết và đọc
+kỹ mã nguồn thêm một lượt. Ba việc chính: biến tuyên bố "6 tầng chống lạm dụng"
+thành cơ chế chặn thật chạy ngay trong luồng tạo phiếu, vá các lỗ hổng tìm thấy
+khi soát nginx và bộ script cài đặt, và mở rộng CI đủ chặt để pipeline đỏ nếu
+cơ chế bị gỡ.
+
+### Thêm mới
+
+- **Plugin `pinedesk` (T3/T4/T6) chặn thật ngoài lõi.** Đăng ký hook công khai
+  `PRE_ITEM_ADD` và `ITEM_ADD` của GLPI 11, kiểm tra trước khi phiếu được ghi và
+  huỷ thao tác nếu vi phạm, không sửa một dòng nào trong lõi:
+  - T3a: trần phiếu đang mở (mặc định 5) đếm theo trạng thái 1 đến 4;
+  - T3b: trần phiếu/ngày (mặc định 10) đếm từ 0h hôm nay;
+  - T4: chặn phiếu trùng trong cửa sổ 30 phút (cùng thiết bị, hoặc cùng loại sự
+    cố và cùng vị trí), chỉ luôn sang phiếu cũ kèm thông báo tiếng Việt;
+  - T6: nhật ký mọi lần tạo phiếu, kể cả lần bị chặn (`reason` = `NEW`,
+    `DUP_BLOCKED`, `LIMIT_BLOCKED`).
+  - Hạn mức nằm trong bảng `glpi_plugin_pinedesk_limits`, sửa bằng một câu UPDATE.
+  - Miễn trừ: cron, tài khoản hệ thống, người có quyền cập nhật phiếu (kỹ thuật
+    viên, quản trị).
+  - Chống đua bằng `GET_LOCK` của MariaDB theo từng tài khoản; truy vấn lỗi thì
+    cho phiếu đi qua (fail-open) và ghi `pinedesk.log`, ưu tiên không chặn oan.
+- **Harness `plugins/pinedesk/tests/kiem-thu-han-muc.php`:** 686 dòng, 37 điểm
+  kiểm chạy trên CSDL thật (tạo đủ 5 phiếu, phiếu thứ 6 bị chặn, phiếu trùng bị
+  chặn, kỹ thuật viên và cron không bị chặn, nhật ký đúng), tự dọn dẹp sau khi
+  chạy. CI chạy harness trong job `smoke`.
+- **`scripts/kiem-tra-chuc-nang.sh`:** kiểm thử chức năng theo vai trò (quản trị,
+  kỹ thuật, tự phục vụ), xác thực bằng biến môi trường `GLPI_USER`/`GLPI_PASS`.
+- **Thư viện dùng chung:** `scripts/lib/doc-env.sh` (đọc `.env` an toàn, không
+  `source`, xử lý CRLF) và `scripts/lib/ssl-cert.sh` (sinh chứng chỉ SAN, dùng
+  chung cho `start.sh` và script cài đặt).
+- **CI mở rộng từ 32 lên 43 bước** (936 dòng), thêm các cửa: PHP lint bằng
+  `php:8.4-cli` khớp PHP 8.4.13 trong container, kiểm guard `:?` của compose,
+  Redis cache, chạy harness plugin, chống giả mạo `X-Forwarded-For`, 429 cho
+  đường PATH_INFO, 429 cho `/Form/SubmitAnswers`, seed chạy lại không nhân đôi,
+  hợp đồng ngày tháng, đăng nhập tài khoản demo, từ điển 556 + 212. Thêm
+  `timeout-minutes: 20` để job dừng thay vì treo vô hạn.
+
+### Sửa (lỗ hổng và lỗi thật)
+
+- **nginx, đường lách rate limit:** các location khớp chính xác bị lách bằng hậu
+  tố (`/front/login.php/x`). Thêm neo `(/|$)` cho mọi location nghiệp vụ.
+- **nginx, `/Form/SubmitAnswers` hở:** đường biểu mẫu GLPI 11 rơi vào
+  `general_zone` (600 request/phút) thay vì `ticket_zone`. Đo trên hệ thống đang
+  chạy: 12 POST liên tiếp cho 0 lần 429; sau khi thêm location, 429 ngay ở
+  request thứ 12, khớp đường `/front/ticket.form.php`.
+- **nginx, regex API chết:** mẫu `^/api/` không bao giờ khớp; sửa thành
+  `^/(apirest|api)\.php(/|$)` để giới hạn đúng đường API.
+- **nginx, giả mạo `X-Forwarded-For`:** ghi đè bằng `$remote_addr` nên IP giả từ
+  client bị loại bỏ trước khi GLPI đọc.
+- **nginx, `/tai-lieu/` phục vụ mọi tệp:** thêm allowlist chỉ `.md`, `.png`,
+  `.html`; các tệp khác trả 404 (trước đây tệp `.docx` cá nhân lộ ra ngoài).
+- **nginx, HTTPS_PORT và header:** chuyển cấu hình sang template `envsubst` để
+  đổi cổng không cần sửa file; health endpoint dùng `default_type`; bỏ
+  `add_header` ở chỗ làm mất header bảo mật.
+- **`docker-compose.yml`:** mọi mật khẩu bắt buộc có guard `:?` (thiếu là compose
+  từ chối chạy ngay); log GLPI vào named volume `pinedesk-glpi-logs` (sống sót
+  qua `down -v`); mount plugin `pinedesk`.
+- **Cài đặt trên máy sạch:** kiểm tra `.env` trước khi khởi động, từ chối mật khẩu
+  còn nguyên chuỗi mẫu `<DOI_MAT_KHAU_MANH_TAI_DAY>` (trước đây compose nhận
+  chuỗi mẫu như mật khẩu thật); kiểm tra `HTTPS_PORT` đúng dạng số; sinh chứng chỉ
+  SSL trước `compose up`; cấu hình Redis `cache:configure` qua DSN truyền bằng
+  stdin; đặt `url_base`; thêm bước dữ liệu demo, Việt hoá dữ liệu và giao diện vào
+  luồng cài; lỗi dịch đặt `LOI=1`.
+- **Dữ liệu mẫu, tài khoản demo:** JOIN hồ sơ quyền chỉ khớp tên tiếng Anh nên
+  trên máy cài giao diện tiếng Việt, 6 tài khoản demo không được gán hồ sơ và
+  đăng nhập trả HTTP 400. Nay JOIN khớp cả tên tiếng Anh lẫn tiếng Việt.
+- **Dữ liệu mẫu, tra cứu theo tên:** thay id hardcode bằng tra cứu theo tên
+  (`requesttypes_id`, tài khoản kỹ thuật) để seed không lệch khi id đổi.
+- **Dữ liệu mẫu, hợp đồng ngày tháng:** mọi phiếu mẫu có `date_creation` bằng
+  `date`; 16 phiếu trước đây lệch 216 đến 672 giờ. Mục §6.5 vá hồi tố chỉ áp cho
+  13 phiếu demo theo tên, không đụng phiếu người dùng thật. CI chốt 0 vi phạm
+  (`date_creation > date`, `solvedate < date_creation`, `time_to_own < date_creation`).
+- **Dữ liệu mẫu, dọn dẹp:** xoá vị trí mồ côi và 6 nhóm mồ côi (có kiểm tra thay
+  thế trước khi xoá); chốt bất biến đúng một loại yêu cầu mặc định.
+- **`backup/backup.sh`:** `--keep` phải là số nguyên từ 1 trở lên (trước đây giá
+  trị lạ có thể xoá luôn bản vừa sao lưu); giữ theo từng bộ theo timestamp; bỏ
+  che stderr để lỗi thật hiện ra. Toàn bộ script đọc mật khẩu qua `MYSQL_PWD`
+  trong `docker exec sh -c`, không truyền qua tham số dòng lệnh.
+- **`plugins/dlubrand`:** bỏ hook ngôn ngữ chết (không thể chạy do thứ tự
+  `LoadLanguage` của GLPI, có ghi chú lý do); vá lỗi NaN trong `dlu-canh.js`;
+  thêm mức ưu tiên 6 "Chính"; logo thu gọn cho thanh điều hướng.
+- **`scripts/viet-hoa-du-lieu.sh`:** tắt dashboard demo giả (114,7K phần mềm /
+  1,5K phiếu) và banner demo; Việt hoá mức CSDL cho ô helpdesk và biểu mẫu (GLPI
+  ghi tiếng Anh lúc cài trước khi lớp phủ `.mo` kịp nạp).
+- **`scripts/kiem-tra-lam-dung.sh`:** logic phát hiện trùng viết lại khớp ngữ nghĩa
+  plugin (self-join theo phút bằng `TIMESTAMPDIFF`); thêm kiểm tra dạng số cho
+  hạn mức; cờ `--thuc-thi` ghi nhật ký vi phạm.
+- **`scripts/quet-bi-mat.sh`:** loại trừ mẫu `login_password=%s` (báo động giả).
+
+### Thay đổi
+
+- Tài liệu cập nhật trạng thái thật từng tầng: `CHONG-LAM-DUNG.md` (T3/T4/T6
+  chuyển sang "đã dựng thật"), `CAU-HOI-PHAN-BIEN.md` (B1, B3, B4, B5), slide bảo
+  vệ, `KICH-BAN-DEMO.md`. Đính chính câu "muốn tự động hoá T5 phải móc vào lõi
+  GLPI": không đúng, hook công khai đã chứng minh ngược lại.
+- `README.md`, `PRODUCT.md`, landing page: 556 thuật ngữ dịch bổ sung + 212 mục
+  dạng số nhiều, độ phủ 32,0% (2.084/6.511 chuỗi).
+- CI ghi rõ hai mốc số phiếu: 13 phiếu demo ở bước dữ liệu mẫu, 14 sau khi bước
+  SLA thêm 1 phiếu mượn thiết bị.
+
+### Ghi chú
+
+- Các con số trong nhật ký này đo trên hệ thống chạy thật: harness 37/37, hợp
+  đồng ngày tháng 0 vi phạm, 12 POST `/Form/SubmitAnswers` bị chặn từ request
+  thứ 12.
+- Hạn mức 5 phiếu mở / 10 phiếu ngày và cửa sổ 30 phút vẫn là đề xuất kỹ thuật,
+  cần Trung tâm CNTT xác nhận trước khi dùng thật.
+- Không sửa một dòng nào trong lõi GLPI; toàn bộ thay đổi nằm ở plugin, cấu hình,
+  script và dữ liệu.
+
+---
+
 ## [0.3.0] — 2026-10-03 — "Chuẩn hoá số liệu và vá lỗi dữ liệu mẫu cho báo cáo lần 2"
 
 **Bối cảnh:** chuẩn bị báo cáo lần 2. Trước khi trình bày, đồ án rà soát lại

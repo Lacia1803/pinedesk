@@ -77,9 +77,6 @@ function plugin_init_dlubrand(): void
         'js/dlu-lich-viet.js',
     ];
 
-    // Ngôn ngữ mặc định cho trang ẩn danh (trang đăng nhập).
-    $PLUGIN_HOOKS[Hooks::POST_INIT]['dlubrand'] = 'plugin_dlubrand_set_default_language';
-
     // GHI CHÚ QUAN TRỌNG — VÌ SAO KHÔNG XỬ LÝ NGÔN NGỮ TRANG ĐĂNG NHẬP Ở ĐÂY?
     //
     //   Thứ tự khởi động thật của GLPI 11 (src/Glpi/Kernel/ListenersPriority.php):
@@ -87,9 +84,11 @@ function plugin_init_dlubrand(): void
     //     LoadLanguage        (ưu tiên 120)   <-- ngôn ngữ được chốt tại đây
     //     InitializePlugins   (ưu tiên 110)   <-- plugin chỉ chạy từ đây
     //
-    //   Nghĩa là khi plugin được nạp thì ngôn ngữ ĐÃ được quyết định xong.
-    //   Mọi hook của plugin (kể cả POST_INIT) đều chạy SAU đó, nên không thể
-    //   sửa được ngôn ngữ của trang đăng nhập.
+    //   LoadLanguage gọi Session::loadLanguage(), hàm này LUÔN gán
+    //   $_SESSION['glpilanguage'] (qua getPreferredLanguage — không bao giờ trả
+    //   rỗng) TRƯỚC khi bất kỳ hook plugin nào chạy. Nghĩa là tới lúc plugin
+    //   được nạp thì ngôn ngữ đã quyết định xong; mọi hook của plugin (kể cả
+    //   POST_INIT) đều chạy SAU đó và không thể sửa lại.
     //
     //   Hàm Session::getPreferredLanguage() chọn ngôn ngữ theo header
     //   Accept-Language của TRÌNH DUYỆT trước, rồi mới tới ngôn ngữ mặc định
@@ -102,38 +101,6 @@ function plugin_init_dlubrand(): void
     //
     //   Cách này KHÔNG sửa mã nguồn lõi, và chỉ áp dụng cho khách chưa đăng
     //   nhập — người dùng đã đăng nhập vẫn giữ nguyên ngôn ngữ họ tự chọn.
-}
-
-/**
- * Đặt ngôn ngữ mặc định (từ cấu hình chung) cho phiên ẩn danh.
- *
- * VÌ SAO CẦN?
- *   Trang đăng nhập (chưa có phiên) dùng $_SESSION['glpilanguage'] trực tiếp.
- *   Nếu chưa có giá trị, GLPI hiển thị tiếng Anh — dù Thiết lập chung đã là
- *   vi_VN. Hàm này gán giá trị mặc định để "Việt hoá" cả trang đăng nhập.
- *
- * @param mixed $data Tham số do GLPI truyền vào (không dùng)
- * @return void
- */
-function plugin_dlubrand_set_default_language($data = null): void
-{
-    global $CFG_GLPI;
-
-    // Đã có ngôn ngữ trong phiên (người dùng đã chọn) -> tôn trọng
-    if (!empty($_SESSION['glpilanguage'])) {
-        return;
-    }
-
-    // Lấy ngôn ngữ mặc định từ Thiết lập chung
-    $default = $CFG_GLPI['language'] ?? 'en_GB';
-
-    // Chỉ áp dụng nếu ngôn ngữ đó thực sự có trong danh sách GLPI hỗ trợ
-    if (!empty($default) && isset($CFG_GLPI['languages'][$default])) {
-        $_SESSION['glpilanguage'] = $default;
-        // Nạp ngay bản dịch để các chuỗi __() trên trang đăng nhập
-        // (tiêu đề, nhãn ô nhập, nút bấm) hiển thị đúng tiếng Việt.
-        \Session::loadLanguage();
-    }
 }
 
 /**

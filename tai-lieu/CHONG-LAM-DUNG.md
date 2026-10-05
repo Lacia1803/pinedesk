@@ -34,12 +34,12 @@
 
 | Tầng | Cơ chế | Trạng thái | Bằng chứng |
 |---|---|---|---|
-| T1 | Rate limit endpoint nộp phiếu | ✅ **Đã dựng** | `nginx/nginx.conf`, `nginx/conf.d/default.conf` |
+| T1 | Rate limit mọi đường nộp phiếu | ✅ **Đã dựng** | `nginx/nginx.conf`, `nginx/conf.d/default.conf` |
 | T2 | Bắt buộc đăng nhập | ✅ Có sẵn của GLPI | Cấu hình vai trò trong `seed-du-lieu-mau.sql` |
-| T3 | Trần phiếu mở / ngày | ✅ **Đã dựng** (bảng + script kiểm) | `scripts/seed-sla-va-chong-lam-dung.sql`, `scripts/kiem-tra-lam-dung.sh` |
-| T4 | Phát hiện trùng | ✅ **Đã dựng** (phát hiện + báo cáo) | `scripts/kiem-tra-lam-dung.sh` mục 2 |
+| T3 | Trần phiếu mở / ngày | ✅ **Đã dựng, CHẶN thật khi tạo phiếu** | `plugins/pinedesk/hook.php` (T3a/T3b), `plugins/pinedesk/tests/kiem-thu-han-muc.php` |
+| T4 | Chặn phiếu trùng | ✅ **Đã dựng, CHẶN thật khi tạo phiếu** | `plugins/pinedesk/hook.php` (T4) |
 | T5 | Kiểm duyệt trước khi giao | 🟡 **Cấu hình GLPI** — không phải mã | Xem mục 5 |
-| T6 | Nhật ký | ✅ **Đã dựng** (bảng riêng) | `glpi_plugin_pinedesk_ticketlog` |
+| T6 | Nhật ký mọi lần tạo phiếu (kể cả lần bị chặn) | ✅ **Đã dựng** (plugin ghi tự động) | `plugins/pinedesk/hook.php`, bảng `glpi_plugin_pinedesk_ticketlog` |
 
 ---
 
@@ -104,16 +104,32 @@ khoản bấm "Lưu" liên tục có thể tạo hàng trăm phiếu rác, làm 
 limit_req_zone $binary_remote_addr zone=ticket_zone:10m rate=30r/m;
 ```
 
-**`nginx/conf.d/default.conf`** — áp cho endpoint tạo/sửa phiếu và API:
+**`nginx/conf.d/default.conf`** — zone `ticket_zone` áp cho MỌI đường nộp phiếu,
+cả đường truyền thống lẫn đường biểu mẫu mới của GLPI 11:
+
+| Đường nộp phiếu | Ghi chú |
+|---|---|
+| `/front/(ticket\|problem\|change).form.php` | Đường truyền thống (tạo/sửa phiếu, vấn đề, thay đổi) |
+| `/Form/SubmitAnswers` | Biểu mẫu Service Catalog của GLPI 11 (sinh viên/giảng viên dùng đường này) |
+| `/Form/ValidateAnswers` | Kiểm tra dữ liệu biểu mẫu khi chuyển mục hoặc bấm Gửi |
+| `/apirest.php`, `/api.php` | API REST (mặc định tắt, giới hạn sẵn để khi bật không hở) |
 
 ```nginx
-location ~* /front/ticket\.form\.php$ {
+location ~* ^/Form/(SubmitAnswers|ValidateAnswers)(/|$) {
     limit_req zone=ticket_zone burst=10 nodelay;
     limit_req_status 429;          # vượt ngưỡng trả 429, không phải 503
     proxy_pass http://glpi:80;
     ...
 }
 ```
+
+> **Lỗ hổng đã sửa (phát hiện khi phản biện):** trước đây location chỉ khớp
+> `/front/ticket.form.php`, còn đường biểu mẫu `/Form/SubmitAnswers` rơi vào
+> `general_zone` (600 request/phút, burst 200), yếu hơn khoảng 20 lần so với
+> thiết kế. Đã đo trên hệ thống đang chạy: 12 POST liên tiếp vào
+> `/Form/SubmitAnswers` cho 0 lần 429. Sau khi thêm location, cùng phép đo cho
+> 429 ngay ở request thứ 12, khớp với đường `/front/ticket.form.php`.
+> Các neo `(/|$)` cũng chặn luôn đường lách thêm hậu tố (`/Form/SubmitAnswers/x`).
 
 ### 2.3. Vì sao chọn 30 request/phút, không chặt hơn?
 
@@ -164,7 +180,36 @@ theo IP là sai thiết kế trong môi trường có NAT**, không phải là b
 > Con số này **cần được Trung tâm CNTT (ITC) xác nhận** trước khi dùng thật.
 > Vì là dữ liệu trong bảng, chỉnh sửa chỉ cần một câu UPDATE — không phải sửa mã.
 
-### 3.2. Cách kiểm tra
+### 3.2. Thực thi thật — chặn ngay khi tạo phiếu (`plugins/pinedesk`)
+
+Bảng cấu hình chỉ là dữ liệu; thứ **thực sự chặn** là plugin `pinedesk`. Plugin
+dùng hook công khai `PRE_ITEM_ADD` của GLPI, kiểm tra trước khi phiếu được ghi
+và huỷ thao tác nếu vi phạm, **không sửa một dòng nào trong lõi GLPI**.
+
+| Cơ chế | Cách hoạt động |
+|---|---|
+| **T3a — trần phiếu mở** | Đếm phiếu trạng thái 1–4 của người nộp; chạm trần (mặc định 5) thì chặn |
+| **T3b — trần phiếu/ngày** | Đếm phiếu tạo từ 0h hôm nay; chạm trần (mặc định 10) thì chặn |
+| **T4 — chống trùng** | Cùng người + cùng thiết bị, hoặc cùng loại sự cố + cùng vị trí, trong cửa sổ 30 phút, phiếu cũ chưa đóng → chặn, chỉ luôn sang phiếu cũ |
+| **T6 — nhật ký** | Ghi **mọi** lần tạo phiếu, kể cả lần bị chặn (`reason = LIMIT_BLOCKED` / `DUP_BLOCKED`) |
+
+**Ai bị áp dụng:** chỉ tài khoản Self-Service (sinh viên, giảng viên). Kỹ thuật
+viên và quản trị có quyền cập nhật phiếu được miễn trừ, phiếu do cron sinh
+(bảo trì định kỳ) cũng được miễn trừ.
+
+**Chống đua (race):** nhiều tab cùng bấm Lưu một lúc vẫn không lách được: plugin
+dùng khoá `GET_LOCK` của MariaDB theo từng tài khoản.
+
+**Khi lỗi thì mở, không chặn oan:** nếu truy vấn đếm gặp lỗi, plugin cho phiếu
+đi qua và ghi lỗi vào log riêng (`pinedesk.log`), ưu tiên không chặn nhầm người
+dùng hợp lệ.
+
+**Kiểm thử:** `plugins/pinedesk/tests/kiem-thu-han-muc.php` chạy trên CSDL thật,
+37 điểm kiểm (tạo đủ 5 phiếu thành công, phiếu thứ 6 bị chặn, phiếu trùng bị
+chặn, kỹ thuật viên không bị chặn, cron không bị chặn, nhật ký đúng), tự dọn dẹp
+sau khi chạy. CI chạy harness này trong job `smoke`.
+
+### 3.3. Cách kiểm tra định kỳ (báo cáo)
 
 **`scripts/kiem-tra-lam-dung.sh`** làm 3 việc, in ra báo cáo:
 
@@ -180,16 +225,19 @@ bash scripts/kiem-tra-lam-dung.sh              # chỉ báo cáo
 bash scripts/kiem-tra-lam-dung.sh --thuc-thi   # báo cáo + ghi nhật ký vi phạm
 ```
 
-### 3.3. Quyết định thiết kế: KHÔNG tự xoá phiếu
+### 3.4. Quyết định thiết kế: chặn lúc tạo, KHÔNG tự xoá phiếu sau
 
-Script **chỉ báo cáo**, không tự động xoá hay chặn phiếu. Lý do:
+Plugin **chặn ngay lúc tạo** (phiếu vi phạm không bao giờ vào CSDL), nhưng không
+có cơ chế nào **tự xoá phiếu đã tồn tại**. Lý do:
 
 - Xoá tự động có thể **xoá nhầm phiếu thật** của người dùng hợp lệ;
 - Việc "phiếu này có lạm dụng hay không" cần **phán đoán của con người**;
 - Nhật ký để lại bằng chứng, kỹ thuật viên xem rồi quyết định xử lý.
 
 👉 Đây là nguyên tắc thiết kế có chủ đích: **hệ thống hỗ trợ con người ra quyết
-định, không thay con người ra quyết định trong việc xoá dữ liệu.**
+định, không thay con người ra quyết định trong việc xoá dữ liệu.** Script
+`kiem-tra-lam-dung.sh` vẫn giữ vai trò rà soát định kỳ: nó báo cáo các trường
+hợp đáng ngờ (kể cả phiếu lọt qua trước khi plugin bật) để kỹ thuật viên xem xét.
 
 ---
 
@@ -201,7 +249,7 @@ Bảng `glpi_plugin_pinedesk_ticketlog` ghi:
 |---|---|
 | `users_id` | Ai tạo |
 | `tickets_id` | Phiếu nào |
-| `ip_address` | Từ IP nào (nếu lấy được qua `X-Forwarded-For`) |
+| `ip_address` | Từ IP nào: nginx đã ghi đè `X-Forwarded-For` bằng IP thật của kết nối nên giá trị giả từ client bị loại bỏ |
 | `tickets_id_dup` | Trùng với phiếu nào |
 | `reason` | `NEW` (bình thường) / `DUP_BLOCKED` / `LIMIT_BLOCKED` |
 | `date_creation` | Khi nào |
@@ -231,10 +279,17 @@ Tầng này **chưa được tự động hoá bằng mã** 🟡. Nó hiện d�
 hành** (kỹ thuật viên tự soát khi giao việc) và có thể siết bằng **quy tắc nghiệp
 vụ (business rules)** của GLPI cấu hình qua giao diện.
 
-**Lý do không viết mã cho tầng này:** muốn tự động chặn thì phải móc vào sự kiện
-tạo phiếu của GLPI → phải viết plugin sửa vào luồng lõi → **mất tính "tùy biến
-ngoài lõi"** (mục tiêu cốt lõi của đồ án, xem `SO-SANH-VOI-GLPI-GOC.md`). Đồ án
-chọn **giữ kiến trúc sạch** thay vì chặn tự động. Đây là **đánh đổi có ý thức**.
+**Lý do không viết mã cho tầng này:** T3/T4 chỉ cần đếm và so khớp dữ liệu, nên
+cưỡng chế được bằng máy. T5 là phán đoán: cùng một mức "Rất cao" có thể chính
+đáng (sự cố phòng thi, máy chủ hỏng) hoặc lạm dụng, máy không phân biệt được.
+Phiếu mới vẫn nằm ở trạng thái "Mới" chờ kỹ thuật viên xem xét trước khi giao
+việc: bước kiểm duyệt có thật, chỉ là không có mã cưỡng chế.
+
+**Ghi chú đính chính:** bản trước của tài liệu này viết "muốn tự động hoá T5 thì
+phải móc vào lõi GLPI". Điều đó **không đúng**: plugin `pinedesk` đã chứng minh
+hook công khai `PRE_ITEM_ADD` can thiệp được vào lúc tạo phiếu mà không sửa lõi.
+Về kỹ thuật, tự động hoá T5 là khả thi; đồ án để lại như hướng phát triển vì cần
+chính sách mức ưu tiên do ITC ban hành trước khi máy tự quyết thay con người.
 
 ---
 
@@ -290,8 +345,8 @@ chống đỡ sau khi đã cho phép.
 
 | Câu hỏi | Mở file | Nói gì |
 |---|---|---|
-| "Sinh viên spam thì sao?" | tài liệu này + `nginx/conf.d/default.conf` | 6 tầng, T1/T3/T4/T6 đã dựng |
+| "Sinh viên spam thì sao?" | tài liệu này + `plugins/pinedesk/` | 6 tầng; T1/T3/T4/T6 đã dựng thật, chỉ T5 còn ở mức quy trình |
 | "Sao chặn theo IP, không theo tài khoản?" | mục 2.3 | NAT chung cả phòng → chặn IP là chặn oan |
-| "Đã kiểm thử chưa?" | `scripts/kiem-tra-lam-dung.sh` | Có script kiểm + CI |
+| "Đã kiểm thử chưa?" | `plugins/pinedesk/tests/kiem-thu-han-muc.php` | Harness 37 điểm kiểm, CI chạy trong job `smoke` |
 | "SLA là gì, ai ban hành?" | mục 6.3 | Đề xuất kỹ thuật, chưa được Trường ban hành |
 | "Còn thiếu gì?" | mục 7 | 6 điểm, nói thẳng |

@@ -10,7 +10,7 @@
    => Ti le = so chuoi co ban dich khac rong VA khac chuoi goc / tong msgid
 
  LUU Y: day la cung cong thuc voi scripts/do-do-phu-tieng-viet.py. Hai script
-        phai cho ra CUNG mot con so (hien tai 31,8%).
+        phai cho ra CUNG mot con so (hien tai 32,0%).
 
  CHAY:
    bash scripts/cai-ban-dich.sh tai   # (tuy chon) tai .po goc ve may

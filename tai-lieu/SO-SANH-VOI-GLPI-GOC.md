@@ -29,7 +29,7 @@
 
 | Hạng mục | GLPI 11 gốc | Bản đồ án (pinedesk) | Mức cải thiện |
 |---|---|---|---|
-| **Ngôn ngữ giao diện** | Tiếng Anh mặc định; có sẵn ~28% tiếng Việt | Mặc định **tiếng Việt**, **541 thuật ngữ + 212 mục số nhiều** dịch bổ sung, phủ **31,8%→toàn bộ menu** | ⭐⭐⭐⭐ |
+| **Ngôn ngữ giao diện** | Tiếng Anh mặc định; có sẵn ~28% tiếng Việt | Mặc định **tiếng Việt**, **556 thuật ngữ + 212 mục số nhiều** dịch bổ sung, phủ **32,0%→toàn bộ menu** | ⭐⭐⭐⭐ |
 | **Giao diện / thương hiệu** | Bảng màu `auror` của Teclib, ngôn ngữ thẻ nổi bo tròn + bóng đổ | **Bảng màu "Đà Lạt"** lấy từ logo DLU (3 bảng màu) **+ ngôn ngữ hình ảnh riêng**: nền giấy/mực đậm/đường kẻ mảnh, thẻ mất vỏ hộp, bo góc 3–6px, đầu bảng in hoa, số liệu chữ đều | ⭐⭐⭐⭐⭐ |
 | **Logo** | Logo Teclib / GLPI | **Logo chính thức ĐH Đà Lạt** ở mọi trang | ⭐⭐⭐⭐⭐ |
 | **Dữ liệu nền** | **Rỗng hoàn toàn** — phải tự nhập | **Dựng sẵn 23 nhóm danh mục** theo cơ cấu thật của DLU | ⭐⭐⭐⭐⭐ |
@@ -62,9 +62,9 @@
 |---|---|
 | Tổng chuỗi cần dịch (catalog gốc) | 6.511 |
 | Bản gốc đã có tiếng Việt | 1.831 |
-| **Thuật ngữ dịch bổ sung do đồ án viết** | **541** (đơn) + 212 (dạng số nhiều) |
-| Chuỗi tiếng Việt đang dùng trong GLPI | 2.070 |
-| Tỉ lệ đo được trên giao diện thực tế | **31,8%** (2.070/6.511) |
+| **Thuật ngữ dịch bổ sung do đồ án viết** | **556** (đơn) + 212 (dạng số nhiều) |
+| Chuỗi tiếng Việt đang dùng trong GLPI | 2.084 |
+| Tỉ lệ đo được trên giao diện thực tế | **32,0%** (2.084/6.511) |
 
 **Cách làm — điểm kỹ thuật đáng chú ý:**
 
@@ -82,7 +82,7 @@ Script `gop-ban-dich-tieng-viet.py` làm đúng việc gộp này, đảm bảo 
 
 **Trả lời thẳng câu hỏi "đã 100% tiếng Việt chưa?"**
 
-> **CHƯA.** Hiện là **31,8%**. Nhưng cần hiểu đúng con số này:
+> **CHƯA.** Hiện là **32,0%**. Nhưng cần hiểu đúng con số này:
 >
 > - Đây là tỉ lệ trên **toàn bộ catalog**, kể cả các chuỗi kỹ thuật dài mà người dùng cuối không bao giờ thấy (thông báo lỗi CLI, log hệ thống, cảnh báo cron, SQL…).
 > - **Giao diện người dùng thực sự chạm vào** — menu chính (Tài sản / Hỗ trợ / Quản lý / Công cụ / Quản trị / Cấu hình), thanh bên, tiêu đề bảng, nhãn biểu mẫu, nút bấm, nhãn trạng thái phiếu — **gần như 100% tiếng Việt**.
@@ -110,7 +110,7 @@ các entry có ký tự `\0`. Xem **lỗi #11** ở mục 2.12.
 
 | Script | Chức năng |
 |---|---|
-| `bo-sung-tieng-viet.py` | Từ điển `BAN_DICH_BO_SUNG` — **541 thuật ngữ** (đơn) + `BAN_DICH_SO_NHIEU` — **212 mục** (dạng số nhiều) |
+| `bo-sung-tieng-viet.py` | Từ điển `BAN_DICH_BO_SUNG` — **556 thuật ngữ** (đơn) + `BAN_DICH_SO_NHIEU` — **212 mục** (dạng số nhiều) |
 | `tao-mo-bo-sung.py` | Biên dịch từ điển thành file `.mo` |
 | `gop-ban-dich-tieng-viet.py` | **GỘP** lõi + bổ sung (không mất chuỗi) + **vá/thêm entry số nhiều** |
 | `dich-tu-dong-giao-dien.py` | Dịch tự động theo từ điển + mẫu câu (1.231 dòng) |
@@ -312,7 +312,7 @@ là đúng đắn**, còn đặt ở `.scss` sẽ gây hiểu nhầm.
 
 | # | Danh mục | Số lượng | Giá trị thực tế |
 |---|---|---|---|
-| 1 | **Vị trí** (3 cấp) | **67** | 1 khuôn viên → **12 tòa nhà** → **54 phòng máy/lab** |
+| 1 | **Vị trí** (3 cấp) | **67** | 1 khuôn viên → **12 tòa nhà** → **54 phòng** (phòng máy, lab, phòng ban) |
 | 2 | Trạng thái thiết bị | 10 | Đang dùng, đang sửa, chờ thanh lý, thanh lý… |
 | 3 | Hãng sản xuất | 24 | Dell, HP, Lenovo, Asus, Acer, Epson, Canon… |
 | 4 | Loại thiết bị | 35 | 5 loại máy tính + 5 màn hình + 5 máy in + 12 ngoại vi + 8 thiết bị mạng |
@@ -332,14 +332,14 @@ Khoa                    (nhóm cấp 1)
 └── 16 khoa chuyên môn  (Khoa Toán – Tin học, Khoa Sinh học, …)
 
 Phòng chức năng         (nhóm cấp 1)
-└── 10 phòng ban        (Phòng Cơ sở Vật chất, Phòng Đào tạo, …)
+└── 10 phòng ban        (Phòng Quản trị Cơ sở vật chất, Phòng Đào tạo, …)
 
 Trung tâm và Viện       (nhóm cấp 1)
 └── 6 trung tâm + 1 viện
 ```
 
 Hai đơn vị được chú thích rõ vì là **khách hàng chính** của hệ thống:
-- **Phòng Cơ sở Vật chất** — *đơn vị chủ quản tài sản*
+- **Phòng Quản trị Cơ sở vật chất** — *đơn vị chủ quản tài sản*
 - **Trung tâm Công nghệ thông tin** — *đơn vị vận hành kỹ thuật* (đội kỹ thuật viên)
 
 > Dùng để: phân quyền, gán người dùng, và **thống kê thiết bị theo đơn vị** trên dashboard.
@@ -699,7 +699,7 @@ phục vụ trình diễn trước hội đồng.
 |---|---|
 | Khung cảnh Đà Lạt | Năm lớp đồi xếp chồng nhạt dần, rừng thông ở lớp gần nhất, hai dải sương trôi — vẽ bằng SVG |
 | Cửa sổ sản phẩm | Khung trình duyệt chứa ảnh dashboard thật, đặt trên sườn đồi |
-| Quy mô | 4 chỉ số thật: 4 dịch vụ · 34 tài sản · 541 thuật ngữ Việt hoá · 0đ bản quyền |
+| Quy mô | 4 chỉ số thật: 4 dịch vụ · 34 tài sản · 556 thuật ngữ Việt hoá · 0đ bản quyền |
 | Tính năng nổi bật | Mã QR · Quy trình sự cố ITIL · Dashboard thống kê · An toàn dữ liệu |
 | Mặt cắt kiến trúc | Năm lớp xếp chồng như sườn đồi, đưa chuột lên một lớp thì dải tương ứng sáng lên |
 | Bốn dịch vụ Docker | `pinedesk-gateway` · `pinedesk-glpi` · `pinedesk-db` · `pinedesk-redis`, kèm lệnh chạy |
@@ -777,7 +777,7 @@ Trang **không dùng giao diện mẫu có sẵn**. Mọi chi tiết tạo hình
 | `scripts/nap-du-lieu-nen.sh` | 71 | Nạp dữ liệu nền |
 | `scripts/seed-du-lieu-mau.sql` | 554 | ⭐ **Dữ liệu mẫu demo** (thiết bị, phiếu, phần mềm, thiết bị mạng) |
 | `scripts/nap-du-lieu-mau.sh` | 164 | ⭐ Nạp dữ liệu mẫu + đặt mật khẩu tài khoản demo |
-| `scripts/bo-sung-tieng-viet.py` | 1.239 | Từ điển 541 thuật ngữ (dạng đơn **+ 212 mục dạng số nhiều**) |
+| `scripts/bo-sung-tieng-viet.py` | 1.239 | Từ điển 556 thuật ngữ (dạng đơn **+ 212 mục dạng số nhiều**) |
 | `scripts/gop-ban-dich-tieng-viet.py` | 560 | Gộp bản dịch (không mất chuỗi) + **vá/thêm entry số nhiều** |
 | `scripts/tao-mo-bo-sung.py` | 334 | Biên dịch `.mo` thuần Python (tự tải `.po` khi thiếu) |
 | `scripts/dich-tu-dong-giao-dien.py` | 1.231 | Dịch tự động (tự tải `.po` khi thiếu) |
@@ -847,7 +847,7 @@ không phải code tự viết.)*
 
 | Hạng mục | Trạng thái | Ghi chú |
 |---|---|---|
-| Việt hóa 100% | ❌ **31,8%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
+| Việt hóa 100% | ❌ **32,0%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
 | `session.cookie_secure = On` | ✅ Đã bật | Đi kèm bắt buộc `config/apache-forwarded-proto.conf` + healthcheck gửi header |
 | Chứng chỉ SSL | ⚠️ Tự ký nhưng **CÓ SAN** | Đã có SAN (`localhost`, `pinedesk.local`, `127.0.0.1`); triển khai thật nên dùng Let's Encrypt |
 | `url_base` | ⚠️ Đang là `https://localhost:8443` | Triển khai thật phải đổi tên miền, nếu không **mã QR in ra sẽ sai** |
@@ -868,7 +868,7 @@ thuyết, chưa thực tế"*). Đồ án đã làm được một phần và **
 | 2 | **Số sự cố thực tế/tuần của trường chưa có** | 🔴 Nghiêm trọng | Ghi rõ là giả định trong `BAI-TOAN-NGHIEP-VU.md` mục 7. Không bịa số |
 | 3 | **SLA chưa được Trường ban hành** | 🟡 Trung bình | Đã tạo 5 mức SLA thật trong CSDL, nhưng là **đề xuất kỹ thuật** — cần văn bản phê duyệt của ITC |
 | 4 | **Hạn mức chống spam chưa được ITC xác nhận** | 🟡 Trung bình | Đã cấu hình (5 phiếu mở / 10 phiếu/ngày) nhưng là đề xuất. Sửa được bằng 1 câu UPDATE |
-| 5 | **Tầng kiểm duyệt (T5) chưa tự động hoá bằng mã** | 🟡 Trung bình | Dựa trên quy trình vận hành. Lý do: tự động hoá phải móc vào lõi GLPI → mất kiến trúc "tùy biến ngoài lõi" |
+| 5 | **Tầng kiểm duyệt (T5) chưa tự động hoá bằng mã** | 🟡 Trung bình | Dựa trên quy trình vận hành: phiếu mới nằm ở trạng thái "Mới" chờ kỹ thuật viên xác nhận ưu tiên. T3/T4 thì đã cưỡng chế bằng plugin `pinedesk` (hook công khai, không sửa lõi) |
 | 6 | **Chưa đo tải khi nhiều người cùng nộp** | 🔴 Nghiêm trọng | Chưa kiểm thử hiệu năng. **Không dám nói "chịu được 5.000 người" khi chưa đo** |
 | 7 | **Bảo trì định kỳ dùng lịch GỐC của GLPI** | 🟢 Đã xử lý | Tạo 2 lịch `glpi_ticketrecurrents` (bảo trì phòng máy hàng tháng + kiểm tra thiết bị mạng hàng quý) kèm mẫu phiếu; cron `ticketrecurrent` của GLPI tự sinh phiếu. **Chưa chạy đủ 1 chu kỳ** để chứng minh tự động sinh phiếu |
 | 8 | ~~Phiếu quá hạn chưa có dữ liệu demo~~ | 🟢 Đã xử lý | Phần C của `seed-sla-va-chong-lam-dung.sql` đẩy 2 phiếu đang mở vào quá khứ → phiếu quá hạn thật, demo được cảnh báo SLA |
@@ -889,7 +889,7 @@ Ghi rõ để tránh hiểu nhầm khi bảo vệ đồ án:
 
 | Hạng mục | Trạng thái | Ghi chú |
 |---|---|---|
-| Việt hóa 100% | ❌ **31,8%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
+| Việt hóa 100% | ❌ **32,0%** | GLPI chỉ ship ~32%; phần còn lại chủ yếu là chuỗi kỹ thuật ẩn |
 | Mật khẩu mặc định | ⚠️ **Chưa đổi** | Mật khẩu `glpi` **không hardcode trong mã** — script đọc từ biến môi trường `GLPI_PASS`. Khi triển khai thật phải đổi mật khẩu trong `.env` và tài khoản `glpi` |
 | `session.cookie_secure = On` | ✅ **Đã bật** | Cookie phiên chỉ gửi qua HTTPS. Đi kèm **bắt buộc**: `config/apache-forwarded-proto.conf` (chuyển tiếp tín hiệu HTTPS từ nginx) + healthcheck gửi header — thiếu 1 trong 2 là GLPI chặn mọi trang bằng HTTP 400 |
 | Tài khoản mẫu 3 vai trò | ✅ **Đã tạo** | 6 tài khoản: 2 KTV, 2 giảng viên, 2 sinh viên — đã kiểm chứng đăng nhập được |
@@ -910,7 +910,7 @@ Bản gốc GLPI 11 là một **framework ITSM mạnh** nhưng ở trạng thái
 
 Đồ án đã biến nó thành một **hệ thống hỗ trợ kỹ thuật hoàn chỉnh, mang bản sắc Trường Đại học Đà Lạt**, với 6 nhóm cải thiện chính:
 
-1. **Bản địa hóa** — Việt hóa cả giao diện lẫn trang đăng nhập (541 thuật ngữ + 212 mục dạng số nhiều bổ sung)
+1. **Bản địa hóa** — Việt hóa cả giao diện lẫn trang đăng nhập (556 thuật ngữ + 212 mục dạng số nhiều bổ sung)
 2. **Nhận diện thương hiệu** — Bảng màu "Đà Lạt" lấy từ logo DLU, phủ mọi trang
 3. **Dữ liệu nghiệp vụ** — 23 nhóm danh mục dựng sẵn theo cơ cấu tổ chức **thật** của DLU
 4. **Dữ liệu demo** — 1 lệnh ra ngay hệ thống có sống, sẵn sàng trình diễn

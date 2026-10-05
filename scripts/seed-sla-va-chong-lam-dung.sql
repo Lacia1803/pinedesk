@@ -55,6 +55,21 @@ DELETE FROM glpi_slas
                 'SLA - Ưu tiên trung bình (P3)', 'SLA - Ưu tiên cao (P4)',
                 'SLA - Ưu tiên rất cao (P5)');
 
+-- A.1b. SLM (Service Level Manager) — "cái khung" chứa các SLA.
+--       VÌ SAO CẦN: GLPI hiển thị danh sách SLA NHÓM THEO SLM (menu Thiết lập >
+--       SLA có cột "SLM"). Không có SLM thì cột đó TRỐNG và danh sách trông
+--       như dữ liệu mồ côi. Kiểm chứng trên hệ thống chạy thật: glpi_slms rỗng,
+--       cả 10 SLA đều có slms_id=0 -> hội đồng mở trang SLA sẽ thấy ngay.
+INSERT INTO glpi_slms
+    (name, entities_id, is_recursive, comment, use_ticket_calendar,
+     calendars_id, date_creation, date_mod)
+SELECT 'SLM - Trung tâm CNTT ĐH Đà Lạt', 0, 0,
+       'Khung quản lý mức dịch vụ cho các phiếu hỗ trợ kỹ thuật.',
+       0, 0, @now, @now
+WHERE NOT EXISTS (SELECT 1 FROM glpi_slms WHERE name = 'SLM - Trung tâm CNTT ĐH Đà Lạt');
+
+SET @slm_id := (SELECT id FROM glpi_slms WHERE name = 'SLM - Trung tâm CNTT ĐH Đà Lạt' LIMIT 1);
+
 INSERT INTO glpi_slas
     (name, comment, type, date_creation, date_mod, is_recursive, entities_id,
      calendars_id, number_time, definition_time, end_of_working_day)
@@ -135,6 +150,15 @@ SELECT 'SLA - Ưu tiên rất cao (P5) — giải quyết',
        0, @now, @now, 0, 0, 0, 2, 'hour', 0
 WHERE NOT EXISTS (SELECT 1 FROM glpi_slas WHERE name = 'SLA - Ưu tiên rất cao (P5) — giải quyết');
 
+-- A.1c. Gán cả 10 SLA vào SLM vừa tạo.
+--       Dùng UPDATE (không chỉ sửa câu INSERT) vì các INSERT trên có mệnh đề
+--       WHERE NOT EXISTS: chạy lại trên CSDL đã có SLA sẽ KHÔNG chèn thêm, nên
+--       các bản ghi cũ (slms_id=0) chỉ được sửa bằng câu UPDATE này.
+UPDATE glpi_slas
+   SET slms_id = @slm_id
+ WHERE slms_id = 0
+   AND name LIKE 'SLA - Ưu tiên%';
+
 
 -- A.2. Tạo mốc thời gian (glpi_slalevels) cho từng SLA chưa có mốc.
 --      Cột THẬT của GLPI 11: execution_time (không phải 'exec_time'),
@@ -154,10 +178,19 @@ SELECT s.id, 'Mốc chính',
 
 
 -- A.3. KHÔNG gán cứng SLA vào từng phiếu ở đây.
---      Việc gán SLA thật do GLPI tự làm khi phiếu được tạo, DỰA TRÊN:
---        - mức ưu tiên (priority 1..5)  -> người tạo chọn khi mở phiếu
---        - quy tắc nghiệp vụ (business rules) -> cấu hình qua giao diện GLPI
---      Gán cứng bằng SQL sẽ SAI khi có phiếu mới -> để quy tắc lo.
+--      LƯU Ý TRUNG THỰC (đã kiểm chứng trên CSDL thật): việc gán SLA vào phiếu
+--      KHÔNG tự động xảy ra khi phiếu được tạo. GLPI chỉ áp SLA khi có ĐỦ HAI
+--      điều kiện:
+--        (1) người tạo chọn mức ưu tiên (priority 1..5), VÀ
+--        (2) có quy tắc nghiệp vụ (ruleaction) ánh xạ priority -> SLA.
+--      Hiện tại CHƯA có quy tắc loại SLA nào (đếm thật: 0 quy tắc có sub_type
+--      chứa "SLA", 0 ruleaction trỏ tới trường SLA; 91 quy tắc hiện có đều
+--      thuộc loại khác như RuleTicket/RuleAsset). Nghĩa là
+--      các SLA ở trên đã sẵn sàng nhưng chưa được áp tự động. Muốn áp tự động
+--      phải tạo quy tắc trong menu Thiết lập > Quy tắc > Quy tắc SLA (thao tác
+--      qua giao diện GLPI). Gán cứng bằng SQL cho từng phiếu cũ sẽ sai khi có
+--      phiếu mới -> để quy tắc lo khi quy tắc được cấu hình.
+--      (Bản comment cũ ghi "GLPI tự làm khi phiếu được tạo" — SAI thực tế.)
 --      Kiểm tra trạng thái: xem câu SELECT ở cuối tệp.
 
 -- =============================================================================
@@ -374,6 +407,8 @@ WHERE @lap1 IS NOT NULL
 -- B3.2. Hai lượt mượn mẫu: 1 đang mượn, 1 đã trả
 SET @sv_hoa   := (SELECT id FROM glpi_users WHERE name = 'sv.hoa' LIMIT 1);
 SET @gv_cuong := (SELECT id FROM glpi_users WHERE name = 'gv.cuong' LIMIT 1);
+-- Ky thuat vien 'tech' (tai khoan co san do GLPI tao) - nguoi xu ly phieu muon.
+SET @tech_user := (SELECT id FROM glpi_users WHERE name = 'tech' LIMIT 1);
 SET @ri_lap3  := (SELECT id FROM glpi_reservationitems WHERE itemtype = 'Computer' AND items_id = @lap3);
 SET @ri_lap1  := (SELECT id FROM glpi_reservationitems WHERE itemtype = 'Computer' AND items_id = @lap1);
 
@@ -402,26 +437,70 @@ WHERE @ri_lap1 IS NOT NULL AND @gv_cuong IS NOT NULL
 -- B3.3. Phiếu yêu cầu mượn (nối luồng phiếu với luồng đặt mượn)
 SET @cat_muon := (SELECT id FROM glpi_itilcategories WHERE name = 'Mượn thiết bị tạm thời' LIMIT 1);
 
+--      SUA LOI THAT (da kiem chung tren CSDL that):
+--        - type = 2 (Request): phieu MUON THIET BI la YEU CAU DICH VU, khong
+--          phai SU CO. Ban cu de type=1 (Incident) -> sai nghia.
+--        - status = 5 phai di kem solvedate; ban cu status=5 nhung solvedate
+--          NULL -> phieu "da giai quyet" ma khong biet giai quyet luc nao.
+--        - locations_id: ban cu bo trong (0) -> phieu muon khong co vi tri.
+--        - requesttypes_id: lay theo TEN 'Báo qua cổng thông tin' (id 11 tren
+--          he thong hien tai, nhung KHONG hardcode de chay dung tren may khac).
+--        - glpi_tickets_users: phai co nguoi yeu cau (type=1) + nguoi xu ly
+--          (type=2). Trong luong cai chuan (mau -> SLA), buoc seed mau chay
+--          TRUOC khi phieu nay ton tai nen khong the gan ho thay; phai tu tao.
 INSERT INTO glpi_tickets
-    (entities_id, name, date, date_mod, status, users_id_recipient,
+    (entities_id, name, date, date_mod, status, solvedate, users_id_recipient,
      requesttypes_id, content, urgency, impact, priority,
-     itilcategories_id, type, is_deleted, date_creation)
+     itilcategories_id, type, is_deleted, date_creation, locations_id)
 SELECT 0,
        'Mượn laptop cho đồ án môn Mạng máy tính',
        DATE_SUB(@now, INTERVAL 1 DAY),
        @now,
        5,
+       @now,
        @sv_hoa,
-       1,
+       (SELECT id FROM glpi_requesttypes WHERE name = 'Báo qua cổng thông tin' LIMIT 1),
        'Em cần mượn 1 laptop để làm đồ án môn Mạng máy tính từ ngày mai đến cuối tuần.\nEm sẽ trả vào thứ Hai tuần sau.\n\nThông tin:\n- MSSV: 2112345\n- Lớp: CTK44\n- Môn: Mạng máy tính',
        3, 3, 3,
        @cat_muon,
-       1,
+       2,
        0,
-       DATE_SUB(@now, INTERVAL 1 DAY)
+       DATE_SUB(@now, INTERVAL 1 DAY),
+       (SELECT id FROM glpi_locations WHERE name = 'Phòng máy A102' AND level = 3 LIMIT 1)
 WHERE @sv_hoa IS NOT NULL AND @cat_muon IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets
                    WHERE name = 'Mượn laptop cho đồ án môn Mạng máy tính');
+
+-- B3.4. Nguoi yeu cau + nguoi xu ly cho phieu muon (neu phieu vua tao/chua co)
+SET @ticket_muon := (SELECT id FROM glpi_tickets
+                      WHERE name = 'Mượn laptop cho đồ án môn Mạng máy tính' LIMIT 1);
+
+INSERT INTO glpi_tickets_users (tickets_id, users_id, type, use_notification, alternative_email)
+SELECT @ticket_muon, @sv_hoa, 1, 1, ''
+WHERE @ticket_muon IS NOT NULL AND @sv_hoa IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
+                   WHERE tu.tickets_id = @ticket_muon AND tu.type = 1);
+
+INSERT INTO glpi_tickets_users (tickets_id, users_id, type, use_notification, alternative_email)
+SELECT @ticket_muon, @tech_user, 2, 1, ''
+WHERE @ticket_muon IS NOT NULL AND @tech_user IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
+                   WHERE tu.tickets_id = @ticket_muon AND tu.type = 2);
+
+-- SUA BAN GHI CU (idempotent): neu phieu muon da ton tai tu lan chay truoc
+-- (type=1 / thieu solvedate / thieu vi tri / sai nguon tiep nhan) thi cap nhat.
+UPDATE glpi_tickets
+   SET type = 2,
+       solvedate = COALESCE(solvedate, @now),
+       locations_id = COALESCE(NULLIF(locations_id, 0),
+                               (SELECT id FROM glpi_locations
+                                 WHERE name = 'Phòng máy A102' AND level = 3 LIMIT 1)),
+       requesttypes_id = COALESCE(NULLIF(requesttypes_id, 1),
+                                  (SELECT id FROM glpi_requesttypes
+                                    WHERE name = 'Báo qua cổng thông tin' LIMIT 1)),
+       date_mod = @now
+ WHERE id = @ticket_muon
+   AND (type <> 2 OR solvedate IS NULL OR locations_id = 0);
 
 -- =============================================================================
 --  PHẦN C - PHIẾU QUÁ HẠN (dữ liệu để demo cảnh báo SLA)
@@ -437,6 +516,9 @@ WHERE @sv_hoa IS NOT NULL AND @cat_muon IS NOT NULL
 
 -- C.1. Gán hạn phản hồi CHO CÁC PHIẾU ĐANG MỞ có ưu tiên >= 3 (trung bình trở lên),
 --      mốc thời gian tính từ ngày tạo theo bảng SLA ở PHẦN A.
+--      CHI ap dung cho 7 phieu DEMO cua seed-du-lieu-mau.sql (lọc theo TÊN,
+--      không theo id): neu người dùng thật đã tạo phiếu, script chạy lại KHÔNG
+--      được đụng vào hạn phản hồi của phiếu thật.
 UPDATE glpi_tickets t
    SET t.time_to_own = DATE_ADD(t.date, INTERVAL
          CASE t.priority
@@ -458,23 +540,43 @@ UPDATE glpi_tickets t
  WHERE t.is_deleted = 0
    AND t.status IN (1, 2)
    AND t.time_to_own IS NULL
-   AND t.date IS NOT NULL;
+   AND t.date IS NOT NULL
+   AND t.name IN ('Máy không khởi động được', 'Không kết nối được mạng LAN',
+                  'Máy in không in được', 'Màn hình bị sọc ngang',
+                  'Phần mềm AutoCAD báo lỗi bản quyền', 'Chuột và bàn phím không nhận',
+                  'Máy tính chạy rất chậm');
 
 -- C.2. Đẩy NGÀY TẠO của 2 phiếu mở xuống quá khứ để mốc hạn đã trôi qua
 --      -> thành phiếu QUÁ HẠN thật, demo được cảnh báo.
---      Chọn phiếu có id nhỏ nhất trong các phiếu đang mở để ổn định.
-SET @tq1 := (SELECT MIN(id) FROM glpi_tickets WHERE is_deleted=0 AND status IN (1,2));
-SET @tq2 := (SELECT MIN(id) FROM glpi_tickets WHERE is_deleted=0 AND status IN (1,2) AND id > @tq1);
+--      Chọn phiếu có id nhỏ nhất trong các phiếu đang mở ĐÚNG TÊN DEMO
+--      (cùng lý do guard như C.1 — không đụng phiếu thật).
+SET @tq1 := (SELECT MIN(id) FROM glpi_tickets
+              WHERE is_deleted=0 AND status IN (1,2)
+                AND name IN ('Máy không khởi động được', 'Không kết nối được mạng LAN',
+                             'Máy in không in được', 'Màn hình bị sọc ngang',
+                             'Phần mềm AutoCAD báo lỗi bản quyền',
+                             'Chuột và bàn phím không nhận', 'Máy tính chạy rất chậm'));
+SET @tq2 := (SELECT MIN(id) FROM glpi_tickets
+              WHERE is_deleted=0 AND status IN (1,2) AND id > @tq1
+                AND name IN ('Máy không khởi động được', 'Không kết nối được mạng LAN',
+                             'Máy in không in được', 'Màn hình bị sọc ngang',
+                             'Phần mềm AutoCAD báo lỗi bản quyền',
+                             'Chuột và bàn phím không nhận', 'Máy tính chạy rất chậm'));
 
+-- LUU Y: phai dat ca date_creation, KHONG chi `date`. GLPI hien thi danh sach
+-- theo date_creation; de date_creation = ngay chay script trong khi `date` la
+-- qua khu -> dong "tao sau khi su co xay ra" (lech den -72 gio) lo ngay tren UI.
 UPDATE glpi_tickets
-   SET date = DATE_SUB(@now, INTERVAL 3 DAY),
+   SET date_creation = DATE_SUB(@now, INTERVAL 3 DAY),
+       date = DATE_SUB(@now, INTERVAL 3 DAY),
        time_to_own = DATE_SUB(@now, INTERVAL 70 HOUR),
        time_to_resolve = DATE_SUB(@now, INTERVAL 1 DAY),
        date_mod = @now
  WHERE id = @tq1;
 
 UPDATE glpi_tickets
-   SET date = DATE_SUB(@now, INTERVAL 2 DAY),
+   SET date_creation = DATE_SUB(@now, INTERVAL 2 DAY),
+       date = DATE_SUB(@now, INTERVAL 2 DAY),
        time_to_own = DATE_SUB(@now, INTERVAL 44 HOUR),
        time_to_resolve = DATE_SUB(@now, INTERVAL 12 HOUR),
        date_mod = @now

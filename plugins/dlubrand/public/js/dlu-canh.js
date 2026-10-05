@@ -96,7 +96,7 @@
         var svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 " + CAO + "'"
             + " preserveAspectRatio='none'>"
             + DEFS
-            + "<path fill='" + lop.mau + "' d='" + duongSong(lop.song) + "'/>";
+            + "<path fill='" + lop.mau + "' d='" + duongSong(lop) + "'/>";
 
         if (lop.thong) {
             svg += "<g fill='#3D5222'>";

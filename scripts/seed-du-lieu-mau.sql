@@ -19,10 +19,13 @@
 --      docker exec -i pinedesk-db mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" glpi < file.sql
 -- ==============================================================================
 
+SET NAMES utf8mb4;
 SET @now = NOW();
 SET @entity = 0;
-SET @admin_user = 2;      -- glpi (Super-Admin)
-SET @tech_user  = 4;      -- tech (ky thuat vien)
+-- Tra cuu theo TEN thay vi hardcode id: id cua cac tai khoan mac dinh GLPI
+-- (glpi/post-only/tech/normal/glpi-system) co the khac nhau giua cac ban cai,
+-- hardcode sai id se gan nham nguoi xu ly hoac lam FK tro sai.
+SET @tech_user  = (SELECT id FROM glpi_users WHERE name = 'tech' LIMIT 1);
 
 -- ==============================================================================
 --  1. NGUOI DUNG MAU THEO VAI TRO
@@ -132,15 +135,25 @@ WHERE u.name IN ('gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh')
 --   Tra cuu ho so theo TEN de khong phu thuoc vao thu tu id (id co the khac
 --   nhau giua cac ban GLPI / ngon ngu cai dat).
 --
---   'Kỹ thuật viên' -> giao dien trung tam, dung de xu ly su co.
---   'Người dùng'    -> giao dien helpdesk, dung cho nguoi bao su co.
+--   'Technician'   (sau Viet hoa: 'Kỹ thuật viên') -> giao dien trung tam.
+--   'Self-Service' (sau Viet hoa: 'Người dùng')    -> giao dien helpdesk.
+--
+--   LOI THAT da sua (0.4.0): ban cu CHI khop TEN TIENG VIET. Tren may sach,
+--   GLPI tao ho so bang ten TIENG ANH ('Technician'/'Self-Service'), con
+--   scripts/viet-hoa-du-lieu.sh — noi doi ten sang tieng Viet — lai khong nam
+--   trong luong cai dat (nay da nam, nhung chay SAU buoc nay). Ket qua: JOIN
+--   khop 0 dong, 6 tai khoan demo khong co ho so quyen nao => dang nhap bao
+--   "Ban khong co quyen de ket noi" (HTTP 400). Kich ban demo lai dang nhap
+--   'sv.hoa' -> se that bai ngay tren buc.
+--   Nay khop CA HAI ten (truoc VA sau khi Viet hoa) de dung thu tu nao cung dung.
 INSERT INTO glpi_profiles_users (users_id, profiles_id, entities_id, is_recursive, is_dynamic)
 SELECT u.id, p.id, 0, 1, 0
 FROM glpi_users u
 JOIN glpi_profiles p
   ON p.name = CASE WHEN u.name IN ('ktv.an', 'ktv.binh')
-                   THEN 'Kỹ thuật viên'
-                   ELSE 'Người dùng' END
+                   THEN 'Technician' ELSE 'Self-Service' END
+     OR p.name = CASE WHEN u.name IN ('ktv.an', 'ktv.binh')
+                      THEN 'Kỹ thuật viên' ELSE 'Người dùng' END
 WHERE u.name IN ('ktv.an', 'ktv.binh', 'gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khanh')
   AND NOT EXISTS (SELECT 1 FROM glpi_profiles_users pu
                   WHERE pu.users_id = u.id AND pu.profiles_id = p.id);
@@ -382,9 +395,13 @@ WHERE NOT EXISTS (SELECT 1 FROM glpi_softwares w WHERE w.name = s.name);
 --  6. PHIEU YEU CAU SU CO (glpi_tickets)
 --     Phan bo trang thai de dashboard co so lieu da dang.
 -- ==============================================================================
-
-SET @st_new      = (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1);
-SET @requester_prof = (SELECT id FROM glpi_profiles WHERE name = 'Self-Service' LIMIT 1);
+-- (Da xoa 2 bien chet @st_new / @requester_prof: khai bao nhung khong noi nao
+--  dung, lai con tra cuu theo ten tieng Anh 'Self-Service' — de gay hieu nham.)
+--
+-- LUU Y GUARD: bon khoi 6.1-6.4 kiem tra ton tai theo TEN phieu, KHONG theo
+-- trang thai. Neu loc them `status = N`, phieu demo da doi trang thai (vi du
+-- tiep nhan 1 -> 2 khi demo) se bi coi la "chua co" va bi insert lai -> nhan doi.
+-- CI co buoc "Seed idempotent" doi trang thai 1 phieu roi chay lai de bat hoi quy.
 
 -- 6.1. Phieu dang "Moi" (New) - chua phan cong
 INSERT INTO glpi_tickets
@@ -394,7 +411,12 @@ INSERT INTO glpi_tickets
 SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY), @now, @now, @entity,
        (SELECT id FROM glpi_users WHERE name = s.requester LIMIT 1),
        (SELECT id FROM glpi_itilcategories WHERE name = s.cat LIMIT 1),
-       1, 1, s.urgency, s.impact, s.priority, 5,
+       1, 1, s.urgency, s.impact, s.priority,
+       -- Nguon tiep nhan: tra theo TEN, KHONG hardcode id. Ban cu ghi cung 5
+       -- ('Written' - qua van ban) — SAI nghia: cac phieu nay do nguoi dung nop
+       -- qua CONG THONG TIN. Id cua 'Bao qua cong thong tin' do seed-nen tao
+       -- bang INSERT ... WHERE NOT EXISTS nen id co the khac giua cac lan cai.
+       (SELECT id FROM glpi_requesttypes WHERE name = 'Báo qua cổng thông tin' LIMIT 1),
        (SELECT id FROM glpi_locations WHERE name = s.loc AND level = 3 LIMIT 1),
        0
 FROM (
@@ -412,7 +434,7 @@ FROM (
            'Màn hình TDL-MON-A101-002 xuất hiện sọc ngang màu, ảnh hưởng giờ thực hành.',
            2, 'sv.khanh', 'Màn hình có sọc hoặc nhấp nháy', 3, 3, 3, 'Phòng máy A101'
 ) s
-WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name AND t.status = 1);
+WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
 -- 6.2. Phieu dang "Duoc giao" (Assigned) - da phan cong KTV
 INSERT INTO glpi_tickets
@@ -437,14 +459,20 @@ FROM (
            'Máy TDL-PC-B101-001 khởi động rất chậm, treo khi mở nhiều ứng dụng.',
            5, 'gv.dung', 'Máy tính chạy chậm bất thường', 3, 3, 3, 'Giảng đường B1'
 ) s
-WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name AND t.status = 2);
+WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
 -- 6.3. Phieu dang "Da giai quyet" (Solved)
+--      LUU Y NGAY THANG: date_creation PHAI bang `date` (ngay tao that su),
+--      KHONG duoc la @now. Ban cu dat date_creation = @now trong khi `date` va
+--      `solvedate` la qua khu -> solvedate < date_creation (da do thuc te tren
+--      he thong that: lech -216 den -672 gio). Hoi dong chi can mo danh sach
+--      phieu la thay ngay "giai quyet truoc khi tao" — vo ly.
 INSERT INTO glpi_tickets
     (name, content, date, date_creation, date_mod, solvedate, entities_id, users_id_recipient,
      itilcategories_id, type, status, urgency, impact, priority, requesttypes_id,
      locations_id, is_deleted)
-SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY), @now, @now,
+SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY),
+       DATE_SUB(@now, INTERVAL s.ago DAY), @now,
        DATE_SUB(@now, INTERVAL s.ago - 1 DAY), @entity,
        (SELECT id FROM glpi_users WHERE name = s.requester LIMIT 1),
        (SELECT id FROM glpi_itilcategories WHERE name = s.cat LIMIT 1),
@@ -463,14 +491,17 @@ FROM (
            'Tài khoản sinh viên không đăng nhập được vào máy phòng A102.',
            15, 'sv.hoa', 'Không đăng nhập được máy tính', 3, 3, 3, 'Phòng máy A102'
 ) s
-WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name AND t.status = 5);
+WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
 -- 6.4. Phieu dang "Da dong" (Closed)
+--      Cung ly do nhu 6.3: date_creation phai la ngay tao that (qua khu),
+--      khong phai @now — neu khong solvedate/closedate se som hon ngay tao.
 INSERT INTO glpi_tickets
     (name, content, date, date_creation, date_mod, solvedate, closedate, entities_id,
      users_id_recipient, itilcategories_id, type, status, urgency, impact, priority,
      requesttypes_id, locations_id, is_deleted)
-SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY), @now, @now,
+SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY),
+       DATE_SUB(@now, INTERVAL s.ago DAY), @now,
        DATE_SUB(@now, INTERVAL s.ago - 2 DAY), DATE_SUB(@now, INTERVAL s.ago - 3 DAY),
        @entity,
        (SELECT id FROM glpi_users WHERE name = s.requester LIMIT 1),
@@ -490,7 +521,39 @@ FROM (
            'Cài đặt trình duyệt Chrome theo yêu cầu giảng viên.',
            30, 'sv.khanh', 'Cài đặt bộ văn phòng', 2, 1, 1, 'Phòng máy A102'
 ) s
-WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name AND t.status = 6);
+WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
+
+-- 6.5. SUA DON NGAY THANG CHO BAN GHI CU.
+--      Cac phieu do LAN CHAY TRUOC tao ra (ban seed cu dat date_creation = @now
+--      trong khi date/solvedate la qua khu) van nam trong CSDL. Vong lap
+--      NOT EXISTS o 6.3/6.4 bo qua chung, nen chung KHONG tu duoc sua.
+--      Da do tren he thong that: 16 phieu co date_creation = ngay chay script,
+--      con date/solvedate la qua khu -> lech am den -672 gio.
+--
+--      PHAM VI: chi 13 phieu DEMO o tren (khop theo ten, dung danh sach 6.3/6.4).
+--      Ban cu quet TOAN BO bang: phieu THAT cua nguoi dung (tao qua giao dien)
+--      cung la doi tuong sua neu roi vao ca "date_creation > date" — script
+--      seed khong duoc phep ghi vao du lieu nguoi dung that.
+UPDATE glpi_tickets
+   SET date_creation = date
+ WHERE is_deleted = 0
+   AND date IS NOT NULL
+   AND date_creation > date
+   AND name IN (
+       'Máy không khởi động được',
+       'Không kết nối được mạng LAN',
+       'Máy in không in được',
+       'Màn hình bị sọc ngang',
+       'Phần mềm AutoCAD báo lỗi bản quyền',
+       'Chuột và bàn phím không nhận',
+       'Máy tính chạy rất chậm',
+       'Cài lại Windows cho máy TDL-PC-A101-004',
+       'Thay mực máy in phòng A201',
+       'Sửa lỗi đăng nhập tài khoản sinh viên',
+       'Vệ sinh máy trạm A201',
+       'Thay cáp mạng phòng B1',
+       'Cài đặt Google Chrome cho phòng A102'
+   );
 
 
 -- ==============================================================================
@@ -507,20 +570,38 @@ SET computermodels_id = (SELECT id FROM glpi_computermodels WHERE name = 'PowerE
 WHERE otherserial = 'TDL-SRV-001'
   AND (computermodels_id IS NULL OR computermodels_id = 0);
 
--- Gan ky thuat vien cho phieu status IN (2,5,6) chua co nguoi xu ly
+-- Gan ky thuat vien cho phieu status IN (2,5,6) chua co nguoi xu ly.
+-- CHI ap dung cho phieu DEMO (loc theo ten, cung ly do guard nhu phan C cua
+-- seed-sla: chay lai seed tren he thong dang dung KHONG duoc gan 'tech' lam
+-- nguoi xu ly cho phieu that cua nguoi dung).
 INSERT INTO glpi_tickets_users (tickets_id, users_id, type, use_notification, alternative_email)
 SELECT t.id, @tech_user, 2, 1, ''
 FROM glpi_tickets t
 WHERE t.status IN (2, 5, 6)
+  AND t.name IN ('Máy không khởi động được', 'Không kết nối được mạng LAN',
+                 'Máy in không in được', 'Màn hình bị sọc ngang',
+                 'Phần mềm AutoCAD báo lỗi bản quyền', 'Chuột và bàn phím không nhận',
+                 'Máy tính chạy rất chậm',
+                 'Cài lại Windows cho máy TDL-PC-A101-004', 'Thay mực máy in phòng A201',
+                 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Vệ sinh máy trạm A201',
+                 'Thay cáp mạng phòng B1', 'Cài đặt Google Chrome cho phòng A102')
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
                   WHERE tu.tickets_id = t.id AND tu.type = 2);
 
--- Dam bao moi phieu deu co nguoi yeu cau (type=1) trong glpi_tickets_users
+-- Dam bao moi phieu DEMO deu co nguoi yeu cau (type=1) trong glpi_tickets_users.
+-- Cung guard theo ten nhu tren.
 INSERT INTO glpi_tickets_users (tickets_id, users_id, type, use_notification, alternative_email)
 SELECT t.id, t.users_id_recipient, 1, 1, ''
 FROM glpi_tickets t
 WHERE t.users_id_recipient IS NOT NULL
   AND t.users_id_recipient > 0
+  AND t.name IN ('Máy không khởi động được', 'Không kết nối được mạng LAN',
+                 'Máy in không in được', 'Màn hình bị sọc ngang',
+                 'Phần mềm AutoCAD báo lỗi bản quyền', 'Chuột và bàn phím không nhận',
+                 'Máy tính chạy rất chậm',
+                 'Cài lại Windows cho máy TDL-PC-A101-004', 'Thay mực máy in phòng A201',
+                 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Vệ sinh máy trạm A201',
+                 'Thay cáp mạng phòng B1', 'Cài đặt Google Chrome cho phòng A102')
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
                   WHERE tu.tickets_id = t.id AND tu.type = 1);
 

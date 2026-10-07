@@ -215,7 +215,7 @@ echo "    - Mo menu 'Hanh dong hang loat' (Massive actions)"
 echo "    - Chon 'In ma QR' (print a QRcode) hoac 'In ma vach' (print a bar code)"
 echo
 warn "Neu GLPI 11 van bao loi tuong thich: dung GIAI PHAP DU PHONG (sinh QR bang Python)"
-echo "    -> Xem tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md (muc 'Phuong an du phong')"
+echo "    -> Xem tai-lieu/README.md (muc 6.2 'Phuong an du phong')"
 echo "    -> Chay: python scripts/sinh-ma-qr.py"
 echo
 

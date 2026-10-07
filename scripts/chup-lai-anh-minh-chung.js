@@ -24,8 +24,6 @@
  *
  *  ANH KHONG DO SCRIPT NAY TAO:
  *    - 12-ket-qua-sinh-qr.png  : do scripts/sinh-ma-qr.py xuat PDF roi render
- *    - 16/17-landing-*.png     : do scripts/kiem-tra-landing.js chup vao .tmp-check/
- *                                roi copy sang tai-lieu/anh-giao-dien/
  * ============================================================================
  */
 const puppeteer = require('puppeteer-core');

@@ -8,16 +8,14 @@ web
 
 ## Users
 
-**Người xem chính (bề mặt landing page): hội đồng bảo vệ đồ án tốt nghiệp.**
-Giảng viên khoa Công nghệ thông tin, Trường Đại học Đà Lạt. Họ đọc trang trong
-buổi bảo vệ, thường chiếu lên máy chiếu, và dùng nó như một phần của bài trình bày.
+**Người dùng chính: hội đồng bảo vệ đồ án tốt nghiệp và đơn vị vận hành.**
+Giảng viên khoa Công nghệ thông tin, Trường Đại học Đà Lạt trong buổi bảo vệ.
 Họ đánh giá: hệ thống có chạy thật không, kiến trúc có hợp lý không, kỹ thuật có
-chiều sâu không, người làm có hiểu việc mình làm không, và trình bày có chỉn chu không.
+chiều sâu không, và người làm có hiểu việc mình làm không.
 
-**Người dùng thứ cấp của sản phẩm (không phải người xem chính của trang này):**
-cán bộ **Trung tâm Công nghệ thông tin (ITC)** — đơn vị vận hành hệ thống CNTT và
-tổ chức phòng thực hành máy tính của Trường — cùng kỹ thuật viên, giảng viên và
-sinh viên: người gửi phiếu sự cố và tra cứu thiết bị.
+**Người dùng hệ thống:** cán bộ **Trung tâm Công nghệ thông tin (ITC)** (đơn vị
+vận hành hệ thống CNTT và phòng máy thực hành của Trường) cùng kỹ thuật viên,
+giảng viên và sinh viên: người gửi phiếu sự cố và tra cứu thiết bị.
 
 ## Product Purpose
 
@@ -37,13 +35,10 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
 
 ## Operating Context
 
-- Chạy bằng Docker Compose: 4 dịch vụ (Nginx gateway · GLPI 11 · MariaDB 10.11 · Redis 7).
+- Chạy bằng Docker Compose: 4 dịch vụ (Nginx gateway, GLPI 11, MariaDB 10.11, Redis 7).
 - Truy cập qua HTTPS với chứng chỉ tự ký có SAN, tại `https://localhost:8443`.
 - Cài đặt toàn bộ bằng một lệnh: `bash scripts/cai-dat-tat-ca.sh`.
-- Trang landing page phục vụ **ngoại tuyến hoàn toàn**: 16 tệp font `.woff2` tự lưu,
-  không dùng CDN; hội đồng có thể xem khi phòng không có mạng.
-- Bối cảnh xem: máy chiếu trên lớp, đôi khi là màn hình laptop; cả điện thoại khi
-  người xem tự mở lại sau buổi bảo vệ.
+- Bối cảnh sử dụng: trình chiếu trong buổi bảo vệ và máy trạm trong mạng nội bộ.
 
 ## Capabilities and Constraints
 
@@ -57,51 +52,40 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
   dashboard đã Việt hoá.
 - 79 loại sự cố được phân loại sẵn; 12 toà nhà, 54 phòng, 16 khoa.
 - 5 tài liệu tiếng Việt trong `tai-lieu/`, cộng `README.md`.
-- Ảnh dashboard thật: `landing/dashboard-preview.png` (sinh từ hệ thống đang chạy,
-  dữ liệu thật, đã Việt hoá).
 
 Ràng buộc:
 
-- **Trang phải chạy được khi không có Internet** — không CDN, không tài nguyên ngoài.
-- Liên kết tương đối, mở từ máy khác trong mạng LAN vẫn đúng.
-- Nội dung phải hiển thị đầy đủ khi JavaScript bị tắt.
-- Không được thêm tuyên bố thương mại hay số liệu không có thật (khách hàng, giá,
+- **Hệ thống chạy ngoại tuyến:** không dùng CDN hay tài nguyên bên ngoài.
+- Không đưa vào tuyên bố thương mại hay số liệu không có thật (khách hàng, giá,
   benchmark, cam kết dịch vụ).
 
 ## Brand Commitments
 
 - **Logo Trường Đại học Đà Lạt là nguồn thương hiệu bắt buộc.** Bảng màu neo theo
   logo: xanh rêu `#607824`, cam đất `#F08418`, đỏ sao `#CC2430`, dải lá xanh `#90B43C`.
-- Tên hệ thống: **PineDesk — Trường Đại học Đà Lạt**.
-- Giao diện GLPI bên trong hệ thống dùng bảng màu "Đà Lạt" lấy từ logo; landing page
-  phải nhất quán về thương hiệu với giao diện đó.
+- Tên hệ thống: **PineDesk, Trường Đại học Đà Lạt**.
+- Giao diện GLPI sử dụng bảng màu "Đà Lạt" lấy từ logo DLU.
 - Ngôn ngữ: tiếng Việt.
 
 ## Evidence on Hand
 
-- `landing/dashboard-preview.png` — ảnh chụp dashboard thật.
-- `landing/logo-DLU-100sq.png` — logo Trường (100×100).
-- `landing/qr-sample.png` — mã QR mẫu của một thiết bị.
-- `landing/fonts/` — 16 tệp font `.woff2` có subset tiếng Việt.
-- Bộ biểu tượng SVG nội bộ nhúng sẵn trong `landing/index.html`.
-- `tai-lieu/anh-giao-dien/` — 19 ảnh minh chứng giao diện thực tế, được README
-  nhúng trực tiếp. Phần lớn sinh bằng `node scripts/chup-lai-anh-minh-chung.js`
-  (cần `GLPI_PASS`), ảnh landing do `scripts/kiem-tra-landing.js`, ảnh nhãn QR do
-  `scripts/sinh-ma-qr.py`. Hai ảnh luồng in qua plugin Barcode cần tài khoản quản
-  trị, chụp bằng `node scripts/chup-anh-qr-admin.js`.
+- `tai-lieu/anh-giao-dien/`: 17 ảnh minh chứng giao diện thực tế được README
+  nhúng trực tiếp. Sinh bằng `node scripts/chup-lai-anh-minh-chung.js`
+  (cần `GLPI_PASS`), ảnh nhãn QR do `scripts/sinh-ma-qr.py`. Hai ảnh luồng in qua
+  plugin Barcode cần tài khoản quản trị, chụp bằng `node scripts/chup-anh-qr-admin.js`.
 
 **Không được bịa:** không có khách hàng thật, không có số người dùng, không có
 benchmark hiệu năng, không có giải thưởng, không có đánh giá từ bên thứ ba.
 
 ## Product Principles
 
-1. **Chứng minh, đừng tuyên bố.** Cho thấy hệ thống đang chạy thật (ảnh chụp thật,
-   số liệu thật, kiến trúc thật) thay vì nói nó tốt.
-2. **Chiều sâu kỹ thuật là điểm bán.** Hội đồng chấm năng lực kỹ thuật; những chi
-   tiết cụ thể (bảo mật từng lớp, CI, một lệnh cài đặt) đáng giá hơn lời khen chung.
-3. **Chạy được khi mất mạng.** Mọi tài nguyên phải nằm trong máy.
-4. **Nhất quán thương hiệu DLU.** Màu và tinh thần lấy từ logo Trường, xuyên suốt từ
-   landing page tới giao diện GLPI bên trong.
+1. **Chứng minh bằng thực tế:** Cho thấy hệ thống đang chạy thật (ảnh chụp thật,
+   số liệu thật, kiến trúc thật) thay vì nói chung chung.
+2. **Chiều sâu kỹ thuật:** Đồ án nhấn mạnh kiến trúc kỹ thuật cụ thể (bảo mật nhiều lớp,
+   CI, cài đặt tự động).
+3. **Chạy được khi mất mạng:** Mọi tài nguyên cấu hình nằm trực tiếp trên máy chủ.
+4. **Nhất quán thương hiệu DLU:** Màu sắc và nhận diện lấy từ logo Trường, áp dụng xuyên
+   suốt giao diện GLPI.
 
 ## Accessibility & Inclusion
 

@@ -230,7 +230,7 @@ fi
 #     nay tao ra. Thieu du lieu mau -> cac cau lenh co guard 'WHERE @lap IS NOT
 #     NULL' bo qua TRONG IM LANG: he thong bao cai dat thanh cong nhung khong
 #     co lich bao tri / luot muon / phieu thu 14.
-#   - Kich ban demo (KICH-BAN-DEMO.md) dang nhap 'sv.hoa' -> tai khoan khong
+#   - Kich ban demo (tai-lieu/README.md muc 8) dang nhap 'sv.hoa' -> tai khoan khong
 #     ton tai.
 # Goi ngay sau buoc danh muc (buoc nay can vi tri/danh muc tu buoc 2).
 if [ -f "$HERE/nap-du-lieu-mau.sh" ]; then

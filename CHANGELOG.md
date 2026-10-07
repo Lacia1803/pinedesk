@@ -3,6 +3,34 @@
 Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/).
 Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [Chưa phát hành]
+
+### Thay đổi
+
+- **Gộp 9 tài liệu rời thành một tài liệu tổng hợp duy nhất**
+  `tai-lieu/README.md` (644 dòng, 10 mục lớn, 33 mục con): bài toán nghiệp vụ,
+  cơ cấu tổ chức DLU, kiến trúc so với GLPI gốc, 6 tầng phòng thủ chống lạm dụng,
+  giao diện & Việt hoá, quản lý mã QR, triển khai & vận hành, kịch bản demo 7 phút
+  và bộ 25 câu hỏi phản biện. Thay cho 9 tệp cũ
+  (`BAI-TOAN-NGHIEP-VU.md`, `CAU-HOI-PHAN-BIEN.md`, `CHONG-LAM-DUNG.md`,
+  `HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`, `HUONG-DAN-PLUGIN-QRCODE.md`,
+  `HUONG-DAN-TRIEN-KHAI.md`, `KICH-BAN-DEMO.md`, `SO-SANH-VOI-GLPI-GOC.md`,
+  `THONG-TIN-DAI-HOC-DA-LAT.md` — tổng 4.008 dòng). Một điểm đến duy nhất cho
+  hội đồng, không còn tình trạng số liệu lệch nhau giữa các tệp.
+  Các tham chiếu hướng dẫn trong `README.md`, slide bảo vệ, script cài đặt/vận hành,
+  `backup/backup.sh` và cấu hình nginx đã trỏ về `tai-lieu/README.md` kèm số mục cụ thể.
+- Tài liệu **cá nhân** của người làm đồ án (`DeCuongTTNN_*.docx`,
+  `Danh sách thực tập *.xlsx`, `MoTaDeTai.txt`) chuyển từ `tai-lieu/` ra
+  `tai-lieu-ca-nhan/` và thêm thư mục này vào `.gitignore`. Trước đây chúng nằm
+  trong thư mục nginx mount read-only; dù đã được chặn 2 lớp (allowlist
+  `.md/.png/.html` ở gateway + cửa kiểm tra trong CI) nhưng vẫn nên tách hẳn
+  khỏi vùng phục vụ công khai.
+
+### Đã xoá
+
+- Bỏ trang giới thiệu dự án (`landing/`): loại bỏ route `/landing/` tại Nginx gateway; favicon chuyển sang lấy trực tiếp từ `themes/pics/logos/`.
+- Dọn dẹp các script kiểm thử và công cụ phục vụ trang giới thiệu (`scripts/kiem-tra-landing.js`, `scripts/chup-anh-tung-khu.js`, `scripts/chup-anh-dashboard.js`, `scripts/tai-font.py`, `scripts/kiem-tra-font.py`).
+
 ## [0.4.0] — 2026-10-05 — "Chặn lạm dụng thật và vá lỗ hổng toàn hệ thống"
 
 **Bối cảnh:** sau báo cáo lần 2, đồ án rà lại toàn bộ điểm yếu đã biết và đọc

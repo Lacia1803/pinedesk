@@ -201,7 +201,7 @@ jobs:
             -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
             -v "$PWD/nginx/conf.d/default.conf:/etc/nginx/templates/default.conf.template:ro" \
             -v "$PWD/nginx/ssl:/etc/nginx/ssl:ro" \
-            -v "$PWD/landing:/usr/share/nginx/html/landing:ro" \
+            -v "$PWD/themes/pics/logos:/usr/share/nginx/html/logos:ro" \
             -v "$PWD/tai-lieu:/usr/share/nginx/html/tai-lieu:ro" \
             -v "$PWD/README.md:/usr/share/nginx/html/README.md:ro" \
             nginx:1.27-alpine nginx -t
@@ -284,7 +284,7 @@ jobs:
           fi
           echo "[OK] Khong co duong dan tuyet doi hardcode"
 
-      # Tai lieu/landing la thu cong khai qua nginx -> quet ca .md/.html.
+      # Tai lieu la thu cong khai qua nginx -> quet ca .md/.html.
       # (CHONG-LAM-DUNG.md / slide-bao-ve.html tung chua mat khau that.)
       - name: Khong co mat khau hardcode trong ma nguon
         run: |
@@ -803,7 +803,7 @@ jobs:
       # Cua nay chot 3 dieu bang HTTP that (khong can trinh duyet):
       #   1. Ky thuat vien mo duoc trang trung tam (200), bi chan trang Setup (403)
       #   2. Sinh vien mo duoc cua vao tu phuc vu (200), bi chan trang trung tam (403)
-      #   3. Tai nguyen tinh (landing, CSS, logo, tai lieu) tra 200
+      #   3. Tai nguyen tinh (CSS, logo, tai lieu) tra 200
       - name: Chuc nang + phan quyen theo vai tro phai hoat dong
         run: |
           echo "===== VAI TRO KY THUAT VIEN ====="

@@ -6,7 +6,7 @@
 #  ma HTTP + kich thuoc. Chung minh 3 dieu:
 #    1. Chuc nang hoat dong   : trang duoc phep -> 200 va co noi dung that
 #    2. Phan quyen hoat dong  : trang khong duoc phep -> 403 (khong lo du lieu)
-#    3. Tai nguyen tinh       : landing, CSS, logo, tai lieu -> 200
+#    3. Tai nguyen tinh       : favicon, CSS, logo, tai lieu -> 200
 #
 #  Cach dung:
 #     GLPI_USER=glpi    GLPI_PASS='<mk>' bash scripts/kiem-tra-chuc-nang.sh
@@ -135,7 +135,7 @@ C=$(curl -sk -b "$JAR" -c "$JAR" -o /dev/null -w '%{http_code}' "$BASE/front/pre
 
 # --- Trang tinh / tai nguyen --------------------------------------------------
 printf '\n=== TAI NGUYEN TINH ===\n'
-for d in "Landing page|/landing/|200" "CSS Da Lat|/plugins/dlubrand/css/dlu-theme.css|200" \
+for d in "Favicon|/pics/favicon.ico|200" "CSS Da Lat|/plugins/dlubrand/css/dlu-theme.css|200" \
          "Logo DLU|/plugins/dlubrand/pics/logos/logo-DLU-100.png|200" \
          "README|/README.md|200" "Slide bao ve|/tai-lieu/slide-bao-ve.html|200"; do
   IFS='|' read -r NHAN DUONG MONG <<<"$d"

@@ -25,8 +25,8 @@ services:
       # ${HTTPS_PORT} nen nginx se bao "unknown variable HTTPS_PORT".
       - ./nginx/conf.d/default.conf:/etc/nginx/templates/default.conf.template:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./landing:/usr/share/nginx/html/landing:ro
-      # Tai lieu du an: landing page co the lien ket toi cac tep .md nay.
+      - ./themes/pics/logos:/usr/share/nginx/html/logos:ro
+      # Tai lieu du an: phuc vu truc tiep qua gateway.
       # Chi doc, va chi nam trong thu muc tai lieu -> khong lo ma nguon.
       - ./tai-lieu:/usr/share/nginx/html/tai-lieu:ro
       - ./README.md:/usr/share/nginx/html/README.md:ro

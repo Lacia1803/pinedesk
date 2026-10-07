@@ -97,7 +97,7 @@ if [ -n "${GLPI_DB_PASSWORD:-}" ]; then
   # "... - GLPI", lo ngay day la GLPI chua tuy bien. Cot nay khong co san
   # trong bang glpi_configs nen phai INSERT; bang co khoa duy nhat (context,
   # name) nen dung ON DUPLICATE KEY UPDATE de chay lai script khong loi.
-  # Ten 'PineDesk DLU' phai KHOP voi ten hien tren landing page (PineDesk).
+  # Ten 'PineDesk DLU' la ten nhan dien cua he thong (PineDesk).
   # BAO MAT: khong dung -p"$GLPI_DB_PASSWORD" (lo trong argv tren host).
   # De shell trong container doc $MARIADB_PASSWORD cua chinh no -> MYSQL_PWD.
   # Cau SQL truyen qua stdin (heredoc) nen khong nam trong argv.

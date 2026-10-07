@@ -45,6 +45,3 @@ Dockerfile    text eol=lf
 *.key         binary
 *.crt         binary
 *.pem         binary
-
-# Khong hien trong thong ke diff
-landing/fonts/*  linguist-vendored

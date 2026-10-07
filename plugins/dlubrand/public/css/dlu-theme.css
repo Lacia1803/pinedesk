@@ -10,11 +10,6 @@
  *  file này, dưới dạng các "token" `--dlu-*`. Muốn đổi màu giao diện GLPI ->
  *  sửa DUY NHẤT ở đây.
  *
- *  LƯU Ý PHẠM VI: trang giới thiệu tĩnh `landing/` do nginx phục vụ RIÊNG
- *  (không chạy qua GLPI) nên KHÔNG dùng được file này — nó có bảng màu riêng
- *  trong `landing/assets/css/style.css`. Khi đổi màu thương hiệu, nhớ sửa cả
- *  hai nơi (đây là ngoại lệ đã biết, không phải "một nguồn duy nhất").
- *
  *  VÌ SAO ĐẶT Ở ĐÂY MÀ KHÔNG PHẢI themes/*.scss?
  *    GLPI 11 chỉ nạp `themes/*.scss` trên các trang ĐÃ ĐĂNG NHẬP. Trang đăng
  *    nhập ẩn danh dùng danh sách CSS cố định nằm trong lõi GLPI
@@ -43,10 +38,8 @@
  *  PHẦN 0 — PHÔNG CHỮ THƯƠNG HIỆU
  *
  *  VÌ SAO CẦN:
- *    Bản gốc dùng phông hệ điều hành (-apple-system, Segoe UI...). Trang giới
- *    thiệu tĩnh lại dùng Be Vietnam Pro + Fraunces. Hai nơi hai phông khác hẳn
- *    nhau, nên người dùng vừa xem landing vừa vào hệ thống sẽ thấy như hai sản
- *    phẩm rời. Đây chính là dấu hiệu "repo gốc đổi màu" rõ nhất còn lại.
+ *    Bản gốc dùng phông hệ điều hành (-apple-system, Segoe UI...). Hệ thống dùng
+ *    Be Vietnam Pro để đồng bộ nhận diện thương hiệu và hiển thị tiếng Việt chuẩn.
  *
  *  Be Vietnam Pro: phông Việt hoá đầy đủ, dựng cho tiếng Việt (dấu không bị
  *    lệch), thay cho Segoe UI. Dùng cho toàn bộ giao diện.
@@ -54,8 +47,7 @@
  *
  *  Phông nằm trong public/fonts/ của plugin; GLPI 11 phục vụ
  *  /plugins/<ten>/... từ public/ nên đường dẫn dưới đây là tuyệt đối.
- *  unicode-range tách bản latin / vietnamese như landing/fonts/fonts.css để
- *  trình duyệt chỉ tải phần cần.
+ *  unicode-range tách bản latin / vietnamese để trình duyệt chỉ tải phần cần.
  * ============================================================================= */
 
 /* --- Be Vietnam Pro: chữ giao diện --- */
@@ -1411,7 +1403,7 @@ h1.page-header-title {
  *
  *  Cả ba đều dựng bằng CSS + một tệp JS nhỏ, KHÔNG chạm vào lõi GLPI, nên
  *  nâng cấp GLPI không mất. Tên đơn vị lấy từ tài liệu của chính đồ án
- *  (tai-lieu/THONG-TIN-DAI-HOC-DA-LAT.md): Trung tâm Công nghệ thông tin
+ *  (tai-lieu/README.md mục 2): Trung tâm Công nghệ thông tin
  *  (ITC, cict.dlu.edu.vn) — đơn vị vận hành kỹ thuật của hệ thống.
  * ============================================================================= */
 

@@ -60,12 +60,6 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 
 ![Thống kê toàn cầu](tai-lieu/anh-giao-dien/13-thong-ke-toan-cau.png)
 
-### Trang giới thiệu dự án
-
-![Landing page](tai-lieu/anh-giao-dien/16-landing-dau-trang.png)
-
-[![Landing page toàn trang](tai-lieu/anh-giao-dien/17-landing-toan-trang.png)](tai-lieu/anh-giao-dien/17-landing-toan-trang.png)
-
 Ảnh minh chứng đầy đủ nằm trong [`tai-lieu/anh-giao-dien/`](tai-lieu/anh-giao-dien/).
 
 ## Tính năng chính
@@ -80,13 +74,12 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 | **Dashboard** | Thống kê số thiết bị, sự cố, lịch bảo trì theo thời gian thực |
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
 | **Việt hoá** | Mặc định tiếng Việt, 556 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (32,0% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
-| **Trang giới thiệu** | Landing page thiết kế riêng tại `/landing/` — lấy cảm hứng Đà Lạt & DLU, chạy được khi không có mạng |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
 > ⚠️ **Về SLA — nói rõ để tránh hiểu nhầm:** hệ thống đã cấu hình **5 mức SLA thật
 > trong CSDL** (`glpi_slas`), nhưng các con số (8h/4h/2h/1h/30p) là **đề xuất kỹ
 > thuật của đồ án**, **chưa phải cam kết đã được Trường Đại học Đà Lạt ban hành**.
-> Chi tiết: [`tai-lieu/CHONG-LAM-DUNG.md`](tai-lieu/CHONG-LAM-DUNG.md) mục 6.
+> Chi tiết: [`tai-lieu/README.md`](tai-lieu/README.md) mục 4.5.
 
 ## Bắt đầu nhanh
 
@@ -147,11 +140,6 @@ pinedesk/
 ├── plugins/pinedesk/            # ★ Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
 │   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
 │   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (37 điểm kiểm)
-├── landing/                     # ★ Trang giới thiệu dự án (nginx phục vụ tại /landing/)
-│   ├── index.html               #   Nội dung trang
-│   ├── assets/css/style.css     #   Thiết kế riêng (Đà Lạt + DLU)
-│   ├── fonts/                   #   16 tệp .woff2 tự lưu — chạy được khi không có mạng
-│   └── dashboard-preview.png    #   Ảnh bảng điều khiển (sinh từ dữ liệu thật)
 ├── scripts/                     # ★ Tất cả script tự động hoá
 │   ├── cai-dat-tat-ca.sh        #   Cài toàn bộ, 1 lệnh
 │   ├── nap-du-lieu-nen.sh       #   Nạp danh mục nghiệp vụ
@@ -163,31 +151,18 @@ pinedesk/
 │   ├── kiem-tra-lam-dung.sh     # ★ Phát hiện spam / trùng phiếu theo tài khoản
 │   ├── kiem-tra-chuc-nang.sh    # ★ Kiểm thử chức năng theo vai trò (KTV/sinh viên)
 │   ├── quet-bi-mat.sh           #   Quét bí mật hardcode (CI chạy)
-│   ├── tai-font.py              #   Tải font về máy (có subset tiếng Việt)
 │   ├── tao-mo-bo-sung.py        #   Tạo lớp phủ bản dịch
 │   ├── gop-ban-dich-tieng-viet.py  # Gộp bản dịch (không mất chuỗi + và số nhiều)
 │   ├── do-do-phu-tieng-viet.py  #   Đo tỉ lệ Việt hoá
 │   ├── bo-sung-tieng-viet.py    #   Từ điển thuật ngữ (đơn + số nhiều)
 │   ├── chup-lai-anh-minh-chung.js  # Chụp tối đa 16 ảnh minh chứng (một màn hình một ảnh)
 │   ├── chup-anh-qr-admin.js     #   Chụp luồng in QR (cần tài khoản quản trị)
-│   ├── chup-anh-dashboard.js    #   Chụp ảnh bảng điều khiển cho landing page
-│   ├── chup-anh-tung-khu.js     #   Chụp riêng từng khu để soi thiết kế
-│   ├── kiem-tra-landing.js      #   Kiểm tra landing (anchor, ảnh, font, console)
-│   ├── kiem-tra-font.py         #   Đo phủ ký tự thật trong tệp font
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
 ├── backup/                      # Script sao lưu dữ liệu
 └── tai-lieu/                    # ★ Tài liệu hướng dẫn + ảnh minh chứng
-    ├── HUONG-DAN-TRIEN-KHAI.md            # Triển khai & vận hành
-    ├── HUONG-DAN-PLUGIN-QRCODE.md         # Plugin sinh mã QR
-    ├── HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md # Giao diện & Việt hoá
-    ├── THONG-TIN-DAI-HOC-DA-LAT.md        # Cơ cấu tổ chức DLU
-    ├── SO-SANH-VOI-GLPI-GOC.md            # ★ Cải thiện gì so với bản gốc
-    ├── BAI-TOAN-NGHIEP-VU.md              # ★ Đồ án giải quyết vấn đề gì của Trường
-    ├── CHONG-LAM-DUNG.md                  # ★ 6 tầng chống spam (trả lời phản biện)
-    ├── CAU-HOI-PHAN-BIEN.md               # ★ Bộ câu hỏi hội đồng + cách trả lời
-    ├── KICH-BAN-DEMO.md                   # ★ Kịch bản trình diễn 7 phút + dự phòng
-    ├── slide-bao-ve.html                  # ★ 7 slide bảo vệ, chạy ngoại tuyến
-    └── anh-giao-dien/                     # Ảnh chụp giao diện thực tế
+    ├── README.md                # ★ Tài liệu tổng hợp toàn diện (nghiệp vụ, kiến trúc, 6 tầng phòng thủ, cài đặt, demo, phản biện)
+    ├── slide-bao-ve.html        # ★ 7 slide bảo vệ, chạy ngoại tuyến
+    └── anh-giao-dien/           # Ảnh chụp giao diện thực tế
 ```
 
 ## Dữ liệu demo
@@ -214,47 +189,6 @@ Kết quả: **17 máy tính · 5 màn hình · 3 máy in · 9 thiết bị mạ
 > Script **idempotent** — chạy lại nhiều lần không nhân đôi dữ liệu.
 > Mã tài sản theo quy ước thật: `TDL-PC-A101-001` = ĐH Đà Lạt – Máy tính – Toà A – Phòng 101 – Máy 01.
 
-## Trang giới thiệu dự án (Landing page)
-
-Truy cập: **https://localhost:8443/landing/**
-
-Trang giới thiệu dành cho hội đồng và người dùng mới. Toàn bộ hình ảnh trên
-trang lấy từ cảnh quan Đà Lạt và từ chính Trường, không dùng giao diện mẫu.
-
-**Chất liệu tạo hình:**
-
-| Nguồn | Thể hiện trên trang |
-|---|---|
-| Đồi thông Đà Lạt | Năm lớp đồi xếp chồng, nhạt dần theo tầm nhìn xa, có rừng thông ở lớp gần nhất |
-| Khí hậu cao nguyên | Hai dải sương mờ trôi chậm giữa các lớp đồi; nền trang là sắc sương sớm |
-| Bảng màu logo DLU | Xanh rêu `#607824`, dải lá `#90B43C`, cam đất `#F08418`, đỏ sao `#CC2430` |
-| Kiến trúc Pháp cổ ở Đà Lạt | Chữ tiêu đề **Fraunces** (serif), thân bài **Be Vietnam Pro** |
-
-Phần kiến trúc hệ thống cũng vẽ theo cùng một lối: năm lớp phủ xếp chồng như
-sườn đồi, đưa chuột lên một lớp thì dải tương ứng sáng lên.
-
-**Kỹ thuật:**
-
-- **Chạy hoàn toàn khi KHÔNG có Internet** — 16 tệp font `.woff2` tự lưu trong
-  `landing/fonts/` (có subset tiếng Việt), **không dùng CDN**. Đã bỏ hẳn
-  Tailwind CSS và Font Awesome (~1,5 MB); cả thư mục `landing/` nặng khoảng
-  600 KB, phần lớn là ảnh dashboard.
-- **Bộ biểu tượng SVG nội bộ** — không phụ thuộc thư viện icon bên ngoài.
-- **Liên kết tương đối** — mở từ máy khác trong mạng LAN vẫn hoạt động đúng.
-  Nút "Mở hệ thống" trỏ về gốc `/` chứ không hardcode `localhost`.
-- **Nội dung hiện đầy đủ khi JavaScript bị tắt.** JavaScript chỉ dùng cho việc
-  sao chép tài khoản và làm sáng dải mặt cắt; không có hiệu ứng cuộn.
-- Ảnh dashboard trong trang sinh tự động bằng `node scripts/chup-anh-dashboard.js`
-  (dữ liệu thật, đã Việt hoá, đã ẩn banner cảnh báo kỹ thuật).
-
-**Tài liệu trong trang:** sáu thẻ tài liệu trỏ tới `tai-lieu/*.md` và `README.md`
-ở gốc mã nguồn. Gateway mount thêm hai đường dẫn này và phục vụ dưới dạng
-`text/plain` để mở xem ngay trên trình duyệt (xem `nginx/conf.d/default.conf`).
-
-**Kiểm thử tự động:** `node scripts/kiem-tra-landing.js` (anchor, ảnh, font,
-tài nguyên lỗi, lỗi console) và `python scripts/kiem-tra-font.py` (đối chiếu
-bảng ký tự thật trong tệp font với chữ có trên trang).
-
 ## Lệnh thường dùng
 
 ```bash
@@ -273,19 +207,9 @@ bash   scripts/viet-hoa-du-lieu.sh   # Việt hoá dữ liệu (tên đơn vị,
 # Mã QR
 python scripts/sinh-ma-qr.py         # Sinh QR hàng loạt (dự phòng)
 
-# Landing page
-#   Các script Node bên dưới cần gói puppeteer-core. Cài một lần:
-#     npm i puppeteer-core
-#   (hoặc trỏ NODE_PATH tới thư mục node_modules đã có sẵn gói này)
-python scripts/tai-font.py           # Tải font về máy (cần mạng, chỉ chạy 1 lần)
-node   scripts/kiem-tra-landing.js   # Kiểm tra landing (anchor, ảnh, font, console)
-node   scripts/chup-anh-tung-khu.js  # Chụp riêng từng khu để soi thiết kế
-python scripts/kiem-tra-font.py      # Đo phủ ký tự thật trong tệp font
-
 # Chụp ảnh giao diện (cần đăng nhập) — mật khẩu lấy từ biến môi trường:
 #   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
 node   scripts/chup-lai-anh-minh-chung.js # Chụp tối đa 16 ảnh minh chứng cho README
-node   scripts/chup-anh-dashboard.js # Chụp lại ảnh dashboard cho landing page
 #   Hai ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
 
 # Vận hành
@@ -300,14 +224,7 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 
 | Tài liệu | Nội dung |
 |---|---|
-| [`HUONG-DAN-TRIEN-KHAI.md`](tai-lieu/HUONG-DAN-TRIEN-KHAI.md) | Cài đặt, cấu hình nghiệp vụ, sao lưu, xử lý sự cố |
-| [`HUONG-DAN-PLUGIN-QRCODE.md`](tai-lieu/HUONG-DAN-PLUGIN-QRCODE.md) | Cài & dùng plugin sinh mã QR |
-| [`HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md`](tai-lieu/HUONG-DAN-GIAO-DIEN-VA-VIET-HOA.md) | Tuỳ biến giao diện Đà Lạt & Việt hoá |
-| [`SO-SANH-VOI-GLPI-GOC.md`](tai-lieu/SO-SANH-VOI-GLPI-GOC.md) | **Đã cải thiện gì so với GLPI gốc** — bảng đối chiếu chi tiết |
-| [`BAI-TOAN-NGHIEP-VU.md`](tai-lieu/BAI-TOAN-NGHIEP-VU.md) | **Bài toán nghiệp vụ** — đồ án giải quyết vấn đề gì của Trường |
-| [`CHONG-LAM-DUNG.md`](tai-lieu/CHONG-LAM-DUNG.md) | **Sáu tầng chống lạm dụng** nộp phiếu — trả lời câu hỏi phản biện |
-| [`CAU-HOI-PHAN-BIEN.md`](tai-lieu/CAU-HOI-PHAN-BIEN.md) | Bộ câu hỏi hội đồng thường hỏi + cách trả lời kèm bằng chứng |
-| [`KICH-BAN-DEMO.md`](tai-lieu/KICH-BAN-DEMO.md) | Kịch bản trình diễn 7 phút, kèm phương án dự phòng |
+| [`tai-lieu/README.md`](tai-lieu/README.md) | **Tài liệu tổng hợp toàn diện**: bài toán nghiệp vụ, cơ cấu tổ chức DLU, kiến trúc so sánh GLPI gốc, phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện & Việt hóa, tạo mã QR thiết bị, hướng dẫn triển khai & vận hành, kịch bản demo 7 phút và bộ 25 câu hỏi phản biện |
 | [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 7 slide bảo vệ, tự chứa, chạy được khi không có mạng |
 
 ## Kiểm thử tự động (CI)

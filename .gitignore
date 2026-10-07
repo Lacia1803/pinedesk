@@ -57,7 +57,7 @@ __pycache__/
 .omp/
 
 # Anh chup nghiem thu vut tam o goc repo (anh that cua du an nam trong
-# landing/ va plugins/, khong bi mau nay dung toi)
+# tai-lieu/ va plugins/, khong bi mau nay dung toi)
 /*.png
 
 # Thu muc lam viec tam cua chuoi script dich tieng Viet.
@@ -68,6 +68,9 @@ __pycache__/
 #    nham, trong do .po nang ~2 MB va .mo la rac sinh ra).
 # Cac script tu dong tai .po khi thieu -> khong anh huong cai dat.
 .tmp-locale/
-
-# Ban sao luu tam cua landing page (giu tren dia, khong can version)
-.backup-landing-cu/
+# Tai lieu CA NHAN cua nguoi lam do an (de cuong, danh sach thuc tap, mo ta de tai...)
+#   - KHONG thuoc san pham, KHONG duoc version hoa va KHONG duoc phuc vu qua nginx
+#     (tai-lieu/ da co allowlist .md/.png/.html o gateway + cua chan trong CI).
+#   - Truoc day cac tep nay nam trong tai-lieu/ (thu muc nginx mount read-only);
+#     da chuyen ra day cho chac.
+tai-lieu-ca-nhan/

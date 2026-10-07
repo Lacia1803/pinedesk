@@ -45,13 +45,13 @@ jobs:
     name: Cu phap (shell / Python / JS / PHP)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -115,7 +115,7 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: ShellCheck
         run: |
@@ -132,7 +132,7 @@ jobs:
     name: Cau hinh (compose / nginx)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Tao .env gia de validate compose
         run: |
@@ -213,7 +213,7 @@ jobs:
     name: Chung chi SSL co SAN
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Sinh chung chi tu openssl-san.cnf
         run: |
@@ -249,7 +249,7 @@ jobs:
     name: Bao mat (khong lo bi mat / duong dan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Khong commit file .env that
         run: |
@@ -318,7 +318,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Chuan bi .env
         run: |

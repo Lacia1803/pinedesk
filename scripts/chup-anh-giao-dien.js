@@ -11,37 +11,25 @@
  *    4. Mo danh sach tai san -> chup anh
  *
  *  CHAY:
- *    NODE_PATH=<duong-dan-toi>/node_modules node scripts/chup-anh-giao-dien.js
- *  (dat GLPI_PASS trong bien moi truong; CHROME_PATH neu Chrome khong o mac dinh)
+ *    node scripts/chup-anh-giao-dien.js
+ *  (cai truoc: npm install; dat GLPI_PASS trong bien moi truong;
+ *   CHROME_PATH neu Chrome khong o mac dinh)
  * ============================================================================
  */
-const puppeteer = require('puppeteer-core');
+const { launch, dangNhap, sleep } = require('./lib/browser');
 const path = require('path');
 const fs = require('fs');
 
-// Duong dan Chrome + tai khoan dang nhap: lay tu scripts/lib/browser.js
-const { CHROME, credentials } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
 const OUT = path.join(__dirname, '..', 'tai-lieu', 'anh-giao-dien');
-const { user: USER, pass: PASS } = credentials();
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
 
-  const browser = await puppeteer.launch({
-    executablePath: CHROME,
-    headless: 'new',
-    args: [
-      '--ignore-certificate-errors',
-      '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--window-size=1600,1000',
-      '--lang=vi-VN',
-    ],
-    defaultViewport: { width: 1600, height: 1000, deviceScaleFactor: 1 },
+  const { browser, page } = await launch({
+    width: 1600, height: 1000, deviceScaleFactor: 1,
   });
 
-  const page = await browser.newPage();
   const errors = [];
   page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -56,8 +44,8 @@ const { user: USER, pass: PASS } = credentials();
   // 1. TRANG DANG NHAP
   // ---------------------------------------------------------------------
   console.log('\n[1] Trang dang nhap (chua dang nhap)...');
-  await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 1200));
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(1200);
 
   const loginInfo = await page.evaluate(() => ({
     lang: document.documentElement.lang,
@@ -84,21 +72,15 @@ const { user: USER, pass: PASS } = credentials();
   // 2. DANG NHAP
   // ---------------------------------------------------------------------
   console.log('\n[2] Dang nhap bang tai khoan quan tri...');
-  await page.type('input[name="login_name"]', USER, { delay: 30 });
-  await page.type('input[name="login_password"]', PASS, { delay: 30 });
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {}),
-    page.click('button[type="submit"], input[type="submit"]'),
-  ]);
-  await new Promise((r) => setTimeout(r, 2500));
+  await dangNhap(page, { base: BASE });
   console.log('    URL hien tai:', page.url());
 
   // ---------------------------------------------------------------------
   // 3. BANG DIEU KHIEN
   // ---------------------------------------------------------------------
   console.log('\n[3] Bang dieu khien...');
-  await page.goto(`${BASE}/front/central.php`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 2500));
+  await page.goto(`${BASE}/front/central.php`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(2500);
 
   const dashInfo = await page.evaluate(() => {
     const nav = [...document.querySelectorAll('.navbar-nav .nav-link, #menu-content a, .mainmenu a')]
@@ -126,16 +108,16 @@ const { user: USER, pass: PASS } = credentials();
   // 4. DANH SACH TAI SAN (may tinh)
   // ---------------------------------------------------------------------
   console.log('\n[4] Danh sach may tinh (tai san)...');
-  await page.goto(`${BASE}/front/computer.php`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 1800));
+  await page.goto(`${BASE}/front/computer.php`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(1800);
   await shot('03-danh-sach-may-tinh.png');
 
   // ---------------------------------------------------------------------
   // 5. DANH SACH PHIEU YEU CAU (ticket)
   // ---------------------------------------------------------------------
   console.log('\n[5] Danh sach phieu yeu cau (ticket)...');
-  await page.goto(`${BASE}/front/ticket.php`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 1800));
+  await page.goto(`${BASE}/front/ticket.php`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(1800);
   const ticketInfo = await page.evaluate(() => ({
     title: document.title,
     h1: (document.querySelector('h1, .card-title, .page-title') || {}).innerText || '',
@@ -151,8 +133,8 @@ const { user: USER, pass: PASS } = credentials();
   // 6. TAO PHIEU MOI
   // ---------------------------------------------------------------------
   console.log('\n[6] Form tao phieu yeu cau moi...');
-  await page.goto(`${BASE}/front/ticket.form.php`, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise((r) => setTimeout(r, 1800));
+  await page.goto(`${BASE}/front/ticket.form.php`, { waitUntil: 'networkidle', timeout: 60000 });
+  await sleep(1800);
   await shot('05-tao-phieu-moi.png');
 
   if (errors.length) {

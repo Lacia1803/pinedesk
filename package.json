@@ -1,0 +1,18 @@
+{
+  "name": "pinedesk-cong-cu-trinh-duyet",
+  "version": "0.4.0",
+  "private": true,
+  "description": "Cong cu kiem tra giao dien va chup anh minh chung cho PineDesk bang Playwright (dieu khien Chrome co san tren may).",
+  "license": "UNLICENSED",
+  "scripts": {
+    "kiem-tra-usecase": "node scripts/kiem-tra-usecase.js",
+    "chup-anh-giao-dien": "node scripts/chup-anh-giao-dien.js",
+    "chup-lai-anh-minh-chung": "node scripts/chup-lai-anh-minh-chung.js",
+    "chup-anh-qr-admin": "node scripts/chup-anh-qr-admin.js",
+    "kiem-tra-qr-va-chup-anh": "node scripts/kiem-tra-qr-va-chup-anh.js",
+    "kiem-tra-massive-qr": "node scripts/kiem-tra-massive-qr.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.63.0"
+  }
+}

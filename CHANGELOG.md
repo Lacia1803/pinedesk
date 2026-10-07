@@ -25,6 +25,28 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   trong thư mục nginx mount read-only; dù đã được chặn 2 lớp (allowlist
   `.md/.png/.html` ở gateway + cửa kiểm tra trong CI) nhưng vẫn nên tách hẳn
   khỏi vùng phục vụ công khai.
+- **Chuyển bộ script chụp ảnh/kiểm thử từ Puppeteer sang Playwright.** Thêm
+  `package.json` khai báo `playwright-core` (điều khiển Chrome có sẵn trên máy,
+  không tải kèm trình duyệt ~150 MB) cùng 6 lệnh npm; viết lại
+  `scripts/lib/browser.js` thành helper dùng chung `launch`/`dangNhap`/`sleep`;
+  cập nhật cả 5 script chụp ảnh và kiểm thử hiện có. Thêm
+  `scripts/kiem-tra-usecase.js`: ba use case thật end-to-end (sinh viên nộp
+  phiếu, đặt mượn thiết bị, kỹ thuật viên mở phiếu của sinh viên).
+- **Vá 3 script QR không còn lưu ảnh giả.** `chup-anh-qr-admin.js`,
+  `kiem-tra-massive-qr.js` và `kiem-tra-qr-va-chup-anh.js` trước đây chụp trang
+  hiện tại khi plugin không mở tab mới (popup bị chặn) nên ảnh sai nội dung.
+  Nay chỉ chụp khi tab kết quả thật sự mở ra, còn lại cảnh báo và hướng dẫn
+  kiểm file PDF trong container GLPI. `kiem-tra-qr-va-chup-anh.js` cũng không
+  còn tạo thiết bị rác `PC-TEST-QR-DLU-001` — dùng thiết bị có sẵn.
+- **Thêm `tai-lieu/BAO-CAO-THUC-TAP.md`** (báo cáo thực tập tốt nghiệp đầy đủ,
+  bản in) và ảnh minh chứng `11-cau-hinh-nhan-qr.png`; Phụ lục C chốt đúng
+  danh mục **18 ảnh** chụp giao diện thật. Đồng bộ `README.md`, `PRODUCT.md`,
+  `tai-lieu/README.md` và báo cáo theo cấu trúc tài liệu mới.
+- **CI:** nâng phiên bản các action `checkout@v7`, `setup-python@v7`,
+  `setup-node@v7` (v4/v5 đã cũ).
+- **`.gitignore`:** thêm `output-qr/` — thư mục sinh ra khi chạy
+  `scripts/sinh-ma-qr.py`, từng bị xoá ở `be0bf0a` nhưng chưa được ignore nên
+  dễ lọt vào git khi chạy lại script.
 
 ### Đã xoá
 

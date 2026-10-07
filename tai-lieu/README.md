@@ -17,6 +17,7 @@ Tài liệu này tổng hợp toàn diện các nội dung về bài toán nghi�
 7. [Hướng dẫn triển khai, vận hành và an toàn thông tin](#7-hướng-dẫn-triển-khai-vận-hành-và-an-toàn-thông-tin)
 8. [Kịch bản trình diễn bảo vệ đồ án (7 phút)](#8-kịch-bản-trình-diễn-bảo-vệ-đồ-án-7-phút)
 9. [Bộ 25 câu hỏi phản biện và định hướng trả lời](#9-bộ-25-câu-hỏi-phản-biện-và-định-hướng-trả-lời)
+10. [Phụ lục lệnh thao tác nhanh](#10-phụ-lục-lệnh-thao-tác-nhanh)
 
 ---
 

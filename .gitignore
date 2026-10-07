@@ -74,3 +74,8 @@ __pycache__/
 #   - Truoc day cac tep nay nam trong tai-lieu/ (thu muc nginx mount read-only);
 #     da chuyen ra day cho chac.
 tai-lieu-ca-nhan/
+
+# Thu muc sinh ra khi chay scripts/sinh-ma-qr.py (anh QR hang loat + manifest).
+#   - SAN PHAM SINH RA, tai lai duoc bang: python scripts/sinh-ma-qr.py
+#   - Tung bi xoa o commit be0bf0a; bo sung vao day de khong lot vao git lan nua.
+output-qr/

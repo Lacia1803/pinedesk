@@ -132,6 +132,7 @@ pinedesk/
 ├── docker-compose.yml           # Định nghĩa 4 dịch vụ Docker
 ├── .env                         # Biến môi trường (chứa mật khẩu)
 ├── start.sh                     # Khởi động hệ thống
+├── package.json                 # Khai báo playwright-core (cho script chụp ảnh/kiểm thử)
 ├── config/                      # Cấu hình PHP (QR, bảo mật)
 ├── nginx/                       # Gateway: HTTPS, rate limit, bảo mật
 │   └── ssl/openssl-san.cnf      #   Cấu hình sinh chứng chỉ SSL (có SAN)
@@ -157,6 +158,11 @@ pinedesk/
 │   ├── bo-sung-tieng-viet.py    #   Từ điển thuật ngữ (đơn + số nhiều)
 │   ├── chup-lai-anh-minh-chung.js  # Chụp tối đa 16 ảnh minh chứng (một màn hình một ảnh)
 │   ├── chup-anh-qr-admin.js     #   Chụp luồng in QR (cần tài khoản quản trị)
+│   ├── kiem-tra-usecase.js      #   3 use case thật end-to-end (Playwright)
+│   ├── kiem-tra-massive-qr.js   #   Kiểm tra sinh QR hàng loạt qua modal
+│   ├── kiem-tra-qr-va-chup-anh.js #  Kiểm tra plugin Barcode + chụp minh chứng
+│   ├── chup-anh-giao-dien.js    #   Chụp nhanh 3 ảnh giao diện cơ bản
+│   ├── lib/browser.js           #   Helper Playwright dùng chung (tìm Chrome, đăng nhập)
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
 ├── backup/                      # Script sao lưu dữ liệu
 └── tai-lieu/                    # ★ Tài liệu hướng dẫn + ảnh minh chứng
@@ -210,7 +216,7 @@ python scripts/sinh-ma-qr.py         # Sinh QR hàng loạt (dự phòng)
 # Chụp ảnh giao diện (cần đăng nhập) — mật khẩu lấy từ biến môi trường:
 #   GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
 node   scripts/chup-lai-anh-minh-chung.js # Chụp tối đa 16 ảnh minh chứng cho README
-#   Hai ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
+#   Một ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
 
 # Vận hành
 bash start.sh                        # Khởi động
@@ -226,6 +232,7 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 |---|---|
 | [`tai-lieu/README.md`](tai-lieu/README.md) | **Tài liệu tổng hợp toàn diện**: bài toán nghiệp vụ, cơ cấu tổ chức DLU, kiến trúc so sánh GLPI gốc, phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện & Việt hóa, tạo mã QR thiết bị, hướng dẫn triển khai & vận hành, kịch bản demo 7 phút và bộ 25 câu hỏi phản biện |
 | [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 7 slide bảo vệ, tự chứa, chạy được khi không có mạng |
+| [`BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in) |
 
 ## Kiểm thử tự động (CI)
 
@@ -257,6 +264,8 @@ Mỗi pull request và mỗi lần push lên `main`/`master` đều chạy pipel
 - RAM tối thiểu 4 GB (khuyến nghị 8 GB)
 - Dung lượng đĩa trống 10 GB
 - OpenSSL 3.x (có sẵn trong Git Bash)
+- Node.js 18 trở lên + `npm install` (cho script chụp ảnh/kiểm thử Playwright,
+  chạy trên máy có Chrome cài sẵn)
 
 ## Giấy phép
 

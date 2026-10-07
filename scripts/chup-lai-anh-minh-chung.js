@@ -19,41 +19,27 @@
  *       Anh trang quan tri: scripts/chup-anh-qr-admin.js
  *
  *  CHAY
- *    NODE_PATH="$PWD/node_modules" GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' \
- *      node scripts/chup-lai-anh-minh-chung.js
+ *    GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' node scripts/chup-lai-anh-minh-chung.js
  *
  *  ANH KHONG DO SCRIPT NAY TAO:
  *    - 12-ket-qua-sinh-qr.png  : do scripts/sinh-ma-qr.py xuat PDF roi render
  * ============================================================================
  */
-const puppeteer = require('puppeteer-core');
+const { launch, dangNhap, credentials, sleep } = require('./lib/browser');
 const path = require('path');
 const fs = require('fs');
 
-const { CHROME, credentials } = require('./lib/browser');
 const BASE = 'https://localhost:8443';
 const OUT = path.join(__dirname, '..', 'tai-lieu', 'anh-giao-dien');
-const { user: USER, pass: PASS } = credentials();
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const { user: USER } = credentials();
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
 
-  const browser = await puppeteer.launch({
-    executablePath: CHROME,
-    headless: 'new',
-    args: [
-      '--ignore-certificate-errors',
-      '--no-sandbox',
-      '--disable-dev-shm-usage',
-      '--window-size=1600,1000',
-      '--lang=vi-VN',
-    ],
-    defaultViewport: { width: 1600, height: 1000, deviceScaleFactor: 1 },
+  const { browser, page } = await launch({
+    width: 1600, height: 1000, deviceScaleFactor: 1,
   });
 
-  const page = await browser.newPage();
   const dem = { ok: 0, bo: 0 };
   const BO_QUA = [];
 
@@ -79,7 +65,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   };
 
   const mo = async (duong_dan, cho = 1800) => {
-    await page.goto(BASE + duong_dan, { waitUntil: 'networkidle2', timeout: 60000 });
+    await page.goto(BASE + duong_dan, { waitUntil: 'networkidle', timeout: 60000 });
     await sleep(cho);
     return state();
   };
@@ -101,7 +87,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // 1. TRANG DANG NHAP (chua dang nhap)
   // -------------------------------------------------------------------
   console.log('\n[1] Trang dang nhap...');
-  await page.goto(`${BASE}/`, { waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle', timeout: 60000 });
   await sleep(1500);
   await luu('01-trang-dang-nhap.png');
 
@@ -109,13 +95,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // 2. DANG NHAP
   // -------------------------------------------------------------------
   console.log('\n[2] Dang nhap (' + USER + ')...');
-  await page.type('input[name="login_name"]', USER, { delay: 25 });
-  await page.type('input[name="login_password"]', PASS, { delay: 25 });
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }).catch(() => {}),
-    page.click('button[type="submit"], input[type="submit"]'),
-  ]);
-  await sleep(2500);
+  await dangNhap(page, { base: BASE });
 
   // -------------------------------------------------------------------
   // 3. BANG DIEU KHIEN
@@ -152,9 +132,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // -------------------------------------------------------------------
   console.log('\n[7] Form tao thiet bi...');
   await mo('/front/computer.form.php', 2000);
-  const coForm = await page.evaluate(() => !!document.querySelector('input[name="name"]'));
+  const coForm = await page.locator('input[name="name"]').count() > 0;
   if (coForm) {
-    await page.type('input[name="name"]', 'PC-MINH-CHUNG-PINEDESK', { delay: 20 });
+    await page.locator('input[name="name"]').fill('PC-MINH-CHUNG-PINEDESK');
     await sleep(700);
     await luu('06-tao-thiet-bi.png');
   } else {
@@ -183,9 +163,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
       );
       return img ? img.closest('.card') || img.parentElement : null;
     });
-    if (qrCard && qrCard.asElement()) {
+    const el = qrCard.asElement();
+    if (el) {
       const f = path.join(OUT, '11-ma-qr-thiet-bi.png');
-      await qrCard.asElement().screenshot({ path: f });
+      await el.screenshot({ path: f });
       console.log(`   [ANH] 11-ma-qr-thiet-bi.png (${(fs.statSync(f).size / 1024).toFixed(0)} KB)`);
       dem.ok++;
     } else {
@@ -204,16 +185,17 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   // -------------------------------------------------------------------
   console.log('\n[9] Menu Cac hanh dong (modal)...');
   await mo('/front/computer.php', 2500);
-  const cb = await page.$('table tbody tr input[type="checkbox"]');
-  if (cb) {
+  const cb = page.locator('table tbody tr input[type="checkbox"]').first();
+  if (await cb.count() > 0) {
     await cb.click();
     await sleep(2500);
-    const btn = await page.evaluateHandle(() => {
-      const all = [...document.querySelectorAll('button, a')];
-      return all.find((e) => /^Các hành động$/i.test((e.innerText || '').trim()));
+    const daBam = await page.evaluate(() => {
+      const e = [...document.querySelectorAll('button, a')]
+        .find((x) => /^Các hành động$/i.test((x.innerText || '').trim()));
+      if (e) { e.click(); return true; }
+      return false;
     });
-    if (btn && btn.asElement()) {
-      await btn.asElement().click();
+    if (daBam) {
       await sleep(2200);
       await luu('10-menu-cac-hanh-dong.png');
     } else {

@@ -51,7 +51,8 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
 - 556 thuật ngữ Việt hoá bổ sung + 212 mục dạng số nhiều; menu, biểu mẫu và nhãn
   dashboard đã Việt hoá.
 - 79 loại sự cố được phân loại sẵn; 12 toà nhà, 54 phòng, 16 khoa.
-- 5 tài liệu tiếng Việt trong `tai-lieu/`, cộng `README.md`.
+- Bộ tài liệu trong `tai-lieu/`: `README.md` (tổng hợp toàn diện, 10 mục),
+  `BAO-CAO-THUC-TAP.md` (báo cáo thực tập) và `slide-bao-ve.html` (7 slide bảo vệ).
 
 Ràng buộc:
 
@@ -69,9 +70,9 @@ Ràng buộc:
 
 ## Evidence on Hand
 
-- `tai-lieu/anh-giao-dien/`: 17 ảnh minh chứng giao diện thực tế được README
+- `tai-lieu/anh-giao-dien/`: 18 ảnh minh chứng giao diện thực tế được README
   nhúng trực tiếp. Sinh bằng `node scripts/chup-lai-anh-minh-chung.js`
-  (cần `GLPI_PASS`), ảnh nhãn QR do `scripts/sinh-ma-qr.py`. Hai ảnh luồng in qua
+  (cần `GLPI_PASS`), ảnh nhãn QR do `scripts/sinh-ma-qr.py`. Một ảnh luồng in qua
   plugin Barcode cần tài khoản quản trị, chụp bằng `node scripts/chup-anh-qr-admin.js`.
 
 **Không được bịa:** không có khách hàng thật, không có số người dùng, không có

@@ -22,7 +22,18 @@ set -u
 
 BASE="${GLPI_URL:-https://localhost:8443}"
 USER="${GLPI_USER:-glpi}"
-PASS="${GLPI_PASS:-glpi}"
+
+# MAT KHAU: KHONG co gia tri mac dinh.
+#   Ban cu dat PASS="${GLPI_PASS:-glpi}" -> sau khi nguoi dung doi mat khau admin
+#   theo dung chi dan cua README ("Doi mat khau glpi ngay sau khi dang nhap lan
+#   dau"), script am tham dang nhap bang 'glpi' va bao that bai kho hieu. Bat
+#   buoc phai truyen GLPI_PASS, giong scripts/lib/browser.js.
+if [ -z "${GLPI_PASS:-}" ]; then
+    printf '%s\n' "[LOI] Thieu bien moi truong GLPI_PASS." \
+                  "      Vi du:  GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' bash $0" >&2
+    exit 1
+fi
+PASS="$GLPI_PASS"
 JAR="$(mktemp)"
 BODY="$(mktemp)"
 chmod 600 "$BODY"

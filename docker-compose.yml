@@ -4,6 +4,23 @@
 # Kien truc: Nginx Gateway + GLPI App + MariaDB + Redis
 # ==============================================================================
 
+# ------------------------------------------------------------------------------
+#  GIOI HAN LOG DUNG CHUNG CHO MOI SERVICE
+# ------------------------------------------------------------------------------
+#  Vi sao: mac dinh Docker dung driver json-file KHONG gioi han -> log container
+#  (nginx access log, GLPI error log, MariaDB slow log...) phinh vo han tren dia
+#  may dev, co the ngon hang GB sau vai tuan chay lien tuc. Anchor nay xoay vong
+#  3 file x 10MB moi service -> toi da ~30MB/service, du de tra cuu su co.
+#
+#  Dung YAML anchor (&default-logging) + alias (*default-logging) de khai bao
+#  MOT lan, ap cho ca 4 service -> sua mot cho la doi het.
+# ------------------------------------------------------------------------------
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   # --------------------------------------------------------------------------
@@ -11,8 +28,14 @@ services:
   # --------------------------------------------------------------------------
   nginx:
     image: nginx:1.27-alpine
+    # Digest tai thoi diem viet (2026-10):
+    #   sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+    # Muon tai lap tuyet doi: doi thanh
+    #   image: nginx:1.27-alpine@sha256:65645c7b...
+    # (Luu y: pin digest thi KHONG nhan ban va bao mat tu dong cua tag).
     container_name: pinedesk-gateway
     restart: unless-stopped
+    logging: *default-logging
     ports:
       - "${HTTP_PORT:-8080}:80"
       - "${HTTPS_PORT:-8443}:443"
@@ -51,8 +74,11 @@ services:
   # --------------------------------------------------------------------------
   glpi:
     image: glpi/glpi:11.0.0
+    # Digest tai thoi diem viet (2026-10):
+    #   sha256:d4cea82338b14c761e6707a71241bb85a3f22fc47befeeb518039a251be742c2
     container_name: pinedesk-glpi
     restart: unless-stopped
+    logging: *default-logging
     environment:
       GLPI_DB_HOST: mariadb
       GLPI_DB_PORT: 3306
@@ -123,8 +149,11 @@ services:
   # --------------------------------------------------------------------------
   mariadb:
     image: mariadb:10.11
+    # Digest tai thoi diem viet (2026-10):
+    #   sha256:7db29378d4fdab73f8123bbc2b48905c90d1a4b00cf848b028f1e81e623257f2
     container_name: pinedesk-db
     restart: unless-stopped
+    logging: *default-logging
     command: >
       --default-time-zone="+07:00"
       --character-set-server=utf8mb4
@@ -153,8 +182,11 @@ services:
   # --------------------------------------------------------------------------
   redis:
     image: redis:7-alpine
+    # Digest tai thoi diem viet (2026-10):
+    #   sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
     container_name: pinedesk-redis
     restart: unless-stopped
+    logging: *default-logging
     command: >
       redis-server
       --requirepass ${REDIS_PASSWORD:?Thieu REDIS_PASSWORD trong .env - xem .env.example}

@@ -29,6 +29,15 @@ Dockerfile    text eol=lf
 *.sql         text eol=lf
 *.scss        text eol=lf
 
+# Makefile: recipe BAT BUOC bat dau bang TAB -> chi chuan hoa xuong dong,
+# KHONG dung '* text=auto' lam gi (tab duoc giu nguyen, chi CRLF -> LF).
+Makefile      text eol=lf
+# Van ban khong duoi mo rong (giay phep, ignore, requirements).
+LICENSE       text eol=lf
+.dockerignore text eol=lf
+requirements.txt text eol=lf
+.gitignore    text eol=lf
+
 # Tep nhi phan: KHONG doi (giu nguyen byte)
 *.png         binary
 *.jpg         binary

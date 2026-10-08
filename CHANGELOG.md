@@ -47,11 +47,71 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - **`.gitignore`:** thêm `output-qr/` — thư mục sinh ra khi chạy
   `scripts/sinh-ma-qr.py`, từng bị xoá ở `be0bf0a` nhưng chưa được ignore nên
   dễ lọt vào git khi chạy lại script.
+- **Thêm `LICENSE` (GNU GPL-3.0)** — trước đây README tuyên bố "GPL v3" nhưng
+  repo không có tệp giấy phép nào. Nay có văn bản giấy phép đầy đủ (khớp với
+  giấy phép của GLPI mà hệ thống kế thừa).
+- **`package-lock.json` + `requirements.txt` + `.dockerignore`.** Trước đây
+  `package.json` khai báo `playwright-core` mà không có lockfile → cài đặt không
+  tái lập được; ba thư viện Python của `scripts/sinh-ma-qr.py` (`qrcode`,
+  `reportlab`, `requests`) chỉ nằm trong chú thích. Nay có lockfile đầy đủ
+  (`resolved` + `integrity`) và manifest phụ thuộc, cài bằng `npm ci` /
+  `pip install -r requirements.txt`.
+- **`Makefile`** gom các bước "kiểm tra nhanh trước khi push" (đúng các cửa của
+  CI, trừ smoke test) và lệnh vận hành thường ngày vào một nơi: `make kiem-tra`,
+  `make cu-phap-php`, `make smoke`, `make up/down/logs/sao-luu`. Xem `make giup`.
+- **CI: ghim mọi action theo commit SHA** (`actions/checkout@3d3c42e5... # v7.0.1`,
+  `setup-python`, `setup-node`) thay cho tag trôi nổi `@v7` → chống thay đổi
+  nguồn cung ứng (supply-chain).
+- **CI: chốt con số "37 điểm kiểm"** của harness `kiem-thu-han-muc.php`. Bước
+  kiểm chạy harness rồi bắt output phải khớp `KET QUA: n/37 dat` — ai thêm/bớt
+  `check()` mà quên cập nhật tài liệu (hoặc ngược lại) thì pipeline đỏ, cùng
+  triết lý với cửa "Từ điển Việt hoá phải đủ 556 + 212". Ghi chú đầu harness
+  cũng nêu rõ cách đếm (32 lời gọi tĩnh + 5 lần trong vòng lặp tạo 5 user = 37)
+  để không ai "sửa" nhầm thành 32/33.
+- **`docker-compose.yml`: giới hạn log cho mọi service** (anchor `x-logging`:
+  json-file, 10 MB × 3 file/service). Trước đây log container không giới hạn →
+  phình vô hạn trên máy dev.
+- **Sửa hướng dẫn phục hồi dữ liệu cho khớp chuẩn bảo mật của chính dự án.**
+  `tai-lieu/README.md` và `backup/backup.sh` trước đây dạy `source .env` và
+  `mariadb -p"$DB_ROOT_PASSWORD"` (lộ mật khẩu trong `ps`) — trái với quy ước
+  "không truyền mật khẩu qua argv" mà các script khác đang áp dụng. Nay cả hai
+  dùng `MYSQL_PWD` do shell BÊN TRONG container tự đọc (đã chạy thử phục hồi
+  thật, dữ liệu nguyên vẹn).
+- **Thống nhất `docker compose` (v2)** trong README, `start.sh`,
+  `scripts/viet-hoa-du-lieu.sh` (trước đây còn `docker-compose` v1 đã EOL).
+- **CI: thêm bước "Use case thật end-to-end (Playwright)"** vào job smoke.
+  Ba kịch bản chạy qua Chrome thật trên runner (sinh viên nộp phiếu, sinh viên
+  đặt mượn thiết bị, kỹ thuật viên mở phiếu) — tầng kiểm thử "người dùng bấm
+  chuột" mà `curl` không thay được. Đặt SAU các bước đếm số (vì có tạo phiếu
+  thật) và TRƯỚC các bước bom request (vì có đăng nhập); chờ 40s để xo
+  rate-limit `login_zone` tránh 429 giả.
+- **`docker-compose.yml`: ghi digest hiện tại của 4 image** vào chú thích (kèm
+  cách pin nếu cần tái lập tuyệt đối). Không khóa cứng để vẫn nhận bản vá bảo
+  mật tự động của tag — nêu rõ trade-off.
+- **`scripts/cai-plugin-qrcode.sh`: cảnh báo bản vá GLPI 11 gắn với barcode
+  2.7.1.** Các lệnh `sed` (đổi `MAX_GLPI`, `$DB->query` → `doQuery`) viết riêng
+  cho phiên bản này; nâng `PLUGIN_VERSION` phải rà lại.
+- **`.editorconfig`** thống nhất thụt lề/charset/xuống dòng cho mọi trình soạn
+  thảo (`.gitattributes` lo lúc commit; file này lo lúc gõ).
+- **`README.md`**: bổ sung `Makefile`/`package-lock.json`/`requirements.txt`
+  vào sơ đồ thư mục; hướng dẫn cài đặt dùng `npm ci` +
+  `pip install -r requirements.txt`; mô tả nhóm CI số 6 nay gồm cả E2E.
+- **`scripts/kiem-tra-chuc-nang.sh` bắt buộc `GLPI_PASS`.** Bỏ giá trị mặc định
+  `glpi`: sau khi người dùng đổi mật khẩu admin theo đúng chỉ dẫn README, script
+  cũ âm thầm đăng nhập bằng `glpi` và báo lỗi khó hiểu. Nay thiếu biến thì dừng
+  kèm ví dụ (giống `scripts/lib/browser.js`).
 
 ### Đã xoá
 
 - Bỏ trang giới thiệu dự án (`landing/`): loại bỏ route `/landing/` tại Nginx gateway; favicon chuyển sang lấy trực tiếp từ `themes/pics/logos/`.
 - Dọn dẹp các script kiểm thử và công cụ phục vụ trang giới thiệu (`scripts/kiem-tra-landing.js`, `scripts/chup-anh-tung-khu.js`, `scripts/chup-anh-dashboard.js`, `scripts/tai-font.py`, `scripts/kiem-tra-font.py`).
+- Ảnh chết `themes/dlu-logo.png` (không được tham chiếu ở bất kỳ đâu).
+- Thư mục rác do lỗi sao chép trên Windows (`nginx/nginx.conf;C`,
+  `nginx/conf.d/default.conf;C`, `nginx/ssl;C`) và thư mục workspace công cụ
+  nội bộ (`docs/`, `.tmp-check/`, `.playwright-mcp/`); thêm `docs/` vào
+  `.gitignore`.
+- Nhánh `bao-cao-thuc-tap-dlu` (local + remote): 5 commit của nhánh đã nằm
+  trong `master`, giữ lại chỉ gây nhầm lẫn.
 
 ## [0.4.0] — 2026-10-05 — "Chặn lạm dụng thật và vá lỗ hổng toàn hệ thống"
 

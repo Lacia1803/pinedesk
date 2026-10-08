@@ -25,7 +25,7 @@ xanh()  { printf '\033[0;32m%s\033[0m\n' "$1"; }
 xam()   { printf '\033[0;90m%s\033[0m\n' "$1"; }
 
 if ! docker ps --format '{{.Names}}' | grep -qx "$DB_CONTAINER"; then
-    printf '\033[0;31mKhông thấy container %s. Chạy docker-compose up -d trước.\033[0m\n' "$DB_CONTAINER" >&2
+    printf '\033[0;31mKhông thấy container %s. Chạy docker compose up -d trước.\033[0m\n' "$DB_CONTAINER" >&2
     exit 1
 fi
 

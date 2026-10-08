@@ -35,6 +35,14 @@ DB_CONTAINER="${DB_CONTAINER:-pinedesk-db}"
 #   "require_once(.../vendor/autoload.php): Failed to open stream"
 PLUGIN_URL="https://github.com/pluginsGLPI/barcode/releases/download/${PLUGIN_VERSION}/glpi-barcode-${PLUGIN_VERSION}.tar.bz2"
 
+# CANH BAO: phan "Ep tuong thich GLPI 11" ben duoi (doi MAX_GLPI, thay
+# $DB->query() bang $DB->doQuery()) duoc viet RIENG cho ban ${PLUGIN_VERSION}.
+# Neu nang PLUGIN_VERSION, PHAI doc lai setup.php/hook.php cua ban moi va cap
+# nhat cac lenh sed cho khop — neu khong, ban va co the khong con ap dung va
+# plugin se loi tren GLPI 11 (hoac te hon: va im lang, khong bao loi).
+# Script da kiem chung lai sau khi va: "So loi goi query() cu con lai (phai = 0)"
+# va trang thai state=1 trong CSDL.
+
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
 ok()   { echo -e "${GREEN}[ OK ]${NC} $1"; }
 info() { echo -e "${CYAN}[INFO]${NC} $1"; }

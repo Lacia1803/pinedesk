@@ -462,14 +462,18 @@ Quy trình phục hồi:
 bash start.sh
 
 # 2. Phục hồi cơ sở dữ liệu
-set -a; . ./.env; set +a
-docker exec -i -e MYSQL_PWD="$DB_ROOT_PASSWORD" pinedesk-db mariadb -u root glpi < backup/glpi_backup_YYYYMMDD_HHMMSS_db.sql
+#    Mật khẩu KHÔNG đi qua tham số dòng lệnh (tránh lộ trong `ps`).
+#    Shell BÊN TRONG container tự đọc $MARIADB_ROOT_PASSWORD của chính nó
+#    rồi gán cho MYSQL_PWD của tiến trình con.
+docker exec -i pinedesk-db sh -c \
+  'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -u root "$1"' \
+  _ glpi < backup/glpi_backup_YYYYMMDD_HHMMSS_db.sql
 
 # 3. Phục hồi tệp hệ thống và khóa mã hóa glpicrypt.key
 docker run --rm --volumes-from pinedesk-glpi -v "$(pwd -W)/backup:/backup" alpine:latest tar xzf /backup/glpi_backup_YYYYMMDD_HHMMSS_files.tar.gz -C /
 
 # 4. Khởi động lại ứng dụng
-docker-compose restart glpi
+docker compose restart glpi
 ```
 
 ### 7.4. Xử lý các sự cố thường gặp

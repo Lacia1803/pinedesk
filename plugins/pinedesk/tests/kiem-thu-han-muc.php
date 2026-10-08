@@ -26,6 +26,13 @@
  *       phát sinh trong lần chạy (theo mốc id đầu lần chạy)
  *
  *  Kết quả: exit 0 nếu mọi kịch bản đạt, exit 1 nếu có kịch bản thất bại.
+ *
+ *  CÁCH ĐẾM "37 ĐIỂM KIỂM" (con số nêu trong README/tài liệu):
+ *    Đếm theo SỐ LẦN CHẠY check(), không phải số lời gọi trong mã nguồn:
+ *      32 lời gọi tĩnh + 5 lần của lời gọi trong vòng lặp tạo 5 user tạm
+ *      = 37. Dòng cuối in ra "KET QUA: n/37 dat" lấy trực tiếp từ biến
+ *      $checks lúc chạy, nên không bao giờ lệch với con số trong tài liệu.
+ *    => Đừng "sửa" 37 thành 32/33 khi grep đếm lời gọi: sẽ làm số liệu SAI.
  * -----------------------------------------------------------------------------
  */
 

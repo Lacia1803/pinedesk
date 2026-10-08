@@ -45,13 +45,13 @@ jobs:
     name: Cu phap (shell / Python / JS / PHP)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.11'
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
 
@@ -115,7 +115,7 @@ jobs:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: ShellCheck
         run: |
@@ -132,7 +132,7 @@ jobs:
     name: Cau hinh (compose / nginx)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Tao .env gia de validate compose
         run: |
@@ -213,7 +213,7 @@ jobs:
     name: Chung chi SSL co SAN
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Sinh chung chi tu openssl-san.cnf
         run: |
@@ -249,7 +249,7 @@ jobs:
     name: Bao mat (khong lo bi mat / duong dan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Khong commit file .env that
         run: |
@@ -318,7 +318,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Node can cho buoc Playwright E2E (chay script kiem-tra-usecase.js).
+      # Pin node 22 cho khop voi job 'syntax' va voi engines cua playwright-core.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
 
       - name: Chuan bi .env
         run: |
@@ -760,8 +766,17 @@ jobs:
       # + vi tri that. Harness tu don sach du lieu test khi xong.
       - name: Co che chan han muc phai hoat dong that
         run: |
-          docker exec -u www-data pinedesk-glpi \
-            php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
+          # Vua chay harness (exit != 0 neu co muc that bai), vua bat con so
+          # diem kiem in ra phai dung 37 - khop con so neu trong README/
+          # tai-lieu. Neu ai them/bot check() ma quen cap nhat tai lieu
+          # (hoac nguoc lai), job nay do ngay (cung triet ly voi buoc
+          # "Tu dien Viet hoa phai du 556 + 212" ben duoi).
+          OUT=$(docker exec -u www-data pinedesk-glpi \
+            php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php)
+          echo "$OUT"
+          echo "$OUT" | grep -qE 'KET QUA: [0-9]+/37 dat' \
+            || { echo "[LOI] Harness khong bao dung 37 diem kiem"; exit 1; }
+          echo "[OK] Harness chay that, 37/37 diem kiem dat"
 
       # ----------------------------------------------------------------------
       # Tu dien Viet hoa: so luong phai khop tai lieu
@@ -811,6 +826,34 @@ jobs:
           echo ""
           echo "===== VAI TRO TU PHUC VU (SINH VIEN) ====="
           GLPI_USER=sv.hoa GLPI_PASS='Dlu@2026' bash scripts/kiem-tra-chuc-nang.sh
+
+      # ----------------------------------------------------------------------
+      # USE CASE THAT (end-to-end) bang Playwright + Chrome that
+      # ----------------------------------------------------------------------
+      # Ba kich ban THAT qua giao dien (khong phai curl):
+      #   UC1. Sinh vien nop phieu su co -> phieu xuat hien trong danh sach
+      #   UC2. Sinh vien dat muon thiet bi -> dat cho duoc tao
+      #   UC3. Ky thuat vien thay phieu cua sinh vien -> mo duoc chi tiet
+      # Day la tang kiem thu "nguoi dung that bam chuot" ma curl KHONG the thay:
+      # bao duoc loi JavaScript, form dong, TinyMCE, luong Service Catalog.
+      #
+      # Chrome: runner ubuntu-latest da co san google-chrome tai
+      # /usr/bin/google-chrome (browser.js tu tim, khong hardcode duong dan).
+      #
+      # THU TU BAT BUOC: buoc nay TAO PHIEU THAT (sv.hoa nop 1 phieu) nen phai
+      # nam SAU moi buoc dem so phieu (SLA chot "14 phieu", harness chan han
+      # muc). Nam truoc cac buoc bom request o cuoi (xem chu thich XFF).
+      #
+      # LUU Y RATE LIMIT: login_zone = 10r/m burst 5 (1 token/6s). Buoc nay
+      # dang nhap 3 lan (sv.hoa, ktv.an, sv.hoa) va cac buoc dang nhap that
+      # ngay truoc do da dung gan het burst -> phai ngu 40s (~6 token) cho
+      # bucket hoi, neu khong se an 429 GIA (khong phai loi he thong).
+      - name: Use case that end-to-end (Playwright)
+        run: |
+          npm ci --no-audit --no-fund
+          echo "Cho xo rate-limit dang nhap (login_zone 10r/m burst 5)..."
+          sleep 40
+          GLPI_PASS='Dlu@2026' node scripts/kiem-tra-usecase.js
 
       # ----------------------------------------------------------------------
       # XFF: header gia mao phai bi GHI DE (khong tin du lieu client gui)

@@ -1,0 +1,43 @@
+# ==============================================================================
+#  .editorconfig — Quy uoc dinh dang dung chung cho moi trinh soan thao
+# ==============================================================================
+#  Muc dich: giu phong cach nhat quan (thut le, ky tu xuong dong, charset) du
+#  nguoi lam dung VS Code, JetBrains, Vim hay Notepad++.
+#  .gitattributes lo viec chuan hoa LF<->CRLF khi commit; file nay lo viec
+#  trinh soan thao TAO ra dung dinh dang ngay tu dau.
+# ==============================================================================
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Ma nguon: thut le 4 khoang trang (theo quy uoc cua GLPI/PHP va cac script hien co)
+[*.{php,py}]
+indent_style = space
+indent_size = 4
+
+[*.{js,json,css,scss,yml,yaml,html,md}]
+indent_style = space
+indent_size = 2
+
+[*.sh]
+indent_style = space
+indent_size = 4
+
+# Makefile: recipe BAT BUOC dung TAB
+[Makefile]
+indent_style = tab
+
+# SQL: 4 khoang trang
+[*.sql]
+indent_style = space
+indent_size = 4
+
+# Tep sinh ra / nhi phan: khong can dinh dang lai
+[*.{png,jpg,jpeg,gif,ico,woff,woff2,ttf,pdf,zip,gz,tar}]
+insert_final_newline = false
+trim_trailing_whitespace = false

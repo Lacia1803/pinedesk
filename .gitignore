@@ -79,3 +79,7 @@ tai-lieu-ca-nhan/
 #   - SAN PHAM SINH RA, tai lai duoc bang: python scripts/sinh-ma-qr.py
 #   - Tung bi xoa o commit be0bf0a; bo sung vao day de khong lot vao git lan nua.
 output-qr/
+
+# Thu muc lam viec cua cong cu noi bo (ghi chu ke hoach, khong thuoc do an).
+# Da xoa khoi cay lam viec; giu quy tac de khong lot vao git lan nua.
+docs/

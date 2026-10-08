@@ -1,0 +1,28 @@
+# ==============================================================================
+#  THU VIEN PYTHON CHO PINEDESK
+# ==============================================================================
+#  Cach cai (trong moi truong ao khuyen dung):
+#      python -m venv .venv
+#      . .venv/bin/activate        # Windows: .venv\Scripts\activate
+#      pip install -r requirements.txt
+#
+#  PHAI cai truoc khi chay:
+#      python scripts/sinh-ma-qr.py        (qrcode + reportlab)
+#
+#  Cac script con lai (tao-mo-bo-sung.py, gop-ban-dich-tieng-viet.py,
+#  do-do-phu-tieng-viet.py, kiem-tra-tieng-viet.py) chi dung thu vien CHUAN
+#  cua Python -> khong can file nay.
+#
+#  requests chi can khi dung 'python scripts/sinh-ma-qr.py --api'
+#  (doc thiet bi tu GLPI REST API). Neu chi doc tu CSV thi khong can.
+# ==============================================================================
+
+# Sinh ma QR cho thiet bi (PNG) + nhan in hang loat (PDF).
+# 'qrcode[pil]' keo them Pillow de xuat anh PNG.
+qrcode[pil]>=8,<9
+
+# Dung nhan PDF in tren giay decal A4 (chen logo, ten phong, ten khoa).
+reportlab>=4,<6
+
+# Doc danh sach thiet bi tu GLPI REST API (tuy chon, chi khi dung --api).
+requests>=2.31,<3

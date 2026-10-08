@@ -132,7 +132,10 @@ pinedesk/
 ├── docker-compose.yml           # Định nghĩa 4 dịch vụ Docker
 ├── .env                         # Biến môi trường (chứa mật khẩu)
 ├── start.sh                     # Khởi động hệ thống
+├── Makefile                     # Lệnh thường dùng: make kiem-tra / smoke / up...
 ├── package.json                 # Khai báo playwright-core (cho script chụp ảnh/kiểm thử)
+├── package-lock.json            # Ghim phiên bản (npm ci tái lập được)
+├── requirements.txt             # Thư viện Python cho script sinh mã QR
 ├── config/                      # Cấu hình PHP (QR, bảo mật)
 ├── nginx/                       # Gateway: HTTPS, rate limit, bảo mật
 │   └── ssl/openssl-san.cnf      #   Cấu hình sinh chứng chỉ SSL (có SAN)
@@ -220,9 +223,9 @@ node   scripts/chup-lai-anh-minh-chung.js # Chụp tối đa 16 ảnh minh chứ
 
 # Vận hành
 bash start.sh                        # Khởi động
-docker-compose logs -f glpi          # Xem log
-docker-compose stop                  # Dừng tạm thời
-docker-compose down                  # Tắt hoàn toàn
+docker compose logs -f glpi          # Xem log
+docker compose stop                  # Dừng tạm thời
+docker compose down                  # Tắt hoàn toàn
 bash backup/backup.sh                # Sao lưu dữ liệu
 ```
 
@@ -246,10 +249,18 @@ Mỗi pull request và mỗi lần push lên `main`/`master` đều chạy pipel
 | 3 | **Cấu hình** | `docker compose config` · mọi service phải có `healthcheck` · `nginx -t` |
 | 4 | **Chứng chỉ SSL** | Sinh được từ `openssl-san.cnf` và **bắt buộc có SAN** |
 | 5 | **Bảo mật** | Không commit `.env`/chứng chỉ; không hardcode mật khẩu hay đường dẫn máy cá nhân |
-| 6 | **Smoke test** | Khởi động thật 4 container → chờ `healthy` → kiểm tra HTTP/HTTPS |
+| 6 | **Smoke test** | Khởi động thật 4 container → chờ `healthy` → kiểm tra HTTP/HTTPS, plugin, dữ liệu khớp tài liệu, chống lạm dụng, phân quyền, **3 use case end-to-end bằng Playwright (Chrome thật)** |
 
 > Pipeline **chặn merge** nếu bất kỳ cửa nào thất bại. Chạy kiểm tra nhanh trên
-> máy trước khi push:
+> máy trước khi push bằng **một lệnh** (gom đúng các bước CI, trừ smoke test):
+>
+> ```bash
+> make kiem-tra        # cú pháp shell/Python/JS + ShellCheck + quét bí mật + compose/nginx
+> make cu-phap-php     # cú pháp PHP của plugin (cần Docker)
+> make smoke           # khởi động thật 4 container (~5 phút)
+> ```
+>
+> Xem tất cả lệnh: `make giup`. Không có `make` thì chạy thủ công:
 >
 > ```bash
 > bash -n start.sh                     # cú pháp shell
@@ -264,8 +275,11 @@ Mỗi pull request và mỗi lần push lên `main`/`master` đều chạy pipel
 - RAM tối thiểu 4 GB (khuyến nghị 8 GB)
 - Dung lượng đĩa trống 10 GB
 - OpenSSL 3.x (có sẵn trong Git Bash)
-- Node.js 18 trở lên + `npm install` (cho script chụp ảnh/kiểm thử Playwright,
-  chạy trên máy có Chrome cài sẵn)
+- Node.js 18 trở lên + `npm ci` (cho script chụp ảnh/kiểm thử Playwright,
+  chạy trên máy có Chrome cài sẵn). `npm ci` dùng `package-lock.json` để cài
+  đúng phiên bản `playwright-core` đã ghim → tái lập được trên mọi máy.
+- Python 3.9 trở lên + `pip install -r requirements.txt` (chỉ cần khi chạy
+  `scripts/sinh-ma-qr.py`; các script Việt hoá khác chỉ dùng thư viện chuẩn)
 
 ## Giấy phép
 

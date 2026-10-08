@@ -1,0 +1,57 @@
+# ==============================================================================
+#  .dockerignore — Giam ngu canh build (build context) khi dung docker build
+# ==============================================================================
+#  Do an nay chay bang docker compose (khong tu build image), nen file nay chu
+#  yeu de: (1) neu sau nay them Dockerfile thi khong vo tinh copy rac/mat khau
+#  vao image, va (2) `docker build .` khong gui hang tram MB len Docker daemon.
+#
+#  NGUYEN TAC: loai bo MOI thu khong thuoc ma nguon chay that.
+# ==============================================================================
+
+# ---- Bi mat: TUYET DOI khong vao image ----
+.env
+.env.*
+!.env.example
+nginx/ssl/*.key
+nginx/ssl/*.crt
+nginx/ssl/*.pem
+nginx/ssl/*.csr
+nginx/ssl/*.bak
+
+# ---- Lich su/ cau hinh cua cong cu phat trien ----
+.git
+.gitignore
+.gitattributes
+.github
+.playwright-mcp
+.impeccable
+.omp
+
+# ---- Thu muc lam viec tam ----
+.tmp-*/
+.tmp-locale/
+.tmp-plugin/
+node_modules/
+scripts/__pycache__/
+__pycache__/
+*.pyc
+
+# ---- Ket qua sinh ra khi chay (tai lai duoc) ----
+output-qr/
+backup/*.sql
+backup/*.tar.gz
+backup/*.zip
+*.log
+logs/
+
+# ---- Tai lieu ca nhan (khong thuoc san pham) ----
+tai-lieu-ca-nhan/
+docs/
+
+# ---- File he dieu hanh / trinh soan thao ----
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~

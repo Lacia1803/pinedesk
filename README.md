@@ -172,7 +172,7 @@ pinedesk/
     ├── README.md                # ★ Tài liệu tổng hợp toàn diện (nghiệp vụ, kiến trúc, 6 tầng phòng thủ, cài đặt, demo, phản biện)
     ├── BAO-CAO-THUC-TAP.md      #   Báo cáo thực tập tốt nghiệp (bản in)
     ├── CAI-TIEN-CHAT-LUONG.md   # ★ Nhật ký cải tiến chất lượng (vấn đề - cách sửa - bằng chứng)
-    ├── slide-bao-ve.html        # ★ 7 slide bảo vệ, chạy ngoại tuyến
+    ├── slide-bao-ve.html        # ★ 8 slide bảo vệ, chạy ngoại tuyến
     └── anh-giao-dien/           # Ảnh chụp giao diện thực tế
 ```
 
@@ -236,7 +236,7 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 | Tài liệu | Nội dung |
 |---|---|
 | [`tai-lieu/README.md`](tai-lieu/README.md) | **Tài liệu tổng hợp toàn diện**: bài toán nghiệp vụ, cơ cấu tổ chức DLU, kiến trúc so sánh GLPI gốc, phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện & Việt hóa, tạo mã QR thiết bị, hướng dẫn triển khai & vận hành, kịch bản demo 7 phút và bộ 25 câu hỏi phản biện |
-| [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 7 slide bảo vệ, tự chứa, chạy được khi không có mạng |
+| [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 8 slide bảo vệ, tự chứa, chạy được khi không có mạng |
 | [`BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in) |
 | [`CAI-TIEN-CHAT-LUONG.md`](tai-lieu/CAI-TIEN-CHAT-LUONG.md) | **Nhật ký cải tiến chất lượng**: 13 vấn đề phát hiện khi rà soát, cách sửa và bằng chứng kiểm chứng (dùng để viết phần "Kiểm thử và cải tiến" của báo cáo) |
 

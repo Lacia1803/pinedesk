@@ -211,7 +211,40 @@
   </ul>
 </section>
 
-<!-- ==================== SLIDE 6 — GIỚI HẠN (TRUNG THỰC) ==================== -->
+<!-- ============ SLIDE 6 — RÀ SOÁT CHẤT LƯỢNG (CẢI TIẾN) ============ -->
+<section class="slide">
+  <div class="tag ok">Cải tiến sau khi hoàn thiện</div>
+  <h2>Rà soát chất lượng: <span class="la">tìm lỗi, sửa, và chứng minh</span></h2>
+  <div class="so-luong">
+    <div class="so">
+      <b>13</b>
+      <span>vấn đề phát hiện khi rà soát (P0/P1/P2)</span>
+    </div>
+    <div class="so reu">
+      <b>37/37</b>
+      <span>điểm kiểm chống lạm dụng — chốt bằng CI</span>
+    </div>
+    <div class="so ho">
+      <b>3/3</b>
+      <span>use case end-to-end bằng Chrome thật</span>
+    </div>
+  </div>
+  <ul>
+    <li><b class="cam">P0</b> — thêm tệp giấy phép GPL v3; sửa hướng dẫn phục hồi
+        tự mâu thuẫn bảo mật (không truyền mật khẩu qua dòng lệnh)</li>
+    <li><b class="cam">P1</b> — khoá phiên bản phụ thuộc; ghim công cụ CI theo mã băm;
+        giới hạn nhật ký container; dọn mã nguồn chết</li>
+    <li><b class="cam">P2</b> — đưa kiểm thử end-to-end vào CI; quy ước định dạng chung</li>
+  </ul>
+  <div class="ghi-chu vang" style="margin-top:1.2em">
+    <b>Bài học đắt nhất:</b> tài liệu ghi harness có "37 điểm kiểm" nhưng đếm bằng
+    công cụ chỉ thấy 33 dòng. Suýt sửa thành 33 — kiểm chứng kỹ mới biết <b>37 là đúng</b>
+    (một lời gọi nằm trong vòng lặp 5 tài khoản). Từ đó thêm một cửa CI tự chốt con số,
+    để số liệu tài liệu không bao giờ lệch khỏi thực tế.
+  </div>
+</section>
+
+<!-- ==================== SLIDE 7 — GIỚI HẠN (TRUNG THỰC) ==================== -->
 <section class="slide">
   <div class="tag no">Nói thẳng</div>
   <h2>Những gì đồ án <span class="do">chưa</span> làm được</h2>
@@ -229,7 +262,7 @@
   </div>
 </section>
 
-<!-- ==================== SLIDE 7 — KẾT ==================== -->
+<!-- ==================== SLIDE 8 — KẾT ==================== -->
 <section class="slide">
   <div class="tag ok">Kết luận</div>
   <h2>Ba điều đáng nhớ về PineDesk</h2>

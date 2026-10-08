@@ -148,6 +148,8 @@ Phùng Võ Quốc Hiển
 | Bảng 4.6 | Hạn mức nghiệp vụ | 31 |
 | Bảng 4.7 | Kết quả kiểm tra chức năng theo vai trò | 34 |
 | Bảng 4.8 | Sáu nhóm kiểm tra trong pipeline CI | 36 |
+| Bảng 4.9 | Mười ba vấn đề phát hiện khi rà soát chất lượng và cách xử lý | 37 |
+| Bảng 4.10 | Kết quả kiểm chứng sau đợt rà soát chất lượng | 37 |
 | Bảng 5.1 | Hạn chế của đề tài | 38 |
 
 ---
@@ -748,6 +750,50 @@ Trong quá trình làm, em tìm ra và sửa một loạt lỗi, phần lớn ch
 
 Ba lỗi trên đều thuộc loại "im lặng": hệ thống không báo lỗi, chỉ thiếu dữ liệu hoặc chặn đăng nhập. Đó là lý do em đưa chúng vào pipeline CI để mỗi lần đẩy mã đều được kiểm tra lại.
 
+### 4.3.6. Rà soát chất lượng sau khi hoàn thiện
+
+Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em dành một đợt rà soát riêng để tìm những chỗ một người chấm kỹ sẽ bắt lỗi. Cách làm là đọc lại toàn bộ mã nguồn, tài liệu và cấu hình dưới con mắt phản biện, phân loại vấn đề theo ba mức (P0 — phải sửa ngay, P1 — nên sửa, P2 — cân nhắc), rồi **kiểm chứng từng thay đổi bằng lệnh chạy thật** chứ không chỉ sửa cho đẹp trên giấy. Kết quả gồm mười ba vấn đề, tóm tắt trong bảng dưới.
+
+| # | Vấn đề phát hiện | Mức | Cách xử lý |
+|---|---|---|---|
+| 1 | README ghi giấy phép GPL v3 nhưng kho mã nguồn không có tệp giấy phép | P0 | Thêm `LICENSE` (GNU GPL-3.0) |
+| 2 | Còn nhánh `bao-cao-thuc-tap-dlu` lỗi thời trên kho từ xa | P0 | Xoá sau khi kiểm chứng nội dung đã nằm trong `master` |
+| 3 | Hướng dẫn phục hồi dữ liệu dạy `source .env` và truyền mật khẩu qua dòng lệnh — trái với chuẩn bảo mật của chính đồ án | P0 | Đổi sang cách an toàn, rồi chạy thử phục hồi thật |
+| 4 | Nghi ngờ con số "37 điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI |
+| 5 | Thiếu tệp khoá phiên bản phụ thuộc | P1 | Thêm `package-lock.json`, `requirements.txt`, `.dockerignore` |
+| 6 | Pipeline CI ghim phiên bản công cụ bằng nhãn trôi nổi | P1 | Ghim theo mã băm commit |
+| 7 | Nhật ký container không giới hạn dung lượng | P1 | Thêm giới hạn log cho cả bốn dịch vụ |
+| 8 | Tài liệu còn dùng lệnh `docker-compose` phiên bản cũ | P1 | Thống nhất về `docker compose` |
+| 9 | Script kiểm tra dùng mật khẩu mặc định, hỏng sau khi đổi mật khẩu quản trị | P1 | Bắt buộc truyền mật khẩu qua biến môi trường |
+| 10 | Ảnh không còn dùng và thư mục rác trong kho mã nguồn | P1 | Dọn sạch (kiểm tra kỹ từng thứ trước khi xoá) |
+| 11 | Kiểm thử end-to-end chạy tay, chưa vào pipeline | P2 | Đưa ba use case Playwright vào CI |
+| 12 | Chưa có quy ước định dạng chung cho trình soạn thảo | P2 | Thêm `.editorconfig` |
+| 13 | Bản vá plugin bên thứ ba không ghi rõ gắn với phiên bản nào | P2 | Ghi cảnh báo ràng buộc phiên bản |
+
+*Bảng 4.9. Mười ba vấn đề phát hiện khi rà soát chất lượng và cách xử lý*
+
+Hai vấn đề đáng kể nhất đều nằm ở mức P0. Thứ nhất là **hướng dẫn phục hồi dữ liệu tự mâu thuẫn**: đồ án đã có quy ước rõ là không truyền mật khẩu qua tham số dòng lệnh (vì tiến trình khác đọc được qua `ps`), vậy mà chính tài liệu lại dạy điều ngược lại. Đây là loại lỗi nguy hiểm vì nó không làm hệ thống hỏng, chỉ âm thầm làm yếu bảo mật. Em sửa cả tài liệu lẫn script, rồi **chạy thử phục hồi thật** để chắc chắn cách mới hoạt động và dữ liệu vẫn nguyên vẹn (17 máy tính, 14 phiếu).
+
+Thứ hai là **bài học về số liệu**. Tài liệu ghi harness có "37 điểm kiểm", nhưng khi đếm bằng công cụ tìm kiếm chỉ thấy 33 dòng gọi hàm. Thay vì sửa số liệu theo cảm tính, em phân tích kỹ và phát hiện con số 37 là **đúng**: một lời gọi nằm trong vòng lặp tạo 5 tài khoản thử, nên 32 + 5 = 37. Nếu vội vàng sửa thành 33 thì đã tự tạo ra một sai số mới. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
+
+Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác nhận không có hồi quy:
+
+| Hạng mục | Kết quả |
+|---|---|
+| Cú pháp shell / JavaScript / Python | Đạt (16 + 12 tệp) |
+| Lint shell (ShellCheck), cú pháp PHP | Đạt (4 tệp PHP) |
+| Cấu hình Docker Compose và Nginx | Hợp lệ |
+| Quét bí mật trong mã nguồn | Sạch |
+| Chống lạm dụng (harness plugin) | **37/37 đạt** |
+| Chức năng và phân quyền theo vai trò | **25/25 đạt** |
+| Ba use case end-to-end (Playwright, Chrome thật) | **3/3 đạt** |
+
+*Bảng 4.10. Kết quả kiểm chứng sau đợt rà soát chất lượng*
+
+Một quyết định em giữ nguyên có chủ ý: **không ghim cứng mã băm của các ảnh Docker**. Ghim cứng giúp tái lập tuyệt đối nhưng khiến hệ thống không nhận được bản vá bảo mật tự động; với đồ án chạy trong mạng nội bộ, đánh đổi đó không đáng. Thay vào đó mã băm hiện tại được ghi trong phần chú thích của tệp cấu hình, kèm hướng dẫn ghim nếu cần.
+
+Chi tiết đầy đủ của đợt rà soát (từng vấn đề, cách sửa, bằng chứng) nằm ở tài liệu `tai-lieu/CAI-TIEN-CHAT-LUONG.md`.
+
 ---
 
 # CHƯƠNG 5. ĐÁNH GIÁ, HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN
@@ -860,7 +906,7 @@ Em cũng cố gắng ghi rõ những gì chưa làm được. Đề tài chưa �
 |---|---|---|
 | 11 | [`README.md`](README.md) | Tài liệu tổng hợp toàn diện (10 mục) |
 | 12 | [`BAO-CAO-THUC-TAP.md`](BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp (tài liệu này) |
-| 13 | [`slide-bao-ve.html`](slide-bao-ve.html) | 7 slide bảo vệ, chạy ngoại tuyến |
+| 13 | [`slide-bao-ve.html`](slide-bao-ve.html) | 8 slide bảo vệ, chạy ngoại tuyến |
 | 14 | [`../CHANGELOG.md`](../CHANGELOG.md) | Nhật ký thay đổi theo phiên bản |
 
 ---
@@ -945,5 +991,6 @@ Thư mục `tai-lieu/anh-giao-dien/` có 18 ảnh chụp giao diện thật:
 | 0.2.0 | 02/10/2026 | Từ lý thuyết sang nghiệp vụ thật: bài toán nghiệp vụ, chống lạm dụng, SLA, bảo trì, mượn/trả |
 | 0.3.0 | 03/10/2026 | Chuẩn hóa số liệu và vá lỗi dữ liệu mẫu |
 | 0.4.0 | 03/10/2026 | Vá ba lỗi cài máy sạch, sửa giao diện, Việt hóa dữ liệu, chuyển sang Playwright |
+| Chưa phát hành | 08/10/2026 | Rà soát chất lượng: thêm giấy phép, sửa hướng dẫn bảo mật, khoá phiên bản phụ thuộc, đưa kiểm thử end-to-end vào CI (13 vấn đề — xem mục 4.3.6) |
 
 Chi tiết đầy đủ từng phiên bản nằm trong [`../CHANGELOG.md`](../CHANGELOG.md).

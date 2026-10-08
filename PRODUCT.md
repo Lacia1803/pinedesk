@@ -52,7 +52,7 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
   dashboard đã Việt hoá.
 - 79 loại sự cố được phân loại sẵn; 12 toà nhà, 54 phòng, 16 khoa.
 - Bộ tài liệu trong `tai-lieu/`: `README.md` (tổng hợp toàn diện, 10 mục),
-  `BAO-CAO-THUC-TAP.md` (báo cáo thực tập) và `slide-bao-ve.html` (7 slide bảo vệ).
+  `BAO-CAO-THUC-TAP.md` (báo cáo thực tập) và `slide-bao-ve.html` (8 slide bảo vệ).
 
 Ràng buộc:
 

@@ -7,6 +7,12 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Thay đổi
 
+- **Tự động hoá tối thiểu tầng T5 (kiểm duyệt/soát xét ưu tiên).** Trước đây T5
+  chỉ là quy trình giấy (kỹ thuật viên tự nhớ soát lại ưu tiên). Nay plugin tự
+  thêm một ghi chú **nội bộ** (private followup) cho phiếu có ưu tiên Cao/Rất cao
+  của người dùng tự phục vụ, nhắc kỹ thuật viên soát xét lại mức độ trước khi
+  giao việc. Có ý thức KHÔNG tự đổi ưu tiên (hệ thống không đủ ngữ cảnh) — chỉ
+  nhắc để con người quyết. Thêm mục kiểm 4f; harness lên **46 điểm kiểm**.
 - **Mở rộng T4 (chống trùng) để bắt trùng theo NỘI DUNG, không chỉ thiết bị/loại.**
   Lỗ hổng thật được tìm ra khi phản biện: T4 cũ chỉ chặn khi cùng thiết bị hoặc
   cùng loại sự cố + vị trí, nên trong 5 phiếu được phép, người dùng vẫn gửi được
@@ -15,7 +21,7 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   giống nhau (chuẩn hoá khoảng trắng/hoa-thường) trong cửa sổ chống trùng.
   Thêm hàm `plugin_pinedesk_normalize_name()` và mục kiểm 4e trong harness
   (phiếu cùng tên khác loại → bị chặn; tên khác → không bị chặn).
-  Harness tăng từ 37 lên **42 điểm kiểm**.
+  Harness tăng từ 37 lên **42 điểm kiểm** (rồi **46** khi bổ sung T5).
 - **Gỡ khối "T4c" (dead code).** Một bản thử trước thêm "trần tổng phiếu trong
   cửa sổ" nhưng đó là mã chết: `count_window <= count_open` luôn đúng nên T3a
   (chạy trước) đã chặn, T4c không bao giờ là người chặn đầu tiên. Đã gỡ cả khối
@@ -32,7 +38,7 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - **Thêm kiểm thử chặn hạn mức qua ĐƯỜNG HTTP THẬT.** `scripts/kiem-tra-http-limit.sh`
   + `scripts/kiem-tra-http-limit.js` (Playwright) gửi phiếu qua `/Form/SubmitAnswers`
   bằng Chrome thật và khẳng định phiếu KHÔNG được ghi khi tài khoản đã chạm trần.
-  Bổ sung vì harness 42 điểm chỉ chạy in-process (`new Ticket()->add()`), không
+  Bổ sung vì harness chỉ chạy in-process (`new Ticket()->add()`), không
   qua Nginx/phiên HTTP/`Session::callAsSystem` như đường người dùng thật.
   Đã tích hợp vào CI (job smoke) và `make kiem-tra-http`.
 - **Phát hiện qua test HTTP thật (ghi thành hạn chế trung thực).** Trên đường
@@ -108,7 +114,7 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   harness rồi bắt output phải khớp `KET QUA: n/N dat` — ai thêm/bớt `check()`
   mà quên cập nhật tài liệu (hoặc ngược lại) thì pipeline đỏ, cùng triết lý với
   cửa "Từ điển Việt hoá phải đủ 556 + 212". Con số N ban đầu là 37; sau khi mở
-  rộng T4 (chống trùng theo nội dung) thành **42** (xem mục dưới). Ghi chú đầu
+  rộng T4 (chống trùng theo nội dung) thành **42**, rồi **46** khi thêm T5. Ghi chú đầu
   harness nêu rõ cách đếm để không ai "sửa" nhầm.
 - **`docker-compose.yml`: giới hạn log cho mọi service** (anchor `x-logging`:
   json-file, 10 MB × 3 file/service). Trước đây log container không giới hạn →

@@ -199,7 +199,7 @@ Nguyên tắc kiến trúc cốt lõi: 100% các thành phần tùy biến nằm
 | Khả năng an toàn đồng thời | Dễ race condition khi mở nhiều tab | MariaDB mutex `GET_LOCK()` theo từng tài khoản | Đảm bảo tính nhất quán dữ liệu khi gửi đồng thời |
 | Tính năng mã QR thiết bị | Chưa có hoặc plugin Barcode lỗi trên GLPI 11 | Vá 3 lỗi tương thích cho plugin Barcode 2.7.1 | Kích hoạt thành công tính năng in QR hàng loạt |
 | Giải pháp QR dự phòng | Không có | Script Python `sinh-ma-qr.py` kết xuất mã độc lập | Không phụ thuộc vào chu kỳ nâng cấp của GLPI |
-| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 42 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
+| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 46 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
 
 ### 3.3. Danh mục tài khoản kiểm thử và phân quyền
 
@@ -273,7 +273,7 @@ Plugin `pinedesk` đăng ký hook `PRE_ITEM_ADD` của GLPI, can thiệp trướ
 - An toàn đồng thời: Sử dụng hàm `GET_LOCK('pinedesk_hm_<uid>', 3)` của MariaDB — mỗi người dùng có một khóa riêng (`pinedesk_hm_<users_id>`) nên các phiên của những người khác nhau không chặn lẫn nhau, chỉ tuần tự hoá các tab của cùng một tài khoản. Timeout 3 giây; không lấy được khóa → fail-open (không chặn oan).
 - Khả năng chịu lỗi: Nếu truy vấn đếm gặp lỗi cơ sở dữ liệu, plugin ghi log vào `pinedesk.log` và tạm thời cho phép phiếu đi qua nhằm tránh chặn nhầm người dùng hợp lệ.
 
-Hệ thống kiểm thử tự động tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` bao gồm 42 điểm kiểm thử xác nhận đầy đủ hành vi chặn hạn mức, chống trùng và quyền miễn trừ cho kỹ thuật viên.
+Hệ thống kiểm thử tự động tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` bao gồm 46 điểm kiểm thử xác nhận đầy đủ hành vi chặn hạn mức, chống trùng và quyền miễn trừ cho kỹ thuật viên.
 
 Lệnh rà soát định kỳ qua terminal:
 
@@ -297,6 +297,8 @@ Việc tách riêng bảng nhật ký giúp tốc độ truy vấn đếm hạn 
 ### 4.5. Tầng T5: Quy trình soát xét mức ưu tiên và cấu hình SLA
 
 Khi người dùng tạo phiếu, mức độ ưu tiên chỉ mang tính chất đề xuất. Khi phiếu vào hàng đợi ở trạng thái Mới, kỹ thuật viên kiểm tra nội dung và xác nhận lại mức độ ưu tiên thực tế trước khi chuyển sang trạng thái Được giao.
+
+**Đã tự động hoá một phần (mức tối thiểu):** với phiếu có độ ưu tiên **Cao hoặc Rất cao** do người dùng tự phục vụ tạo, plugin `pinedesk` tự thêm một **ghi chú nội bộ** (kỹ thuật viên thấy, người gửi không thấy) nhắc soát xét lại mức ưu tiên trước khi giao việc. Hệ thống **chỉ nhắc, không tự đổi** mức ưu tiên — vì tự đổi có thể sai nghiệp vụ (hệ thống không đủ ngữ cảnh để quyết thay con người). Đây là tầng T5 ở mức tối thiểu: máy chủ động gọi ý, người quyết định.
 
 Cấu hình 5 mức SLA kỹ thuật trong bảng `glpi_slas`:
 
@@ -564,7 +566,7 @@ Kiểm tra:
 - Trả lời: Bot phải vượt qua bước đăng nhập vốn bị giới hạn 10 request/phút mỗi IP với mã lỗi 429. Mọi cổng nộp phiếu đều nằm trong vùng đệm 30 request/phút của Nginx. Kể cả qua được tầng mạng, bot vẫn bị chặn bởi trần phiếu tài khoản và khóa chống trùng lặp.
 
 **B5. "Cơ chế này em đã kiểm thử tự động chưa?"**
-- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 42 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php`, tích hợp vào pipeline CI để xác nhận hành vi trả mã 429, chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên.
+- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 46 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php`, tích hợp vào pipeline CI để xác nhận hành vi trả mã 429, chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên.
 
 ### Nhóm C: Quy trình nghiệp vụ và cam kết thời gian (SLA)
 
@@ -591,7 +593,7 @@ Kiểm tra:
 - Trả lời: Google Forms chỉ hỗ trợ thu thập dữ liệu thô, không có cơ chế hàng đợi phân công, không có vòng đời trạng thái chuẩn ITIL, không theo dõi được thời hạn SLA, không liên kết được với hồ sơ vòng đời thiết bị và không hỗ trợ định danh mã QR vật lý.
 
 **D2. "GLPI có sẵn mọi tính năng, vậy đóng góp của đồ án là gì?"**
-- Trả lời: GLPI cung cấp lõi nghiệp vụ ITSM. Đóng góp của đồ án bao gồm: Cài đặt tự động một lệnh, cổng gateway HTTPS tích hợp SAN cert, bảng màu thương hiệu DLU và CSS ngoài lõi, nâng độ phủ dịch tiếng Việt lên 32,0% và xử lý lỗi khóa số nhiều `_n()`, nạp cơ cấu tổ chức 16 khoa và 54 phòng của DLU, cơ chế phòng thủ 6 tầng chống lạm dụng với 42 test cases, vá 3 lỗi tương thích cho plugin Barcode trên GLPI 11 và script Python dự phòng.
+- Trả lời: GLPI cung cấp lõi nghiệp vụ ITSM. Đóng góp của đồ án bao gồm: Cài đặt tự động một lệnh, cổng gateway HTTPS tích hợp SAN cert, bảng màu thương hiệu DLU và CSS ngoài lõi, nâng độ phủ dịch tiếng Việt lên 32,0% và xử lý lỗi khóa số nhiều `_n()`, nạp cơ cấu tổ chức 16 khoa và 54 phòng của DLU, cơ chế phòng thủ 6 tầng chống lạm dụng với 46 test cases, vá 3 lỗi tương thích cho plugin Barcode trên GLPI 11 và script Python dự phòng.
 - Minh chứng: Bảng đối chiếu 20 dòng tại Mục 3.2.
 
 **D3. "Tại sao không mua ServiceNow hoặc triển khai iTop?"**

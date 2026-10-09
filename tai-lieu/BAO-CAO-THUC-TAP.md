@@ -631,7 +631,7 @@ Trạng thái thật của từng tầng:
 | T2 | Bắt buộc đăng nhập, không cho nộp ẩn danh | Có sẵn của GLPI |
 | T3 | Trần phiếu đang mở và số phiếu mỗi ngày | Đã dựng |
 | T4 | Phát hiện phiếu trùng | Đã dựng |
-| T5 | Kiểm duyệt trước khi giao việc | Quy trình, chưa tự động hóa |
+| T5 | Kiểm duyệt trước khi giao việc | Tự động nhắc soát xét cho phiếu ưu tiên cao (người vẫn quyết) |
 | T6 | Nhật ký tạo phiếu | Đã dựng |
 
 *Bảng 4.5. Sáu tầng chống lạm dụng nộp phiếu*
@@ -821,7 +821,7 @@ Em ghi thẳng những gì chưa làm được, vì đây là phần quan trọn
 | 2 | Số sự cố ITC thực tế tiếp nhận mỗi tuần, thời gian phản hồi trung bình hiện tại: chưa có dữ liệu | Nghiêm trọng |
 | 3 | 5 mức SLA và hạn mức 5 phiếu / 10 phiếu mỗi ngày là đề xuất kỹ thuật, chưa được Trường xác nhận | Nghiêm trọng |
 | 4 | Chưa đo hiệu năng khi có nhiều người dùng đồng thời | Trung bình |
-| 5 | Tầng T5 (kiểm duyệt trước khi giao việc) chưa tự động hóa bằng mã, hiện dựa trên quy trình | Trung bình |
+| 5 | Tầng T5 (kiểm duyệt trước khi giao việc) đã tự động **nhắc** soát xét cho phiếu ưu tiên cao, nhưng phần **quyết định** mức ưu tiên vẫn cần kỹ thuật viên | Thấp |
 | 6 | Nhật ký chống lạm dụng chưa có giao diện xem cho kỹ thuật viên, hiện xem bằng SQL | Trung bình |
 | 7 | Chưa có CAPTCHA cho trường hợp mở nộp phiếu ẩn danh qua QR | Thấp, do phạm vi |
 | 8 | Chưa có tài khoản tự đăng ký, nên chưa phải lo chống tạo tài khoản ảo | Thấp, do phạm vi |
@@ -842,7 +842,7 @@ Từ những hạn chế ở mục 5.2, hướng phát triển tiếp theo đư�
 1. **Phỏng vấn 5 nhân sự ITC** để kiểm chứng bài toán và xin số liệu tiếp nhận thực tế. Đây là việc cần làm đầu tiên nếu muốn biến đề tài từ "đề xuất" thành "đã triển khai".
 2. **Đề nghị ITC ban hành mức thời gian xử lý chính thức**, thay cho các con số đề xuất hiện tại.
 3. **Đo hiệu năng** khi có nhiều người dùng đồng thời, và cắm thử hệ thống ở một phòng máy để đo thực tế.
-4. **Tự động hóa tầng T5** bằng quy tắc nghiệp vụ của GLPI cấu hình qua giao diện, giữ được kiến trúc ngoài lõi.
+4. **Hoàn thiện tầng T5**: nay đã tự động *nhắc* soát xét cho phiếu ưu tiên cao; bước tiếp là dùng Rule engine của GLPI để tự phân loại/định tuyến theo quy tắc nghiệp vụ cấu hình qua giao diện, giữ kiến trúc ngoài lõi.
 5. **Thêm giao diện xem nhật ký** cho kỹ thuật viên, để không phải truy vấn SQL.
 
 ## 5.4. Bài học kinh nghiệm

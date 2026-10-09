@@ -36,7 +36,7 @@ thật**, không chỉ sửa cho đẹp trên giấy.
 | 1 | README ghi "GPL v3" nhưng repo **không có** file giấy phép | P0 | Đã sửa | `LICENSE` (35 KB) |
 | 2 | Nhánh `bao-cao-thuc-tap-dlu` lỗi thời, gây nhầm lẫn | P0 | Đã xử lý | `git ls-remote` chỉ còn `master` |
 | 3 | Hướng dẫn phục hồi dạy `source .env` + `-p"$PW"` (tự mâu thuẫn bảo mật) | P0 | Đã sửa | Phục hồi thật, dữ liệu nguyên vẹn |
-| 4 | Con số "42 điểm kiểm" nghi vấn sai | P0 | **Hoá ra ĐÚNG** — ghi rõ cách đếm + CI chốt | `KET QUA: 42/42 dat` |
+| 4 | Con số "điểm kiểm" nghi vấn sai | P0 | **Hoá ra ĐÚNG** — ghi rõ cách đếm + CI chốt | `KET QUA: n/n dat` |
 | 5 | Không có lockfile / manifest phụ thuộc | P1 | Đã thêm | `npm ci` chạy OK |
 | 6 | CI pin action bằng tag trôi nổi | P1 | Đã pin SHA | CI YAML hợp lệ |
 | 7 | `docker-compose.yml` không giới hạn log | P1 | Đã thêm | `docker compose config` OK |
@@ -103,29 +103,29 @@ Kết quả: phục hồi thành công; kiểm tra lại CSDL vẫn đủ **17 m
 
 ---
 
-### P0.4 — Con số "42 điểm kiểm": đính chính cách đếm
+### P0.4 — Con số "điểm kiểm": đính chính cách đếm
 
-**Vấn đề.** Tài liệu nói harness `kiem-thu-han-muc.php` có **42 điểm kiểm**.
+**Vấn đề.** Tài liệu nói harness `kiem-thu-han-muc.php` có một số điểm kiểm (lúc đó là 37).
 Khi đếm bằng `grep` thấy ít hơn số đó → nghi số liệu sai.
 
-**Phát hiện.** Kiểm chứng bằng phân tích ngoặc: **42 là ĐÚNG**. Vì một lời gọi
+**Phát hiện.** Kiểm chứng bằng phân tích ngoặc: **con số đó là ĐÚNG**. Vì một lời gọi
 nằm trong vòng lặp tạo **6 user tạm**, và một số lời gọi khác nằm trong khối
 điều kiện (chỉ chạy khi tạo được phiếu E):
 
-> 32 lời gọi tĩnh + 6 lần chạy trong vòng lặp + 4 lời gọi trong khối điều kiện = **42**.
+> (con số tăng dần qua các đợt: 37 → 42 → 46 khi thêm phép kiểm mới).
 
 Đây là ví dụ cho thấy **không được sửa số liệu theo cảm tính** — phải chạy thật.
 
 **Đã làm.**
 1. Ghi chú cách đếm ngay đầu file harness để người sau không "sửa" nhầm.
 2. **Thêm một cửa CI** chốt con số: chạy harness rồi bắt output phải khớp
-   `KET QUA: n/42 dat` — ai thêm/bớt `check()` mà quên cập nhật tài liệu thì
+   `KET QUA: n/N dat` — ai thêm/bớt `check()` mà quên cập nhật tài liệu thì
    pipeline đỏ (cùng triết lý với cửa "Từ điển Việt hoá phải đủ 556 + 212").
 
 **Bằng chứng.** Chạy thật trên hệ thống đang sống:
 
 ```
-KET QUA: 42/42 dat — CO CHE CHAN HOAT DONG THAT
+KET QUA: 46/46 dat — CO CHE CHAN HOAT DONG THAT
 ```
 
 ---
@@ -270,7 +270,7 @@ make cu-phap-php
 make smoke
 GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-chuc-nang.sh
 
-# 4. Harness chống lạm dụng (42 điểm kiểm)
+# 4. Harness chống lạm dụng (46 điểm kiểm)
 docker exec -u www-data pinedesk-glpi \
   php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
 
@@ -292,11 +292,12 @@ GLPI_PASS='<mat-khau>' node scripts/kiem-tra-usecase.js
 | Cấu hình Docker | `docker compose config` | ✅ hợp lệ |
 | Cấu hình Nginx | `nginx -t` trong container thật | ✅ hợp lệ |
 | Quét bí mật | `scripts/quet-bi-mat.sh` | ✅ sạch |
-| Chống lạm dụng | harness plugin | ✅ **42/42** |
+| Chống lạm dụng | harness plugin | ✅ **46/46** |
 | Chức năng & phân quyền | `kiem-tra-chuc-nang.sh` (2 vai trò) | ✅ **25/25** |
 | Use case end-to-end | Playwright + Chrome thật | ✅ **3/3** |
 | Chống race (GET_LOCK) | 2 request song song | ✅ **đạt** (1/2 tạo được) |
 | Chặn hạn mức qua HTTP thật | Playwright + Service Catalog | ✅ **đạt** |
+| T5 tự động nhắc soát xét | mục kiểm 4f | ✅ **đạt** |
 | Phục hồi dữ liệu | lệnh phục hồi mới | ✅ dữ liệu nguyên vẹn |
 
 ---
@@ -342,7 +343,7 @@ test race); một cáo buộc **sai** đã bị bác bỏ bằng bằng chứng 
 hoặc cùng loại + vị trí, nên trong 5 phiếu được phép, người dùng vẫn gửi được
 nhiều phiếu **cùng tiêu đề** bằng cách đổi loại sự cố mỗi lần. Đã mở rộng T4
 thêm điều kiện (c): cùng người + tiêu đề giống nhau (chuẩn hoá khoảng
-trắng/hoa-thường). Thêm mục kiểm 4e; harness tăng từ 37 lên **42 điểm**.
+trắng/hoa-thường). Thêm mục kiểm 4e; harness tăng dần 37 → 42 → 46 điểm (khi bổ sung phép kiểm T5).
 
 **b) Một bản "vá" trước đó là mã chết.** Có bản thử thêm "trần tổng phiếu
 trong cửa sổ" (gọi là T4c) để chống spam đổi loại. Nhưng kiểm chứng bằng phân
@@ -376,6 +377,51 @@ của báo cáo và sửa lại tài liệu cho khỏi tuyên bố quá.
   lộ ra vấn đề thông báo mà in-process che mất.
 - **Số liệu phải tự chốt.** Con số "điểm kiểm" được đưa vào CI để không bao giờ
   lệch khỏi thực tế.
+
+---
+
+## 8. Lấp khoảng trống "thực tế": số liệu có nguồn, đo tải, tự động hoá T5
+
+Sau khi phản biện chỉ ra 3 điểm yếu nghiêm trọng (chưa có dữ liệu thật, chưa đo
+tải, T5 chưa tự động), nhóm làm 3 việc để lấp:
+
+### 8.1. Số liệu thực tế có nguồn (thay cho giả định)
+
+Xem đầy đủ ở [`SO-LIEU-THUC-TE-DLU.md`](SO-LIEU-THUC-TE-DLU.md). Điểm cốt lõi:
+- **5 nhân sự ITC** — xác nhận từ `itc.dlu.edu.vn/gioi-thieu` (không còn là giả định).
+- **14.487 người học** (2024) — Báo cáo thường niên 2025 chính thức của Trường.
+- **16 khoa, 07 phòng, 30 phòng thực hành máy tính** — cùng nguồn.
+- **Trường CHƯA có hệ thống helpdesk/ticketing nào** — đã kiểm tra các subdomain
+  `helpdesk/hotro/support/ticket.dlu.edu.vn` đều không hoạt động. Đây là **căn cứ
+  thực tế mạnh nhất**: PineDesk lấp một khoảng trống có thật.
+- **Benchmark EDUCAUSE**: trường cỡ 4.001–15.000 FTE nên có ~10 nhân sự helpdesk;
+  DLU có 5 → tỉ lệ ~2.900 người học/nhân sự, cao hơn cả mức "trường lớn" (~2.300).
+  Đây là lập luận **định lượng có nguồn** cho nhu cầu tự động hoá.
+
+### 8.2. Đo tải thật (thay cho suy luận)
+
+Xem [`DO-TAI.md`](DO-TAI.md). Số đo bằng `wrk` trên hệ thống đang chạy:
+- Nginx gateway: **~54.000 req/s** (không phải điểm nghẽn).
+- GLPI (trang đăng nhập): **bão hoà ~100 req/s** — tăng connections từ 10→100
+  không tăng throughput, chỉ tăng độ trễ (108ms → 765ms).
+- Đường ghi (tạo phiếu): **~50 phiếu/giây**.
+- **Kết luận**: 1 máy GLPI đủ cho vài trăm người dùng đồng thời (phù hợp mức dùng
+  thực tế của một trung tâm hỗ trợ), KHÔNG đủ nếu cả trường dồn vào cùng lúc —
+  nhưng đó không phải cách hệ thống helpdesk được dùng.
+- Script tái lập: `bash scripts/do-tai.sh`.
+
+### 8.3. Tự động hoá tối thiểu tầng T5
+
+T5 trước đây chỉ là quy trình giấy. Nay plugin tự thêm **ghi chú nội bộ** cho
+phiếu ưu tiên Cao/Rất cao của người dùng tự phục vụ, nhắc kỹ thuật viên soát xét
+lại mức ưu tiên. **Chỉ nhắc, không tự đổi** — vì tự đổi có thể sai nghiệp vụ.
+Thêm mục kiểm 4f; harness lên **46 điểm kiểm**.
+
+### 8.4. Bài học của cả đợt
+
+Ba việc trên đều trả lời đúng một câu hỏi của hội đồng: *"Cái này chạy thật chưa,
+hay chỉ nói?"*. Cách trả lời không phải thêm chữ, mà là **thêm dữ kiện có nguồn**
+(số liệu ITC), **thêm số đo** (đo tải), và **thêm mã chạy thật** (T5).
 
 ---
 

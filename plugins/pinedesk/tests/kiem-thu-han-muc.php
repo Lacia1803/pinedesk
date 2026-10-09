@@ -29,13 +29,14 @@
  *
  *  Kết quả: exit 0 nếu mọi kịch bản đạt, exit 1 nếu có kịch bản thất bại.
  *
- *  CÁCH ĐẾM "42 ĐIỂM KIỂM" (con số nêu trong README/tài liệu):
+ *  CÁCH ĐẾM SỐ ĐIỂM KIỂM (con số nêu trong README/tài liệu):
  *    Đếm theo SỐ LẦN CHẠY check(), không phải lời gọi trong mã:
  *      32 lời gọi tĩnh (ngoài vòng lặp/khối điều kiện) + 6 lần của lời gọi
  *      trong vòng lặp tạo 6 user tạm, + 4 lời gọi trong khối "if ($e_ticket > 0)"
- *      (4d, chỉ chạy khi tạo được phiếu E) = 42. Dòng cuối in ra
- *      "KET QUA: n/42 dat" lấy trực tiếp từ biến $checks lúc chạy.
- *    => Đừng "sửa" 42 thành 32/36 khi grep đếm lời gọi: sẽ làm số liệu SAI.
+ *      (4d, chỉ chạy khi tạo được phiếu E) + 4 điểm T5 (mục 4f) = 46.
+ *      Dòng cuối in ra "KET QUA: n/46 dat" lấy trực tiếp từ biến $checks lúc chạy.
+ *    => Đừng "sửa" theo grep đếm lời gọi: sẽ làm số liệu SAI. Số đúng LUÔN là
+ *      con số harness in ra khi chạy (hiện tại: 46).
  * -----------------------------------------------------------------------------
  */
 
@@ -627,6 +628,56 @@ $name_c = $t->add([
 check($name_c > 0, "F: phieu C TEN KHAC KHONG bi chan (id=" . var_export($name_c, true) . ")");
 
 // -----------------------------------------------------------------------------
+// 4f. T5 — tu dong nhac soat xet uu tien cho phieu quan trong
+// -----------------------------------------------------------------------------
+// Kiem chung: phieu uu tien CAO (>=4) cua nguoi thuong -> tu them ghi chu noi bo
+// "[T5-SOAT-XET]"; phieu uu tien THAP -> KHONG nhac (tranh phien).
+echo "\n--- 4f. T5: tu dong nhac soat xet uu tien ---\n";
+
+// Dang nhap lai user F (self-service) de tao phieu uu tien cao
+test_logout();
+test_login($uid_f);
+
+$t = new Ticket();
+$t5_high = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' phieu uu tien cao (T5)',
+    'content'           => 'Phieu uu tien cao de kiem T5.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 5,
+    'impact'            => 5,
+]);
+check($t5_high > 0, "T5: phieu uu tien cao tao thanh cong (id=" . var_export($t5_high, true) . ")");
+
+$res = $DB->doQuery(
+    "SELECT COUNT(*) AS n FROM glpi_itilfollowups
+      WHERE itemtype = 'Ticket' AND items_id = " . (int) $t5_high . "
+        AND content LIKE '%[T5-SOAT-XET]%'"
+);
+$row = $res ? $DB->fetchAssoc($res) : null;
+check((int) ($row['n'] ?? 0) >= 1, "T5: phieu uu tien CAO co ghi chu noi bo nhac soat xet");
+
+// Phieu uu tien THAP -> KHONG co ghi chu T5
+$t = new Ticket();
+$t5_low = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' phieu uu tien thap (T5)',
+    'content'           => 'Phieu uu tien thap.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 1,
+    'impact'            => 1,
+]);
+check($t5_low > 0, "T5: phieu uu tien thap tao thanh cong (id=" . var_export($t5_low, true) . ")");
+
+$res = $DB->doQuery(
+    "SELECT COUNT(*) AS n FROM glpi_itilfollowups
+      WHERE itemtype = 'Ticket' AND items_id = " . (int) $t5_low . "
+        AND content LIKE '%[T5-SOAT-XET]%'"
+);
+$row = $res ? $DB->fetchAssoc($res) : null;
+check((int) ($row['n'] ?? 0) === 0, "T5: phieu uu tien THAP KHONG bi nhac (tranh phien)");
+
+// -----------------------------------------------------------------------------
 // 5. KTV (co quyen UPDATE) -> KHONG bi chan
 // -----------------------------------------------------------------------------
 echo "\n--- 5. Ky thuat vien tao phieu (mien tru) ---\n";
@@ -698,6 +749,8 @@ $to_delete = array_merge(
         $e_ticket,
         $ktv_ticket,
         $cron_ticket,
+        $t5_high,
+        $t5_low,
     ]),
     $c_tickets
 );

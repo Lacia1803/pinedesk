@@ -143,7 +143,7 @@ pinedesk/
 ├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (CSS + logo) — NGUỒN MÀU DUY NHẤT
 ├── plugins/pinedesk/            # ★ Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
 │   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
-│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (42 điểm kiểm)
+│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (46 điểm kiểm)
 ├── scripts/                     # ★ Tất cả script tự động hoá
 │   ├── cai-dat-tat-ca.sh        #   Cài toàn bộ, 1 lệnh
 │   ├── nap-du-lieu-nen.sh       #   Nạp danh mục nghiệp vụ
@@ -172,6 +172,8 @@ pinedesk/
     ├── README.md                # ★ Tài liệu tổng hợp toàn diện (nghiệp vụ, kiến trúc, 6 tầng phòng thủ, cài đặt, demo, phản biện)
     ├── BAO-CAO-THUC-TAP.md      #   Báo cáo thực tập tốt nghiệp (bản in)
     ├── CAI-TIEN-CHAT-LUONG.md   # ★ Nhật ký cải tiến chất lượng (vấn đề - cách sửa - bằng chứng)
+    ├── SO-LIEU-THUC-TE-DLU.md   # ★ Số liệu ITC & Trường (có nguồn) — thay cho giả định
+    ├── DO-TAI.md                # ★ Kết quả đo tải (Nginx/GLPI/ghi phiếu)
     ├── slide-bao-ve.html        # ★ 8 slide bảo vệ, chạy ngoại tuyến
     └── anh-giao-dien/           # Ảnh chụp giao diện thực tế
 ```
@@ -239,6 +241,8 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 | [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 8 slide bảo vệ, tự chứa, chạy được khi không có mạng |
 | [`BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in) |
 | [`CAI-TIEN-CHAT-LUONG.md`](tai-lieu/CAI-TIEN-CHAT-LUONG.md) | **Nhật ký cải tiến chất lượng**: 13 vấn đề phát hiện khi rà soát, cách sửa và bằng chứng kiểm chứng (dùng để viết phần "Kiểm thử và cải tiến" của báo cáo) |
+| [`SO-LIEU-THUC-TE-DLU.md`](tai-lieu/SO-LIEU-THUC-TE-DLU.md) | **Số liệu thực tế về ITC & Trường ĐH Đà Lạt** (có nguồn, có ngày truy cập): 5 nhân sự ITC, 14.500+ người học, 16 khoa, benchmark EDUCAUSE, xác nhận Trường chưa có hệ thống helpdesk |
+| [`DO-TAI.md`](tai-lieu/DO-TAI.md) | **Kết quả đo tải**: Nginx ~54.000 req/s, GLPI bão hoà ~100 req/s, ghi phiếu ~50 phiếu/s — kèm phân tích ý nghĩa với quy mô Trường |
 
 ## Kiểm thử tự động (CI)
 

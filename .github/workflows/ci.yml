@@ -767,20 +767,20 @@ jobs:
       - name: Co che chan han muc phai hoat dong that
         run: |
           # Vua chay harness (exit != 0 neu co muc that bai), vua bat con so
-          # diem kiem in ra phai dung 42 - khop con so neu trong README/
+          # diem kiem in ra phai dung 46 - khop con so neu trong README/
           # tai-lieu. Neu ai them/bot check() ma quen cap nhat tai lieu
           # (hoac nguoc lai), job nay do ngay (cung triet ly voi buoc
           # "Tu dien Viet hoa phai du 556 + 212" ben duoi).
           OUT=$(docker exec -u www-data pinedesk-glpi \
             php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php)
           echo "$OUT"
-          echo "$OUT" | grep -qE 'KET QUA: [0-9]+/42 dat' \
-            || { echo "[LOI] Harness khong bao dung 42 diem kiem"; exit 1; }
-          echo "[OK] Harness chay that, 42/42 diem kiem dat"
+          echo "$OUT" | grep -qE 'KET QUA: [0-9]+/46 dat' \
+            || { echo "[LOI] Harness khong bao dung 46 diem kiem"; exit 1; }
+          echo "[OK] Harness chay that, 46/46 diem kiem dat"
 
       # ----------------------------------------------------------------------
       # RACE CONDITION: GET_LOCK phai chong duoc TOCTOU that su (khong chi
-      # kiem tra don luong). Harness 42 diem chi chay tung request tuan tu;
+      # kiem tra don luong). Harness 46 diem chi chay tung request tuan tu;
       # buoc nay moi chung minh rang khoa MariaDB GET_LOCK ngan duoc 2 request
       # CUNG LUC cua cung tai khoan sat tran gioi han phieu mo.
       # ----------------------------------------------------------------------
@@ -870,7 +870,7 @@ jobs:
       # ----------------------------------------------------------------------
       # CHAN HAN MUC QUA DUONG HTTP THAT (khong chi in-process)
       # ----------------------------------------------------------------------
-      # Harness 42 diem goi thang `new Ticket()->add()` in-process — KHONG qua
+      # Harness 46 diem goi thang `new Ticket()->add()` in-process — KHONG qua
       # Nginx/phien HTTP/Session::callAsSystem nhu duong nguoi dung that. Buoc
       # nay gui phieu qua /Form/SubmitAnswers bang Chrome that va khang dinh
       # phieu KHONG duoc ghi khi tai khoan da cham tran phieu mo.

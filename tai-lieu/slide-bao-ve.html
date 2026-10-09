@@ -205,7 +205,7 @@
     <li><b>Cài bằng một lệnh</b> — 6 bước, báo kết quả từng bước</li>
     <li><b>CI tự kiểm 6 nhóm</b>: cú pháp · ShellCheck · cấu hình · SAN ·
         bảo mật · <b>smoke test khởi động thật 4 container</b></li>
-    <li><b>Kiểm thử chống lạm dụng trong CI</b> — harness 42 điểm kiểm chạy trên
+    <li><b>Kiểm thử chống lạm dụng trong CI</b> — harness 46 điểm kiểm chạy trên
         CSDL thật: vượt hạn mức bị chặn, phiếu trùng bị chặn, pipeline đỏ nếu cơ chế bị gỡ</li>
     <li><b>Hệ thống chạy ngoại tuyến hoàn toàn</b>: phông chữ nhúng trực tiếp, không phụ thuộc CDN</li>
   </ul>
@@ -221,7 +221,7 @@
       <span>vấn đề phát hiện khi rà soát (P0/P1/P2)</span>
     </div>
     <div class="so reu">
-      <b>42/42</b>
+      <b>46/46</b>
       <span>điểm kiểm chống lạm dụng — chốt bằng CI</span>
     </div>
     <div class="so ho">
@@ -237,8 +237,8 @@
     <li><b class="cam">P2</b> — đưa kiểm thử end-to-end vào CI; quy ước định dạng chung</li>
   </ul>
   <div class="ghi-chu vang" style="margin-top:1.2em">
-    <b>Bài học đắt nhất:</b> tài liệu ghi harness có "42 điểm kiểm" nhưng đếm bằng
-    công cụ chỉ thấy ít hơn. Suýt sửa cho khớp — kiểm chứng kỹ mới biết <b>42 là đúng</b>
+    <b>Bài học đắt nhất:</b> tài liệu ghi harness có N điểm kiểm nhưng đếm bằng
+    công cụ chỉ thấy ít hơn. Suýt sửa cho khớp — kiểm chứng kỹ mới biết <b>con số đó là đúng</b>
     (một lời gọi nằm trong vòng lặp 6 tài khoản, một số khác trong khối điều kiện). Từ đó thêm một cửa CI tự chốt con số,
     để số liệu tài liệu không bao giờ lệch khỏi thực tế.
   </div>

@@ -265,6 +265,94 @@ function plugin_pinedesk_log_created($item): void
     } catch (\Throwable $e) {
         Toolbox::logInFile('pinedesk', 'Loi ghi nhat ky tao phieu: ' . $e->getMessage(), true);
     }
+
+    // ---- T5: nhắc soát xét ưu tiên cho phiếu quan trọng ---------------------
+    // Lỗi ở bước phụ này KHÔNG được làm hỏng việc tạo phiếu (fail-safe).
+    try {
+        plugin_pinedesk_review_high_priority($item, $uid);
+    } catch (\Throwable $e) {
+        Toolbox::logInFile('pinedesk', 'Loi T5 soat xet uu tien: ' . $e->getMessage(), true);
+    }
+}
+
+/**
+ * T5 — Tự động hoá tối thiểu tầng "kiểm duyệt/soát xét ưu tiên".
+ *
+ * BỐI CẢNH:
+ *   Mức ưu tiên do người gửi tự chọn chỉ là ĐỀ XUẤT. Quy trình cũ yêu cầu kỹ
+ *   thuật viên tự đọc từng phiếu để xác nhận lại mức độ trước khi giao việc —
+ *   nhưng không có gì NHẮC họ làm việc đó, nên phiếu quan trọng dễ bị chìm.
+ *
+ * CÁCH LÀM (tự động hoá phần "nhắc", giữ phần "quyết định" cho con người):
+ *   Với phiếu có độ ưu tiên CAO hoặc RẤT CAO, tự thêm một ghi chú NỘI BỘ
+ *   (private followup) nhắc kỹ thuật viên soát xét lại mức ưu tiên trước khi
+ *   giao việc. Đây là tầng T5 ở mức tối thiểu: hệ thống chủ động gọi ý, con
+ *   người vẫn là người quyết định.
+ *
+ * VÌ SAO KHÔNG TỰ ĐỘNG ĐỔI ƯU TIÊN:
+ *   Tự đổi mức ưu tiên của người dùng có thể sai nghiệp vụ (hệ thống không đủ
+ *   ngữ cảnh). Nhắc để con người xác nhận là cách trung thực và an toàn hơn.
+ *
+ * GIỚI HẠN CÓ Ý THỨC:
+ *   - Chỉ nhắc, KHÔNG chặn. Phiếu vẫn vào hàng đợi bình thường.
+ *   - Chỉ áp cho phiếu ưu tiên >= 4 (Cao, Rất cao).
+ *   - Không sửa lõi GLPI: dùng API công khai ITILFollowup::add().
+ *
+ * @param Ticket $ticket Phiếu vừa tạo
+ * @param int    $uid    Người tạo (để không tự nhắc chính KTV/quản trị)
+ * @return void
+ */
+function plugin_pinedesk_review_high_priority($ticket, int $uid): void
+{
+    if (!($ticket instanceof Ticket)) {
+        return;
+    }
+
+    $urgency = (int) ($ticket->fields['urgency'] ?? 0);
+    $priority = (int) ($ticket->fields['priority'] ?? 0);
+
+    // Chỉ nhắc khi ưu tiên (hoặc khẩn cấp) đạt mức Cao (4) trở lên.
+    if ($urgency < 4 && $priority < 4) {
+        return;
+    }
+
+    $tickets_id = (int) $ticket->getID();
+    if ($tickets_id <= 0) {
+        return;
+    }
+
+    // Người tạo có quyền cập nhật phiếu (KTV/quản trị) thì họ là người xử lý —
+    // không cần nhắc chính họ. Đọc quyền từ hồ sơ trong phiên (callAsSystem
+    // không đổi biến này — xem ghi chú đầu file).
+    $ticket_right = (int) ($_SESSION['glpiactiveprofile']['ticket'] ?? 0);
+    if (($ticket_right & UPDATE) === UPDATE) {
+        return;
+    }
+
+    // Không thêm trùng: nếu phiếu đã có ghi chú T5 (do add lại/lặp) thì bỏ qua.
+    global $DB;
+    $res = $DB->doQuery(
+        "SELECT COUNT(*) AS n FROM glpi_itilfollowups
+          WHERE itemtype = 'Ticket' AND items_id = " . $tickets_id . "
+            AND content LIKE '%[T5-SOAT-XET]%'"
+    );
+    $row = $res ? $DB->fetchAssoc($res) : null;
+    if ((int) ($row['n'] ?? 0) > 0) {
+        return;
+    }
+
+    $muc = $urgency >= 5 ? 'Rất cao' : 'Cao';
+    $noi_dung = '[T5-SOAT-XET] Phiếu này được người gửi đánh dấu mức ưu tiên '
+        . $muc . '. Đề nghị kỹ thuật viên soát xét lại mức độ khẩn cấp thực tế '
+        . 'trước khi giao việc (đây là mức người gửi đề xuất, không phải kết luận).';
+
+    $followup = new ITILFollowup();
+    $followup->add([
+        'itemtype' => 'Ticket',
+        'items_id' => $tickets_id,
+        'content'  => $noi_dung,
+        'is_private' => 1,   // ghi chú nội bộ, người gửi không thấy
+    ]);
 }
 
 /**

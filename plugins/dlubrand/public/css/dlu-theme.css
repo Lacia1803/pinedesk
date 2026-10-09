@@ -116,6 +116,25 @@
     unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
 }
 
+
+/* --- Literata: Tiêu đề trang trọng & biên tập (Display Serif - Claude Warmth) --- */
+@font-face {
+    font-family: 'Literata';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/literata-latin.woff2") format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Literata';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("/plugins/dlubrand/fonts/literata-vietnamese.woff2") format('woff2');
+    unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
 /* --- IBM Plex Mono: mã, số liệu --- */
 @font-face {
     font-family: 'IBM Plex Mono';
@@ -179,6 +198,15 @@
     --tblr-font-sans-serif: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont,
         "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
+    /* --- Hệ thống phông chữ chuẩn hóa (Apple Sans + Claude Editorial Display) --- */
+    --dlu-font-display: "Literata", Georgia, "Times New Roman", serif;
+    --dlu-font-sans: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --dlu-font-mono: "IBM Plex Mono", SFMono-Regular, Consolas, Menlo, monospace;
+
+    /* Cam đất đậm chuẩn tương phản WCAG AA >= 4.5:1 cho nút bấm chữ trắng */
+    --dlu-cam-cta: #BA5B08;
+    --dlu-press-scale: scale(0.98);
+
     /* --- Màu gốc lấy từ logo / thiên nhiên Đà Lạt --- */
     --dlu-cam: #F08418;          /* cam đất  — mặt trời trong logo */
     --dlu-cam-dam: #D97210;      /* cam đất đậm */
@@ -239,18 +267,27 @@
        Mọi chỗ trong file phải dùng var(--dlu-giay...) và var(--dlu-muc...),
        TUYỆT ĐỐI không viết thẳng mã màu nền/chữ — viết thẳng thì chế độ tối
        sẽ nửa sáng nửa tối, đúng lỗi đã gặp. */
-    --dlu-giay: #F7F8F2;             /* nền trang */
+    --dlu-giay: #FAF9F5;             /* nền trang sương ấm cao nguyên (Claude warm canvas) */
     --dlu-giay-nhat: #FCFDF8;        /* nền nổi lên: thanh trên, hộp thoại */
-    --dlu-giay-vua: #F1F3EA;         /* nền ô nhập, vùng chìm */
-    --dlu-muc: #26301A;              /* mực chính */
+    --dlu-giay-vua: #F3EFE6;         /* nền ô nhập, vùng chìm (warm surface-muted) */
+    --dlu-muc: #26301A;              /* mực chính: xanh thông sẫm */
     --dlu-muc-rgb: 38, 48, 26;       /* kênh RGB của mực — dùng cho rgba() */
-    --dlu-muc-mo: #6E7761;           /* mực phụ, nhãn, chú thích */
-    --dlu-muc-nhat: #97A08A;         /* mực rất nhạt, chữ mờ */
-    --dlu-ke: rgba(38, 48, 26, 0.13); /* đường kẻ mảnh */
+    --dlu-muc-mo: #6C7262;           /* mực phụ, nhãn, chú thích */
+    --dlu-muc-nhat: #9DA393;         /* mực rất nhạt, chữ mờ */
+    --dlu-ke: rgba(38, 48, 26, 0.08); /* đường kẻ siêu mảnh (Apple hairline) */
+    --dlu-ke-dam: rgba(38, 48, 26, 0.16); /* đường kẻ phân cách đậm */
 
-    /* --- Bo góc: thang bậc có chủ ý, không dùng một cỡ cho mọi thứ --- */
-    --dlu-bo-nho: 3px;               /* nhãn, ô nhập, nút nhỏ */
-    --dlu-bo-vua: 6px;               /* thẻ, bảng, khối nội dung */
+    /* Hiệu ứng bóng đổ tinh tế (Apple Whisper Elevation) */
+    --dlu-shadow-whisper: 0 1px 3px rgba(38, 48, 26, 0.04), 0 4px 12px -2px rgba(38, 48, 26, 0.05);
+    --dlu-shadow-float: 0 12px 32px -6px rgba(38, 48, 26, 0.09);
+    --dlu-focus-ring: 0 0 0 2px var(--dlu-giay, #FAF9F5), 0 0 0 4px var(--dlu-cam);
+
+    /* --- Bo góc: thang bậc chuẩn hóa --- */
+    --dlu-bo-nho: 4px;               /* nhãn, tag nhỏ */
+    --dlu-bo-vua: 8px;               /* nút, ô nhập, dropdown */
+    --dlu-bo-lon: 12px;              /* thẻ card, dashboard */
+    --dlu-bo-modal: 16px;            /* modal, login card */
+    --dlu-bo-pill: 9999px;           /* pill button, badge chip */
 
     /* --- Trường đường bình độ vẽ trên nền thanh menu ---
        Đây là hình dạng bản đồ của chính những dãy đồi ở trang đăng nhập, nên
@@ -676,19 +713,17 @@ body.welcome-anonymous {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Thẻ đăng nhập: trắng ngà, bo góc lớn, đổ bóng sâu như đang lơ lửng trước
-   dãy đồi phía sau. */
+/* Thẻ đăng nhập: trắng ngà sương ấm, bo góc lớn, viền hairline thanh mảnh
+   kết hợp đổ bóng nổi tinh tế (Claude Warm Canvas + Apple Floating Card). */
 body.welcome-anonymous .card {
     position: relative;
     z-index: 3;
-    background: rgba(255, 255, 254, 0.97) !important;
-    border: 1px solid rgba(var(--dlu-primary-rgb), 0.16) !important;
-    border-radius: 16px !important;
-    box-shadow:
-        0 34px 68px -22px rgba(var(--dlu-primary-dark-rgb), 0.38),
-        0 12px 28px -14px rgba(var(--dlu-primary-dark-rgb), 0.20),
-        0 2px 6px rgba(var(--dlu-primary-dark-rgb), 0.06) !important;
-    backdrop-filter: blur(6px);
+    background: rgba(255, 255, 253, 0.95) !important;
+    border: 1px solid var(--dlu-ke-dam, rgba(38, 48, 26, 0.16)) !important;
+    border-radius: var(--dlu-bo-modal, 16px) !important;
+    box-shadow: var(--dlu-shadow-float, 0 12px 32px -6px rgba(38, 48, 26, 0.12)) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
 }
 
 /* Khối chứa thẻ cũng phải nổi lên trên cảnh đồi.
@@ -706,7 +741,7 @@ body.welcome-anonymous .container-tight {
 }
 
 body.welcome-anonymous .card-body {
-    padding: 2rem 2.25rem !important;
+    padding: 2.25rem 2.25rem !important;
 }
 
 /* Khung chứa trang đăng nhập */
@@ -714,43 +749,60 @@ body.welcome-anonymous .page-anonymous {
     background: transparent !important;
 }
 
-/* Tiêu đề trang đăng nhập */
+/* Tiêu đề trang đăng nhập: phông Literata biên tập trang trọng */
 body.welcome-anonymous h1,
 body.welcome-anonymous .card-title {
-    color: var(--dlu-primary-dark) !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.2px;
+    font-family: var(--dlu-font-display, "Literata", Georgia, serif) !important;
+    color: var(--dlu-reu-dam, #3D4E17) !important;
+    font-size: 1.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.025em !important;
+    line-height: 1.25 !important;
 }
 
-/* Nút đăng nhập: gradient theo bảng màu, đổ bóng màu */
+/* Nút đăng nhập: dạng viên thuốc (Pill), cam đất WCAG AA, phản hồi nén nhẹ */
 body.welcome-anonymous .btn-primary,
 body.welcome-anonymous button[type="submit"] {
-    background: linear-gradient(135deg,
-        var(--dlu-btn-from) 0%,
-        var(--dlu-btn-to) 100%) !important;
-    border: none !important;
-    border-radius: 9px !important;
+    background: var(--dlu-cam-cta, #BA5B08) !important;
+    border: 1px solid var(--dlu-cam-cta, #BA5B08) !important;
+    border-radius: var(--dlu-bo-pill, 9999px) !important;
+    color: #FFFFFF !important;
     font-weight: 600 !important;
-    letter-spacing: 0.2px;
-    padding: 0.6rem 1rem !important;
-    box-shadow: 0 4px 14px rgba(var(--dlu-primary-rgb), 0.32) !important;
-    transition: all 0.18s ease;
+    letter-spacing: -0.01em !important;
+    padding: 0.65rem 1.5rem !important;
+    box-shadow: 0 2px 8px rgba(var(--dlu-cam-rgb), 0.28) !important;
+    transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), background-color 160ms ease, box-shadow 160ms ease !important;
 }
 
 body.welcome-anonymous .btn-primary:hover,
 body.welcome-anonymous button[type="submit"]:hover {
-    background: linear-gradient(135deg,
-        var(--dlu-btn-from-hover) 0%,
-        var(--dlu-btn-to-hover) 100%) !important;
-    box-shadow: 0 6px 20px rgba(var(--dlu-primary-rgb), 0.42) !important;
+    background: #9E4D06 !important;
+    border-color: #9E4D06 !important;
+    box-shadow: 0 4px 14px rgba(var(--dlu-cam-rgb), 0.38) !important;
     transform: translateY(-1px);
 }
 
-/* Ô nhập liệu trên trang đăng nhập */
+body.welcome-anonymous .btn-primary:active,
+body.welcome-anonymous button[type="submit"]:active {
+    transform: var(--dlu-press-scale, scale(0.98)) !important;
+}
+
+/* Ô nhập liệu trên trang đăng nhập: nền ngà dịu mắt, viền hairline */
 body.welcome-anonymous .form-control,
 body.welcome-anonymous .form-select {
-    border-radius: 9px !important;
-    border-color: rgba(var(--dlu-primary-rgb), 0.24) !important;
+    border-radius: var(--dlu-bo-vua, 8px) !important;
+    border: 1px solid var(--dlu-ke-dam, rgba(38, 48, 26, 0.16)) !important;
+    background-color: var(--dlu-giay-vua, #F3EFE6) !important;
+    color: var(--dlu-muc, #26301A) !important;
+    transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease !important;
+}
+
+body.welcome-anonymous .form-control:focus,
+body.welcome-anonymous .form-select:focus {
+    background-color: #FFFFFF !important;
+    border-color: var(--dlu-cam) !important;
+    box-shadow: var(--dlu-focus-ring) !important;
+}
     padding: 0.6rem 0.9rem !important;
     background: #FDFEFB !important;
 }
@@ -1074,22 +1126,40 @@ header.navbar .form-control {
  *  Nút phẳng, bo nhỏ, không đổ bóng màu. Nút chính là khối xanh rêu đặc.
  * ============================================================================= */
 .btn {
-    border-radius: var(--dlu-bo-nho) !important;
+    font-family: var(--dlu-font-sans);
+    border-radius: var(--dlu-bo-vua, 8px) !important;
     font-weight: 500;
+    letter-spacing: -0.01em;
     box-shadow: none !important;
+    transition: transform 120ms cubic-bezier(0.2, 0, 0, 1), background-color 140ms ease, border-color 140ms ease !important;
+}
+
+/* Phản hồi xúc giác vi mô chuẩn Apple: nén nhẹ 0.98 khi bấm */
+.btn:active {
+    transform: var(--dlu-press-scale, scale(0.98)) !important;
 }
 
 .btn-primary {
-    background: var(--dlu-primary) !important;
-    border-color: var(--dlu-primary) !important;
-    color: #fff !important;
+    background: var(--dlu-cam-cta, #BA5B08) !important;
+    border-color: var(--dlu-cam-cta, #BA5B08) !important;
+    color: #FFFFFF !important;
 }
 
 .btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active {
-    background: var(--dlu-primary-dark) !important;
-    border-color: var(--dlu-primary-dark) !important;
+.btn-primary:focus {
+    background: #9E4D06 !important;
+    border-color: #9E4D06 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-primary:focus-visible {
+    box-shadow: var(--dlu-focus-ring) !important;
+}
+
+.btn-pill {
+    border-radius: var(--dlu-bo-pill, 9999px) !important;
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
 }
 
 /* Nút phụ: chỉ còn đường viền mảnh */
@@ -1142,23 +1212,36 @@ header.navbar .form-control {
 
 /* Khối có nền riêng (thông báo, hộp thoại trong trang) vẫn cần một vỏ nhẹ */
 .alert,
-.modal-content,
 .dropdown-menu:not(.navbar-vertical .dropdown-menu) {
-    border-radius: var(--dlu-bo-vua) !important;
+    border-radius: var(--dlu-bo-vua, 8px) !important;
     border: 1px solid var(--dlu-ke) !important;
-    box-shadow: none !important;
+    box-shadow: var(--dlu-shadow-whisper) !important;
 }
 
+/* Modal hộp thoại (QR Code print, popup xác nhận): Apple Sheet dialog */
 .modal-content {
-    background: var(--dlu-giay-nhat) !important;
+    background: var(--dlu-giay-nhat, #FCFDF8) !important;
+    border-radius: var(--dlu-bo-modal, 16px) !important;
+    border: 1px solid var(--dlu-ke-dam, rgba(38, 48, 26, 0.16)) !important;
+    box-shadow: var(--dlu-shadow-float) !important;
+}
+
+.modal-header .modal-title {
+    font-family: var(--dlu-font-display, "Literata", Georgia, serif) !important;
+    font-size: 1.15rem !important;
+    letter-spacing: -0.02em !important;
+    color: var(--dlu-reu-dam, #3D4E17) !important;
 }
 
 /* Tiêu đề trang: chữ đậm, không tô màu thương hiệu */
 .page-title,
-h1.page-header-title {
-    color: var(--dlu-muc) !important;
-    font-weight: 700;
-    letter-spacing: -0.3px;
+h1.page-header-title,
+.card-header .card-title,
+.dashboard-card-title {
+    font-family: var(--dlu-font-display, "Literata", Georgia, serif) !important;
+    color: var(--dlu-reu-dam, #3D4E17) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
 }
 
 /* =============================================================================
@@ -1175,13 +1258,13 @@ h1.page-header-title {
     background: transparent !important;
     color: var(--dlu-muc-mo) !important;
     border-top: none !important;
-    border-bottom: 1px solid rgba(var(--dlu-primary-rgb), 0.42) !important;
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--dlu-ke-dam, rgba(38, 48, 26, 0.16)) !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
 }
 
 .table tbody td {
@@ -1200,14 +1283,27 @@ h1.page-header-title {
 code,
 kbd,
 samp,
-pre {
-    font-family: "IBM Plex Mono", "SFMono-Regular", Consolas,
-        "Liberation Mono", Menlo, "Courier New", monospace;
-    font-size: 0.86em;
-    color: var(--dlu-primary-dark);
-    background: rgba(var(--dlu-primary-rgb), 0.08);
-    border-radius: var(--dlu-bo-nho);
-    padding: 0.1em 0.36em;
+pre,
+.metric-counter,
+.dashboard-number,
+.card-value,
+.card-body .display-5,
+.card-body .display-6 {
+    font-family: var(--dlu-font-mono, "IBM Plex Mono", monospace) !important;
+    font-variant-numeric: tabular-nums !important;
+    font-size: 0.88em;
+    color: var(--dlu-muc);
+    border-radius: var(--dlu-bo-nho, 4px);
+    padding: 0.12em 0.4em;
+}
+
+/* Badge dạng capsule chip bo tròn chuẩn Apple */
+.badge,
+.badge_block {
+    border-radius: var(--dlu-bo-pill, 9999px) !important;
+    padding: 0.22rem 0.65rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.01em;
 }
 
 /* Số liệu trong bảng: dùng chữ số đều để cột số không nhấp nhô */

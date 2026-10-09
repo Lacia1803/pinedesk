@@ -7,6 +7,13 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Thay đổi
 
+- **Nâng cấp toàn diện giao diện & Frontend (Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt).**
+  - **Tệp đặc tả thiết kế:** Bổ sung `DESIGN.md` chuẩn Impeccable tại gốc dự án, tổng hợp quy chuẩn token, hierarchy và rules.
+  - **Typography biên tập:** Nhúng phông serif `Literata` biến thiên (.woff2 nội bộ Latin + Vietnamese, weights 400..700) cho tiêu đề trang trọng (Đăng nhập, Dashboard, Modal); kết hợp `Be Vietnam Pro` cho nội dung thao tác và `IBM Plex Mono` căn thẳng hàng số liệu (tabular-nums) và mã định danh.
+  - **Bề mặt sương ấm (Claude Canvas):** Chuyển nền trang sang màu ngà sương ấm `#FAF9F5`, loại bỏ nền xám lạnh mặc định của Tabler; các thẻ nội dung dùng viền siêu mảnh 1px hairline (`rgba(38, 48, 26, 0.08)`) và độ nổi êm dịu (whisper elevation).
+  - **Vi hành động chuẩn Apple:** Phản hồi xúc giác bấm nén `transform: scale(0.98)` trên mọi nút bấm; viền tiêu điểm focus ring 2 tầng sắc nét; huy hiệu trạng thái bo tròn viên thuốc (capsule pill chips); nút chính cam đất `#BA5B08` đạt chuẩn tương phản khắt khe WCAG AA (>= 4.5:1).
+  - **Màn hình đăng nhập:** Tiêu đề Literata trang trọng, khung thẻ kính mờ sương ấm 16px, nút bấm pill cam đất dẫn hướng thao tác.
+  - **Chụp lại đồng bộ 16 ảnh minh chứng** trong `tai-lieu/anh-giao-dien/` bằng Playwright.
 - **Tự động hoá tối thiểu tầng T5 (kiểm duyệt/soát xét ưu tiên).** Trước đây T5
   chỉ là quy trình giấy (kỹ thuật viên tự nhớ soát lại ưu tiên). Nay plugin tự
   thêm một ghi chú **nội bộ** (private followup) cho phiếu có ưu tiên Cao/Rất cao

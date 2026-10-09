@@ -133,6 +133,7 @@ pinedesk/
 ├── .env                         # Biến môi trường (chứa mật khẩu)
 ├── start.sh                     # Khởi động hệ thống
 ├── Makefile                     # Lệnh thường dùng: make kiem-tra / smoke / up...
+├── DESIGN.md                    # ★ Đặc tả hệ thống thiết kế giao diện (Apple + Claude + Đà Lạt)
 ├── package.json                 # Khai báo playwright-core (cho script chụp ảnh/kiểm thử)
 ├── package-lock.json            # Ghim phiên bản (npm ci tái lập được)
 ├── requirements.txt             # Thư viện Python cho script sinh mã QR

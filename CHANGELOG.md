@@ -20,6 +20,16 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
   của người dùng tự phục vụ, nhắc kỹ thuật viên soát xét lại mức độ trước khi
   giao việc. Có ý thức KHÔNG tự đổi ưu tiên (hệ thống không đủ ngữ cảnh) — chỉ
   nhắc để con người quyết. Thêm mục kiểm 4f; harness lên **46 điểm kiểm**.
+- **Mở rộng từ điển Việt hoá lên 667 thuật ngữ đơn + 212 mục số nhiều (tăng 111 thuật ngữ mới).**
+  Việt hoá toàn bộ các nhãn tìm kiếm (Clear search, Filter list, Close the panel, Manage all saved searches...),
+  các thuộc tính tìm kiếm nâng cao (Answers, Parent/Child tickets, External ID, Encryption, Technician in charge...),
+  và các tab chi tiết thiết bị (Add a domain, Add a line, Clone, Create template, Virtualization...). Nâng độ phủ
+  tiếng Việt đo được từ 32,0% lên **33,6%** (2.186 trên 6.511 chuỗi).
+- **Đồng bộ toàn diện hệ thống tài liệu và bằng chứng:**
+  - Cập nhật liên kết chéo giữa `README.md`, `DESIGN.md`, `tai-lieu/README.md`, `BAO-CAO-THUC-TAP.md`,
+    `CAI-TIEN-CHAT-LUONG.md`, `SO-LIEU-THUC-TE-DLU.md`, `DO-TAI.md`, và `slide-bao-ve.html`.
+  - Cập nhật câu trả lời E4 trong `tai-lieu/README.md` bằng số đo tải định lượng thực tế.
+  - Đồng bộ danh mục ảnh minh chứng thực tế (chụp lại 16 ảnh mới nhất bằng Playwright).
 - **Mở rộng T4 (chống trùng) để bắt trùng theo NỘI DUNG, không chỉ thiết bị/loại.**
   Lỗ hổng thật được tìm ra khi phản biện: T4 cũ chỉ chặn khi cùng thiết bị hoặc
   cùng loại sự cố + vị trí, nên trong 5 phiếu được phép, người dùng vẫn gửi được
@@ -120,7 +130,7 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - **CI: chốt số điểm kiểm của harness `kiem-thu-han-muc.php`.** Bước kiểm chạy
   harness rồi bắt output phải khớp `KET QUA: n/N dat` — ai thêm/bớt `check()`
   mà quên cập nhật tài liệu (hoặc ngược lại) thì pipeline đỏ, cùng triết lý với
-  cửa "Từ điển Việt hoá phải đủ 556 + 212". Con số N ban đầu là 37; sau khi mở
+  cửa "Từ điển Việt hoá phải đủ 667 + 212". Con số N ban đầu là 37; sau khi mở
   rộng T4 (chống trùng theo nội dung) thành **42**, rồi **46** khi thêm T5. Ghi chú đầu
   harness nêu rõ cách đếm để không ai "sửa" nhầm.
 - **`docker-compose.yml`: giới hạn log cho mọi service** (anchor `x-logging`:

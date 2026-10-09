@@ -120,7 +120,7 @@ nằm trong vòng lặp tạo **6 user tạm**, và một số lời gọi khác
 1. Ghi chú cách đếm ngay đầu file harness để người sau không "sửa" nhầm.
 2. **Thêm một cửa CI** chốt con số: chạy harness rồi bắt output phải khớp
    `KET QUA: n/N dat` — ai thêm/bớt `check()` mà quên cập nhật tài liệu thì
-   pipeline đỏ (cùng triết lý với cửa "Từ điển Việt hoá phải đủ 556 + 212").
+   pipeline đỏ (cùng triết lý với cửa "Từ điển Việt hoá phải đủ 667 + 212").
 
 **Bằng chứng.** Chạy thật trên hệ thống đang sống:
 

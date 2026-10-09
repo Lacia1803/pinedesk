@@ -4,6 +4,20 @@ Hệ thống Hỗ trợ Kỹ thuật và Quản lý Tài sản Công nghệ Thô
 
 Tài liệu này tổng hợp toàn diện các nội dung về bài toán nghiệp vụ, cơ cấu tổ chức Đại học Đà Lạt, kiến trúc kỹ thuật ngoài lõi, cơ chế phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện và Việt hóa, quản lý thiết bị bằng mã QR, hướng dẫn triển khai vận hành, kịch bản bảo vệ đồ án và bộ 25 câu hỏi phản biện.
 
+### Danh mục tài liệu đồng bộ của dự án
+
+| Tệp tài liệu | Vai trò và nội dung chính |
+|---|---|
+| [`../README.md`](../README.md) | Tài liệu tổng quan dự án, kiến trúc tổng thể và hướng dẫn cài đặt 1 lệnh |
+| [`../DESIGN.md`](../DESIGN.md) | Đặc tả hệ thống thiết kế giao diện (Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt) |
+| [`README.md`](README.md) | **Tài liệu tổng hợp toàn diện** (10 mục lớn, cơ sở kỹ thuật và nghiệp vụ chi tiết) |
+| [`BAO-CAO-THUC-TAP.md`](BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp hoàn chỉnh (định dạng in ấn, 5 chương + 5 phụ lục) |
+| [`CAI-TIEN-CHAT-LUONG.md`](CAI-TIEN-CHAT-LUONG.md) | Nhật ký cải tiến chất lượng toàn diện và kết quả phản biện đa tác nhân |
+| [`SO-LIEU-THUC-TE-DLU.md`](SO-LIEU-THUC-TE-DLU.md) | Khảo sát số liệu thực tế có nguồn chính thức về ITC & Trường ĐH Đà Lạt (BCTN 2025) |
+| [`DO-TAI.md`](DO-TAI.md) | Báo cáo đo tải thực tế hệ thống (wrk): Nginx ~54.000 req/s, GLPI ~100 req/s, tạo phiếu ~50/s |
+| [`slide-bao-ve.html`](slide-bao-ve.html) | Bản trình chiếu bảo vệ đồ án (8 slide tự chứa, chạy ngoại tuyến 100%) |
+| [`../CHANGELOG.md`](../CHANGELOG.md) | Nhật ký thay đổi qua từng phiên bản theo chuẩn Keep a Changelog |
+
 ---
 
 ## Mục lục
@@ -64,7 +78,7 @@ Hotline: 0913 069 978 · Email: itc@dlu.edu.vn · Địa chỉ: Số 01 Phù Đ�
 | Quản lý hồ sơ thiết bị, vị trí, phần mềm | Không | Có | Có | Có, nạp sẵn danh mục DLU |
 | Sinh và in nhãn mã QR vật lý dán máy | Không | Cần plugin | Cần tiện ích mở rộng | Tích hợp plugin Barcode đã vá lỗi + script Python |
 | Nhận diện thương hiệu trường | Không | Mặc định xám/xanh | Tùy biến phức tạp | Bảng màu Đà Lạt, logo DLU, CSS ngoài lõi |
-| Giao diện tiếng Việt hoàn chỉnh | Phụ thuộc trình duyệt | Dịch sẵn khoảng 32% | Đa ngôn ngữ có phí | Gộp bản dịch 32,0%, 100% nhãn trạng thái chính |
+| Giao diện tiếng Việt hoàn chỉnh | Phụ thuộc trình duyệt | Dịch sẵn khoảng 32% | Đa ngôn ngữ có phí | Gộp bản dịch 33,6%, 100% nhãn trạng thái chính |
 | Phòng thủ chống spam nộp phiếu | Hạn chế (chỉ Captcha) | Không có hạn mức tài khoản | Có cấu hình nâng cao | 6 tầng phòng thủ (Nginx, trần 5 phiếu, chống trùng 30m) |
 | Chi phí bản quyền và làm chủ dữ liệu | Miễn phí nhưng dữ liệu ngoài | Mã nguồn mở miễn phí | Rất cao hàng năm | Mã nguồn mở, tự lưu trữ nội bộ tại trường |
 
@@ -183,7 +197,7 @@ Nguyên tắc kiến trúc cốt lõi: 100% các thành phần tùy biến nằm
 | Khởi động hệ thống | Cần cài thủ công từng bước web | Cài đặt tự động bằng một lệnh `bash scripts/cai-dat-tat-ca.sh` | Tự động hóa toàn bộ quá trình thiết lập |
 | Cổng giao tiếp mạng | Chạy HTTP không mã hóa hoặc tự cấu hình | Nginx gateway HTTPS cổng 8443, SSL tích hợp SAN | Bảo mật kết nối, hỗ trợ mạng nội bộ không lỗi cert |
 | Nhận diện thương hiệu | Giao diện chuẩn Tabler xám/xanh | Bảng màu Đà Lạt (xanh rêu, cam đất) + logo DLU | Bộ nhận diện thương hiệu nhất quán qua CSS ngoài lõi |
-| Ngôn ngữ tiếng Việt | Gói `vi_VN.mo` chính thức chỉ đạt ~32% | Lớp phủ gộp bổ sung 556 thuật ngữ + 212 mục số nhiều | Dịch 100% các thẻ trạng thái và menu thường dùng |
+| Ngôn ngữ tiếng Việt | Gói `vi_VN.mo` chính thức chỉ đạt ~32% | Lớp phủ gộp bổ sung 667 thuật ngữ + 212 mục số nhiều | Dịch 100% các thẻ trạng thái và menu thường dùng |
 | Cạm bẫy dịch số nhiều `_n()` | Để nguyên tiếng Anh do khóa `\0` | Script gộp catalog xử lý trực tiếp khóa ghép `\0` | Khắc phục triệt để lỗi thẻ số nhiều hiển thị tiếng Anh |
 | Việt hóa dữ liệu CSDL | Tên hồ sơ, bảng điều khiển vẫn là tiếng Anh | Script `viet-hoa-du-lieu.sh` cập nhật tự động trong CSDL | Đồng bộ tiếng Việt ở cả tầng dữ liệu |
 | Cơ cấu tổ chức trường | Cơ sở dữ liệu rỗng | Nạp sẵn 16 khoa, 10 phòng, 7 trung tâm, 12 tòa nhà, 54 phòng | Ánh xạ chính xác dữ liệu thực tế Đại học Đà Lạt |
@@ -357,7 +371,7 @@ Cấu trúc bộ chọn CSS hỗ trợ đa theme:
 
 Đo lường trực tiếp qua `scripts/do-do-phu-tieng-viet.py` từ tệp `.mo` trong container GLPI:
 - Tổng số chuỗi giao diện: 6.511 chuỗi.
-- Đã dịch: 2.084 chuỗi (đạt tỉ lệ 32,0%).
+- Đã dịch: 2.186 chuỗi (đạt tỉ lệ 33,6%).
 - Chưa dịch: 4.427 chuỗi (tập trung 65,3% ở các thông báo kỹ thuật sâu và cảnh báo hệ thống).
 
 Hệ thống đã Việt hóa toàn bộ 9 thẻ đếm trạng thái tại trang Hỗ trợ: `Phiếu mới tiếp nhận`, `Phiếu đang chờ`, `Phiếu đã phân công`, `Phiếu đã lên kế hoạch`, `Phiếu đã giải quyết`, `Phiếu đã đóng`, `Phiếu quá hạn`, cùng hai biểu đồ `Phiếu theo tháng` và `Tình trạng phiếu theo tháng`.
@@ -593,7 +607,7 @@ Kiểm tra:
 - Trả lời: Google Forms chỉ hỗ trợ thu thập dữ liệu thô, không có cơ chế hàng đợi phân công, không có vòng đời trạng thái chuẩn ITIL, không theo dõi được thời hạn SLA, không liên kết được với hồ sơ vòng đời thiết bị và không hỗ trợ định danh mã QR vật lý.
 
 **D2. "GLPI có sẵn mọi tính năng, vậy đóng góp của đồ án là gì?"**
-- Trả lời: GLPI cung cấp lõi nghiệp vụ ITSM. Đóng góp của đồ án bao gồm: Cài đặt tự động một lệnh, cổng gateway HTTPS tích hợp SAN cert, bảng màu thương hiệu DLU và CSS ngoài lõi, nâng độ phủ dịch tiếng Việt lên 32,0% và xử lý lỗi khóa số nhiều `_n()`, nạp cơ cấu tổ chức 16 khoa và 54 phòng của DLU, cơ chế phòng thủ 6 tầng chống lạm dụng với 46 test cases, vá 3 lỗi tương thích cho plugin Barcode trên GLPI 11 và script Python dự phòng.
+- Trả lời: GLPI cung cấp lõi nghiệp vụ ITSM. Đóng góp của đồ án bao gồm: Cài đặt tự động một lệnh, cổng gateway HTTPS tích hợp SAN cert, bảng màu thương hiệu DLU và CSS ngoài lõi, nâng độ phủ dịch tiếng Việt lên 33,6% và xử lý lỗi khóa số nhiều `_n()`, nạp cơ cấu tổ chức 16 khoa và 54 phòng của DLU, cơ chế phòng thủ 6 tầng chống lạm dụng với 46 test cases, vá 3 lỗi tương thích cho plugin Barcode trên GLPI 11 và script Python dự phòng.
 - Minh chứng: Bảng đối chiếu 20 dòng tại Mục 3.2.
 
 **D3. "Tại sao không mua ServiceNow hoặc triển khai iTop?"**
@@ -617,7 +631,11 @@ Kiểm tra:
 - Trả lời: Hoàn toàn trình diễn được. Hệ thống chạy trên mạng nội bộ Docker, font chữ và các tệp hỗ trợ được lưu trữ ngoại tuyến cục bộ, không phụ thuộc vào CDN bên ngoài.
 
 **E4. "Hệ thống chịu tải được bao nhiêu sinh viên truy cập đồng thời?"**
-- Trả lời thẳng thắn: Em chưa thực hiện đo tải thực tế nên không khẳng định con số cụ thể. Kiến trúc hiện tại sử dụng Nginx đệm và Redis cache để tối ưu hóa, nhưng để phục vụ hàng nghìn kết nối đồng thời trong các đợt cao điểm thi, cần tiến hành kiểm thử tải và cân nhắc phân tách máy chủ cơ sở dữ liệu riêng.
+- Trả lời: Hệ thống đã được đo tải thực tế bằng `scripts/do-tai.sh` (công cụ `wrk` trong Docker) trên hệ thống đang chạy thật — kết quả chi tiết tại `tai-lieu/DO-TAI.md`:
+  - **Tầng Nginx gateway:** Chịu được **~54.000 req/s** (độ trễ p50 = 238 µs) — Nginx không phải điểm nghẽn.
+  - **Tầng ứng dụng GLPI:** Bão hòa ở ngưỡng **~100 req/s** (độ trễ p50 = 108 ms ở 10 kết nối, tăng lên 765 ms ở 100 kết nối do hàng đợi PHP/Apache).
+  - **Đường ghi tạo phiếu:** Đạt **~47–60 phiếu/giây** (khoảng 17–21 ms cho mỗi lượt tạo phiếu gồm INSERT + chạy hook + khóa GET_LOCK + ghi nhật ký).
+  - **Ý nghĩa thực tế:** Với quy mô Trường ĐH Đà Lạt (~14.500 người học), mức tải bình thường ước tính ~24 req/s (khi 10% đồng thời truy cập trong 10 phút, mỗi người 10 trang) nằm hoàn toàn trong năng lực xử lý của hệ thống. Tuy nhiên nếu cả trường dồn vào cùng lúc (>400 req/s), cần mở rộng worker PHP và tách CSDL sang máy chủ riêng.
 
 **E5. "Sau khi sinh viên tốt nghiệp thì ai sẽ tiếp nhận bảo trì hệ thống?"**
 - Trả lời: Đồ án giảm thiểu rủi ro bàn giao bằng cách cung cấp bộ tài liệu tổng hợp đầy đủ tại `tai-lieu/README.md`, kịch bản cài đặt tự động một lệnh, pipeline CI kiểm tra tự động và kiến trúc tùy biến 100% ngoài lõi giúp người tiếp nhận dễ dàng vận hành lại hệ thống.
@@ -643,9 +661,14 @@ python scripts/gop-ban-dich-tieng-viet.py
 bash scripts/cai-plugin-qrcode.sh
 python scripts/sinh-ma-qr.py
 
-# 4. Kiểm thử và sao lưu
-bash scripts/kiem-tra-lam-dung.sh
-docker exec pinedesk-glpi php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
-bash scripts/quet-bi-mat.sh
-bash backup/backup.sh
+# 4. Kiểm thử, đo tải và kiểm tra chất lượng
+make kiem-tra                                    # Chạy toàn bộ kiểm tra chất lượng nhanh
+bash scripts/do-tai.sh                           # Đo tải hệ thống bằng wrk trong Docker
+bash scripts/kiem-tra-race-getlock.sh            # Kiểm tra chống đua GET_LOCK (2 request song song)
+GLPI_USER=sv.hoa GLPI_PASS='<mk>' bash scripts/kiem-tra-http-limit.sh # Kiểm tra chặn hạn mức qua HTTP thật
+GLPI_PASS='<mk>' node scripts/kiem-tra-usecase.js # 3 use case end-to-end bằng Playwright
+docker exec pinedesk-glpi php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php # Harness 46 điểm kiểm
+bash scripts/kiem-tra-lam-dung.sh                # Kiểm tra lạm dụng CSDL
+bash scripts/quet-bi-mat.sh                     # Quét rò rỉ bí mật
+bash backup/backup.sh                            # Sao lưu hệ thống
 ```

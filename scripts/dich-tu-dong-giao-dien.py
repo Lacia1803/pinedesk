@@ -1,3 +1,9 @@
+import sys
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """

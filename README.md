@@ -73,7 +73,7 @@ Mã QR in trên hồ sơ thiết bị, quét ra là mở đúng máy đó:
 | **Bảo trì định kỳ** | Lịch sử sửa chữa theo từng thiết bị; lịch bảo trì tạo qua giao diện GLPI |
 | **Dashboard** | Thống kê số thiết bị, sự cố, lịch bảo trì theo thời gian thực |
 | **Giao diện Đà Lạt** | Bảng màu xanh rêu + cam đất trích từ logo DLU, áp dụng toàn hệ thống |
-| **Việt hoá** | Mặc định tiếng Việt, 556 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (32,0% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
+| **Việt hoá** | Mặc định tiếng Việt, 667 thuật ngữ dịch bổ sung + 212 mục dạng số nhiều (33,6% catalog; menu, biểu mẫu & nhãn dashboard 100%) |
 | **Bảo mật** | HTTPS (chứng chỉ tự ký **có SAN**), chống brute-force, phân quyền theo vai trò, sao lưu tự động |
 
 > ⚠️ **Về SLA — nói rõ để tránh hiểu nhầm:** hệ thống đã cấu hình **5 mức SLA thật
@@ -166,6 +166,9 @@ pinedesk/
 │   ├── kiem-tra-massive-qr.js   #   Kiểm tra sinh QR hàng loạt qua modal
 │   ├── kiem-tra-qr-va-chup-anh.js #  Kiểm tra plugin Barcode + chụp minh chứng
 │   ├── chup-anh-giao-dien.js    #   Chụp nhanh 3 ảnh giao diện cơ bản
+│   ├── do-tai.sh                # ★ Đo tải hệ thống bằng wrk trong Docker
+│   ├── kiem-tra-race-getlock.sh # ★ Kiểm tra chống đua GET_LOCK (2 request song song)
+│   ├── kiem-tra-http-limit.sh   # ★ Kiểm tra chặn hạn mức qua HTTP thật (Playwright)
 │   ├── lib/browser.js           #   Helper Playwright dùng chung (tìm Chrome, đăng nhập)
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
 ├── backup/                      # Script sao lưu dữ liệu
@@ -226,6 +229,12 @@ python scripts/sinh-ma-qr.py         # Sinh QR hàng loạt (dự phòng)
 node   scripts/chup-lai-anh-minh-chung.js # Chụp tối đa 16 ảnh minh chứng cho README
 #   Một ảnh luồng in QR cần quyền quản trị: node scripts/chup-anh-qr-admin.js
 
+# Đo tải & kiểm thử nâng cao
+bash scripts/do-tai.sh               # Đo tải hệ thống bằng wrk trong Docker
+bash scripts/kiem-tra-race-getlock.sh # Kiểm tra chống đua GET_LOCK (2 request song song)
+GLPI_USER=sv.hoa GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-http-limit.sh # Chặn hạn mức qua HTTP thật
+make kiem-tra                        # Chạy toàn bộ kiểm tra chất lượng trước khi push
+
 # Vận hành
 bash start.sh                        # Khởi động
 docker compose logs -f glpi          # Xem log
@@ -238,6 +247,7 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 
 | Tài liệu | Nội dung |
 |---|---|
+| [`DESIGN.md`](DESIGN.md) | **Đặc tả hệ thống thiết kế giao diện**: dung hợp Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt |
 | [`tai-lieu/README.md`](tai-lieu/README.md) | **Tài liệu tổng hợp toàn diện**: bài toán nghiệp vụ, cơ cấu tổ chức DLU, kiến trúc so sánh GLPI gốc, phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện & Việt hóa, tạo mã QR thiết bị, hướng dẫn triển khai & vận hành, kịch bản demo 7 phút và bộ 25 câu hỏi phản biện |
 | [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 8 slide bảo vệ, tự chứa, chạy được khi không có mạng |
 | [`BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in) |

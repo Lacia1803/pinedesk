@@ -770,7 +770,7 @@ jobs:
           # diem kiem in ra phai dung 46 - khop con so neu trong README/
           # tai-lieu. Neu ai them/bot check() ma quen cap nhat tai lieu
           # (hoac nguoc lai), job nay do ngay (cung triet ly voi buoc
-          # "Tu dien Viet hoa phai du 556 + 212" ben duoi).
+          # "Tu dien Viet hoa phai du 667 + 212" ben duoi).
           OUT=$(docker exec -u www-data pinedesk-glpi \
             php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php)
           echo "$OUT"
@@ -794,9 +794,9 @@ jobs:
       # Tu dien Viet hoa: so luong phai khop tai lieu
       # ----------------------------------------------------------------------
       # Ban dich bo sung cua do an la con so duoc neu trong bao cao
-      # ("bo sung 556 thuat ngu don + 212 muc so nhieu"). Sua tu dien ma quen
+      # ("bo sung 667 thuat ngu don + 212 muc so nhieu"). Sua tu dien ma quen
       # cap nhat tai lieu (hoac nguoc lai) -> job nay do.
-      - name: Tu dien Viet hoa phai du 556 thuat ngu + 212 so nhieu
+      - name: Tu dien Viet hoa phai du 667 thuat ngu + 212 so nhieu
         run: |
           python - <<'PY'
           import re
@@ -814,9 +814,9 @@ jobs:
           don   = dem('BAN_DICH_BO_SUNG')
           nhieu = dem('BAN_DICH_SO_NHIEU')
           print(f'Thuat ngu don: {don} | Muc so nhieu: {nhieu}')
-          assert don == 556, f'mong doi 556 thuat ngu don, thuc te {don}'
+          assert don == 667, f'mong doi 667 thuat ngu don, thuc te {don}'
           assert nhieu == 212, f'mong doi 212 muc so nhieu, thuc te {nhieu}'
-          print('[OK] Tu dien Viet hoa khop tai lieu: 556 + 212')
+          print('[OK] Tu dien Viet hoa khop tai lieu: 667 + 212')
           PY
 
       - name: Script kiem tra lam dung phai chay duoc

@@ -652,7 +652,7 @@ Trạng thái thật của từng tầng:
 
 ### 4.2.6. Việt hóa
 
-GLPI 11 đóng gói sẵn bản dịch tiếng Việt nhưng chỉ đạt khoảng 32% catalog. Đề tài bổ sung thêm 556 thuật ngữ và 212 mục dạng số nhiều, nâng độ phủ đo được lên 32,0% (2.084 trên 6.511 chuỗi).
+GLPI 11 đóng gói sẵn bản dịch tiếng Việt nhưng chỉ đạt khoảng 32% catalog. Đề tài bổ sung thêm 667 thuật ngữ và 212 mục dạng số nhiều, nâng độ phủ đo được lên 33,6% (2.186 trên 6.511 chuỗi).
 
 Con số 32% cần được hiểu đúng. Đây là tỉ lệ trên toàn bộ catalog, kể cả những chuỗi kỹ thuật dài mà người dùng cuối không bao giờ thấy, như thông báo lỗi dòng lệnh hay cảnh báo hệ thống. Phần giao diện mà người dùng thực sự chạm vào gần như đã là tiếng Việt: menu chính, thanh bên, tiêu đề bảng, nhãn biểu mẫu, nút bấm, nhãn trạng thái phiếu. Trang đăng nhập cũng đã Việt hóa.
 
@@ -736,7 +736,7 @@ Mỗi lần đẩy mã nguồn lên nhánh chính, GitHub Actions chạy pipelin
 
 *Bảng 4.8. Sáu nhóm kiểm tra trong pipeline CI*
 
-Nhóm smoke test gồm 20 bước, trong đó có những bước chốt lại đúng các lỗi từng gặp để chúng không quay lại: tài khoản demo phải có hồ sơ quyền và đăng nhập được, dữ liệu hiển thị phải đã Việt hóa, thương hiệu và dải màu ưu tiên phải được đặt, từ điển phải đủ 556 thuật ngữ và 212 mục số nhiều, và chức năng phân quyền theo vai trò phải hoạt động.
+Nhóm smoke test gồm 20 bước, trong đó có những bước chốt lại đúng các lỗi từng gặp để chúng không quay lại: tài khoản demo phải có hồ sơ quyền và đăng nhập được, dữ liệu hiển thị phải đã Việt hóa, thương hiệu và dải màu ưu tiên phải được đặt, từ điển phải đủ 667 thuật ngữ và 212 mục số nhiều, và chức năng phân quyền theo vai trò phải hoạt động.
 
 Pipeline chặn merge nếu bất kỳ cửa nào thất bại.
 
@@ -759,7 +759,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 | 1 | README ghi giấy phép GPL v3 nhưng kho mã nguồn không có tệp giấy phép | P0 | Thêm `LICENSE` (GNU GPL-3.0) |
 | 2 | Còn nhánh `bao-cao-thuc-tap-dlu` lỗi thời trên kho từ xa | P0 | Xoá sau khi kiểm chứng nội dung đã nằm trong `master` |
 | 3 | Hướng dẫn phục hồi dữ liệu dạy `source .env` và truyền mật khẩu qua dòng lệnh — trái với chuẩn bảo mật của chính đồ án | P0 | Đổi sang cách an toàn, rồi chạy thử phục hồi thật |
-| 4 | Nghi ngờ con số "42 điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI |
+| 4 | Nghi ngờ con số "điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI (tăng dần 37 → 42 → 46) |
 | 5 | Thiếu tệp khoá phiên bản phụ thuộc | P1 | Thêm `package-lock.json`, `requirements.txt`, `.dockerignore` |
 | 6 | Pipeline CI ghim phiên bản công cụ bằng nhãn trôi nổi | P1 | Ghim theo mã băm commit |
 | 7 | Nhật ký container không giới hạn dung lượng | P1 | Thêm giới hạn log cho cả bốn dịch vụ |
@@ -774,7 +774,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 
 Hai vấn đề đáng kể nhất đều nằm ở mức P0. Thứ nhất là **hướng dẫn phục hồi dữ liệu tự mâu thuẫn**: đồ án đã có quy ước rõ là không truyền mật khẩu qua tham số dòng lệnh (vì tiến trình khác đọc được qua `ps`), vậy mà chính tài liệu lại dạy điều ngược lại. Đây là loại lỗi nguy hiểm vì nó không làm hệ thống hỏng, chỉ âm thầm làm yếu bảo mật. Em sửa cả tài liệu lẫn script, rồi **chạy thử phục hồi thật** để chắc chắn cách mới hoạt động và dữ liệu vẫn nguyên vẹn (17 máy tính, 14 phiếu).
 
-Thứ hai là **bài học về số liệu**. Tài liệu ghi harness có "42 điểm kiểm", nhưng khi đếm bằng công cụ tìm kiếm chỉ thấy ít hơn. Thay vì sửa số liệu theo cảm tính, em phân tích kỹ và phát hiện con số 42 là **đúng**: lời gọi `check()` nằm trong vòng lặp tạo 6 tài khoản thử và trong một khối điều kiện, nên tổng số lần chạy lớn hơn số dòng grep được. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
+Thứ hai là **bài học về số liệu**. Tài liệu ghi nhận số điểm kiểm tăng dần theo các đợt hoàn thiện: từ 37 điểm ban đầu, lên 42 điểm khi vá chống trùng theo tên (mục 4e), và chốt ở **46 điểm kiểm** khi tự động hoá kiểm duyệt T5 (mục 4f). Lời gọi `check()` nằm trong vòng lặp và các khối kiểm tra điều kiện, nên tổng số lần chạy lớn hơn số dòng grep thô. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
 
 Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác nhận không có hồi quy:
 
@@ -784,9 +784,13 @@ Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác
 | Lint shell (ShellCheck), cú pháp PHP | Đạt (4 tệp PHP) |
 | Cấu hình Docker Compose và Nginx | Hợp lệ |
 | Quét bí mật trong mã nguồn | Sạch |
-| Chống lạm dụng (harness plugin) | **42/42 đạt** |
-| Chức năng và phân quyền theo vai trò | **25/25 đạt** |
+| Chống lạm dụng (harness plugin) | **46/46 đạt** |
+| Chống đua GET_LOCK (2 request song song) | **Đạt** (chỉ 1/2 thành công) |
+| Chặn hạn mức qua HTTP thật (Service Catalog) | **Đạt** |
+| Chức năng và phân quyền theo vai trò | **25/25 đạt** (KTV) và **15/15 đạt** (Sinh viên) |
 | Ba use case end-to-end (Playwright, Chrome thật) | **3/3 đạt** |
+| Đo tải hệ thống (wrk trong Docker) | **Đạt** (Nginx ~54.000 req/s, GLPI ~100 req/s, tạo phiếu ~50/s) |
+| Phục hồi dữ liệu | **Đạt** (dữ liệu nguyên vẹn 17 máy tính / 14 phiếu) |
 
 *Bảng 4.10. Kết quả kiểm chứng sau đợt rà soát chất lượng*
 
@@ -809,7 +813,9 @@ Chi tiết đầy đủ của đợt rà soát (từng vấn đề, cách sửa,
 - Mã QR cho thiết bị, đã giải mã kiểm chứng.
 - Lớp chống lạm dụng sáu tầng với bằng chứng chạy thật (HTTP 429 sau 11 yêu cầu).
 - Kiểm thử: 25/25 mục đạt với vai trò kỹ thuật viên, 15/15 với vai trò sinh viên.
-- Pipeline CI sáu nhóm, trong đó smoke test gồm 20 bước, chặn merge nếu có lỗi.
+- Pipeline CI sáu nhóm gồm 29 bước kiểm tra tự động nghiêm ngặt (có cả E2E Playwright và đo tải).
+- Đặc tả hệ thống thiết kế `DESIGN.md` chuẩn Impeccable (dung hợp Apple Precision + Claude Warmth + Bản sắc Đà Lạt).
+- Khảo sát số liệu thực tế có nguồn chính thức (`SO-LIEU-THUC-TE-DLU.md`) và báo cáo đo tải định lượng (`DO-TAI.md`).
 
 ## 5.2. Hạn chế của đề tài
 

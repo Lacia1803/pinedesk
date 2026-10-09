@@ -74,7 +74,16 @@
         return false;
     }
 
+    function vaCacChuoiLoi() {
+        // 0. Nút xoá tìm kiếm trong bảng lưu (lõi GLPI 11 quên gọi __() trong saved_searches.html.twig)
+        var cacClear = document.querySelectorAll('.clear-text[title="Clear search"]');
+        for (var c = 0; c < cacClear.length; c++) {
+            cacClear[c].setAttribute('title', dich('Clear search'));
+        }
+    }
+
     function vaHopThoai() {
+        vaCacChuoiLoi();
         var dlg = document.getElementById('fuzzysearch');
         if (!dlg) {
             return;

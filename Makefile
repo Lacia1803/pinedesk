@@ -122,6 +122,13 @@ smoke:
 	done
 	@curl -fsS http://localhost:8080/healthz && echo "  [OK] gateway tra loi"
 
+# --- Kiem tra chan han muc qua HTTP that (can Chrome + he thong dang chay) ----
+.PHONY: kiem-tra-http
+kiem-tra-http:
+	@echo "== Chan han muc qua duong HTTP that (Playwright) =="
+	@echo "   (can GLPI_PASS; se ha tam max_open=1 roi khoi phuc)"
+	@GLPI_USER=sv.hoa GLPI_PASS="$$GLPI_PASS" bash scripts/kiem-tra-http-limit.sh
+
 # --- Van hanh thuong ngay -----------------------------------------------------
 .PHONY: up down logs ps sao-luu
 up:

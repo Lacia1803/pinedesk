@@ -199,7 +199,7 @@ Nguyên tắc kiến trúc cốt lõi: 100% các thành phần tùy biến nằm
 | Khả năng an toàn đồng thời | Dễ race condition khi mở nhiều tab | MariaDB mutex `GET_LOCK()` theo từng tài khoản | Đảm bảo tính nhất quán dữ liệu khi gửi đồng thời |
 | Tính năng mã QR thiết bị | Chưa có hoặc plugin Barcode lỗi trên GLPI 11 | Vá 3 lỗi tương thích cho plugin Barcode 2.7.1 | Kích hoạt thành công tính năng in QR hàng loạt |
 | Giải pháp QR dự phòng | Không có | Script Python `sinh-ma-qr.py` kết xuất mã độc lập | Không phụ thuộc vào chu kỳ nâng cấp của GLPI |
-| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 37 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
+| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 42 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
 
 ### 3.3. Danh mục tài khoản kiểm thử và phân quyền
 
@@ -266,13 +266,14 @@ Khuôn viên trường sử dụng mạng NAT: toàn bộ 35 đến 40 máy tron
 ### 4.3. Tầng T3 và T4: Kiểm soát hạn mức tài khoản qua plugin pinedesk
 
 Plugin `pinedesk` đăng ký hook `PRE_ITEM_ADD` của GLPI, can thiệp trước khi bản ghi phiếu được thêm vào cơ sở dữ liệu:
-- Kiểm tra T3a (Trần phiếu đang mở): Đếm số phiếu chưa đóng của tài khoản (`v_pinedesk_phieu_dang_mo`). Nếu đạt ngưỡng 5 phiếu, hệ thống từ chối tạo phiếu và gửi thông báo tiếng Việt yêu cầu chờ xử lý các phiếu cũ.
+- Kiểm tra T3a (Trần phiếu đang mở): Hàm `plugin_pinedesk_count_open()` đếm trực tiếp trên bảng `glpi_tickets` với `status IN (1,2,3,4)` — không qua view. (View `v_pinedesk_phieu_dang_mo` chỉ phục vụ tra cứu thủ công qua SQL, không tham gia đường xử lý phiếu.) Nếu đạt ngưỡng 5 phiếu, hệ thống từ chối tạo phiếu và gửi thông báo tiếng Việt yêu cầu chờ xử lý các phiếu cũ.
+  **Lưu ý quan trọng (đã kiểm chứng bằng HTTP thật):** trên đường tạo phiếu mới của GLPI 11 (`/Form/SubmitAnswers`), khi plugin chặn bằng cách gán `$item->input = false`, lõi GLPI ném `Exception("Failed to create ...")` (`AbstractCommonITILFormDestination.php:187`) và **thay thế thông báo tiếng Việt bằng lỗi hệ thống chung "Failed to submit form, please contact your administrator"**. Cơ chế chặn vẫn có tác dụng (phiếu không được ghi), nhưng thông báo thân thiện chỉ hiển thị trên đường `/front/ticket.form.php` cũ. Đây là hành vi của lõi GLPI, không sửa được nếu không đụng vào lõi — ghi rõ ở mục hạn chế của báo cáo.
 - Kiểm tra T3b (Trần phiếu theo ngày): Đếm số phiếu tạo trong ngày của tài khoản. Nếu chạm ngưỡng 10 phiếu, hệ thống từ chối yêu cầu tiếp theo.
-- Kiểm tra T4 (Chống phiếu trùng): Nếu cùng tài khoản nộp phiếu cho cùng một thiết bị trong vòng 30 phút mà phiếu cũ chưa đóng, hệ thống chặn phiếu mới và thông báo mã phiếu cũ đang được xử lý.
-- An toàn đồng thời: Sử dụng hàm `GET_LOCK('pinedesk_user_' . $users_id, 5)` của MariaDB để ngăn chặn tình trạng người dùng mở nhiều tab trình duyệt và bấm nộp cùng lúc (race condition).
+- Kiểm tra T4 (Chống phiếu trùng): Nếu cùng tài khoản nộp phiếu trùng (cùng thiết bị, hoặc cùng loại sự cố + cùng vị trí, hoặc vượt trần tổng phiếu trong cửa sổ) trong vòng 30 phút mà phiếu cũ chưa đóng, hệ thống chặn phiếu mới và thông báo mã phiếu cũ đang được xử lý.
+- An toàn đồng thời: Sử dụng hàm `GET_LOCK('pinedesk_hm_<uid>', 3)` của MariaDB — mỗi người dùng có một khóa riêng (`pinedesk_hm_<users_id>`) nên các phiên của những người khác nhau không chặn lẫn nhau, chỉ tuần tự hoá các tab của cùng một tài khoản. Timeout 3 giây; không lấy được khóa → fail-open (không chặn oan).
 - Khả năng chịu lỗi: Nếu truy vấn đếm gặp lỗi cơ sở dữ liệu, plugin ghi log vào `pinedesk.log` và tạm thời cho phép phiếu đi qua nhằm tránh chặn nhầm người dùng hợp lệ.
 
-Hệ thống kiểm thử tự động tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` bao gồm 37 điểm kiểm thử xác nhận đầy đủ hành vi chặn hạn mức, chống trùng và quyền miễn trừ cho kỹ thuật viên.
+Hệ thống kiểm thử tự động tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` bao gồm 42 điểm kiểm thử xác nhận đầy đủ hành vi chặn hạn mức, chống trùng và quyền miễn trừ cho kỹ thuật viên.
 
 Lệnh rà soát định kỳ qua terminal:
 
@@ -563,7 +564,7 @@ Kiểm tra:
 - Trả lời: Bot phải vượt qua bước đăng nhập vốn bị giới hạn 10 request/phút mỗi IP với mã lỗi 429. Mọi cổng nộp phiếu đều nằm trong vùng đệm 30 request/phút của Nginx. Kể cả qua được tầng mạng, bot vẫn bị chặn bởi trần phiếu tài khoản và khóa chống trùng lặp.
 
 **B5. "Cơ chế này em đã kiểm thử tự động chưa?"**
-- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 37 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php`, tích hợp vào pipeline CI để xác nhận hành vi trả mã 429, chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên.
+- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 42 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php`, tích hợp vào pipeline CI để xác nhận hành vi trả mã 429, chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên.
 
 ### Nhóm C: Quy trình nghiệp vụ và cam kết thời gian (SLA)
 
@@ -590,7 +591,7 @@ Kiểm tra:
 - Trả lời: Google Forms chỉ hỗ trợ thu thập dữ liệu thô, không có cơ chế hàng đợi phân công, không có vòng đời trạng thái chuẩn ITIL, không theo dõi được thời hạn SLA, không liên kết được với hồ sơ vòng đời thiết bị và không hỗ trợ định danh mã QR vật lý.
 
 **D2. "GLPI có sẵn mọi tính năng, vậy đóng góp của đồ án là gì?"**
-- Trả lời: GLPI cung cấp lõi nghiệp vụ ITSM. Đóng góp của đồ án bao gồm: Cài đặt tự động một lệnh, cổng gateway HTTPS tích hợp SAN cert, bảng màu thương hiệu DLU và CSS ngoài lõi, nâng độ phủ dịch tiếng Việt lên 32,0% và xử lý lỗi khóa số nhiều `_n()`, nạp cơ cấu tổ chức 16 khoa và 54 phòng của DLU, cơ chế phòng thủ 6 tầng chống lạm dụng với 37 test cases, vá 3 lỗi tương thích cho plugin Barcode trên GLPI 11 và script Python dự phòng.
+- Trả lời: GLPI cung cấp lõi nghiệp vụ ITSM. Đóng góp của đồ án bao gồm: Cài đặt tự động một lệnh, cổng gateway HTTPS tích hợp SAN cert, bảng màu thương hiệu DLU và CSS ngoài lõi, nâng độ phủ dịch tiếng Việt lên 32,0% và xử lý lỗi khóa số nhiều `_n()`, nạp cơ cấu tổ chức 16 khoa và 54 phòng của DLU, cơ chế phòng thủ 6 tầng chống lạm dụng với 42 test cases, vá 3 lỗi tương thích cho plugin Barcode trên GLPI 11 và script Python dự phòng.
 - Minh chứng: Bảng đối chiếu 20 dòng tại Mục 3.2.
 
 **D3. "Tại sao không mua ServiceNow hoặc triển khai iTop?"**

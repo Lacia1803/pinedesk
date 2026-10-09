@@ -140,6 +140,12 @@ function plugin_pinedesk_check_limits($item): void
         $row  = $res ? $DB->fetchAssoc($res) : null;
         if ((int) ($row['ok'] ?? 0) !== 1) {
             Toolbox::logInFile('pinedesk', "Khong lay duoc khoa han muc cho user $uid — bo qua kiem tra", true);
+            // Ghi vao bang log de dem so lan fail-open (fail-safe: bo qua neu loi)
+            try {
+                plugin_pinedesk_write_log($uid, 0, 0, 'LOCK_FAIL');
+            } catch (\Throwable $e) {
+                // Bỏ qua — ghi log LOCK_FAIL thất bại không được ảnh hưởng nộp phiếu
+            }
             return;
         }
         $PLUGIN_PINEDESK_LOCK_NAME = $lock;
@@ -182,18 +188,21 @@ function plugin_pinedesk_check_limits($item): void
         // ---- T4: phiếu TRÙNG (trong cửa sổ N phút) --------------------------
         // Trùng khi cùng người tạo VÀ:
         //   (a) cùng thiết bị (gắn qua items_id), hoặc
-        //   (b) cùng loại sự cố + cùng vị trí (cả hai > 0).
-        // Phiếu không có thiết bị, không có vị trí -> không đủ căn cứ kết luận
-        // trùng, bỏ qua (tránh chặn oan — xem plugin_pinedesk_find_duplicate).
+        //   (b) cùng loại sự cố + cùng vị trí (cả hai > 0), hoặc
+        //   (c) cùng tiêu đề (name) sau khi chuẩn hoá — bắt spam gửi lại cùng
+        //       nội dung bằng cách đổi category mỗi lần (trong 5 phiếu cho phép).
+        // Phiếu không có thiết bị, không có vị trí và tên khác các phiếu cũ
+        // -> không đủ căn cứ kết luận trùng, bỏ qua (tránh chặn oan).
         if ($reason === '' && $limits['window_min'] > 0) {
             $cat      = (int) ($item->input['itilcategories_id'] ?? 0);
             $loc      = (int) ($item->input['locations_id'] ?? 0);
+            $name     = (string) ($item->input['name'] ?? '');
             $item_ids = plugin_pinedesk_extract_items($item->input);
-            $dup_id   = plugin_pinedesk_find_duplicate($uid, $cat, $loc, $item_ids, $limits['window_min']);
+            $dup_id   = plugin_pinedesk_find_duplicate($uid, $cat, $loc, $item_ids, $limits['window_min'], $name);
             if ($dup_id > 0) {
                 $reason  = 'DUP_BLOCKED';
                 $message = sprintf(
-                    'Bạn vừa gửi một phiếu trùng (cùng thiết bị, hoặc cùng loại sự cố và vị trí) '
+                    'Bạn vừa gửi một phiếu trùng (cùng tiêu đề, cùng thiết bị, hoặc cùng loại sự cố và vị trí) '
                     . 'trong vòng %d phút qua (phiếu #%d). Vui lòng theo dõi '
                     . 'và bổ sung thông tin vào phiếu đó thay vì tạo phiếu mới.',
                     $limits['window_min'],
@@ -221,6 +230,12 @@ function plugin_pinedesk_check_limits($item): void
     } catch (\Throwable $e) {
         // Fail-open: cơ chế chống lạm dụng không được làm hỏng việc nộp phiếu
         Toolbox::logInFile('pinedesk', 'Loi kiem tra han muc: ' . $e->getMessage(), true);
+        // Ghi vao bang log de dem so lan fail-open do loi DB/exception (fail-safe)
+        try {
+            plugin_pinedesk_write_log($uid, 0, 0, 'FAIL_OPEN');
+        } catch (\Throwable $ignored) {
+            // Bỏ qua — ghi log FAIL_OPEN thất bại không được ảnh hưởng nộp phiếu
+        }
     }
 }
 
@@ -411,45 +426,92 @@ function plugin_pinedesk_count_today(int $uid): int
 }
 
 /**
+ * Chuẩn hoá tiêu đề phiếu để so khớp trùng nội dung (điều kiện c của T4):
+ *   - trim hai đầu
+ *   - gộp mọi khoảng trắng (space, tab, xuống dòng) thành một space
+ *   - chuyển về chữ thường (không phân biệt hoa/thường)
+ *
+ * So khớp theo dạng chuỗi byte (không dùng mb_*) để không phụ thuộc ext mbstring;
+ * với tiêu đề tiếng Việt UTF-8, hai chuỗi giống nhau vẫn cho kết quả giống nhau.
+ *
+ * @param string $name tiêu đề gốc
+ * @return string tiêu đề đã chuẩn hoá ('' nếu rỗng)
+ */
+function plugin_pinedesk_normalize_name(string $name): string
+{
+    $name = trim($name);
+    if ($name === '') {
+        return '';
+    }
+    $name = (string) preg_replace('/\s+/', ' ', $name);
+
+    return function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name);
+}
+
+/**
  * Tìm phiếu CÒN MỞ trùng với phiếu đang tạo trong cửa sổ N phút:
  *   - Cùng người tạo
  *   - Cùng loại sự cố (nếu phiếu mới có loại)
- *   - Trùng khi: (a) cùng thiết bị (nếu phiếu mới có thiết bị), hoặc
- *                (b) cùng loại + cùng vị trí (cả hai > 0)
- *   - Phiếu mới không có cả thiết bị lẫn vị trí -> không đủ căn cứ kết luận
- *     trùng, trả 0 (tránh chặn oan phiếu chỉ trùng loại sự cố).
+ *   - Trùng khi:
+ *       (a) cùng thiết bị (nếu phiếu mới có thiết bị), hoặc
+ *       (b) cùng loại + cùng vị trí (cả hai > 0), hoặc
+ *       (c) cùng tiêu đề (name) sau khi chuẩn hoá (trim + gộp khoảng trắng +
+ *           không phân biệt hoa/thường) — bắt spam gửi lại cùng nội dung bằng
+ *           cách đổi category mỗi lần.
+ *   - Phiếu mới không có thiết bị, không có vị trí và tên khác các phiếu cũ
+ *     -> không đủ căn cứ kết luận trùng, trả 0 (tránh chặn oan).
  *
  * Phiếu đã Giải quyết/Đã đóng (5,6) không tính — nộp lại sau khi xử lý
  * xong là hợp lệ.
  *
- * @param int   $uid        users_id
- * @param int   $cat        itilcategories_id (0 nếu không có)
- * @param int   $loc        locations_id (0 nếu không có)
- * @param array $items      [{itemtype, items_id}, ...] thiết bị của phiếu mới
- * @param int   $window_min cửa sổ phút
+ * @param int    $uid        users_id
+ * @param int    $cat        itilcategories_id (0 nếu không có)
+ * @param int    $loc        locations_id (0 nếu không có)
+ * @param array  $items      [{itemtype, items_id}, ...] thiết bị của phiếu mới
+ * @param int    $window_min cửa sổ phút
+ * @param string $name       tiêu đề phiếu mới (để so khớp trùng nội dung)
  * @return int tickets_id của phiếu trùng (0 nếu không có)
  */
-function plugin_pinedesk_find_duplicate(int $uid, int $cat, int $loc, array $items, int $window_min): int
+function plugin_pinedesk_find_duplicate(int $uid, int $cat, int $loc, array $items, int $window_min, string $name = ''): int
 {
     global $DB;
 
-    // Các phiếu còn mở của cùng người trong cửa sổ, cùng loại (nếu có loại)
+    // Các phiếu còn mở của cùng người trong cửa sổ.
+    // KHÔNG lọc theo loại sự cố ở đây: điều kiện (c) so khớp theo tiêu đề nên
+    // phải thấy được cả các phiếu KHÁC loại (đó chính là cách user lách T4
+    // bằng cách đổi category mỗi lần). Việc khớp loại ở điều kiện (b) được
+    // kiểm tra trong PHP qua cột itilcategories_id — vẫn một truy vấn duy nhất.
     $where = "is_deleted = 0
             AND users_id_recipient = " . $uid . "
             AND status NOT IN (5, 6)
             AND date >= DATE_SUB(NOW(), INTERVAL " . $window_min . " MINUTE)";
-    if ($cat > 0) {
-        $where .= " AND itilcategories_id = " . $cat;
-    }
 
-    $res = $DB->doQuery("SELECT id FROM glpi_tickets WHERE $where ORDER BY id DESC LIMIT 50");
+    // Lấy thêm cột `name` + `itilcategories_id` để so khớp trong PHP — không
+    // cần truy vấn thêm.
+    $res = $DB->doQuery("SELECT id, name, itilcategories_id FROM glpi_tickets WHERE $where ORDER BY id DESC LIMIT 50");
     if (!$res || $DB->numrows($res) === 0) {
         return 0;
     }
 
     $candidates = [];
+    $names      = [];
+    $cats       = [];
     while ($row = $DB->fetchAssoc($res)) {
-        $candidates[] = (int) $row['id'];
+        $cid          = (int) $row['id'];
+        $candidates[] = $cid;
+        $names[$cid]  = (string) ($row['name'] ?? '');
+        $cats[$cid]   = (int) ($row['itilcategories_id'] ?? 0);
+    }
+
+    // (c) Cùng tiêu đề (sau chuẩn hoá): bắt spam đổi category nhưng giữ nguyên
+    // nội dung. Ưu tiên kiểm tra trước (a)/(b) vì chỉ cần dữ liệu đã có.
+    $name_norm = plugin_pinedesk_normalize_name($name);
+    if ($name_norm !== '') {
+        foreach ($candidates as $cid) {
+            if (plugin_pinedesk_normalize_name($names[$cid]) === $name_norm) {
+                return $cid;
+            }
+        }
     }
 
     // Phiếu mới không có thiết bị lẫn vị trí -> không đủ căn cứ, bỏ qua
@@ -481,17 +543,26 @@ function plugin_pinedesk_find_duplicate(int $uid, int $cat, int $loc, array $ite
     // (b) Cùng loại + cùng vị trí: cần cả hai > 0 (một mình vị trí là căn cứ
     // yếu — cùng phòng có thể là hai sự cố khác nhau; khớp với chỉ số T4 của
     // scripts/kiem-tra-lam-dung.sh: "cùng người + cùng loại + cùng vị trí").
+    // Ứng viên phải CÙNG loại với phiếu mới (đã có cột itilcategories_id).
     if ($cat > 0 && $loc > 0) {
-        $res = $DB->doQuery(
-            "SELECT id FROM glpi_tickets
-              WHERE id IN (" . implode(',', array_map('intval', $candidates)) . ")
-                AND locations_id = " . $loc . "
-              ORDER BY id DESC
-              LIMIT 1"
-        );
-        $row = $res ? $DB->fetchAssoc($res) : null;
-        if ((int) ($row['id'] ?? 0) > 0) {
-            return (int) $row['id'];
+        $same_cat_ids = [];
+        foreach ($candidates as $cid) {
+            if ($cats[$cid] === $cat) {
+                $same_cat_ids[] = $cid;
+            }
+        }
+        if (count($same_cat_ids) > 0) {
+            $res = $DB->doQuery(
+                "SELECT id FROM glpi_tickets
+                  WHERE id IN (" . implode(',', $same_cat_ids) . ")
+                    AND locations_id = " . $loc . "
+                  ORDER BY id DESC
+                  LIMIT 1"
+            );
+            $row = $res ? $DB->fetchAssoc($res) : null;
+            if ((int) ($row['id'] ?? 0) > 0) {
+                return (int) $row['id'];
+            }
         }
     }
 

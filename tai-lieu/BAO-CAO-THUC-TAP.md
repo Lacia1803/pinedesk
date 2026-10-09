@@ -759,7 +759,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 | 1 | README ghi giấy phép GPL v3 nhưng kho mã nguồn không có tệp giấy phép | P0 | Thêm `LICENSE` (GNU GPL-3.0) |
 | 2 | Còn nhánh `bao-cao-thuc-tap-dlu` lỗi thời trên kho từ xa | P0 | Xoá sau khi kiểm chứng nội dung đã nằm trong `master` |
 | 3 | Hướng dẫn phục hồi dữ liệu dạy `source .env` và truyền mật khẩu qua dòng lệnh — trái với chuẩn bảo mật của chính đồ án | P0 | Đổi sang cách an toàn, rồi chạy thử phục hồi thật |
-| 4 | Nghi ngờ con số "37 điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI |
+| 4 | Nghi ngờ con số "42 điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI |
 | 5 | Thiếu tệp khoá phiên bản phụ thuộc | P1 | Thêm `package-lock.json`, `requirements.txt`, `.dockerignore` |
 | 6 | Pipeline CI ghim phiên bản công cụ bằng nhãn trôi nổi | P1 | Ghim theo mã băm commit |
 | 7 | Nhật ký container không giới hạn dung lượng | P1 | Thêm giới hạn log cho cả bốn dịch vụ |
@@ -774,7 +774,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 
 Hai vấn đề đáng kể nhất đều nằm ở mức P0. Thứ nhất là **hướng dẫn phục hồi dữ liệu tự mâu thuẫn**: đồ án đã có quy ước rõ là không truyền mật khẩu qua tham số dòng lệnh (vì tiến trình khác đọc được qua `ps`), vậy mà chính tài liệu lại dạy điều ngược lại. Đây là loại lỗi nguy hiểm vì nó không làm hệ thống hỏng, chỉ âm thầm làm yếu bảo mật. Em sửa cả tài liệu lẫn script, rồi **chạy thử phục hồi thật** để chắc chắn cách mới hoạt động và dữ liệu vẫn nguyên vẹn (17 máy tính, 14 phiếu).
 
-Thứ hai là **bài học về số liệu**. Tài liệu ghi harness có "37 điểm kiểm", nhưng khi đếm bằng công cụ tìm kiếm chỉ thấy 33 dòng gọi hàm. Thay vì sửa số liệu theo cảm tính, em phân tích kỹ và phát hiện con số 37 là **đúng**: một lời gọi nằm trong vòng lặp tạo 5 tài khoản thử, nên 32 + 5 = 37. Nếu vội vàng sửa thành 33 thì đã tự tạo ra một sai số mới. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
+Thứ hai là **bài học về số liệu**. Tài liệu ghi harness có "42 điểm kiểm", nhưng khi đếm bằng công cụ tìm kiếm chỉ thấy ít hơn. Thay vì sửa số liệu theo cảm tính, em phân tích kỹ và phát hiện con số 42 là **đúng**: lời gọi `check()` nằm trong vòng lặp tạo 6 tài khoản thử và trong một khối điều kiện, nên tổng số lần chạy lớn hơn số dòng grep được. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
 
 Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác nhận không có hồi quy:
 
@@ -784,7 +784,7 @@ Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác
 | Lint shell (ShellCheck), cú pháp PHP | Đạt (4 tệp PHP) |
 | Cấu hình Docker Compose và Nginx | Hợp lệ |
 | Quét bí mật trong mã nguồn | Sạch |
-| Chống lạm dụng (harness plugin) | **37/37 đạt** |
+| Chống lạm dụng (harness plugin) | **42/42 đạt** |
 | Chức năng và phân quyền theo vai trò | **25/25 đạt** |
 | Ba use case end-to-end (Playwright, Chrome thật) | **3/3 đạt** |
 
@@ -825,6 +825,9 @@ Em ghi thẳng những gì chưa làm được, vì đây là phần quan trọn
 | 6 | Nhật ký chống lạm dụng chưa có giao diện xem cho kỹ thuật viên, hiện xem bằng SQL | Trung bình |
 | 7 | Chưa có CAPTCHA cho trường hợp mở nộp phiếu ẩn danh qua QR | Thấp, do phạm vi |
 | 8 | Chưa có tài khoản tự đăng ký, nên chưa phải lo chống tạo tài khoản ảo | Thấp, do phạm vi |
+| 9 | Redis cấu hình `maxmemory 256MB` + `allkeys-lru`: khi đầy, phiên đăng nhập có thể bị đẩy ra sớm, người dùng phải đăng nhập lại | Thấp, do quy mô nội bộ |
+| 10 | Khi cơ chế chống lạm dụng tự tắt do lỗi CSDL (fail-open), hệ thống có ghi nhật ký nhưng chưa có cảnh báo tự động cho kỹ thuật viên | Trung bình |
+| 11 | Trên đường tạo phiếu mới của GLPI 11 (`/Form/SubmitAnswers`), khi bị chặn hạn mức, lõi GLPI hiển thị lỗi hệ thống chung ("Failed to submit form") thay vì thông báo tiếng Việt thân thiện (chỉ đường `/front/ticket.form.php` cũ mới hiện đúng thông báo) | Trung bình |
 
 *Bảng 5.1. Hạn chế của đề tài*
 

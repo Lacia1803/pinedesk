@@ -6,7 +6,9 @@
 > Dùng để viết phần "Kiểm thử và cải tiến" trong báo cáo thực tập, và để
 > trả lời câu hỏi phản biện "em đã kiểm tra chất lượng đồ án như thế nào?".
 >
-> Ngày thực hiện: **08/10/2026** · Commit: `18660f9` · Nhánh: `master`.
+> Ngày thực hiện: **08–09/10/2026** · Nhánh: `master`.
+> Gồm hai đợt: (1) rà soát chất lượng (mục 1–6), (2) phản biện đa tác nhân
+> (mục 7).
 
 ---
 
@@ -34,7 +36,7 @@ thật**, không chỉ sửa cho đẹp trên giấy.
 | 1 | README ghi "GPL v3" nhưng repo **không có** file giấy phép | P0 | Đã sửa | `LICENSE` (35 KB) |
 | 2 | Nhánh `bao-cao-thuc-tap-dlu` lỗi thời, gây nhầm lẫn | P0 | Đã xử lý | `git ls-remote` chỉ còn `master` |
 | 3 | Hướng dẫn phục hồi dạy `source .env` + `-p"$PW"` (tự mâu thuẫn bảo mật) | P0 | Đã sửa | Phục hồi thật, dữ liệu nguyên vẹn |
-| 4 | Con số "37 điểm kiểm" nghi vấn sai | P0 | **Hoá ra ĐÚNG** — ghi rõ cách đếm + CI chốt | `KET QUA: 37/37 dat` |
+| 4 | Con số "42 điểm kiểm" nghi vấn sai | P0 | **Hoá ra ĐÚNG** — ghi rõ cách đếm + CI chốt | `KET QUA: 42/42 dat` |
 | 5 | Không có lockfile / manifest phụ thuộc | P1 | Đã thêm | `npm ci` chạy OK |
 | 6 | CI pin action bằng tag trôi nổi | P1 | Đã pin SHA | CI YAML hợp lệ |
 | 7 | `docker-compose.yml` không giới hạn log | P1 | Đã thêm | `docker compose config` OK |
@@ -101,28 +103,29 @@ Kết quả: phục hồi thành công; kiểm tra lại CSDL vẫn đủ **17 m
 
 ---
 
-### P0.4 — Con số "37 điểm kiểm": đính chính cách đếm
+### P0.4 — Con số "42 điểm kiểm": đính chính cách đếm
 
-**Vấn đề.** Tài liệu nói harness `kiem-thu-han-muc.php` có **37 điểm kiểm**.
-Khi đếm bằng `grep` thấy chỉ **33 lời gọi `check()`** → nghi số liệu sai.
+**Vấn đề.** Tài liệu nói harness `kiem-thu-han-muc.php` có **42 điểm kiểm**.
+Khi đếm bằng `grep` thấy ít hơn số đó → nghi số liệu sai.
 
-**Phát hiện.** Kiểm chứng bằng phân tích ngoặc: **37 là ĐÚNG**. Vì một lời gọi
-nằm trong vòng lặp tạo **5 user tạm**:
+**Phát hiện.** Kiểm chứng bằng phân tích ngoặc: **42 là ĐÚNG**. Vì một lời gọi
+nằm trong vòng lặp tạo **6 user tạm**, và một số lời gọi khác nằm trong khối
+điều kiện (chỉ chạy khi tạo được phiếu E):
 
-> 32 lời gọi tĩnh + 5 lần chạy trong vòng lặp = **37**.
+> 32 lời gọi tĩnh + 6 lần chạy trong vòng lặp + 4 lời gọi trong khối điều kiện = **42**.
 
 Đây là ví dụ cho thấy **không được sửa số liệu theo cảm tính** — phải chạy thật.
 
 **Đã làm.**
 1. Ghi chú cách đếm ngay đầu file harness để người sau không "sửa" nhầm.
 2. **Thêm một cửa CI** chốt con số: chạy harness rồi bắt output phải khớp
-   `KET QUA: n/37 dat` — ai thêm/bớt `check()` mà quên cập nhật tài liệu thì
+   `KET QUA: n/42 dat` — ai thêm/bớt `check()` mà quên cập nhật tài liệu thì
    pipeline đỏ (cùng triết lý với cửa "Từ điển Việt hoá phải đủ 556 + 212").
 
 **Bằng chứng.** Chạy thật trên hệ thống đang sống:
 
 ```
-KET QUA: 37/37 dat — CO CHE CHAN HOAT DONG THAT
+KET QUA: 42/42 dat — CO CHE CHAN HOAT DONG THAT
 ```
 
 ---
@@ -267,7 +270,7 @@ make cu-phap-php
 make smoke
 GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-chuc-nang.sh
 
-# 4. Harness chống lạm dụng (37 điểm kiểm)
+# 4. Harness chống lạm dụng (42 điểm kiểm)
 docker exec -u www-data pinedesk-glpi \
   php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
 
@@ -289,9 +292,11 @@ GLPI_PASS='<mat-khau>' node scripts/kiem-tra-usecase.js
 | Cấu hình Docker | `docker compose config` | ✅ hợp lệ |
 | Cấu hình Nginx | `nginx -t` trong container thật | ✅ hợp lệ |
 | Quét bí mật | `scripts/quet-bi-mat.sh` | ✅ sạch |
-| Chống lạm dụng | harness plugin | ✅ **37/37** |
+| Chống lạm dụng | harness plugin | ✅ **42/42** |
 | Chức năng & phân quyền | `kiem-tra-chuc-nang.sh` (2 vai trò) | ✅ **25/25** |
 | Use case end-to-end | Playwright + Chrome thật | ✅ **3/3** |
+| Chống race (GET_LOCK) | 2 request song song | ✅ **đạt** (1/2 tạo được) |
+| Chặn hạn mức qua HTTP thật | Playwright + Service Catalog | ✅ **đạt** |
 | Phục hồi dữ liệu | lệnh phục hồi mới | ✅ dữ liệu nguyên vẹn |
 
 ---
@@ -308,5 +313,71 @@ phải làm theo thói quen.
 
 ---
 
-*Tài liệu này mô tả commit `18660f9` trên nhánh `master`. Nhật ký thay đổi đầy
-đủ (theo định dạng Keep a Changelog) nằm ở [`../CHANGELOG.md`](../CHANGELOG.md).*
+## 7. Đợt phản biện đa tác nhân (multi-agent) và các lỗi tìm thêm
+
+Sau khi hoàn tất đợt rà soát ở mục 1–6, đồ án được đưa ra **phản biện độc lập
+bởi nhiều tác nhân AI khác nhau**, mỗi tác nhân đọc mã nguồn thật và đưa ra ý
+kiến riêng. Người làm đóng vai trò **kiểm chứng viên cuối cùng**: không tin lời
+nhận xét, mà tự grep/đọc code để xác nhận từng cáo buộc trước khi sửa.
+
+### 7.1. Các cáo buộc và kết quả kiểm chứng
+
+| Cáo buộc | Kiểm chứng | Kết luận |
+|---|---|---|
+| Tài liệu ghi `GET_LOCK('pinedesk_user_'.$uid, 5)` nhưng code là `pinedesk_hm_$uid, 3` | Đúng | **Lỗi thật** → sửa tài liệu |
+| Tài liệu nói T3a "dùng view", code query thẳng bảng | Đúng một phần | Sửa câu chữ |
+| T4 (chống trùng) lách được bằng cách đổi loại sự cố mỗi lần | Đúng | **Lỗ hổng thật** → vá |
+| `GET_LOCK` chưa từng được test 2 request song song | Đúng | Thiếu bằng chứng → thêm test |
+| `fail-open` khi lỗi CSDL không có giám sát | Đúng | Thêm nhật ký `FAIL_OPEN`/`LOCK_FAIL` |
+| Harness chạy in-process, chưa test đường HTTP thật | Đúng | Thêm test HTTP thật |
+| **SQL injection** qua `$DB->escape()` + nối chuỗi | **SAI** — mọi biến đều ép `int` | Bác bỏ |
+| Redis `allkeys-lru` có thể mất phiên | Đúng về cơ chế | Ghi vào hạn chế |
+
+Hai cáo buộc mạnh đã được xác minh là **đúng và là lỗi thật** (T4 lách, thiếu
+test race); một cáo buộc **sai** đã bị bác bỏ bằng bằng chứng (SQL injection).
+
+### 7.2. Ba lỗi thật được sửa trong đợt này
+
+**a) Lỗ hổng T4 (chống trùng) lách được.** T4 cũ chỉ chặn khi cùng thiết bị
+hoặc cùng loại + vị trí, nên trong 5 phiếu được phép, người dùng vẫn gửi được
+nhiều phiếu **cùng tiêu đề** bằng cách đổi loại sự cố mỗi lần. Đã mở rộng T4
+thêm điều kiện (c): cùng người + tiêu đề giống nhau (chuẩn hoá khoảng
+trắng/hoa-thường). Thêm mục kiểm 4e; harness tăng từ 37 lên **42 điểm**.
+
+**b) Một bản "vá" trước đó là mã chết.** Có bản thử thêm "trần tổng phiếu
+trong cửa sổ" (gọi là T4c) để chống spam đổi loại. Nhưng kiểm chứng bằng phân
+tích tập hợp cho thấy đó là **dead code**: `count_window ⊆ count_open` nên T3a
+(chạy trước) đã chặn, T4c không bao giờ là người chặn đầu tiên. Đã gỡ cả khối
+lẫn hàm — đây là ví dụ cho thấy **phải kiểm chứng cả bản sửa**, không chỉ bản gốc.
+
+**c) Chưa chứng minh chống race.** `GET_LOCK` được viết để chống TOCTOU nhưng
+chưa từng được kiểm bằng 2 request song song. Đã thêm
+`scripts/kiem-tra-race-getlock.sh`: chạy 2 tiến trình PHP song song tạo phiếu ở
+mức sát trần, khẳng định chỉ 1/2 thành công. Đã tích hợp vào CI.
+
+### 7.3. Phát hiện quan trọng nhờ test qua HTTP thật
+
+Test chặn hạn mức qua đường người dùng thật (`/Form/SubmitAnswers` + Chrome) lộ
+ra điều mà harness in-process bỏ sót: cơ chế chặn **có** hoạt động (phiếu không
+được ghi), nhưng khi bị chặn, lõi GLPI hiển thị **lỗi hệ thống chung bằng tiếng
+Anh** ("Failed to submit form, please contact your administrator") thay vì thông
+báo tiếng Việt thân thiện. Nguyên nhân: GLPI ném
+`Exception("Failed to create ...")` tại `AbstractCommonITILFormDestination.php:187`
+khi `add()` trả `false`, nuốt mất thông báo của plugin. Đây là hành vi của lõi
+GLPI, không sửa được nếu không đụng lõi → đã ghi trung thực vào **hạn chế số 11**
+của báo cáo và sửa lại tài liệu cho khỏi tuyên bố quá.
+
+### 7.4. Bài học
+
+- **Không tin lời nhận xét, kể cả của chính bản sửa.** Cáo buộc SQL injection
+  nghe rất "nặng" nhưng sai; bản vá T4c nghe rất "hợp lý" nhưng là mã chết. Chỉ
+  có đọc code và chạy thật mới phân định được.
+- **Test in-process ≠ test đường thật.** Cùng một cơ chế, chạy qua HTTP thật mới
+  lộ ra vấn đề thông báo mà in-process che mất.
+- **Số liệu phải tự chốt.** Con số "điểm kiểm" được đưa vào CI để không bao giờ
+  lệch khỏi thực tế.
+
+---
+
+*Tài liệu này mô tả các commit cải tiến chất lượng trên nhánh `master`. Nhật ký
+thay đổi đầy đủ (theo định dạng Keep a Changelog) nằm ở [`../CHANGELOG.md`](../CHANGELOG.md).*

@@ -7,6 +7,48 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Thay đổi
 
+- **Mở rộng T4 (chống trùng) để bắt trùng theo NỘI DUNG, không chỉ thiết bị/loại.**
+  Lỗ hổng thật được tìm ra khi phản biện: T4 cũ chỉ chặn khi cùng thiết bị hoặc
+  cùng loại sự cố + vị trí, nên trong 5 phiếu được phép, người dùng vẫn gửi được
+  nhiều phiếu **cùng tiêu đề** bằng cách đổi loại sự cố mỗi lần. Nay
+  `plugin_pinedesk_find_duplicate()` thêm điều kiện (c): cùng người + tiêu đề
+  giống nhau (chuẩn hoá khoảng trắng/hoa-thường) trong cửa sổ chống trùng.
+  Thêm hàm `plugin_pinedesk_normalize_name()` và mục kiểm 4e trong harness
+  (phiếu cùng tên khác loại → bị chặn; tên khác → không bị chặn).
+  Harness tăng từ 37 lên **42 điểm kiểm**.
+- **Gỡ khối "T4c" (dead code).** Một bản thử trước thêm "trần tổng phiếu trong
+  cửa sổ" nhưng đó là mã chết: `count_window <= count_open` luôn đúng nên T3a
+  (chạy trước) đã chặn, T4c không bao giờ là người chặn đầu tiên. Đã gỡ cả khối
+  và hàm `plugin_pinedesk_count_window()` để mã nguồn không chứa logic vô dụng.
+- **Thêm bằng chứng chống race (TOCTOU) cho `GET_LOCK`.** `scripts/kiem-tra-race-getlock.sh`
+  chạy 2 tiến trình PHP song song cùng tạo phiếu ở mức sát trần, chứng minh chỉ
+  1/2 thành công (khoá MariaDB thật sự có tác dụng). Đã tích hợp vào job `smoke`
+  của CI, ngay sau bước harness.
+- **Ghi nhật ký khi cơ chế bảo vệ bị vô hiệu hoá (fail-open).** Trước đây lỗi
+  CSDL khiến plugin `fail-open` (cho phiếu đi qua) mà chỉ ghi file text. Nay ghi
+  thêm dòng vào `glpi_plugin_pinedesk_ticketlog` với `reason='FAIL_OPEN'` (và
+  `'LOCK_FAIL'` khi không lấy được khoá) để **đếm được** số lần cơ chế bảo vệ bị
+  tắt, thay vì im lặng.
+- **Thêm kiểm thử chặn hạn mức qua ĐƯỜNG HTTP THẬT.** `scripts/kiem-tra-http-limit.sh`
+  + `scripts/kiem-tra-http-limit.js` (Playwright) gửi phiếu qua `/Form/SubmitAnswers`
+  bằng Chrome thật và khẳng định phiếu KHÔNG được ghi khi tài khoản đã chạm trần.
+  Bổ sung vì harness 42 điểm chỉ chạy in-process (`new Ticket()->add()`), không
+  qua Nginx/phiên HTTP/`Session::callAsSystem` như đường người dùng thật.
+  Đã tích hợp vào CI (job smoke) và `make kiem-tra-http`.
+- **Phát hiện qua test HTTP thật (ghi thành hạn chế trung thực).** Trên đường
+  Service Catalog (`/Form/SubmitAnswers`), khi plugin chặn bằng
+  `$item->input = false`, lõi GLPI ném `Exception("Failed to create ...")`
+  (`AbstractCommonITILFormDestination.php:187`) và hiển thị thông báo hệ thống
+  chung bằng tiếng Anh ("Failed to submit form") thay vì thông báo tiếng Việt
+  thân thiện. Cơ chế chặn vẫn đúng (phiếu không được ghi) nhưng trải nghiệm
+  người dùng trên đường này bị ảnh hưởng. Đây là hành vi của lõi GLPI, không
+  sửa được nếu không đụng lõi — đã ghi vào hạn chế (mục 5.2) và tài liệu.
+- **Sửa tài liệu mô tả sai mã nguồn.** `tai-lieu/README.md` ghi
+  `GET_LOCK('pinedesk_user_' . $users_id, 5)` trong khi code thật là
+  `pinedesk_hm_<uid>` timeout **3**; và mô tả T3a "dùng view
+  `v_pinedesk_phieu_dang_mo`" trong khi code đếm trực tiếp trên `glpi_tickets`
+  (view chỉ để tra tay). Nay tài liệu khớp code.
+
 - **Gộp 9 tài liệu rời thành một tài liệu tổng hợp duy nhất**
   `tai-lieu/README.md` (644 dòng, 10 mục lớn, 33 mục con): bài toán nghiệp vụ,
   cơ cấu tổ chức DLU, kiến trúc so với GLPI gốc, 6 tầng phòng thủ chống lạm dụng,
@@ -62,12 +104,12 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 - **CI: ghim mọi action theo commit SHA** (`actions/checkout@3d3c42e5... # v7.0.1`,
   `setup-python`, `setup-node`) thay cho tag trôi nổi `@v7` → chống thay đổi
   nguồn cung ứng (supply-chain).
-- **CI: chốt con số "37 điểm kiểm"** của harness `kiem-thu-han-muc.php`. Bước
-  kiểm chạy harness rồi bắt output phải khớp `KET QUA: n/37 dat` — ai thêm/bớt
-  `check()` mà quên cập nhật tài liệu (hoặc ngược lại) thì pipeline đỏ, cùng
-  triết lý với cửa "Từ điển Việt hoá phải đủ 556 + 212". Ghi chú đầu harness
-  cũng nêu rõ cách đếm (32 lời gọi tĩnh + 5 lần trong vòng lặp tạo 5 user = 37)
-  để không ai "sửa" nhầm thành 32/33.
+- **CI: chốt số điểm kiểm của harness `kiem-thu-han-muc.php`.** Bước kiểm chạy
+  harness rồi bắt output phải khớp `KET QUA: n/N dat` — ai thêm/bớt `check()`
+  mà quên cập nhật tài liệu (hoặc ngược lại) thì pipeline đỏ, cùng triết lý với
+  cửa "Từ điển Việt hoá phải đủ 556 + 212". Con số N ban đầu là 37; sau khi mở
+  rộng T4 (chống trùng theo nội dung) thành **42** (xem mục dưới). Ghi chú đầu
+  harness nêu rõ cách đếm để không ai "sửa" nhầm.
 - **`docker-compose.yml`: giới hạn log cho mọi service** (anchor `x-logging`:
   json-file, 10 MB × 3 file/service). Trước đây log container không giới hạn →
   phình vô hạn trên máy dev.

@@ -11,7 +11,7 @@
  *
  *  Kịch bản (chạy trên CSDL THẬT, tự dọn dẹp sau khi xong):
  *
- *    1. Tạo 5 user tạm (Self-Service — quyền ticket không có UPDATE)
+ *    1. Tạo 6 user tạm (Self-Service — quyền ticket không có UPDATE)
  *    2. User A tạo 5 phiếu hợp lệ -> tất cả phải thành công
  *    3. User A tạo phiếu thứ 6 -> PHẢI BỊ CHẶN (LIMIT_BLOCKED) — trần phiếu mở
  *    4. User B tạo phiếu trùng loại + vị trí -> PHẢI BỊ CHẶN (DUP_BLOCKED)
@@ -20,6 +20,8 @@
  *    4c. User C: hạ tạm trần ngày xuống 2 -> phiếu thứ 3 trong ngày bị chặn (T3b)
  *    4d. User E: gửi kèm date lùi / status=6 / _skip_auto_assign / _auto_import
  *        -> phiếu vẫn tạo được nhưng các trường bị ép về giá trị chuẩn
+ *    4e. User D: gửi lại CÙNG tiêu đề nhưng KHÁC category -> PHẢI BỊ CHẶN
+ *        (T4 điều kiện c — chống spam đổi category); tiêu đề KHÁC -> không chặn
  *    5. User có quyền UPDATE (kỹ thuật viên profile 6) tạo phiếu -> KHÔNG bị chặn
  *    6. Phiếu do cron tạo -> KHÔNG bị chặn
  *    7. Kiểm tra nhật ký T6 + dọn dẹp: xoá phiếu, user tạm, MỌI dòng nhật ký
@@ -27,12 +29,13 @@
  *
  *  Kết quả: exit 0 nếu mọi kịch bản đạt, exit 1 nếu có kịch bản thất bại.
  *
- *  CÁCH ĐẾM "37 ĐIỂM KIỂM" (con số nêu trong README/tài liệu):
- *    Đếm theo SỐ LẦN CHẠY check(), không phải số lời gọi trong mã nguồn:
- *      32 lời gọi tĩnh + 5 lần của lời gọi trong vòng lặp tạo 5 user tạm
- *      = 37. Dòng cuối in ra "KET QUA: n/37 dat" lấy trực tiếp từ biến
- *      $checks lúc chạy, nên không bao giờ lệch với con số trong tài liệu.
- *    => Đừng "sửa" 37 thành 32/33 khi grep đếm lời gọi: sẽ làm số liệu SAI.
+ *  CÁCH ĐẾM "42 ĐIỂM KIỂM" (con số nêu trong README/tài liệu):
+ *    Đếm theo SỐ LẦN CHẠY check(), không phải lời gọi trong mã:
+ *      32 lời gọi tĩnh (ngoài vòng lặp/khối điều kiện) + 6 lần của lời gọi
+ *      trong vòng lặp tạo 6 user tạm, + 4 lời gọi trong khối "if ($e_ticket > 0)"
+ *      (4d, chỉ chạy khi tạo được phiếu E) = 42. Dòng cuối in ra
+ *      "KET QUA: n/42 dat" lấy trực tiếp từ biến $checks lúc chạy.
+ *    => Đừng "sửa" 42 thành 32/36 khi grep đếm lời gọi: sẽ làm số liệu SAI.
  * -----------------------------------------------------------------------------
  */
 
@@ -177,7 +180,7 @@ $WIN_MIN  = $limits['window_min'];
 // -----------------------------------------------------------------------------
 // 1. Tao user tam (Self-Service)
 // -----------------------------------------------------------------------------
-echo "\n--- 1. Tao 5 user tam (Self-Service) ---\n";
+echo "\n--- 1. Tao 6 user tam (Self-Service) ---\n";
 
 $suffix  = substr((string) time(), -6);
 $uname_a = 'test.hm.a.' . $suffix;
@@ -185,11 +188,12 @@ $uname_b = 'test.hm.b.' . $suffix;
 $uname_c = 'test.hm.c.' . $suffix;
 $uname_d = 'test.hm.d.' . $suffix;
 $uname_e = 'test.hm.e.' . $suffix;
+$uname_f = 'test.hm.f.' . $suffix;
 
 $profile_self = 1;   // "Nguoi dung" (Self-Service) — da kiem chung quyen ticket = 5
 
 $ids = [];
-foreach (['a' => $uname_a, 'b' => $uname_b, 'c' => $uname_c, 'd' => $uname_d, 'e' => $uname_e] as $key => $uname) {
+foreach (['a' => $uname_a, 'b' => $uname_b, 'c' => $uname_c, 'd' => $uname_d, 'e' => $uname_e, 'f' => $uname_f] as $key => $uname) {
     $u = new User();
     $uid = $u->add([
         'name'         => $uname,
@@ -206,6 +210,7 @@ $uid_b = $ids['b'];
 $uid_c = $ids['c'];
 $uid_d = $ids['d'];
 $uid_e = $ids['e'];
+$uid_f = $ids['f'];
 
 // Tim super-admin (profile 4) — de loai khoi vai tro KTV
 $admin_id = 0;
@@ -566,6 +571,62 @@ if ($e_ticket > 0) {
 }
 
 // -----------------------------------------------------------------------------
+// 4e. User F: trung theo NOI DUNG (ten giong nhau, KHAC category) — dieu kien (c)
+//     Day la lo hong that: trong 5 phieu duoc phep, user doi category moi lan
+//     de gui lai cung noi dung -> T4 truoc day khong bat duoc.
+//     Dung user F rieng (user D da "day" phieu cho cac muc 4b nen de cham tran).
+// -----------------------------------------------------------------------------
+echo "\n--- 4e. User F: trung theo NOI DUNG (cung ten, khac category) ---\n";
+
+test_logout();
+test_login($uid_f);
+
+// Danh muc KHAC voi $cat_id de chac chan khong dinh nhanh (b) cung loai+vi tri
+$cat_other = 0;
+$res = $DB->doQuery("SELECT id FROM glpi_itilcategories WHERE is_request = 1 AND id <> $cat_id ORDER BY id LIMIT 1");
+if ($res && ($row = $DB->fetchAssoc($res))) {
+    $cat_other = (int) $row['id'];
+}
+check($cat_other > 0 && $cat_other !== $cat_id, "Co loai su co KHAC de kiem trung noi dung (id=$cat_other)");
+
+// Phieu A: ten "X" (khong thiet bi, khong vi tri)
+$name_x = PLUGIN_PINEDESK_TEST_TAG . ' X trung noi dung';
+$t = new Ticket();
+$name_a = $t->add([
+    'name'              => $name_x,
+    'content'           => 'Phieu A — se bi gui lai voi cung ten nhung khac category.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($name_a > 0, "F: phieu A ten 'X' tao thanh cong (id=" . var_export($name_a, true) . ")");
+
+// Phieu B: CUNG ten "X" nhung KHAC category -> PHAI BI CHAN (dieu kien c)
+$t = new Ticket();
+$name_b = $t->add([
+    'name'              => $name_x,
+    'content'           => 'Phieu B — cung ten X nhung khac category; phai bi chan boi T4(c).',
+    'type'              => 1,
+    'itilcategories_id' => $cat_other,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($name_b === false || $name_b === 0, "F: phieu B CUNG TEN khac category BI CHAN (add tra ve " . var_export($name_b, true) . ")");
+
+// Phieu C: ten "Y" KHAC -> KHONG bi chan
+$t = new Ticket();
+$name_c = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' Y khac ten (khong duoc chan)',
+    'content'           => 'Phieu C — ten Y khac hoan toan; phai duoc phep.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_other,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($name_c > 0, "F: phieu C TEN KHAC KHONG bi chan (id=" . var_export($name_c, true) . ")");
+
+// -----------------------------------------------------------------------------
 // 5. KTV (co quyen UPDATE) -> KHONG bi chan
 // -----------------------------------------------------------------------------
 echo "\n--- 5. Ky thuat vien tao phieu (mien tru) ---\n";
@@ -632,6 +693,8 @@ $to_delete = array_merge(
         $d_first,
         $d_no_anchor,
         $d_other_device,
+        $name_a,
+        $name_c,
         $e_ticket,
         $ktv_ticket,
         $cron_ticket,
@@ -653,8 +716,8 @@ if ($log_id_before >= 0) {
     $DB->doQuery("DELETE FROM " . PLUGIN_PINEDESK_TABLE_LOG . " WHERE id > " . $log_id_before);
 }
 
-// Xoa 5 user tam (kem ho so)
-foreach ([$uid_a, $uid_b, $uid_c, $uid_d, $uid_e] as $uid) {
+// Xoa 6 user tam (kem ho so)
+foreach ([$uid_a, $uid_b, $uid_c, $uid_d, $uid_e, $uid_f] as $uid) {
     if ($uid > 0) {
         $u = new User();
         if ($u->getFromDB($uid)) {

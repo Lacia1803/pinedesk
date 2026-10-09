@@ -143,7 +143,7 @@ pinedesk/
 ├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (CSS + logo) — NGUỒN MÀU DUY NHẤT
 ├── plugins/pinedesk/            # ★ Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
 │   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
-│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (37 điểm kiểm)
+│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (42 điểm kiểm)
 ├── scripts/                     # ★ Tất cả script tự động hoá
 │   ├── cai-dat-tat-ca.sh        #   Cài toàn bộ, 1 lệnh
 │   ├── nap-du-lieu-nen.sh       #   Nạp danh mục nghiệp vụ

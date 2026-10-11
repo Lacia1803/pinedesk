@@ -605,6 +605,47 @@ WHERE t.users_id_recipient IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
                   WHERE tu.tickets_id = t.id AND tu.type = 1);
 
+-- 7b. Lien ket phieu su co voi thiet bi (glpi_items_tickets)
+--     Phuc vu tab "Lich su phieu su co" tren ho so thiet bi khi demo.
+INSERT INTO glpi_items_tickets (itemtype, items_id, tickets_id)
+SELECT m.itemtype, m.items_id, t.id
+FROM (
+    SELECT 'Máy không khởi động được' AS tname, 'Computer' AS itemtype,
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A101-003' LIMIT 1) AS items_id UNION ALL
+    SELECT 'Máy in không in được', 'Printer',
+           (SELECT id FROM glpi_printers WHERE name = 'TDL-PRN-A102-001' LIMIT 1) UNION ALL
+    SELECT 'Màn hình bị sọc ngang', 'Monitor',
+           (SELECT id FROM glpi_monitors WHERE name = 'TDL-MON-A101-002' LIMIT 1) UNION ALL
+    SELECT 'Phần mềm AutoCAD báo lỗi bản quyền', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A201-001' LIMIT 1) UNION ALL
+    SELECT 'Chuột và bàn phím không nhận', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A102-002' LIMIT 1) UNION ALL
+    SELECT 'Máy tính chạy rất chậm', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-B101-001' LIMIT 1) UNION ALL
+    SELECT 'Cài lại Windows cho máy TDL-PC-A101-004', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A101-004' LIMIT 1) UNION ALL
+    SELECT 'Thay mực máy in phòng A201', 'Printer',
+           (SELECT id FROM glpi_printers WHERE name = 'TDL-PRN-A201-001' LIMIT 1) UNION ALL
+    SELECT 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A101-001' LIMIT 1) UNION ALL
+    SELECT 'Vệ sinh máy trạm A201', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A201-003' LIMIT 1) UNION ALL
+    SELECT 'Thay cáp mạng phòng B1', 'NetworkEquipment',
+           (SELECT id FROM glpi_networkequipments WHERE name = 'TDL-SW-B201-001' LIMIT 1) UNION ALL
+    SELECT 'Cài đặt Google Chrome cho phòng A102', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A102-001' LIMIT 1) UNION ALL
+    SELECT 'Không kết nối được mạng LAN', 'NetworkEquipment',
+           (SELECT id FROM glpi_networkequipments WHERE name = 'TDL-WF-A102-001' LIMIT 1)
+) m
+JOIN glpi_tickets t ON t.name = m.tname
+WHERE m.items_id IS NOT NULL AND m.items_id > 0
+  AND NOT EXISTS (
+      SELECT 1 FROM glpi_items_tickets it
+      WHERE it.itemtype = m.itemtype
+        AND it.items_id = m.items_id
+        AND it.tickets_id = t.id
+  );
+
 
 -- ==============================================================================
 --  8. LICH BAO TRI DINH KY + MUON/TRA THIET BI

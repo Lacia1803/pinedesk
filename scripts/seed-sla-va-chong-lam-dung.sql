@@ -487,6 +487,15 @@ WHERE @ticket_muon IS NOT NULL AND @tech_user IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
                    WHERE tu.tickets_id = @ticket_muon AND tu.type = 2);
 
+-- B3.5. Gan thiet bi (TDL-LAP-003) vao phieu muon
+INSERT INTO glpi_items_tickets (itemtype, items_id, tickets_id)
+SELECT 'Computer', @lap3, @ticket_muon
+WHERE @ticket_muon IS NOT NULL AND @lap3 IS NOT NULL
+  AND NOT EXISTS (SELECT 1 FROM glpi_items_tickets it
+                   WHERE it.itemtype = 'Computer'
+                     AND it.items_id = @lap3
+                     AND it.tickets_id = @ticket_muon);
+
 -- SUA BAN GHI CU (idempotent): neu phieu muon da ton tai tu lan chay truoc
 -- (type=1 / thieu solvedate / thieu vi tri / sai nguon tiep nhan) thi cap nhat.
 UPDATE glpi_tickets

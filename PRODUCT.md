@@ -76,7 +76,7 @@ Ràng buộc:
   plugin Barcode cần tài khoản quản trị, chụp bằng `node scripts/chup-anh-qr-admin.js`.
 
 **Không được bịa:** không có khách hàng thật, không có số người dùng, không có
-benchmark hiệu năng, không có giải thưởng, không có đánh giá từ bên thứ ba.
+benchmark ngoài phép đo cục bộ đã công bố (`tai-lieu/DO-TAI.md`), không có giải thưởng, không có đánh giá từ bên thứ ba.
 
 ## Product Principles
 

@@ -209,6 +209,7 @@
 
     /* --- Màu gốc lấy từ logo / thiên nhiên Đà Lạt --- */
     --dlu-cam: #F08418;          /* cam đất  — mặt trời trong logo */
+    --dlu-cam-rgb: 240, 132, 24;  /* dạng rgb để dùng cho rgba() box-shadow */
     --dlu-cam-dam: #D97210;      /* cam đất đậm */
     --dlu-reu: #607824;          /* xanh rêu — núi, dòng chữ ĐẠI HỌC ĐÀ LẠT */
     --dlu-reu-dam: #3D4E17;      /* xanh rêu đậm */
@@ -724,6 +725,18 @@ body.welcome-anonymous .card {
     box-shadow: var(--dlu-shadow-float, 0 12px 32px -6px rgba(38, 48, 26, 0.12)) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
+    animation: dlu-card-entrance 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes dlu-card-entrance {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.99);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* Khối chứa thẻ cũng phải nổi lên trên cảnh đồi.
@@ -794,6 +807,7 @@ body.welcome-anonymous .form-select {
     border: 1px solid var(--dlu-ke-dam, rgba(38, 48, 26, 0.16)) !important;
     background-color: var(--dlu-giay-vua, #F3EFE6) !important;
     color: var(--dlu-muc, #26301A) !important;
+    padding: 0.6rem 0.9rem !important;
     transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease !important;
 }
 
@@ -802,16 +816,6 @@ body.welcome-anonymous .form-select:focus {
     background-color: #FFFFFF !important;
     border-color: var(--dlu-cam) !important;
     box-shadow: var(--dlu-focus-ring) !important;
-}
-    padding: 0.6rem 0.9rem !important;
-    background: #FDFEFB !important;
-}
-
-body.welcome-anonymous .form-control:focus,
-body.welcome-anonymous .form-select:focus {
-    border-color: var(--dlu-focus) !important;
-    box-shadow: 0 0 0 0.22rem rgba(var(--dlu-focus-rgb), 0.24) !important;
-    background: #fff !important;
 }
 
 /* Nhãn biểu mẫu */
@@ -967,8 +971,10 @@ body.welcome-anonymous a.copyright:hover {
 
 /* Giảm chuyển động: cảnh vẫn hiện đầy đủ nhưng đứng yên hoàn toàn. */
 @media (prefers-reduced-motion: reduce) {
-    .dlu-canh__suong { animation: none; }
-    .dlu-canh__lop { transition: none; }
+    .dlu-canh__suong { animation: none !important; }
+    .dlu-canh__lop { transition: none !important; }
+    body.welcome-anonymous .card { animation: none !important; }
+    .btn, .table tbody tr, .modal.fade .modal-dialog { transition: none !important; }
 }
 
 /* =============================================================================
@@ -1226,6 +1232,10 @@ header.navbar .form-control {
     box-shadow: var(--dlu-shadow-float) !important;
 }
 
+.modal.fade .modal-dialog {
+    transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease !important;
+}
+
 .modal-header .modal-title {
     font-family: var(--dlu-font-display, "Literata", Georgia, serif) !important;
     font-size: 1.15rem !important;
@@ -1272,6 +1282,10 @@ h1.page-header-title,
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
     vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: background-color 140ms ease !important;
 }
 
 .table tbody tr:hover {

@@ -262,7 +262,7 @@ Mỗi pull request và mỗi lần push lên `main`/`master` đều chạy pipel
 
 | # | Nhóm | Nội dung |
 |---|---|---|
-| 1 | **Cú pháp** | `bash -n` (shell) · `py_compile` (Python) · `node --check` (JS) |
+| 1 | **Cú pháp** | `bash -n` (shell) · `py_compile` (Python) · `node --check` (JS) · `php -l` (PHP) |
 | 2 | **ShellCheck** | Lint shell ở mức `warning` — bắt lỗi thật, không bắt style |
 | 3 | **Cấu hình** | `docker compose config` · mọi service phải có `healthcheck` · `nginx -t` |
 | 4 | **Chứng chỉ SSL** | Sinh được từ `openssl-san.cnf` và **bắt buộc có SAN** |

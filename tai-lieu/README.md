@@ -283,7 +283,7 @@ Plugin `pinedesk` đăng ký hook `PRE_ITEM_ADD` của GLPI, can thiệp trướ
 - Kiểm tra T3a (Trần phiếu đang mở): Hàm `plugin_pinedesk_count_open()` đếm trực tiếp trên bảng `glpi_tickets` với `status IN (1,2,3,4)` — không qua view. (View `v_pinedesk_phieu_dang_mo` chỉ phục vụ tra cứu thủ công qua SQL, không tham gia đường xử lý phiếu.) Nếu đạt ngưỡng 5 phiếu, hệ thống từ chối tạo phiếu và gửi thông báo tiếng Việt yêu cầu chờ xử lý các phiếu cũ.
   **Lưu ý quan trọng (đã kiểm chứng bằng HTTP thật):** trên đường tạo phiếu mới của GLPI 11 (`/Form/SubmitAnswers`), khi plugin chặn bằng cách gán `$item->input = false`, lõi GLPI ném `Exception("Failed to create ...")` (`AbstractCommonITILFormDestination.php:187`) và **thay thế thông báo tiếng Việt bằng lỗi hệ thống chung "Failed to submit form, please contact your administrator"**. Cơ chế chặn vẫn có tác dụng (phiếu không được ghi), nhưng thông báo thân thiện chỉ hiển thị trên đường `/front/ticket.form.php` cũ. Đây là hành vi của lõi GLPI, không sửa được nếu không đụng vào lõi — ghi rõ ở mục hạn chế của báo cáo.
 - Kiểm tra T3b (Trần phiếu theo ngày): Đếm số phiếu tạo trong ngày của tài khoản. Nếu chạm ngưỡng 10 phiếu, hệ thống từ chối yêu cầu tiếp theo.
-- Kiểm tra T4 (Chống phiếu trùng): Nếu cùng tài khoản nộp phiếu trùng (cùng thiết bị, hoặc cùng loại sự cố + cùng vị trí, hoặc vượt trần tổng phiếu trong cửa sổ) trong vòng 30 phút mà phiếu cũ chưa đóng, hệ thống chặn phiếu mới và thông báo mã phiếu cũ đang được xử lý.
+- Kiểm tra T4 (Chống phiếu trùng): Nếu cùng tài khoản nộp phiếu trùng (cùng tiêu đề, cùng thiết bị, hoặc cùng loại sự cố và vị trí) trong vòng 30 phút mà phiếu cũ chưa đóng, hệ thống chặn phiếu mới và thông báo mã phiếu cũ đang được xử lý.
 - An toàn đồng thời: Sử dụng hàm `GET_LOCK('pinedesk_hm_<uid>', 3)` của MariaDB — mỗi người dùng có một khóa riêng (`pinedesk_hm_<users_id>`) nên các phiên của những người khác nhau không chặn lẫn nhau, chỉ tuần tự hoá các tab của cùng một tài khoản. Timeout 3 giây; không lấy được khóa → fail-open (không chặn oan).
 - Khả năng chịu lỗi: Nếu truy vấn đếm gặp lỗi cơ sở dữ liệu, plugin ghi log vào `pinedesk.log` và tạm thời cho phép phiếu đi qua nhằm tránh chặn nhầm người dùng hợp lệ.
 
@@ -372,7 +372,7 @@ Cấu trúc bộ chọn CSS hỗ trợ đa theme:
 Đo lường trực tiếp qua `scripts/do-do-phu-tieng-viet.py` từ tệp `.mo` trong container GLPI:
 - Tổng số chuỗi giao diện: 6.511 chuỗi.
 - Đã dịch: 2.186 chuỗi (đạt tỉ lệ 33,6%).
-- Chưa dịch: 4.427 chuỗi (tập trung 65,3% ở các thông báo kỹ thuật sâu và cảnh báo hệ thống).
+- Chưa dịch: 4.325 chuỗi; nhóm "Khác" (chủ yếu là thông báo kỹ thuật sâu và cảnh báo hệ thống) chiếm 65,1% trong số đó.
 
 Hệ thống đã Việt hóa toàn bộ 9 thẻ đếm trạng thái tại trang Hỗ trợ: `Phiếu mới tiếp nhận`, `Phiếu đang chờ`, `Phiếu đã phân công`, `Phiếu đã lên kế hoạch`, `Phiếu đã giải quyết`, `Phiếu đã đóng`, `Phiếu quá hạn`, cùng hai biểu đồ `Phiếu theo tháng` và `Tình trạng phiếu theo tháng`.
 
@@ -534,7 +534,7 @@ Kiểm tra:
 |---|---|---|
 | Phút 0:00 - 1:30 | Đặt vấn đề: 5 nhân sự ITC, 14.500+ người học, 73% thời gian tuần ngoài giờ không có kênh tiếp nhận trực tiếp. PineDesk mở kênh tự phục vụ 24/7 có cấu trúc. | Slide tổng quan chỉ số |
 | Phút 1:30 - 2:30 | Trình diễn hệ thống thực tế: Đăng nhập giao diện tiếng Việt bảng màu Đà Lạt, kết nối HTTPS với chứng chỉ SAN, kiến trúc 4 container triển khai 1 lệnh. | Trang đăng nhập hệ thống |
-| Phút 2:30 - 4:00 | Nghiệp vụ nộp phiếu và chống spam: Đăng nhập sinh viên `sv.hoa` nộp phiếu tự phục vụ; chạy `bash scripts/kiem-tra-lam-dung.sh`; giải thích NAT phòng máy và trần 5 phiếu mở; thử gửi phiếu thứ 6 bị chặn kèm thông báo tiếng Việt; chứng minh HTTP 429 khi gửi dồn dập. | Giao diện sinh viên, terminal |
+| Phút 2:30 - 4:00 | Nghiệp vụ nộp phiếu và chống spam: Đăng nhập sinh viên `sv.hoa` nộp phiếu tự phục vụ; chạy `bash scripts/kiem-tra-lam-dung.sh`; giải thích NAT phòng máy và trần 5 phiếu mở; thử gửi phiếu thứ 6 bị chặn (lưu ý mục 4.3: trên form mới, thông báo là lỗi hệ thống của lõi GLPI); chứng minh HTTP 429 khi gửi dồn dập. | Giao diện sinh viên, terminal |
 | Phút 4:00 - 5:30 | Vòng đời phiếu và SLA: Đăng nhập `glpi`, mở danh sách 13 phiếu mẫu trải đủ 4 trạng thái; trình diễn 5 mức SLA kỹ thuật (P1 đến P5); lọc phiếu quá hạn phản hồi. Nhấn mạnh SLA là tham số kỹ thuật mẫu đề xuất. | Bảng danh sách phiếu, SLA |
 | Phút 5:30 - 6:30 | Quản lý thiết bị và mã QR: Mở máy `TDL-PC-A101-001`, trình chiếu mã QR trên hồ sơ máy; giải thích quy chuẩn mã tài sản TDL; nêu bản vá cho plugin Barcode và script Python dự phòng. | Hồ sơ máy tính |
 | Phút 6:30 - 7:00 | Kiến trúc ngoài lõi và kết luận: Toàn bộ tùy biến nằm ngoài `src/` GLPI; pipeline CI kiểm thử tự động; thừa nhận đồ án là giải pháp kỹ thuật đề xuất, bước tiếp theo là khảo sát thực địa tại ITC. | Sơ đồ hệ thống, slide cuối |
@@ -566,7 +566,7 @@ Kiểm tra:
 ### Nhóm B: Cơ chế chống lạm dụng và spam
 
 **B1. "Sinh viên spam nộp phiếu liên tục thì sao?"**
-- Trả lời: Hệ thống áp dụng 6 tầng phòng thủ. Tầng mạng giới hạn 30 request/phút theo IP; tầng nghiệp vụ giới hạn tối đa 5 phiếu mở và 10 phiếu/ngày cho mỗi tài khoản; chặn phiếu trùng cùng thiết bị trong 30 phút; ghi nhật ký mọi lượt gửi vào bảng riêng. Trình diễn thực tế: Gửi dồn dập nhận HTTP 429; gửi phiếu thứ 6 bị chặn kèm thông báo tiếng Việt.
+- Trả lời: Hệ thống áp dụng 6 tầng phòng thủ. Tầng mạng giới hạn 30 request/phút theo IP; tầng nghiệp vụ giới hạn tối đa 5 phiếu mở và 10 phiếu/ngày cho mỗi tài khoản; chặn phiếu trùng cùng thiết bị trong 30 phút; ghi nhật ký mọi lượt gửi vào bảng riêng. Trình diễn thực tế: Gửi dồn dập nhận HTTP 429; gửi phiếu thứ 6 bị chặn (trên form mới, thông báo là lỗi hệ thống của lõi GLPI; xem lưu ý mục 4.3).
 - Minh chứng: Mục 4 tài liệu này, `nginx/conf.d/default.conf`, `plugins/pinedesk/hook.php`.
 
 **B2. "Tại sao rate limit đặt theo IP mà không theo tài khoản?"**
@@ -580,7 +580,7 @@ Kiểm tra:
 - Trả lời: Bot phải vượt qua bước đăng nhập vốn bị giới hạn 10 request/phút mỗi IP với mã lỗi 429. Mọi cổng nộp phiếu đều nằm trong vùng đệm 30 request/phút của Nginx. Kể cả qua được tầng mạng, bot vẫn bị chặn bởi trần phiếu tài khoản và khóa chống trùng lặp.
 
 **B5. "Cơ chế này em đã kiểm thử tự động chưa?"**
-- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 46 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php`, tích hợp vào pipeline CI để xác nhận hành vi trả mã 429, chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên.
+- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 46 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` cho hành vi chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên. Mã 429 được kiểm tra riêng trên đường HTTP thật bằng `scripts/kiem-tra-http-limit.sh`. Cả hai đều chạy trong pipeline CI.
 
 ### Nhóm C: Quy trình nghiệp vụ và cam kết thời gian (SLA)
 

@@ -207,7 +207,7 @@ Từ ba dữ kiện trên, em nhận thấy ba khoảng trống:
 - Hệ thống chạy nội bộ bằng Docker Compose trên một máy, truy cập qua HTTPS tại `https://localhost:8443`.
 - Dữ liệu nghiệp vụ mô phỏng theo cơ cấu của Trường (12 tòa nhà, 54 phòng máy, 16 khoa, 79 loại sự cố), không phải dữ liệu thật.
 - Đề tài **không** triển khai trên hạ tầng thật của Trường và **chưa** được ITC phê duyệt.
-- Đề tài **không** đo hiệu năng khi có nhiều người dùng đồng thời; đây là hạn chế được nêu ở mục 5.2.
+- Đề tài **đã đo tải cục bộ** trên máy phát triển (`DO-TAI.md`) nhưng **chưa đo trên hạ tầng thật** của Trường; đây là hạn chế được nêu ở mục 5.2.
 
 **Phạm vi thời gian:** từ ngày 21/09/2026 đến ngày 03/10/2026.
 
@@ -727,7 +727,7 @@ Mỗi lần đẩy mã nguồn lên nhánh chính, GitHub Actions chạy pipelin
 
 | # | Nhóm | Nội dung |
 |---|---|---|
-| 1 | Cú pháp | `bash -n`, `py_compile`, `node --check` |
+| 1 | Cú pháp | `bash -n`, `py_compile`, `node --check`, `php -l` |
 | 2 | ShellCheck | Lint shell ở mức warning |
 | 3 | Cấu hình | `docker compose config`, mọi service phải có healthcheck, `nginx -t` |
 | 4 | Chứng chỉ SSL | Sinh được từ `openssl-san.cnf` và bắt buộc có SAN |
@@ -736,7 +736,7 @@ Mỗi lần đẩy mã nguồn lên nhánh chính, GitHub Actions chạy pipelin
 
 *Bảng 4.8. Sáu nhóm kiểm tra trong pipeline CI*
 
-Nhóm smoke test gồm 20 bước, trong đó có những bước chốt lại đúng các lỗi từng gặp để chúng không quay lại: tài khoản demo phải có hồ sơ quyền và đăng nhập được, dữ liệu hiển thị phải đã Việt hóa, thương hiệu và dải màu ưu tiên phải được đặt, từ điển phải đủ 667 thuật ngữ và 212 mục số nhiều, và chức năng phân quyền theo vai trò phải hoạt động.
+Nhóm smoke test gồm 27 bước, trong đó có những bước chốt lại đúng các lỗi từng gặp để chúng không quay lại: tài khoản demo phải có hồ sơ quyền và đăng nhập được, dữ liệu hiển thị phải đã Việt hóa, thương hiệu và dải màu ưu tiên phải được đặt, từ điển phải đủ 667 thuật ngữ và 212 mục số nhiều, và chức năng phân quyền theo vai trò phải hoạt động.
 
 Pipeline chặn merge nếu bất kỳ cửa nào thất bại.
 
@@ -813,7 +813,7 @@ Chi tiết đầy đủ của đợt rà soát (từng vấn đề, cách sửa,
 - Mã QR cho thiết bị, đã giải mã kiểm chứng.
 - Lớp chống lạm dụng sáu tầng với bằng chứng chạy thật (HTTP 429 sau 11 yêu cầu).
 - Kiểm thử: 25/25 mục đạt với vai trò kỹ thuật viên, 15/15 với vai trò sinh viên.
-- Pipeline CI sáu nhóm gồm 29 bước kiểm tra tự động nghiêm ngặt (có cả E2E Playwright và đo tải).
+- Pipeline CI sáu nhóm gồm 46 bước kiểm tra tự động nghiêm ngặt (có cả E2E Playwright).
 - Đặc tả hệ thống thiết kế `DESIGN.md` chuẩn Impeccable (dung hợp Apple Precision + Claude Warmth + Bản sắc Đà Lạt).
 - Khảo sát số liệu thực tế có nguồn chính thức (`SO-LIEU-THUC-TE-DLU.md`) và báo cáo đo tải định lượng (`DO-TAI.md`).
 
@@ -826,7 +826,7 @@ Em ghi thẳng những gì chưa làm được, vì đây là phần quan trọn
 | 1 | Đề tài chưa được ITC phê duyệt và chưa triển khai trên hạ tầng thật của Trường | Nghiêm trọng |
 | 2 | Số sự cố ITC thực tế tiếp nhận mỗi tuần, thời gian phản hồi trung bình hiện tại: chưa có dữ liệu | Nghiêm trọng |
 | 3 | 5 mức SLA và hạn mức 5 phiếu / 10 phiếu mỗi ngày là đề xuất kỹ thuật, chưa được Trường xác nhận | Nghiêm trọng |
-| 4 | Chưa đo hiệu năng khi có nhiều người dùng đồng thời | Trung bình |
+| 4 | Đã đo tải cục bộ trên máy phát triển (`DO-TAI.md`); chưa đo trên hạ tầng thật với người dùng thật | Trung bình |
 | 5 | Tầng T5 (kiểm duyệt trước khi giao việc) đã tự động **nhắc** soát xét cho phiếu ưu tiên cao, nhưng phần **quyết định** mức ưu tiên vẫn cần kỹ thuật viên | Thấp |
 | 6 | Nhật ký chống lạm dụng chưa có giao diện xem cho kỹ thuật viên, hiện xem bằng SQL | Trung bình |
 | 7 | Chưa có CAPTCHA cho trường hợp mở nộp phiếu ẩn danh qua QR | Thấp, do phạm vi |
@@ -839,7 +839,7 @@ Em ghi thẳng những gì chưa làm được, vì đây là phần quan trọn
 
 Về hai mục cuối, đây là giảm thiểu rủi ro bằng thiết kế: đề tài không cho tự đăng ký và không cho nộp ẩn danh, nên hai rủi ro đó bị loại bỏ ở gốc thay vì phải chống đỡ sau khi đã cho phép.
 
-Về tầng T5, lý do không viết mã cho tầng này là muốn tự động chặn thì phải móc vào sự kiện tạo phiếu của GLPI, tức phải viết plugin sửa vào luồng lõi, làm mất tính "tùy biến ngoài lõi" vốn là mục tiêu cốt lõi của đề tài. Đây là đánh đổi có ý thức.
+Về tầng T5, phần nhắc soát xét đã được tự động hoá ở mức tối thiểu như mô tả ở mục 4.2.5. Phần quyết định mức ưu tiên vẫn để cho kỹ thuật viên vì hệ thống không đủ ngữ cảnh để quyết thay con người. Bước tiếp theo là dùng Rule engine của GLPI để tự phân loại và định tuyến theo quy tắc nghiệp vụ, cấu hình qua giao diện và vẫn giữ kiến trúc tùy biến ngoài lõi.
 
 ## 5.3. Hướng phát triển
 
@@ -847,7 +847,7 @@ Từ những hạn chế ở mục 5.2, hướng phát triển tiếp theo đư�
 
 1. **Phỏng vấn 5 nhân sự ITC** để kiểm chứng bài toán và xin số liệu tiếp nhận thực tế. Đây là việc cần làm đầu tiên nếu muốn biến đề tài từ "đề xuất" thành "đã triển khai".
 2. **Đề nghị ITC ban hành mức thời gian xử lý chính thức**, thay cho các con số đề xuất hiện tại.
-3. **Đo hiệu năng** khi có nhiều người dùng đồng thời, và cắm thử hệ thống ở một phòng máy để đo thực tế.
+3. **Đo hiệu năng trên hạ tầng thật**: phép đo cục bộ đã có (`DO-TAI.md`); bước tiếp là đo khi nhiều người dùng đồng thời trên máy chủ tách biệt và cắm thử hệ thống ở một phòng máy.
 4. **Hoàn thiện tầng T5**: nay đã tự động *nhắc* soát xét cho phiếu ưu tiên cao; bước tiếp là dùng Rule engine của GLPI để tự phân loại/định tuyến theo quy tắc nghiệp vụ cấu hình qua giao diện, giữ kiến trúc ngoài lõi.
 5. **Thêm giao diện xem nhật ký** cho kỹ thuật viên, để không phải truy vấn SQL.
 

@@ -44,14 +44,15 @@ viết tay từ đầu không thể sao chép được một cách trung thực.
 
 Đã xác nhận, có thật trong hệ thống:
 
-- Quản lý tài sản: 17 máy tính, 5 màn hình, 3 máy in, 9 thiết bị mạng, 10 phần mềm.
-- 13 phiếu sự cố mẫu trải đủ các trạng thái.
+- Quản lý tài sản: 482 máy tính (471 máy sinh viên thuộc 10 phòng máy, 6 máy giảng viên, 3 laptop, 2 máy chủ), 487 màn hình LCD & Smart Tivi, 3 máy in, 17 thiết bị mạng & tủ rack, 10 phần mềm.
+- 13 phiếu sự cố mẫu trải đủ các trạng thái liên kết trực tiếp với hồ sơ thiết bị phòng máy.
 - 6 tài khoản mẫu, 3 vai trò (quản trị, kỹ thuật viên, người dùng), mật khẩu chung `Dlu@2026`.
-- Mã tài sản theo quy ước thật: `TDL-PC-A101-001`.
+- Mã tài sản theo quy ước chuẩn: `TDL-PC-A241-001`, `TDL-PC-A85-003`, `TDL-MON-TV1-001`...
 - 667 thuật ngữ Việt hoá bổ sung + 212 mục dạng số nhiều; menu, biểu mẫu và nhãn
   dashboard đã Việt hoá.
 - 79 loại sự cố được phân loại sẵn; 12 toà nhà, 54 phòng, 16 khoa.
 - Bộ tài liệu trong `tai-lieu/`: `README.md` (tổng hợp toàn diện, 10 mục),
+  `BAO-CAO-THUC-TAP-FINAL.docx` (bản in Word chuẩn thể thức DLU, 73 trang, mục lục tương tác),
   `BAO-CAO-THUC-TAP.md` (báo cáo thực tập) và `slide-bao-ve.html` (8 slide bảo vệ).
 
 Ràng buộc:

@@ -162,52 +162,117 @@ WHERE u.name IN ('ktv.an', 'ktv.binh', 'gv.cuong', 'gv.dung', 'sv.hoa', 'sv.khan
 -- ==============================================================================
 --  3. THIET BI MAU (glpi_computers)
 --     Ma tai san theo quy uoc: TDL-PC-<PHONG>-<SO>
+--     Khoi tao 477 may tinh phong may thuc te cua Trung tam CNTT (DLU)
+--     + 3 laptop cho muon + 2 may chu = 482 may tinh tong cong.
 --     Dung ID tham chieu that tu du lieu nen.
 -- ==============================================================================
 
--- 3.1. May tinh trong cac phong may
+-- 3.0. Don dep thiet bi mau gia lap cu (tranh lan voi du lieu 10 phong may that)
+DELETE FROM glpi_items_tickets
+ WHERE (itemtype = 'Computer' AND items_id IN (SELECT id FROM glpi_computers WHERE name LIKE 'TDL-PC-A101-%' OR name LIKE 'TDL-PC-A102-%' OR name LIKE 'TDL-PC-A201-%' OR name LIKE 'TDL-PC-B101-%'))
+    OR (itemtype = 'Monitor' AND items_id IN (SELECT id FROM glpi_monitors WHERE name LIKE 'TDL-MON-A101-%' OR name LIKE 'TDL-MON-A102-%' OR name LIKE 'TDL-MON-A201-%' OR name LIKE 'TDL-MON-B101-%'))
+    OR (itemtype = 'Printer' AND items_id IN (SELECT id FROM glpi_printers WHERE name IN ('TDL-PRN-A102-001', 'TDL-PRN-A201-001')))
+    OR (itemtype = 'NetworkEquipment' AND items_id IN (SELECT id FROM glpi_networkequipments WHERE name IN ('TDL-SW-A101-001', 'TDL-SW-A201-001', 'TDL-AP-A101-001')));
+
+DELETE FROM glpi_computers
+ WHERE name LIKE 'TDL-PC-A101-%' OR name LIKE 'TDL-PC-A102-%' OR name LIKE 'TDL-PC-A201-%' OR name LIKE 'TDL-PC-B101-%';
+
+DELETE FROM glpi_monitors
+ WHERE name LIKE 'TDL-MON-A101-%' OR name LIKE 'TDL-MON-A102-%' OR name LIKE 'TDL-MON-A201-%' OR name LIKE 'TDL-MON-B101-%';
+
+DELETE FROM glpi_printers
+ WHERE name IN ('TDL-PRN-A102-001', 'TDL-PRN-A201-001');
+
+DELETE FROM glpi_networkequipments
+ WHERE name IN ('TDL-SW-A101-001', 'TDL-SW-A201-001', 'TDL-AP-A101-001');
+
+-- 3.1. May tinh thuc hanh sinh vien trong 10 phong may Trung tam CNTT (471 may)
+--      Sinh tu tap hop phong may va bang day so 1..60 bang ky thuat CROSS JOIN.
+INSERT INTO glpi_computers
+    (name, serial, otherserial, entities_id, locations_id, computertypes_id,
+     computermodels_id, manufacturers_id, states_id, users_id,
+     is_template, is_deleted, date_creation, date_mod, comment)
+SELECT
+    CONCAT('TDL-PC-', r.code, '-', LPAD(n.seq, 3, '0')) AS name,
+    CONCAT('SN-', r.code, '-', LPAD(n.seq, 4, '0')) AS serial,
+    CONCAT('TDL-PC-', r.code, '-', LPAD(n.seq, 3, '0')) AS otherserial,
+    @entity,
+    l.id,
+    (SELECT id FROM glpi_computertypes WHERE name = 'Máy tính để bàn' LIMIT 1),
+    (SELECT id FROM glpi_computermodels WHERE name = r.cmodel LIMIT 1),
+    (SELECT id FROM glpi_manufacturers WHERE name = r.brand LIMIT 1),
+    (SELECT id FROM glpi_states WHERE name = (
+        CASE
+            WHEN r.code = 'A85' AND n.seq = 3 THEN 'Đang sửa chữa'
+            WHEN r.code = 'TV2' AND n.seq = 10 THEN 'Hỏng'
+            WHEN r.code = 'A24L' AND n.seq = 5 THEN 'Đang bảo trì định kỳ'
+            ELSE 'Đang sử dụng'
+        END
+    ) LIMIT 1),
+    0, 0, 0, @now, @now,
+    CONCAT('Máy tính thực hành sinh viên - ', r.loc, ' - Máy số ', n.seq) AS comment
+FROM (
+    SELECT 'Phòng máy A24.1' AS loc, 'A241' AS code, 45 AS qty, 'OptiPlex 3000 Small' AS cmodel, 'Dell' AS brand UNION ALL
+    SELECT 'Phòng máy A24 lầu', 'A24L', 45, 'OptiPlex 3000 Small', 'Dell' UNION ALL
+    SELECT 'Phòng máy A8.3', 'A83', 48, 'PC Lắp ráp Core i3', 'Intel' UNION ALL
+    SELECT 'Phòng máy A8.4', 'A84', 48, 'PC Lắp ráp Core i3', 'Intel' UNION ALL
+    SELECT 'Phòng máy A8.5', 'A85', 49, 'PC Lắp ráp Core i5', 'Intel' UNION ALL
+    SELECT 'Phòng máy A8.6', 'A86', 50, 'PC Lắp ráp Core i5', 'Intel' UNION ALL
+    SELECT 'Phòng máy TV1', 'TV1', 46, 'PC Lắp ráp Pentium', 'Intel' UNION ALL
+    SELECT 'Phòng máy TV2', 'TV2', 45, 'PC Lắp ráp Pentium', 'Intel' UNION ALL
+    SELECT 'Phòng máy TV3', 'TV3', 45, 'PC Lắp ráp Pentium', 'Intel' UNION ALL
+    SELECT 'Phòng máy TV4', 'TV4', 50, 'PC Lắp ráp Pentium', 'Intel'
+) r
+CROSS JOIN (
+    SELECT a.n + b.n * 10 AS seq
+    FROM (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+          UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10) a
+    CROSS JOIN (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) b
+    WHERE a.n + b.n * 10 BETWEEN 1 AND 60
+) n
+JOIN glpi_locations l ON l.name = r.loc AND l.level = 3
+WHERE n.seq <= r.qty
+  AND NOT EXISTS (
+      SELECT 1 FROM glpi_computers c
+      WHERE c.otherserial = CONCAT('TDL-PC-', r.code, '-', LPAD(n.seq, 3, '0'))
+  );
+
+-- 3.1b. May tinh giang vien trong cac phong may A24.1, A24 lau, A8.3, A8.4, A8.5, A8.6 (6 may)
 INSERT INTO glpi_computers
     (name, serial, otherserial, entities_id, locations_id, computertypes_id,
      computermodels_id, manufacturers_id, states_id, users_id,
      is_template, is_deleted, date_creation, date_mod, comment)
 SELECT s.name, s.serial, s.otherserial, @entity,
        l.id,
-       (SELECT id FROM glpi_computertypes WHERE name = s.ctype LIMIT 1),
-       (SELECT id FROM glpi_computermodels  WHERE name = s.cmodel LIMIT 1),
-       (SELECT id FROM glpi_manufacturers   WHERE name = s.brand  LIMIT 1),
-       (SELECT id FROM glpi_states          WHERE name = s.state  LIMIT 1),
+       (SELECT id FROM glpi_computertypes WHERE name = 'Máy tính để bàn' LIMIT 1),
+       (SELECT id FROM glpi_computermodels WHERE name = s.cmodel LIMIT 1),
+       (SELECT id FROM glpi_manufacturers  WHERE name = s.brand LIMIT 1),
+       (SELECT id FROM glpi_states         WHERE name = 'Đang sử dụng' LIMIT 1),
        0, 0, 0, @now, @now, s.comment
 FROM (
-    SELECT 'TDL-PC-A101-001' AS name, 'SN-A101-0001' AS serial, 'TDL-PC-A101-001' AS otherserial,
-           'Phòng máy A101' AS loc, 'Máy tính để bàn' AS ctype, 'OptiPlex 7090' AS cmodel,
-           'Dell' AS brand, 'Đang sử dụng' AS state, 'May tinh thuc hanh phong A101' AS comment UNION ALL
-    SELECT 'TDL-PC-A101-002', 'SN-A101-0002', 'TDL-PC-A101-002',
-           'Phòng máy A101', 'Máy tính để bàn', 'OptiPlex 7090', 'Dell', 'Đang sử dụng', 'May tinh thuc hanh' UNION ALL
-    SELECT 'TDL-PC-A101-003', 'SN-A101-0003', 'TDL-PC-A101-003',
-           'Phòng máy A101', 'Máy tính để bàn', 'OptiPlex 7090', 'Dell', 'Đang sửa chữa', 'Hong nguon, cho linh kien' UNION ALL
-    SELECT 'TDL-PC-A101-004', 'SN-A101-0004', 'TDL-PC-A101-004',
-           'Phòng máy A101', 'Máy tính để bàn', 'OptiPlex 7090', 'Dell', 'Đang sử dụng', 'May tinh thuc hanh' UNION ALL
-    SELECT 'TDL-PC-A102-001', 'SN-A102-0001', 'TDL-PC-A102-001',
-           'Phòng máy A102', 'Máy tính để bàn', 'EliteDesk 800 G6', 'HP', 'Đang sử dụng', 'May tinh thuc hanh' UNION ALL
-    SELECT 'TDL-PC-A102-002', 'SN-A102-0002', 'TDL-PC-A102-002',
-           'Phòng máy A102', 'Máy tính để bàn', 'EliteDesk 800 G6', 'HP', 'Đang sử dụng', 'May tinh thuc hanh' UNION ALL
-    SELECT 'TDL-PC-A102-003', 'SN-A102-0003', 'TDL-PC-A102-003',
-           'Phòng máy A102', 'Máy tính để bàn', 'EliteDesk 800 G6', 'HP', 'Hỏng', 'Man hinh khong len' UNION ALL
-    SELECT 'TDL-PC-A201-001', 'SN-A201-0001', 'TDL-PC-A201-001',
-           'Phòng máy A201', 'Máy trạm đồ họa', 'ProArt Station D940MX', 'Asus', 'Đang sử dụng', 'May tram do hoa' UNION ALL
-    SELECT 'TDL-PC-A201-002', 'SN-A201-0002', 'TDL-PC-A201-002',
-           'Phòng máy A201', 'Máy trạm đồ họa', 'ProArt Station D940MX', 'Asus', 'Đang sử dụng', 'May tram do hoa' UNION ALL
-    SELECT 'TDL-PC-A201-003', 'SN-A201-0003', 'TDL-PC-A201-003',
-           'Phòng máy A201', 'Máy trạm đồ họa', 'ProArt Station D940MX', 'Asus', 'Đang bảo trì định kỳ', 'Ve sinh, tra keo tan nhiet' UNION ALL
-    SELECT 'TDL-PC-B101-001', 'SN-B101-0001', 'TDL-PC-B101-001',
-           'Giảng đường B1', 'Máy tính để bàn', 'IdeaCentre AIO 3', 'Lenovo', 'Đang sử dụng', 'May tinh giang duong' UNION ALL
-    SELECT 'TDL-PC-B101-002', 'SN-B101-0002', 'TDL-PC-B101-002',
-           'Giảng đường B1', 'Máy tính để bàn', 'IdeaCentre AIO 3', 'Lenovo', 'Đang sử dụng', 'May tinh giang duong'
+    SELECT 'TDL-PC-A241-GV' AS name, 'SN-A241-GV' AS serial, 'TDL-PC-A241-GV' AS otherserial,
+           'Phòng máy A24.1' AS loc, 'OptiPlex 3000 Small' AS cmodel, 'Dell' AS brand,
+           'Máy tính giảng viên phòng máy A24.1' AS comment UNION ALL
+    SELECT 'TDL-PC-A24L-GV', 'SN-A24L-GV', 'TDL-PC-A24L-GV',
+           'Phòng máy A24 lầu', 'OptiPlex 3000 Small', 'Dell',
+           'Máy tính giảng viên phòng máy A24 lầu' UNION ALL
+    SELECT 'TDL-PC-A83-GV', 'SN-A83-GV', 'TDL-PC-A83-GV',
+           'Phòng máy A8.3', 'PC Lắp ráp Core i3', 'Intel',
+           'Máy tính giảng viên phòng máy A8.3' UNION ALL
+    SELECT 'TDL-PC-A84-GV', 'SN-A84-GV', 'TDL-PC-A84-GV',
+           'Phòng máy A8.4', 'PC Lắp ráp Core i3', 'Intel',
+           'Máy tính giảng viên phòng máy A8.4' UNION ALL
+    SELECT 'TDL-PC-A85-GV', 'SN-A85-GV', 'TDL-PC-A85-GV',
+           'Phòng máy A8.5', 'PC Lắp ráp Core i5', 'Intel',
+           'Máy tính giảng viên phòng máy A8.5' UNION ALL
+    SELECT 'TDL-PC-A86-GV', 'SN-A86-GV', 'TDL-PC-A86-GV',
+           'Phòng máy A8.6', 'PC Lắp ráp Core i5', 'Intel',
+           'Máy tính giảng viên phòng máy A8.6'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
 WHERE NOT EXISTS (SELECT 1 FROM glpi_computers c WHERE c.otherserial = s.otherserial);
 
--- 3.2. May tinh xach tay (thiet bi ca nhan)
+-- 3.2. May tinh xach tay (thiet bi ca nhan / cho muon)
 INSERT INTO glpi_computers
     (name, serial, otherserial, entities_id, locations_id, computertypes_id,
      computermodels_id, manufacturers_id, states_id, is_template, is_deleted,
@@ -221,11 +286,13 @@ SELECT s.name, s.serial, s.otherserial, @entity, l.id,
 FROM (
     SELECT 'TDL-LAP-001' AS name, 'SN-LAP-0001' AS serial, 'TDL-LAP-001' AS otherserial,
            'Văn phòng Khoa Toán - Tin học' AS loc, 'Latitude 5420' AS cmodel, 'Dell' AS brand,
-           'Laptop giang vien' AS comment UNION ALL
+           'Laptop giảng viên Khoa Toán - Tin học' AS comment UNION ALL
     SELECT 'TDL-LAP-002', 'SN-LAP-0002', 'TDL-LAP-002',
-           'Văn phòng Khoa Toán - Tin học', 'Latitude 5420', 'Dell', 'Laptop giang vien' UNION ALL
+           'Văn phòng Khoa Toán - Tin học', 'Latitude 5420', 'Dell',
+           'Laptop giảng viên Khoa Toán - Tin học' UNION ALL
     SELECT 'TDL-LAP-003', 'SN-LAP-0003', 'TDL-LAP-003',
-           'Phòng máy A102', 'ThinkPad E14', 'Lenovo', 'Laptop muon sinh vien'
+           'Phòng máy A24.1', 'ThinkPad E14', 'Lenovo',
+           'Laptop mượn sinh viên thực hành'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
 WHERE NOT EXISTS (SELECT 1 FROM glpi_computers c WHERE c.otherserial = s.otherserial);
@@ -240,9 +307,9 @@ SELECT 'TDL-SRV-001', 'SN-SRV-0001', 'TDL-SRV-001', @entity, l.id,
        (SELECT id FROM glpi_computermodels WHERE name = 'PowerEdge R740' LIMIT 1),
        (SELECT id FROM glpi_manufacturers  WHERE name = 'Dell' LIMIT 1),
        (SELECT id FROM glpi_states         WHERE name = 'Đang hoạt động tốt' LIMIT 1),
-       0, 0, @now, @now, 'May chu phong may A101'
+       0, 0, @now, @now, 'Máy chủ chính phòng máy A24.1'
 FROM glpi_locations l
-WHERE l.name = 'Phòng máy A101' AND l.level = 3
+WHERE l.name = 'Phòng máy A24.1' AND l.level = 3
   AND NOT EXISTS (SELECT 1 FROM glpi_computers c WHERE c.otherserial = 'TDL-SRV-001');
 
 -- 3.4. May chu du phong (may chu thu 2)
@@ -255,17 +322,60 @@ SELECT 'TDL-SRV-002', 'SN-SRV-0002', 'TDL-SRV-002', @entity, l.id,
        (SELECT id FROM glpi_computermodels WHERE name = 'ProLiant DL380' LIMIT 1),
        (SELECT id FROM glpi_manufacturers  WHERE name = 'HP' LIMIT 1),
        (SELECT id FROM glpi_states         WHERE name = 'Đang bảo trì định kỳ' LIMIT 1),
-       0, 0, @now, @now, 'May chu du phong - dang bao tri'
+       0, 0, @now, @now, 'Máy chủ dự phòng - đang bảo trì'
 FROM glpi_locations l
-WHERE l.name = 'Phòng máy A101' AND l.level = 3
+WHERE l.name = 'Phòng máy A24.1' AND l.level = 3
   AND NOT EXISTS (SELECT 1 FROM glpi_computers c WHERE c.otherserial = 'TDL-SRV-002');
 
 
 -- ==============================================================================
---  4. THIET BI NGOAI VI: MAN HINH + MAY IN
+--  4. THIET BI NGOAI VI: MAN HINH + MAY IN + THIET BI MANG + AM THANH
 -- ==============================================================================
 
--- 4.1. Man hinh
+-- 4.1. Man hinh may tinh sinh vien trong 10 phong may (471 man hinh)
+INSERT INTO glpi_monitors
+    (name, serial, otherserial, entities_id, locations_id, monitortypes_id,
+     monitormodels_id, manufacturers_id, states_id, is_template, is_deleted,
+     date_creation, date_mod, comment)
+SELECT
+    CONCAT('TDL-MON-', r.code, '-', LPAD(n.seq, 3, '0')) AS name,
+    CONCAT('MN-', r.code, '-', LPAD(n.seq, 4, '0')) AS serial,
+    CONCAT('TDL-MON-', r.code, '-', LPAD(n.seq, 3, '0')) AS otherserial,
+    @entity,
+    l.id,
+    (SELECT id FROM glpi_monitortypes WHERE name = r.mtype LIMIT 1),
+    (SELECT id FROM glpi_monitormodels WHERE name = r.mmodel LIMIT 1),
+    (SELECT id FROM glpi_manufacturers WHERE name = r.mbrand LIMIT 1),
+    (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1),
+    0, 0, @now, @now,
+    CONCAT('Màn hình đi kèm máy tính sinh viên ', r.loc, ' - Máy số ', n.seq) AS comment
+FROM (
+    SELECT 'Phòng máy A24.1' AS loc, 'A241' AS code, 45 AS qty, 'Màn hình 22 inch' AS mtype, 'E2222H' AS mmodel, 'Dell' AS mbrand UNION ALL
+    SELECT 'Phòng máy A24 lầu', 'A24L', 45, 'Màn hình 22 inch', 'E2222H', 'Dell' UNION ALL
+    SELECT 'Phòng máy A8.3', 'A83', 48, 'Màn hình 22 inch', 'E2222H', 'Dell' UNION ALL
+    SELECT 'Phòng máy A8.4', 'A84', 48, 'Màn hình 22 inch', 'E2222H', 'Dell' UNION ALL
+    SELECT 'Phòng máy A8.5', 'A85', 49, 'Màn hình 22 inch', 'E2222H', 'Dell' UNION ALL
+    SELECT 'Phòng máy A8.6', 'A86', 50, 'Màn hình 22 inch', 'E2222H', 'Dell' UNION ALL
+    SELECT 'Phòng máy TV1', 'TV1', 46, 'Màn hình 22 inch', 'E2222H', 'Dell' UNION ALL
+    SELECT 'Phòng máy TV2', 'TV2', 45, 'Màn hình 24 inch', '24MK430H', 'LG' UNION ALL
+    SELECT 'Phòng máy TV3', 'TV3', 45, 'Màn hình 24 inch', '24MK430H', 'LG' UNION ALL
+    SELECT 'Phòng máy TV4', 'TV4', 50, 'Màn hình 22 inch', 'E2222H', 'Dell'
+) r
+CROSS JOIN (
+    SELECT a.n + b.n * 10 AS seq
+    FROM (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5
+          UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10) a
+    CROSS JOIN (SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5) b
+    WHERE a.n + b.n * 10 BETWEEN 1 AND 60
+) n
+JOIN glpi_locations l ON l.name = r.loc AND l.level = 3
+WHERE n.seq <= r.qty
+  AND NOT EXISTS (
+      SELECT 1 FROM glpi_monitors m
+      WHERE m.otherserial = CONCAT('TDL-MON-', r.code, '-', LPAD(n.seq, 3, '0'))
+  );
+
+-- 4.1b. Man hinh may giang vien (6 man hinh)
 INSERT INTO glpi_monitors
     (name, serial, otherserial, entities_id, locations_id, monitortypes_id,
      monitormodels_id, manufacturers_id, states_id, is_template, is_deleted,
@@ -275,18 +385,72 @@ SELECT s.name, s.serial, s.otherserial, @entity, l.id,
        (SELECT id FROM glpi_monitormodels WHERE name = s.mmodel LIMIT 1),
        (SELECT id FROM glpi_manufacturers  WHERE name = s.brand LIMIT 1),
        (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1),
-       0, 0, @now, @now, 'Man hinh di kem may tinh'
+       0, 0, @now, @now, s.comment
 FROM (
-    SELECT 'TDL-MON-A101-001' AS name, 'MN-A101-0001' AS serial, 'TDL-MON-A101-001' AS otherserial,
-           'Phòng máy A101' AS loc, 'Màn hình 24 inch' AS mtype, 'P2422H' AS mmodel, 'Dell' AS brand UNION ALL
-    SELECT 'TDL-MON-A101-002', 'MN-A101-0002', 'TDL-MON-A101-002',
-           'Phòng máy A101', 'Màn hình 24 inch', 'P2422H', 'Dell' UNION ALL
-    SELECT 'TDL-MON-A102-001', 'MN-A102-0001', 'TDL-MON-A102-001',
-           'Phòng máy A102', 'Màn hình 24 inch', 'P2422H', 'Dell' UNION ALL
-    SELECT 'TDL-MON-A201-001', 'MN-A201-0001', 'TDL-MON-A201-001',
-           'Phòng máy A201', 'Màn hình 27 inch', '27MP400', 'LG' UNION ALL
-    SELECT 'TDL-MON-B101-001', 'MN-B101-0001', 'TDL-MON-B101-001',
-           'Giảng đường B1', 'Màn hình 24 inch', 'P2422H', 'Dell'
+    SELECT 'TDL-MON-A241-GV' AS name, 'MN-A241-GV' AS serial, 'TDL-MON-A241-GV' AS otherserial,
+           'Phòng máy A24.1' AS loc, 'Màn hình 22 inch' AS mtype, 'E2222H' AS mmodel, 'Dell' AS brand,
+           'Màn hình máy giảng viên A24.1' AS comment UNION ALL
+    SELECT 'TDL-MON-A24L-GV', 'MN-A24L-GV', 'TDL-MON-A24L-GV',
+           'Phòng máy A24 lầu', 'Màn hình 22 inch', 'E2222H', 'Dell',
+           'Màn hình máy giảng viên A24 lầu' UNION ALL
+    SELECT 'TDL-MON-A83-GV', 'MN-A83-GV', 'TDL-MON-A83-GV',
+           'Phòng máy A8.3', 'Màn hình 22 inch', 'E2222H', 'Dell',
+           'Màn hình máy giảng viên A8.3' UNION ALL
+    SELECT 'TDL-MON-A84-GV', 'MN-A84-GV', 'TDL-MON-A84-GV',
+           'Phòng máy A8.4', 'Màn hình 22 inch', 'E2222H', 'Dell',
+           'Màn hình máy giảng viên A8.4' UNION ALL
+    SELECT 'TDL-MON-A85-GV', 'MN-A85-GV', 'TDL-MON-A85-GV',
+           'Phòng máy A8.5', 'Màn hình 22 inch', 'E2222H', 'Dell',
+           'Màn hình máy giảng viên A8.5' UNION ALL
+    SELECT 'TDL-MON-A86-GV', 'MN-A86-GV', 'TDL-MON-A86-GV',
+           'Phòng máy A8.6', 'Màn hình 22 inch', 'E2222H', 'Dell',
+           'Màn hình máy giảng viên A8.6'
+) s
+JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
+WHERE NOT EXISTS (SELECT 1 FROM glpi_monitors m WHERE m.otherserial = s.otherserial);
+
+-- 4.1c. Smart Tivi giang day trong 10 phong may (10 chiec)
+INSERT INTO glpi_monitors
+    (name, serial, otherserial, entities_id, locations_id, monitortypes_id,
+     monitormodels_id, manufacturers_id, states_id, is_template, is_deleted,
+     date_creation, date_mod, comment)
+SELECT s.name, s.serial, s.otherserial, @entity, l.id,
+       (SELECT id FROM glpi_monitortypes WHERE name = s.mtype LIMIT 1),
+       (SELECT id FROM glpi_monitormodels WHERE name = s.mmodel LIMIT 1),
+       (SELECT id FROM glpi_manufacturers  WHERE name = s.brand LIMIT 1),
+       (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1),
+       0, 0, @now, @now, s.comment
+FROM (
+    SELECT 'TDL-TV-A241-001' AS name, 'TV-A241-0001' AS serial, 'TDL-TV-A241-001' AS otherserial,
+           'Phòng máy A24.1' AS loc, 'Smart Tivi' AS mtype, 'Sony Bravia 85"' AS mmodel, 'Sony' AS brand,
+           'Smart Tivi 85 inch trình chiếu bài giảng A24.1' AS comment UNION ALL
+    SELECT 'TDL-TV-A24L-001', 'TV-A24L-0001', 'TDL-TV-A24L-001',
+           'Phòng máy A24 lầu', 'Smart Tivi', 'Inno Smart TV 85"', 'Inno',
+           'Smart Tivi Inno 85 inch phòng A24 lầu' UNION ALL
+    SELECT 'TDL-TV-A83-001', 'TV-A83-0001', 'TDL-TV-A83-001',
+           'Phòng máy A8.3', 'Smart Tivi', 'Smart TV 80"', 'Sony',
+           'Smart Tivi 80 inch phòng A8.3' UNION ALL
+    SELECT 'TDL-TV-A84-001', 'TV-A84-0001', 'TDL-TV-A84-001',
+           'Phòng máy A8.4', 'Smart Tivi', 'Smart TV 80"', 'Sony',
+           'Smart Tivi 80 inch phòng A8.4' UNION ALL
+    SELECT 'TDL-TV-A85-001', 'TV-A85-0001', 'TDL-TV-A85-001',
+           'Phòng máy A8.5', 'Smart Tivi', 'Inno Smart TV 85"', 'Inno',
+           'Smart Tivi Inno 85 inch phòng A8.5' UNION ALL
+    SELECT 'TDL-TV-A86-001', 'TV-A86-0001', 'TDL-TV-A86-001',
+           'Phòng máy A8.6', 'Smart Tivi', 'Inno Smart TV 85"', 'Inno',
+           'Smart Tivi Inno 85 inch phòng A8.6' UNION ALL
+    SELECT 'TDL-TV-TV1-001', 'TV-TV1-0001', 'TDL-TV-TV1-001',
+           'Phòng máy TV1', 'Smart Tivi', 'Smart TV 80"', 'Sony',
+           'Smart Tivi 80 inch phòng TV1' UNION ALL
+    SELECT 'TDL-TV-TV2-001', 'TV-TV2-0001', 'TDL-TV-TV2-001',
+           'Phòng máy TV2', 'Smart Tivi', 'Smart TV 80"', 'Sony',
+           'Smart Tivi 80 inch phòng TV2' UNION ALL
+    SELECT 'TDL-TV-TV3-001', 'TV-TV3-0001', 'TDL-TV-TV3-001',
+           'Phòng máy TV3', 'Smart Tivi', 'Smart TV 80"', 'Sony',
+           'Smart Tivi 80 inch phòng TV3' UNION ALL
+    SELECT 'TDL-TV-TV4-001', 'TV-TV4-0001', 'TDL-TV-TV4-001',
+           'Phòng máy TV4', 'Smart Tivi', 'Smart TV 80"', 'Sony',
+           'Smart Tivi 80 inch phòng TV4'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
 WHERE NOT EXISTS (SELECT 1 FROM glpi_monitors m WHERE m.otherserial = s.otherserial);
@@ -303,23 +467,20 @@ SELECT s.name, s.serial, s.otherserial, @entity, l.id,
        (SELECT id FROM glpi_states WHERE name = s.state LIMIT 1),
        0, 0, @now, @now, s.comment
 FROM (
-    SELECT 'TDL-PRN-A102-001' AS name, 'PR-A102-0001' AS serial, 'TDL-PRN-A102-001' AS otherserial,
-           'Phòng máy A102' AS loc, 'Máy in laser đen trắng' AS ptype, 'imageCLASS LBP2900' AS pmodel,
-           'Canon' AS brand, 'Đang sử dụng' AS state, 'May in phong may A102' AS comment UNION ALL
-    SELECT 'TDL-PRN-A201-001', 'PR-A201-0001', 'TDL-PRN-A201-001',
-           'Phòng máy A201', 'Máy in laser đen trắng', 'imageCLASS LBP2900', 'Canon', 'Đang sử dụng',
-           'May in phong may A201' UNION ALL
+    SELECT 'TDL-PRN-A241-001' AS name, 'PR-A241-0001' AS serial, 'TDL-PRN-A241-001' AS otherserial,
+           'Phòng máy A24.1' AS loc, 'Máy in laser đen trắng' AS ptype, 'imageCLASS LBP2900' AS pmodel,
+           'Canon' AS brand, 'Đang sử dụng' AS state, 'Máy in phòng máy A24.1' AS comment UNION ALL
+    SELECT 'TDL-PRN-A85-001', 'PR-A85-0001', 'TDL-PRN-A85-001',
+           'Phòng máy A8.5', 'Máy in laser đen trắng', 'imageCLASS LBP2900', 'Canon',
+           'Đang sử dụng', 'Máy in phòng máy A8.5' UNION ALL
     SELECT 'TDL-PRN-VPK-001', 'PR-VPK-0001', 'TDL-PRN-VPK-001',
            'Văn phòng Khoa Toán - Tin học', 'Máy in laser đen trắng', 'imageCLASS LBP2900', 'Canon',
-           'Chờ linh kiện', 'Het muc in, cho thay'
+           'Chờ linh kiện', 'Hết mực in, chờ thay mực'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
 WHERE NOT EXISTS (SELECT 1 FROM glpi_printers p WHERE p.otherserial = s.otherserial);
 
--- 4.3. Thiet bi mang (switch / WiFi / router)
--- Vi sao can: mot truong dai hoc luon co thiet bi mang, va bieu do
--- "Cac thiet bi mang theo Trang thai" tren bang dieu khiên se trong neu
--- khong co du lieu. Nhieu trang thai khac nhau -> bieu do co nhieu lat.
+-- 4.3. Thiet bi mang & Tu Rack phong may Trung tam CNTT
 INSERT INTO glpi_networkequipments
     (name, serial, otherserial, entities_id, locations_id,
      networkequipmenttypes_id, networkequipmentmodels_id, manufacturers_id,
@@ -331,36 +492,90 @@ SELECT s.name, s.serial, s.otherserial, @entity, l.id,
        (SELECT id FROM glpi_states WHERE name = s.state LIMIT 1),
        0, 0, @now, @now, s.comment
 FROM (
-    SELECT 'TDL-SW-A101-001' AS name, 'SW-A101-0001' AS serial, 'TDL-SW-A101-001' AS otherserial,
-           'Phòng máy A101' AS loc, 'Bộ chuyển mạch (Switch)' AS ntype, 'Catalyst 2960-24TT-L' AS nmodel,
-           'Cisco' AS brand, 'Đang hoạt động tốt' AS state, 'Switch 24 cong phong may A101' AS comment UNION ALL
-    SELECT 'TDL-SW-A201-001', 'SW-A201-0001', 'TDL-SW-A201-001',
-           'Phòng máy A201', 'Bộ chuyển mạch (Switch)', 'SG250-24',
-           'Cisco', 'Đang hoạt động tốt', 'Switch 24 cong phong may A201' UNION ALL
+    -- 4 Switch phong may thuc te
+    SELECT 'TDL-SW-A241-001' AS name, 'SW-A241-0001' AS serial, 'TDL-SW-A241-001' AS otherserial,
+           'Phòng máy A24.1' AS loc, 'Bộ chuyển mạch (Switch)' AS ntype, 'Catalyst 2960-48TT-L' AS nmodel,
+           'Cisco' AS brand, 'Đang hoạt động tốt' AS state, 'Switch 48 cổng phòng máy A24.1' AS comment UNION ALL
+    SELECT 'TDL-SW-A24L-001', 'SW-A24L-0001', 'TDL-SW-A24L-001',
+           'Phòng máy A24 lầu', 'Bộ chuyển mạch (Switch)', 'Catalyst 2960-48TT-L',
+           'Cisco', 'Đang hoạt động tốt', 'Switch 48 cổng phòng máy A24 lầu' UNION ALL
+    SELECT 'TDL-SW-A85-001', 'SW-A85-0001', 'TDL-SW-A85-001',
+           'Phòng máy A8.5', 'Bộ chuyển mạch (Switch)', 'Catalyst 2960-48TT-L',
+           'Cisco', 'Đang hoạt động tốt', 'Switch 48 cổng phòng máy A8.5' UNION ALL
+    SELECT 'TDL-SW-A86-001', 'SW-A86-0001', 'TDL-SW-A86-001',
+           'Phòng máy A8.6', 'Bộ chuyển mạch (Switch)', 'Catalyst 2960-48TT-L',
+           'Cisco', 'Đang hoạt động tốt', 'Switch 48 cổng phòng máy A8.6' UNION ALL
+
+    -- 4 Tu Rack phong may thuc te
+    SELECT 'TDL-RK-A241-001', 'RK-A241-0001', 'TDL-RK-A241-001',
+           'Phòng máy A24.1', 'Tủ mạng (Rack)', 'Tủ mạng Rack 19U',
+           'Cisco', 'Đang hoạt động tốt', 'Tủ mạng Rack 19U phòng máy A24.1' UNION ALL
+    SELECT 'TDL-RK-A24L-001', 'RK-A24L-0001', 'TDL-RK-A24L-001',
+           'Phòng máy A24 lầu', 'Tủ mạng (Rack)', 'Tủ mạng Rack 19U',
+           'Cisco', 'Đang hoạt động tốt', 'Tủ mạng Rack 19U phòng máy A24 lầu' UNION ALL
+    SELECT 'TDL-RK-A83-001', 'RK-A83-0001', 'TDL-RK-A83-001',
+           'Phòng máy A8.3', 'Tủ mạng (Rack)', 'Tủ mạng Rack 19U',
+           'Cisco', 'Đang hoạt động tốt', 'Tủ mạng Rack 19U phòng máy A8.3' UNION ALL
+    SELECT 'TDL-RK-A85-001', 'RK-A85-0001', 'TDL-RK-A85-001',
+           'Phòng máy A8.5', 'Tủ mạng (Rack)', 'Tủ mạng Rack 19U',
+           'Cisco', 'Đang hoạt động tốt', 'Tủ mạng Rack 19U phòng máy A8.5' UNION ALL
+
+    -- 9 Thiet bi mang cac toa nha & giang duong
     SELECT 'TDL-SW-B201-001', 'SW-B201-0001', 'TDL-SW-B201-001',
            'Phòng máy B201', 'Bộ chuyển mạch (Switch)', 'TL-SG1024D',
-           'TP-Link', 'Đang sửa chữa', 'Switch phong may B201, dang sua cong quang' UNION ALL
+           'TP-Link', 'Đang sửa chữa', 'Switch phòng máy B201, đang sửa cổng quang' UNION ALL
     SELECT 'TDL-SW-C101-001', 'SW-C101-0001', 'TDL-SW-C101-001',
            'Phòng thí nghiệm C101', 'Bộ chuyển mạch (Switch)', 'Catalyst 2960-48TT-L',
-           'Cisco', 'Đang bảo trì định kỳ', 'Switch 48 cong phong Lab C101' UNION ALL
-    SELECT 'TDL-AP-A101-001', 'AP-A101-0001', 'TDL-AP-A101-001',
-           'Phòng máy A101', 'Bộ phát WiFi (Access Point)', 'DIR-825',
-           'D-Link', 'Đang hoạt động tốt', 'Bo phat WiFi phong may A101' UNION ALL
+           'Cisco', 'Đang bảo trì định kỳ', 'Switch 48 cổng phòng Lab C101' UNION ALL
+    SELECT 'TDL-AP-TV1-001', 'AP-TV1-0001', 'TDL-AP-TV1-001',
+           'Phòng máy TV1', 'Bộ phát WiFi (Access Point)', 'DIR-825',
+           'D-Link', 'Đang hoạt động tốt', 'Bộ phát WiFi phòng máy TV1' UNION ALL
+    SELECT 'TDL-AP-A241-001', 'AP-A241-0001', 'TDL-AP-A241-001',
+           'Phòng máy A24.1', 'Bộ phát WiFi (Access Point)', 'DIR-825',
+           'D-Link', 'Đang hoạt động tốt', 'Bộ phát WiFi phòng máy A24.1' UNION ALL
     SELECT 'TDL-AP-C101-001', 'AP-C101-0001', 'TDL-AP-C101-001',
            'Phòng thí nghiệm C101', 'Bộ phát WiFi (Access Point)', 'AR617VW',
-           'Huawei', 'Trong kho', 'Bo phat WiFi du phong' UNION ALL
+           'Huawei', 'Trong kho', 'Bộ phát WiFi dự phòng' UNION ALL
     SELECT 'TDL-AP-GD-B1-001', 'AP-GDB1-0001', 'TDL-AP-GD-B1-001',
            'Giảng đường B1', 'Bộ phát WiFi (Access Point)', 'AR617VW',
-           'Huawei', 'Đang hoạt động tốt', 'Bo phat WiFi giang duong B1' UNION ALL
+           'Huawei', 'Đang hoạt động tốt', 'Bộ phát WiFi giảng đường B1' UNION ALL
     SELECT 'TDL-RT-VPK-001', 'RT-VPK-0001', 'TDL-RT-VPK-001',
            'Văn phòng Khoa Toán - Tin học', 'Bộ định tuyến (Router)', 'TL-ER605',
-           'TP-Link', 'Đang hoạt động tốt', 'Router can bang tai van phong khoa' UNION ALL
+           'TP-Link', 'Đang hoạt động tốt', 'Router cân bằng tải văn phòng khoa' UNION ALL
     SELECT 'TDL-NAS-VPK-001', 'NAS-VPK-0001', 'TDL-NAS-VPK-001',
            'Văn phòng Khoa Toán - Tin học', 'Thiết bị NAS', 'DGS-1210-24',
-           'Ubiquiti', 'Hỏng', 'Thiet bi NAS luu tru, hong o cung'
+           'Ubiquiti', 'Hỏng', 'Thiết bị NAS lưu trữ, hỏng ổ cứng' UNION ALL
+    SELECT 'TDL-SW-A83-001', 'SW-A83-0001', 'TDL-SW-A83-001',
+           'Phòng máy A8.3', 'Bộ chuyển mạch (Switch)', 'SG250-24',
+           'Cisco', 'Đang hoạt động tốt', 'Switch 24 cổng phòng máy A8.3'
 ) s
 JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
 WHERE NOT EXISTS (SELECT 1 FROM glpi_networkequipments n WHERE n.otherserial = s.otherserial);
+
+-- 4.4. Thiet bi ngoai vi (am thanh Bosch trong phong may A8.5, A8.6, TV4)
+INSERT INTO glpi_peripherals
+    (name, serial, otherserial, entities_id, locations_id,
+     peripheraltypes_id, peripheralmodels_id, manufacturers_id,
+     states_id, is_template, is_deleted, date_creation, date_mod, comment)
+SELECT s.name, s.serial, s.otherserial, @entity, l.id,
+       (SELECT id FROM glpi_peripheraltypes WHERE name = s.ptype LIMIT 1),
+       (SELECT id FROM glpi_peripheralmodels WHERE name = s.pmodel LIMIT 1),
+       (SELECT id FROM glpi_manufacturers  WHERE name = s.brand LIMIT 1),
+       (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1),
+       0, 0, @now, @now, s.comment
+FROM (
+    SELECT 'TDL-AUD-A85-001' AS name, 'AUD-A85-0001' AS serial, 'TDL-AUD-A85-001' AS otherserial,
+           'Phòng máy A8.5' AS loc, 'Hệ thống âm thanh' AS ptype, 'PT-LB386' AS pmodel, 'Bosch' AS brand,
+           'Hệ thống âm thanh giảng dạy Bosch phòng A8.5' AS comment UNION ALL
+    SELECT 'TDL-AUD-A86-001', 'AUD-A86-0001', 'TDL-AUD-A86-001',
+           'Phòng máy A8.6', 'Hệ thống âm thanh', 'PT-LB386', 'Bosch',
+           'Hệ thống âm thanh giảng dạy Bosch phòng A8.6' UNION ALL
+    SELECT 'TDL-AUD-TV4-001', 'AUD-TV4-0001', 'TDL-AUD-TV4-001',
+           'Phòng máy TV4', 'Hệ thống âm thanh', 'PT-LB386', 'Bosch',
+           'Hệ thống âm thanh giảng dạy Bosch phòng TV4'
+) s
+JOIN glpi_locations l ON l.name = s.loc AND l.level = 3
+WHERE NOT EXISTS (SELECT 1 FROM glpi_peripherals p WHERE p.otherserial = s.otherserial);
 
 
 -- ==============================================================================
@@ -403,6 +618,38 @@ WHERE NOT EXISTS (SELECT 1 FROM glpi_softwares w WHERE w.name = s.name);
 -- tiep nhan 1 -> 2 khi demo) se bi coi la "chua co" va bi insert lai -> nhan doi.
 -- CI co buoc "Seed idempotent" doi trang thai 1 phieu roi chay lai de bat hoi quy.
 
+-- 6.0. Don dep phieu mau cu voi ten cu (tranh trung lap khi chay lai tren CSDL cu)
+DELETE FROM glpi_items_tickets
+ WHERE tickets_id IN (
+     SELECT id FROM glpi_tickets WHERE name IN (
+         'Cài lại Windows cho máy TDL-PC-A101-004',
+         'Thay mực máy in phòng A201',
+         'Vệ sinh máy trạm A201',
+         'Thay cáp mạng phòng B1',
+         'Cài đặt Google Chrome cho phòng A102'
+     )
+ );
+
+DELETE FROM glpi_tickets_users
+ WHERE tickets_id IN (
+     SELECT id FROM glpi_tickets WHERE name IN (
+         'Cài lại Windows cho máy TDL-PC-A101-004',
+         'Thay mực máy in phòng A201',
+         'Vệ sinh máy trạm A201',
+         'Thay cáp mạng phòng B1',
+         'Cài đặt Google Chrome cho phòng A102'
+     )
+ );
+
+DELETE FROM glpi_tickets
+ WHERE name IN (
+     'Cài lại Windows cho máy TDL-PC-A101-004',
+     'Thay mực máy in phòng A201',
+     'Vệ sinh máy trạm A201',
+     'Thay cáp mạng phòng B1',
+     'Cài đặt Google Chrome cho phòng A102'
+ );
+
 -- 6.1. Phieu dang "Moi" (New) - chua phan cong
 INSERT INTO glpi_tickets
     (name, content, date, date_creation, date_mod, entities_id, users_id_recipient,
@@ -421,18 +668,18 @@ SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY), @now, @now, @entit
        0
 FROM (
     SELECT 'Máy không khởi động được' AS name,
-           'Máy TDL-PC-A101-003 bấm nút nguồn không lên, đèn nguồn không sáng. Mong kỹ thuật kiểm tra giúp.' AS content,
+           'Máy TDL-PC-A85-003 bấm nút nguồn không lên, đèn nguồn không sáng. Mong kỹ thuật kiểm tra giúp.' AS content,
            0 AS ago, 'sv.hoa' AS requester, 'Máy không khởi động được' AS cat,
-           3 AS urgency, 3 AS impact, 3 AS priority, 'Phòng máy A101' AS loc UNION ALL
+           3 AS urgency, 3 AS impact, 3 AS priority, 'Phòng máy A8.5' AS loc UNION ALL
     SELECT 'Không kết nối được mạng LAN',
-           'Phòng máy A102 mất kết nối mạng từ sáng nay, không vào được Internet.',
-           0, 'gv.cuong', 'Không kết nối được Internet', 4, 4, 4, 'Phòng máy A102' UNION ALL
+           'Phòng máy A8.6 mất kết nối mạng từ sáng nay, không vào được Internet.',
+           0, 'gv.cuong', 'Không kết nối được Internet', 4, 4, 4, 'Phòng máy A8.6' UNION ALL
     SELECT 'Máy in không in được',
-           'Máy in TDL-PRN-A102-001 báo lỗi hết mực, không in được tài liệu.',
-           1, 'gv.dung', 'Máy in không in được', 2, 2, 2, 'Phòng máy A102' UNION ALL
+           'Máy in TDL-PRN-A241-001 báo lỗi hết mực, không in được tài liệu.',
+           1, 'gv.dung', 'Máy in không in được', 2, 2, 2, 'Phòng máy A24.1' UNION ALL
     SELECT 'Màn hình bị sọc ngang',
-           'Màn hình TDL-MON-A101-002 xuất hiện sọc ngang màu, ảnh hưởng giờ thực hành.',
-           2, 'sv.khanh', 'Màn hình có sọc hoặc nhấp nháy', 3, 3, 3, 'Phòng máy A101'
+           'Màn hình TDL-MON-TV1-002 xuất hiện sọc ngang màu, ảnh hưởng giờ thực hành.',
+           2, 'sv.khanh', 'Màn hình có sọc hoặc nhấp nháy', 3, 3, 3, 'Phòng máy TV1'
 ) s
 WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
@@ -449,15 +696,15 @@ SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY), @now, @now, @entit
        0
 FROM (
     SELECT 'Phần mềm AutoCAD báo lỗi bản quyền' AS name,
-           'AutoCAD 2024 trên máy trạm A201 báo lỗi hết hạn bản quyền.' AS content,
+           'AutoCAD 2024 trên máy trạm A24 lầu báo lỗi hết hạn bản quyền.' AS content,
            3 AS ago, 'gv.cuong' AS requester, 'Phần mềm báo lỗi bản quyền' AS cat,
-           4 AS urgency, 4 AS impact, 4 AS priority, 'Phòng máy A201' AS loc UNION ALL
+           4 AS urgency, 4 AS impact, 4 AS priority, 'Phòng máy A24 lầu' AS loc UNION ALL
     SELECT 'Chuột và bàn phím không nhận',
-           'Bộ chuột bàn phím máy TDL-PC-A102-002 không hoạt động, đã thử cắm lại.',
-           4, 'sv.hoa', 'Chuột không hoạt động', 2, 2, 2, 'Phòng máy A102' UNION ALL
+           'Bộ chuột bàn phím máy TDL-PC-A84-002 không hoạt động, đã thử cắm lại.',
+           4, 'sv.hoa', 'Chuột không hoạt động', 2, 2, 2, 'Phòng máy A8.4' UNION ALL
     SELECT 'Máy tính chạy rất chậm',
-           'Máy TDL-PC-B101-001 khởi động rất chậm, treo khi mở nhiều ứng dụng.',
-           5, 'gv.dung', 'Máy tính chạy chậm bất thường', 3, 3, 3, 'Giảng đường B1'
+           'Máy TDL-PC-TV2-001 khởi động rất chậm, treo khi mở nhiều ứng dụng.',
+           5, 'gv.dung', 'Máy tính chạy chậm bất thường', 3, 3, 3, 'Phòng máy TV2'
 ) s
 WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
@@ -480,16 +727,16 @@ SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY),
        (SELECT id FROM glpi_locations WHERE name = s.loc AND level = 3 LIMIT 1),
        0
 FROM (
-    SELECT 'Cài lại Windows cho máy TDL-PC-A101-004' AS name,
-           'Máy bị lỗi hệ điều hành, cần cài lại Windows và driver.' AS content,
+    SELECT 'Cài lại Windows cho máy TDL-PC-A83-004' AS name,
+           'Máy TDL-PC-A83-004 bị lỗi hệ điều hành, cần cài lại Windows và driver.' AS content,
            10 AS ago, 'sv.khanh' AS requester, 'Hệ điều hành không khởi động' AS cat,
-           3 AS urgency, 3 AS impact, 3 AS priority, 'Phòng máy A101' AS loc UNION ALL
-    SELECT 'Thay mực máy in phòng A201',
-           'Máy in A201 hết mực, đề nghị thay mực mới.',
-           12, 'gv.cuong', 'Máy in không in được', 2, 2, 2, 'Phòng máy A201' UNION ALL
+           3 AS urgency, 3 AS impact, 3 AS priority, 'Phòng máy A8.3' AS loc UNION ALL
+    SELECT 'Thay mực máy in phòng A24.1',
+           'Máy in phòng A24.1 hết mực, đề nghị thay mực mới.',
+           12, 'gv.cuong', 'Máy in không in được', 2, 2, 2, 'Phòng máy A24.1' UNION ALL
     SELECT 'Sửa lỗi đăng nhập tài khoản sinh viên',
-           'Tài khoản sinh viên không đăng nhập được vào máy phòng A102.',
-           15, 'sv.hoa', 'Không đăng nhập được máy tính', 3, 3, 3, 'Phòng máy A102'
+           'Tài khoản sinh viên không đăng nhập được vào máy phòng TV3.',
+           15, 'sv.hoa', 'Không đăng nhập được máy tính', 3, 3, 3, 'Phòng máy TV3'
 ) s
 WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
@@ -510,16 +757,16 @@ SELECT s.name, s.content, DATE_SUB(@now, INTERVAL s.ago DAY),
        (SELECT id FROM glpi_locations WHERE name = s.loc AND level = 3 LIMIT 1),
        0
 FROM (
-    SELECT 'Vệ sinh máy trạm A201' AS name,
-           'Vệ sinh bụi, tra keo tản nhiệt cho máy trạm.' AS content,
+    SELECT 'Vệ sinh máy tính phòng TV4' AS name,
+           'Vệ sinh bụi, tra keo tản nhiệt định kỳ cho máy tính phòng TV4.' AS content,
            20 AS ago, 'gv.dung' AS requester, 'Vệ sinh máy tính định kỳ' AS cat,
-           1 AS urgency, 1 AS impact, 1 AS priority, 'Phòng máy A201' AS loc UNION ALL
-    SELECT 'Thay cáp mạng phòng B1',
-           'Cáp mạng bị đứt, thay cáp mới.',
-           25, 'gv.cuong', 'Ổ cắm mạng hỏng', 3, 3, 3, 'Giảng đường B1' UNION ALL
-    SELECT 'Cài đặt Google Chrome cho phòng A102',
+           1 AS urgency, 1 AS impact, 1 AS priority, 'Phòng máy TV4' AS loc UNION ALL
+    SELECT 'Thay cáp mạng phòng A24.1',
+           'Cáp mạng đấu nối Switch tủ Rack phòng A24.1 bị gãy lẫy tiếp xúc, thay cáp mới.',
+           25, 'gv.cuong', 'Ổ cắm mạng hỏng', 3, 3, 3, 'Phòng máy A24.1' UNION ALL
+    SELECT 'Cài đặt Google Chrome cho phòng A8.5',
            'Cài đặt trình duyệt Chrome theo yêu cầu giảng viên.',
-           30, 'sv.khanh', 'Cài đặt bộ văn phòng', 2, 1, 1, 'Phòng máy A102'
+           30, 'sv.khanh', 'Cài đặt bộ văn phòng', 2, 1, 1, 'Phòng máy A8.5'
 ) s
 WHERE NOT EXISTS (SELECT 1 FROM glpi_tickets t WHERE t.name = s.name);
 
@@ -547,12 +794,12 @@ UPDATE glpi_tickets
        'Phần mềm AutoCAD báo lỗi bản quyền',
        'Chuột và bàn phím không nhận',
        'Máy tính chạy rất chậm',
-       'Cài lại Windows cho máy TDL-PC-A101-004',
-       'Thay mực máy in phòng A201',
+       'Cài lại Windows cho máy TDL-PC-A83-004',
+       'Thay mực máy in phòng A24.1',
        'Sửa lỗi đăng nhập tài khoản sinh viên',
-       'Vệ sinh máy trạm A201',
-       'Thay cáp mạng phòng B1',
-       'Cài đặt Google Chrome cho phòng A102'
+       'Vệ sinh máy tính phòng TV4',
+       'Thay cáp mạng phòng A24.1',
+       'Cài đặt Google Chrome cho phòng A8.5'
    );
 
 
@@ -582,9 +829,9 @@ WHERE t.status IN (2, 5, 6)
                  'Máy in không in được', 'Màn hình bị sọc ngang',
                  'Phần mềm AutoCAD báo lỗi bản quyền', 'Chuột và bàn phím không nhận',
                  'Máy tính chạy rất chậm',
-                 'Cài lại Windows cho máy TDL-PC-A101-004', 'Thay mực máy in phòng A201',
-                 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Vệ sinh máy trạm A201',
-                 'Thay cáp mạng phòng B1', 'Cài đặt Google Chrome cho phòng A102')
+                 'Cài lại Windows cho máy TDL-PC-A83-004', 'Thay mực máy in phòng A24.1',
+                 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Vệ sinh máy tính phòng TV4',
+                 'Thay cáp mạng phòng A24.1', 'Cài đặt Google Chrome cho phòng A8.5')
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
                   WHERE tu.tickets_id = t.id AND tu.type = 2);
 
@@ -599,9 +846,9 @@ WHERE t.users_id_recipient IS NOT NULL
                  'Máy in không in được', 'Màn hình bị sọc ngang',
                  'Phần mềm AutoCAD báo lỗi bản quyền', 'Chuột và bàn phím không nhận',
                  'Máy tính chạy rất chậm',
-                 'Cài lại Windows cho máy TDL-PC-A101-004', 'Thay mực máy in phòng A201',
-                 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Vệ sinh máy trạm A201',
-                 'Thay cáp mạng phòng B1', 'Cài đặt Google Chrome cho phòng A102')
+                 'Cài lại Windows cho máy TDL-PC-A83-004', 'Thay mực máy in phòng A24.1',
+                 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Vệ sinh máy tính phòng TV4',
+                 'Thay cáp mạng phòng A24.1', 'Cài đặt Google Chrome cho phòng A8.5')
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets_users tu
                   WHERE tu.tickets_id = t.id AND tu.type = 1);
 
@@ -611,31 +858,31 @@ INSERT INTO glpi_items_tickets (itemtype, items_id, tickets_id)
 SELECT m.itemtype, m.items_id, t.id
 FROM (
     SELECT 'Máy không khởi động được' AS tname, 'Computer' AS itemtype,
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A101-003' LIMIT 1) AS items_id UNION ALL
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A85-003' LIMIT 1) AS items_id UNION ALL
     SELECT 'Máy in không in được', 'Printer',
-           (SELECT id FROM glpi_printers WHERE name = 'TDL-PRN-A102-001' LIMIT 1) UNION ALL
+           (SELECT id FROM glpi_printers WHERE name = 'TDL-PRN-A241-001' LIMIT 1) UNION ALL
     SELECT 'Màn hình bị sọc ngang', 'Monitor',
-           (SELECT id FROM glpi_monitors WHERE name = 'TDL-MON-A101-002' LIMIT 1) UNION ALL
+           (SELECT id FROM glpi_monitors WHERE name = 'TDL-MON-TV1-002' LIMIT 1) UNION ALL
     SELECT 'Phần mềm AutoCAD báo lỗi bản quyền', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A201-001' LIMIT 1) UNION ALL
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A24L-001' LIMIT 1) UNION ALL
     SELECT 'Chuột và bàn phím không nhận', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A102-002' LIMIT 1) UNION ALL
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A84-002' LIMIT 1) UNION ALL
     SELECT 'Máy tính chạy rất chậm', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-B101-001' LIMIT 1) UNION ALL
-    SELECT 'Cài lại Windows cho máy TDL-PC-A101-004', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A101-004' LIMIT 1) UNION ALL
-    SELECT 'Thay mực máy in phòng A201', 'Printer',
-           (SELECT id FROM glpi_printers WHERE name = 'TDL-PRN-A201-001' LIMIT 1) UNION ALL
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-TV2-001' LIMIT 1) UNION ALL
+    SELECT 'Cài lại Windows cho máy TDL-PC-A83-004', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A83-004' LIMIT 1) UNION ALL
+    SELECT 'Thay mực máy in phòng A24.1', 'Printer',
+           (SELECT id FROM glpi_printers WHERE name = 'TDL-PRN-A241-001' LIMIT 1) UNION ALL
     SELECT 'Sửa lỗi đăng nhập tài khoản sinh viên', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A101-001' LIMIT 1) UNION ALL
-    SELECT 'Vệ sinh máy trạm A201', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A201-003' LIMIT 1) UNION ALL
-    SELECT 'Thay cáp mạng phòng B1', 'NetworkEquipment',
-           (SELECT id FROM glpi_networkequipments WHERE name = 'TDL-SW-B201-001' LIMIT 1) UNION ALL
-    SELECT 'Cài đặt Google Chrome cho phòng A102', 'Computer',
-           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A102-001' LIMIT 1) UNION ALL
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-TV3-001' LIMIT 1) UNION ALL
+    SELECT 'Vệ sinh máy tính phòng TV4', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-TV4-005' LIMIT 1) UNION ALL
+    SELECT 'Thay cáp mạng phòng A24.1', 'NetworkEquipment',
+           (SELECT id FROM glpi_networkequipments WHERE name = 'TDL-SW-A241-001' LIMIT 1) UNION ALL
+    SELECT 'Cài đặt Google Chrome cho phòng A8.5', 'Computer',
+           (SELECT id FROM glpi_computers WHERE name = 'TDL-PC-A85-001' LIMIT 1) UNION ALL
     SELECT 'Không kết nối được mạng LAN', 'NetworkEquipment',
-           (SELECT id FROM glpi_networkequipments WHERE name = 'TDL-WF-A102-001' LIMIT 1)
+           (SELECT id FROM glpi_networkequipments WHERE name = 'TDL-SW-A86-001' LIMIT 1)
 ) m
 JOIN glpi_tickets t ON t.name = m.tname
 WHERE m.items_id IS NOT NULL AND m.items_id > 0
@@ -661,16 +908,17 @@ WHERE m.items_id IS NOT NULL AND m.items_id > 0
 SELECT '=== DU LIEU MAU DA TAO ===' AS ' ';
 SELECT 'Người dùng mẫu'          AS 'Danh mục', COUNT(*) AS 'Số lượng'
     FROM glpi_users WHERE name IN ('ktv.an','ktv.binh','gv.cuong','gv.dung','sv.hoa','sv.khanh')
-UNION ALL SELECT 'Máy tính (desktop)',      COUNT(*) FROM glpi_computers WHERE name LIKE 'TDL-PC-%'
-UNION ALL SELECT 'Máy tính (laptop)',       COUNT(*) FROM glpi_computers WHERE name LIKE 'TDL-LAP-%'
-UNION ALL SELECT 'Máy chủ',                 COUNT(*) FROM glpi_computers WHERE name LIKE 'TDL-SRV-%'
-UNION ALL SELECT 'Màn hình',                COUNT(*) FROM glpi_monitors  WHERE name LIKE 'TDL-MON-%'
-UNION ALL SELECT 'Máy in',                  COUNT(*) FROM glpi_printers  WHERE name LIKE 'TDL-PRN-%'
-UNION ALL SELECT 'Thiết bị mạng',           COUNT(*) FROM glpi_networkequipments
-                                                WHERE name LIKE 'TDL-%'
-UNION ALL SELECT 'Phần mềm',                COUNT(*) FROM glpi_softwares
-UNION ALL SELECT 'Phiếu - Mới',             COUNT(*) FROM glpi_tickets WHERE status = 1
-UNION ALL SELECT 'Phiếu - Được giao',       COUNT(*) FROM glpi_tickets WHERE status = 2
-UNION ALL SELECT 'Phiếu - Đã giải quyết',   COUNT(*) FROM glpi_tickets WHERE status = 5
-UNION ALL SELECT 'Phiếu - Đã đóng',         COUNT(*) FROM glpi_tickets WHERE status = 6
-UNION ALL SELECT 'Phiếu - TỔNG',            COUNT(*) FROM glpi_tickets;
+UNION ALL SELECT 'Máy tính phòng máy (desktop)', COUNT(*) FROM glpi_computers WHERE name LIKE 'TDL-PC-%'
+UNION ALL SELECT 'Máy tính (laptop)',            COUNT(*) FROM glpi_computers WHERE name LIKE 'TDL-LAP-%'
+UNION ALL SELECT 'Máy chủ',                      COUNT(*) FROM glpi_computers WHERE name LIKE 'TDL-SRV-%'
+UNION ALL SELECT 'Màn hình LCD phòng máy',       COUNT(*) FROM glpi_monitors  WHERE name LIKE 'TDL-MON-%'
+UNION ALL SELECT 'Smart Tivi phòng máy (80-85")', COUNT(*) FROM glpi_monitors WHERE name LIKE 'TDL-TV-%'
+UNION ALL SELECT 'Máy in',                       COUNT(*) FROM glpi_printers  WHERE name LIKE 'TDL-PRN-%'
+UNION ALL SELECT 'Thiết bị mạng & Tủ Rack',      COUNT(*) FROM glpi_networkequipments WHERE name LIKE 'TDL-%'
+UNION ALL SELECT 'Thiết bị ngoại vi (âm thanh)', COUNT(*) FROM glpi_peripherals WHERE name LIKE 'TDL-%'
+UNION ALL SELECT 'Phần mềm',                     COUNT(*) FROM glpi_softwares
+UNION ALL SELECT 'Phiếu - Mới',                  COUNT(*) FROM glpi_tickets WHERE status = 1
+UNION ALL SELECT 'Phiếu - Được giao',            COUNT(*) FROM glpi_tickets WHERE status = 2
+UNION ALL SELECT 'Phiếu - Đã giải quyết',        COUNT(*) FROM glpi_tickets WHERE status = 5
+UNION ALL SELECT 'Phiếu - Đã đóng',              COUNT(*) FROM glpi_tickets WHERE status = 6
+UNION ALL SELECT 'Phiếu - TỔNG',                 COUNT(*) FROM glpi_tickets;

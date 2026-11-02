@@ -7,6 +7,24 @@ Phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ### Thay đổi
 
+- **Tạo báo cáo thực tập tốt nghiệp chuẩn Word (`BAO-CAO-THUC-TAP-FINAL.docx`) với Mục lục tương tác 100%:**
+  - Viết script `scripts/build_dlu_report_word.py` biên dịch toàn bộ nội dung học thuật từ `tai-lieu/BAO-CAO-THUC-TAP.md` sang định dạng `.docx` chuẩn Đại học Đà Lạt: khổ giấy A4, lề trái 3.5cm (đóng gáy), lề phải/trên/dưới 2.0cm, phông chữ Times New Roman 13pt, dãn dòng 1.3, trang bìa khung đôi `#1B365D`, logo DLU, 2 trang phiếu đánh giá (CQTT & GVHD).
+  - Tích hợp 112 bookmark (`<w:bookmarkStart>` & `<w:bookmarkEnd>`) cho 75 đề mục phân cấp, 36 bảng biểu và 18 hình ảnh thực tế.
+  - Xây dựng hệ thống mục lục tương tác (`render_interactive_toc`, `render_interactive_list`) bọc từng mục trong thẻ `<w:hyperlink>` và trường động `<w:fldSimple w:instr="PAGEREF ... \h">` với dấu chấm tab leader chuẩn OpenXML, cho phép Ctrl+Click hoặc nhấp chuột để chuyển ngay tới trang đích.
+  - Gán cấp độ phân cấp tài liệu `w:outlineLvl` (cấp 0..3) cho tất cả tiêu đề H1-H4, kích hoạt cây thư mục điều hướng bản xứ trong ngăn Word Navigation Pane (`Ctrl + F`).
+  - Viết script `scripts/sync_word_toc.ps1` tự động hóa cập nhật số trang và các trường động qua Microsoft Word COM Interop, tính toán chính xác số trang (73 trang in, 18.278 từ, đánh số trang La Mã i-viii và số Ả Rập 1-65).
+- **Chuyển đổi toàn diện dữ liệu thiết bị sang thông số thực tế 10 phòng máy Trung tâm CNTT ĐH Đà Lạt:**
+  - Trích xuất thông số kỹ thuật thực tế từ tài liệu khảo sát nội bộ `THÔNG SỐ CÁC PHÒNG MÁY TT_CNTT.docx` của Trung tâm CNTT: 10 phòng thực hành (A24.1, A24 lầu, A8.3, A8.4, A8.5, A8.6, TV1, TV2, TV3, TV4).
+  - Khởi tạo 471 máy tính để bàn sinh viên (Dell OptiPlex 3000 Small SFF, Intel Core i3/i5, Pentium) và 471 màn hình LCD (Dell 22" E2222H, LG 24") bằng câu lệnh truy vấn tập hợp (cross-join 1..60 sequence) tối ưu trong `scripts/seed-du-lieu-mau.sql`.
+  - Khởi tạo 6 máy tính giáo viên, 10 Smart Tivi phòng máy (Sony 85", Inno 85", Inno 80"), 3 máy in laser Canon LBP2900, 17 thiết bị mạng & tủ rack (10 Switch Cisco, 6 Unifi AP, 1 Tủ Rack Core) và 3 hệ thống âm thanh Bosch (`glpi_peripherals`).
+  - Nâng tổng quy mô thiết bị quản lý trong CSDL lên **482 máy tính**, **487 màn hình & Smart Tivi**, **3 máy in**, **17 thiết bị mạng & tủ rack**, thay thế hoàn toàn dữ liệu giả lập cũ (17 máy tính / 5 màn hình).
+  - Cập nhật danh mục vị trí và bảng tra thiết bị trong `scripts/seed-du-lieu-nen.sql`, `scripts/seed-sla-va-chong-lam-dung.sql` và liên kết phiếu sự cố `glpi_items_tickets`.
+  - Cập nhật chỉ số kiểm tra trong luồng CI smoke test và đồng bộ toàn bộ tài liệu báo cáo đồ án.
+- **Chuẩn hóa tác giả ghi chú nội bộ T5 và tối ưu hóa vòng đời nhả khóa GET_LOCK:**
+  - Gán tường minh `users_id => 0` khi tạo `ITILFollowup` cho ghi chú nhắc soát xét ưu tiên cao T5, đảm bảo tác giả hiển thị là Hệ thống thay vì người gửi phiếu.
+  - Chủ động gọi `plugin_pinedesk_release_lock()` ngay sau khi chặn phiếu (ở `PRE_ITEM_ADD`) hoặc sau khi tạo phiếu thành công (ở `ITEM_ADD`), tránh giữ khóa mutex đến cuối tiến trình trong môi trường CLI/batch.
+  - Cập nhật mục kiểm 4f trong `tests/kiem-thu-han-muc.php` để kiểm chứng điều kiện `users_id = 0`.
+  - Bổ sung `plugins/pinedesk/` vào cây thư mục mã nguồn và thêm Bảng 3.4 (đối chiếu 20 đóng góp kỹ thuật so với GLPI 11 gốc) trong Báo cáo thực tập (`BAO-CAO-THUC-TAP.md`).
 - **Nâng cấp toàn diện giao diện & Frontend (Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt).**
   - **Tệp đặc tả thiết kế:** Bổ sung `DESIGN.md` chuẩn Impeccable tại gốc dự án, tổng hợp quy chuẩn token, hierarchy và rules.
   - **Typography biên tập:** Nhúng phông serif `Literata` biến thiên (.woff2 nội bộ Latin + Vietnamese, weights 400..700) cho tiêu đề trang trọng (Đăng nhập, Dashboard, Modal); kết hợp `Be Vietnam Pro` cho nội dung thao tác và `IBM Plex Mono` căn thẳng hàng số liệu (tabular-nums) và mã định danh.

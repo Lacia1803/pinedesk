@@ -169,12 +169,15 @@ pinedesk/
 │   ├── do-tai.sh                # ★ Đo tải hệ thống bằng wrk trong Docker
 │   ├── kiem-tra-race-getlock.sh # ★ Kiểm tra chống đua GET_LOCK (2 request song song)
 │   ├── kiem-tra-http-limit.sh   # ★ Kiểm tra chặn hạn mức qua HTTP thật (Playwright)
+│   ├── build_dlu_report_word.py # ★ Xuất Báo cáo tốt nghiệp Word chuẩn DLU (OpenXML, 112 bookmark)
+│   ├── sync_word_toc.ps1        # ★ Đồng bộ số trang và cập nhật trường PAGEREF qua Word COM
 │   ├── lib/browser.js           #   Helper Playwright dùng chung (tìm Chrome, đăng nhập)
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
 ├── backup/                      # Script sao lưu dữ liệu
 └── tai-lieu/                    # ★ Tài liệu hướng dẫn + ảnh minh chứng
     ├── README.md                # ★ Tài liệu tổng hợp toàn diện (nghiệp vụ, kiến trúc, 6 tầng phòng thủ, cài đặt, demo, phản biện)
-    ├── BAO-CAO-THUC-TAP.md      #   Báo cáo thực tập tốt nghiệp (bản in)
+    ├── BAO-CAO-THUC-TAP-FINAL.docx # ★ Báo cáo thực tập tốt nghiệp Word hoàn chỉnh (73 trang, Mục lục tương tác)
+    ├── BAO-CAO-THUC-TAP.md      #   Báo cáo thực tập tốt nghiệp (bản in Markdown)
     ├── CAI-TIEN-CHAT-LUONG.md   # ★ Nhật ký cải tiến chất lượng (vấn đề - cách sửa - bằng chứng)
     ├── SO-LIEU-THUC-TE-DLU.md   # ★ Số liệu ITC & Trường (có nguồn) — thay cho giả định
     ├── DO-TAI.md                # ★ Kết quả đo tải (Nginx/GLPI/ghi phiếu)
@@ -190,7 +193,7 @@ Hệ thống cài xong là **CSDL rỗng**, không thể demo. Chạy 1 lệnh �
 bash scripts/nap-du-lieu-mau.sh
 ```
 
-Kết quả: **17 máy tính · 5 màn hình · 3 máy in · 9 thiết bị mạng · 10 phần mềm ·
+Kết quả: **482 máy tính · 487 màn hình LCD & Smart Tivi · 3 máy in · 17 thiết bị mạng & tủ rack · 10 phần mềm ·
 13 phiếu sự cố (đủ 4 trạng thái) · 6 tài khoản 3 vai trò**.
 
 | Tài khoản | Mật khẩu | Vai trò |
@@ -204,7 +207,8 @@ Kết quả: **17 máy tính · 5 màn hình · 3 máy in · 9 thiết bị mạ
 > `nap-du-lieu-mau.sh`, nên mật khẩu là `tech` chứ không phải `Dlu@2026`.
 
 > Script **idempotent** — chạy lại nhiều lần không nhân đôi dữ liệu.
-> Mã tài sản theo quy ước thật: `TDL-PC-A101-001` = ĐH Đà Lạt – Máy tính – Toà A – Phòng 101 – Máy 01.
+> Dữ liệu phần cứng trích xuất từ thông số kỹ thuật thực tế 10 phòng máy Trung tâm CNTT ĐH Đà Lạt.
+> Mã tài sản theo quy ước chuẩn: `TDL-PC-A241-001` = ĐH Đà Lạt – Máy tính – Phòng A24.1 – Máy 01.
 
 ## Lệnh thường dùng
 
@@ -235,6 +239,10 @@ bash scripts/kiem-tra-race-getlock.sh # Kiểm tra chống đua GET_LOCK (2 requ
 GLPI_USER=sv.hoa GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-http-limit.sh # Chặn hạn mức qua HTTP thật
 make kiem-tra                        # Chạy toàn bộ kiểm tra chất lượng trước khi push
 
+# Xuất Báo cáo tốt nghiệp Word chuẩn DLU & Mục lục tương tác
+python scripts/build_dlu_report_word.py # Tạo file tai-lieu/BAO-CAO-THUC-TAP-FINAL.docx
+pwsh   scripts/sync_word_toc.ps1        # Đồng bộ số trang & cập nhật trường PAGEREF qua Word COM
+
 # Vận hành
 bash start.sh                        # Khởi động
 docker compose logs -f glpi          # Xem log
@@ -249,9 +257,9 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 |---|---|
 | [`DESIGN.md`](DESIGN.md) | **Đặc tả hệ thống thiết kế giao diện**: dung hợp Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt |
 | [`tai-lieu/README.md`](tai-lieu/README.md) | **Tài liệu tổng hợp toàn diện**: bài toán nghiệp vụ, cơ cấu tổ chức DLU, kiến trúc so sánh GLPI gốc, phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện & Việt hóa, tạo mã QR thiết bị, hướng dẫn triển khai & vận hành, kịch bản demo 7 phút và bộ 25 câu hỏi phản biện |
-| [`slide-bao-ve.html`](tai-lieu/slide-bao-ve.html) | 8 slide bảo vệ, tự chứa, chạy được khi không có mạng |
-| [`BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in) |
-| [`CAI-TIEN-CHAT-LUONG.md`](tai-lieu/CAI-TIEN-CHAT-LUONG.md) | **Nhật ký cải tiến chất lượng**: 13 vấn đề phát hiện khi rà soát, cách sửa và bằng chứng kiểm chứng (dùng để viết phần "Kiểm thử và cải tiến" của báo cáo) |
+| [`tai-lieu/BAO-CAO-THUC-TAP-FINAL.docx`](tai-lieu/BAO-CAO-THUC-TAP-FINAL.docx) | **Báo cáo thực tập tốt nghiệp chính thức** (Microsoft Word, 73 trang, chuẩn thể thức DLU, 112 Bookmark và Mục lục tương tác nhấp chuyển trang) |
+| [`tai-lieu/BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in Markdown) |
+| [`tai-lieu/CAI-TIEN-CHAT-LUONG.md`](tai-lieu/CAI-TIEN-CHAT-LUONG.md) | **Nhật ký cải tiến chất lượng**: 13 vấn đề phát hiện khi rà soát, cách sửa và bằng chứng kiểm chứng (dùng để viết phần "Kiểm thử và cải tiến" của báo cáo) |
 | [`SO-LIEU-THUC-TE-DLU.md`](tai-lieu/SO-LIEU-THUC-TE-DLU.md) | **Số liệu thực tế về ITC & Trường ĐH Đà Lạt** (có nguồn, có ngày truy cập): 5 nhân sự ITC, 14.500+ người học, 16 khoa, benchmark EDUCAUSE, xác nhận Trường chưa có hệ thống helpdesk |
 | [`DO-TAI.md`](tai-lieu/DO-TAI.md) | **Kết quả đo tải**: Nginx ~54.000 req/s, GLPI bão hoà ~100 req/s, ghi phiếu ~50 phiếu/s — kèm phân tích ý nghĩa với quy mô Trường |
 

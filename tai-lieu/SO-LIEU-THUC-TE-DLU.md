@@ -190,12 +190,44 @@ hướng phát triển của PineDesk.
 
 ---
 
-## 5. Kết luận: giả định nào đã có cơ sở
+## 5. Dữ liệu thực tế 10 phòng máy tính do Trung tâm CNTT quản lý
+
+**Nguồn:** Khảo sát trang thiết bị nội bộ của Trung tâm CNTT — văn bản `THÔNG SỐ CÁC PHÒNG MÁY TT_CNTT.docx`.
+
+Trung tâm CNTT trực tiếp quản lý và vận hành 10 phòng thực hành máy tính tại Tòa nhà A và Tòa nhà F (Thư viện):
+
+| STT | Phòng máy | Vị trí | Số máy SV | Máy GV | Cấu hình máy tính | Màn hình LCD | Smart Tivi | Thiết bị mạng | Máy in & Âm thanh |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | A24.1 | Tòa nhà A | 45 | 1 | Dell OptiPlex 3000 Small | Dell 22" E2222H | Sony 85" | Cisco Switch + Unifi AP | Canon LBP2900 + Bosch |
+| 2 | A24 lầu | Tòa nhà A | 45 | 1 | Dell OptiPlex 3000 Small | Dell 22" E2222H | Sony 85" | Cisco Switch + Unifi AP | Bosch |
+| 3 | A8.3 | Tòa nhà A | 48 | 1 | PC Lắp ráp Intel Core i3 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | Canon LBP2900 + Bosch |
+| 4 | A8.4 | Tòa nhà A | 48 | 1 | PC Lắp ráp Intel Core i3 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | Canon LBP2900 |
+| 5 | A8.5 | Tòa nhà A | 49 | 1 | PC Lắp ráp Intel Core i5 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | — |
+| 6 | A8.6 | Tòa nhà A | 50 | 1 | PC Lắp ráp Intel Core i5 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | — |
+| 7 | TV1 | Tòa nhà F | 46 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| 8 | TV2 | Tòa nhà F | 45 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| 9 | TV3 | Tòa nhà F | 45 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| 10 | TV4 | Tòa nhà F | 50 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| **Tổng** | **10 phòng** | | **471** | **6** | **477 máy phòng máy** | **477 LCD** | **10 Tivi** | **16 thiết bị mạng** | **3 máy in, 3 âm thanh** |
+
+Cùng với 3 laptop cho mượn (`TDL-LAP-001..003`), 2 máy chủ (`TDL-SRV-001..002`) và 1 Tủ Rack Core trung tâm, tổng cơ sở vật chất nạp vào CSDL PineDesk đạt:
+- **482 máy tính** (471 máy SV + 6 máy GV + 3 laptop + 2 server).
+- **487 thiết bị hiển thị** (477 màn hình LCD Dell/LG + 10 Smart Tivi Sony/Inno 80-85").
+- **3 máy in** laser Canon LBP2900.
+- **17 thiết bị mạng & hạ tầng** (10 Cisco Switch, 6 Unifi AP, 1 Tủ Rack Core).
+- **3 hệ thống âm thanh** Bosch.
+
+=> Toàn bộ thông số này đã được nạp chính thức vào `scripts/seed-du-lieu-mau.sql`, loại bỏ hoàn toàn các dữ liệu phần cứng giả định trước đây.
+
+---
+
+## 6. Kết luận: giả định nào đã có cơ sở
 
 | Con số / giả định của đồ án | Trạng thái | Nguồn |
 |---|---|---|
 | ITC có 5 nhân sự | ✅ **XÁC NHẬN** | itc.dlu.edu.vn/gioi-thieu |
 | ITC quản lý hệ thống CNTT + phòng máy | ✅ **XÁC NHẬN** | QĐ 03/09/QĐ-ĐHDL |
+| 10 phòng máy thực tế (477 máy, 10 Tivi) | ✅ **XÁC NHẬN** | Khảo sát TT CNTT (`THÔNG SỐ...docx`) |
 | Trường có 14.500+ người học | ✅ **XÁC NHẬN** | dlu.edu.vn + BC thường niên (14.487) |
 | Trường có 16 khoa | ✅ **XÁC NHẬN** | BC thường niên + dlu.edu.vn |
 | **Trường CHƯA có hệ thống helpdesk** | ✅ **XÁC NHẬN** | kiểm tra subdomain, 09/10/2026 |
@@ -207,16 +239,15 @@ hướng phát triển của PineDesk.
 
 ---
 
-## 6. Việc còn lại (cần con người)
+## 7. Việc còn lại (cần con người)
 
 1. **Phỏng vấn 2–3 nhân sự ITC** (ưu tiên Giám đốc Trần Thống hoặc Phó GĐ Trần
    Ngô Như Khánh) — lấy: số sự cố/tuần, kênh tiếp nhận, thời gian phản hồi.
 2. **Xin xác nhận** về hạn mức phiếu và SLA (để không còn là "đề xuất").
-3. **Xác minh số phòng máy ITC trực tiếp quản lý** (phân biệt với phòng máy khoa).
 
 ---
 
-## 7. Ghi chú độ tin cậy
+## 8. Ghi chú độ tin cậy
 
 - **CAO (dùng trích dẫn chính):** Báo cáo thường niên 2025, trang chủ DLU, trang
   ITC, QĐ 03/09/QĐ-ĐHDL, EDUCAUSE ECAR 2007, MetricNet 2016.

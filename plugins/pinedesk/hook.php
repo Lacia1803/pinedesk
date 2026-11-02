@@ -226,6 +226,10 @@ function plugin_pinedesk_check_limits($item): void
             } catch (\Throwable $e) {
                 Toolbox::logInFile('pinedesk', 'Loi ghi nhat ky chan: ' . $e->getMessage(), true);
             }
+
+            // Phiếu bị chặn thì không có ITEM_ADD chạy sau -> chủ động nhả khóa
+            // ngay tại đây để không giữ khóa đến cuối request/tiến trình.
+            plugin_pinedesk_release_lock();
         }
     } catch (\Throwable $e) {
         // Fail-open: cơ chế chống lạm dụng không được làm hỏng việc nộp phiếu
@@ -273,6 +277,10 @@ function plugin_pinedesk_log_created($item): void
     } catch (\Throwable $e) {
         Toolbox::logInFile('pinedesk', 'Loi T5 soat xet uu tien: ' . $e->getMessage(), true);
     }
+
+    // Nhả khóa GET_LOCK sau khi phiếu và nhật ký đã ghi nhận xong
+    // (phiếu đã nằm trong glpi_tickets, request sau đọc count sẽ thấy).
+    plugin_pinedesk_release_lock();
 }
 
 /**
@@ -348,9 +356,10 @@ function plugin_pinedesk_review_high_priority($ticket, int $uid): void
 
     $followup = new ITILFollowup();
     $followup->add([
-        'itemtype' => 'Ticket',
-        'items_id' => $tickets_id,
-        'content'  => $noi_dung,
+        'itemtype'   => 'Ticket',
+        'items_id'   => $tickets_id,
+        'users_id'   => 0,   // Ghi nhận Hệ thống tự động ghi chú (không gán người tạo là sinh viên gửi phiếu)
+        'content'    => $noi_dung,
         'is_private' => 1,   // ghi chú nội bộ, người gửi không thấy
     ]);
 }

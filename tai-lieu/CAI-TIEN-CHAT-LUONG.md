@@ -99,7 +99,7 @@ docker exec -i pinedesk-db sh -c \
   'MYSQL_PWD="$MARIADB_ROOT_PASSWORD" mariadb -u root "$1"' _ glpi < backup/..._db.sql
 ```
 
-Kết quả: phục hồi thành công; kiểm tra lại CSDL vẫn đủ **17 máy tính / 14 phiếu**.
+Kết quả: phục hồi thành công; kiểm tra lại CSDL vẫn đủ **482 máy tính / 14 phiếu**.
 
 ---
 
@@ -422,6 +422,13 @@ Thêm mục kiểm 4f; harness lên **46 điểm kiểm**.
 Ba việc trên đều trả lời đúng một câu hỏi của hội đồng: *"Cái này chạy thật chưa,
 hay chỉ nói?"*. Cách trả lời không phải thêm chữ, mà là **thêm dữ kiện có nguồn**
 (số liệu ITC), **thêm số đo** (đo tải), và **thêm mã chạy thật** (T5).
+
+### 8.5. Tinh chỉnh tác giả ghi chú T5 và vòng đời nhả khóa GET_LOCK
+
+Rà soát mã nguồn trước vòng báo cáo số 2 phát hiện hai chi tiết cần làm gọn:
+
+1. **Tác giả ghi chú nội bộ T5**: ban đầu `ITILFollowup::add()` không truyền `users_id`, nên GLPI tự lấy ID của phiên hiện tại. Phiếu do sinh viên nộp thì ghi chú soát xét nội bộ lại mang tên sinh viên đó, dễ gây hiểu nhầm khi kỹ thuật viên đọc lịch sử. Đã thêm `users_id => 0` để GLPI gán đúng tác giả là Hệ thống. Đồng thời cập nhật mục kiểm 4f trong harness để kiểm tra thêm điều kiện `users_id = 0`, giữ nguyên tổng 46 điểm kiểm.
+2. **Vòng đời nhả khóa chống đua**: trước đây khóa `GET_LOCK` chỉ nhả qua `register_shutdown_function`. Cơ chế này an toàn trên web, nhưng nếu chạy nhiều lượt tạo phiếu trong một tiến trình CLI thì khóa bị giữ lâu hơn mức cần thiết. Đã bổ sung lệnh nhả khóa chủ động ngay khi phiếu bị chặn (ở `PRE_ITEM_ADD`) hoặc sau khi tạo xong phiếu và ghi nhật ký (ở `ITEM_ADD`). Lệnh nhả lúc shutdown vẫn giữ làm chốt chặn an toàn khi có lỗi bất ngờ.
 
 ---
 

@@ -466,7 +466,7 @@ SELECT 0,
        2,
        0,
        DATE_SUB(@now, INTERVAL 1 DAY),
-       (SELECT id FROM glpi_locations WHERE name = 'Phòng máy A102' AND level = 3 LIMIT 1)
+       (SELECT id FROM glpi_locations WHERE name = 'Phòng máy A24.1' AND level = 3 LIMIT 1)
 WHERE @sv_hoa IS NOT NULL AND @cat_muon IS NOT NULL
   AND NOT EXISTS (SELECT 1 FROM glpi_tickets
                    WHERE name = 'Mượn laptop cho đồ án môn Mạng máy tính');
@@ -503,7 +503,7 @@ UPDATE glpi_tickets
        solvedate = COALESCE(solvedate, @now),
        locations_id = COALESCE(NULLIF(locations_id, 0),
                                (SELECT id FROM glpi_locations
-                                 WHERE name = 'Phòng máy A102' AND level = 3 LIMIT 1)),
+                                 WHERE name = 'Phòng máy A24.1' AND level = 3 LIMIT 1)),
        requesttypes_id = COALESCE(NULLIF(requesttypes_id, 1),
                                   (SELECT id FROM glpi_requesttypes
                                     WHERE name = 'Báo qua cổng thông tin' LIMIT 1)),

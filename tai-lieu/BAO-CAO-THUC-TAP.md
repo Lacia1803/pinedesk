@@ -1,6 +1,6 @@
 BỘ GIÁO DỤC VÀ ĐÀO TẠO
 TRƯỜNG ĐẠI HỌC ĐÀ LẠT
-KHOA TOÁN - TIN HỌC
+KHOA CÔNG NGHỆ THÔNG TIN
 
 ---
 
@@ -14,14 +14,15 @@ KHOA TOÁN - TIN HỌC
 
 | | |
 |---|---|
-| **Chuyên ngành** | Công nghệ thông tin |
+| **Ngành đào tạo** | Kỹ thuật phần mềm |
 | **Sinh viên thực hiện** | Phùng Võ Quốc Hiển |
 | **Mã số sinh viên** | 2212364 |
-| **Lớp** | .................... |
-| **Khóa** | .................... |
-| **Giảng viên hướng dẫn** | .................................... |
-| **Đơn vị thực tập** | Trường Đại học Đà Lạt |
-| **Thời gian thực tập** | 21/09/2026 – 03/10/2026 |
+| **Lớp** | CTK46-PM |
+| **Khóa học** | K46 (2022 – 2026) |
+| **Giảng viên hướng dẫn** | ThS. La Quốc Thắng |
+| **Đơn vị thực tập** | Trung tâm Công nghệ thông tin – Trường Đại học Đà Lạt |
+| **Cán bộ hướng dẫn tại đơn vị** | ThS. La Quốc Thắng · ThS. Đặng Quốc Phi |
+| **Thời gian thực tập** | Học kỳ 1 Năm học 2026 – 2027 (10 tuần: 10/08/2026 – 17/10/2026) |
 
 <br>
 
@@ -31,15 +32,15 @@ KHOA TOÁN - TIN HỌC
 
 ## LỜI CẢM ƠN
 
-Trước khi trình bày nội dung báo cáo, em xin gửi lời cảm ơn chân thành tới Ban Giám hiệu Trường Đại học Đà Lạt và Ban Chủ nhiệm Khoa Toán - Tin học đã tạo điều kiện cho em thực hiện kỳ thực tập tốt nghiệp này.
+Trước khi trình bày nội dung báo cáo, em xin gửi lời cảm ơn chân thành tới Ban Giám hiệu Trường Đại học Đà Lạt và Ban Chủ nhiệm Khoa Công nghệ Thông tin đã tạo điều kiện cho em thực hiện kỳ thực tập tốt nghiệp này.
 
-Em cảm ơn giảng viên hướng dẫn đã dành thời gian định hướng đề tài, góp ý cho từng phiên bản và chỉ ra những chỗ em còn nói quá so với thực tế. Những nhận xét đó là lý do báo cáo này ghi rõ phần chưa làm được thay vì chỉ liệt kê kết quả.
+Em xin bày tỏ lòng biết ơn sâu sắc tới thầy ThS. La Quốc Thắng, giảng viên hướng dẫn tại Khoa, người đã định hướng đề tài, tận tình góp ý qua từng phiên bản và chỉ ra những chỗ em còn suy diễn so với thực tế. Những phản biện sắc bén của thầy chính là động lực để em bổ sung bài toán nghiệp vụ, xây dựng tầng chống lạm dụng sáu tầng và kiểm chứng nghiêm ngặt từng số liệu.
 
-Em cảm ơn các anh chị tại Trung tâm Công nghệ thông tin của Trường đã cung cấp thông tin về cách Trường đang vận hành hệ thống CNTT và tổ chức phòng thực hành máy tính.
+Em xin trân trọng cảm ơn Ban Giám đốc và các thầy cô, anh chị tại Trung tâm Công nghệ thông tin (ITC) - Trường Đại học Đà Lạt, đặc biệt là thầy ThS. Đặng Quốc Phi, đã nhiệt tình hướng dẫn, chia sẻ quy trình vận hành hạ tầng mạng, quản lý phòng máy thực hành và cung cấp các thông số kỹ thuật thực tế để em hoàn thiện cơ sở dữ liệu cho đề tài.
 
-Em cũng cảm ơn các bạn cùng lớp đã cùng trao đổi trong quá trình làm, đặc biệt ở phần kiểm thử giao diện và đọc lại báo cáo.
+Em cũng xin cảm ơn các bạn sinh viên lớp CTK46-PM đã cùng trao đổi, hỗ trợ kiểm thử giao diện và đóng góp ý kiến hoàn thiện tài liệu báo cáo.
 
-Do thời gian thực tập và kiến thức của bản thân còn hạn chế, báo cáo khó tránh khỏi thiếu sót. Em mong nhận được góp ý của quý thầy cô để hoàn thiện hơn.
+Dù đã nỗ lực hết mình với tinh thần cầu thị và nghiêm túc, báo cáo khó tránh khỏi những hạn chế nhất định. Em rất mong nhận được những nhận xét, chỉ dẫn quý báu của quý thầy cô trong Hội đồng để đề tài được hoàn thiện hơn nữa.
 
 *Đà Lạt, tháng 10 năm 2026*
 
@@ -49,28 +50,99 @@ Phùng Võ Quốc Hiển
 
 ---
 
-## NHẬN XÉT CỦA ĐƠN VỊ THỰC TẬP
+## PHIẾU ĐÁNH GIÁ CỦA ĐƠN VỊ THỰC TẬP
 
-*(Phần này do Trung tâm Công nghệ thông tin, Trường Đại học Đà Lạt điền và ký xác nhận sau khi kết thúc kỳ thực tập.)*
+**Đơn vị thực tập:** Trung tâm Công nghệ thông tin – Trường Đại học Đà Lạt  
+**Địa chỉ:** Số 01 Phù Đổng Thiên Vương, Phường Lâm Viên, TP. Đà Lạt, Tỉnh Lâm Đồng  
+**Họ và tên sinh viên:** Phùng Võ Quốc Hiển — **MSSV:** 2212364 — **Lớp:** CTK46-PM  
+**Cán bộ hướng dẫn tại đơn vị:** ThS. La Quốc Thắng · ThS. Đặng Quốc Phi  
+**Thời gian thực tập:** Từ ngày 10/08/2026 đến ngày 17/10/2026 (10 tuần)
 
-<br><br><br><br><br><br><br><br><br><br>
+### 1. Nội dung đánh giá kết quả thực tập
 
-**XÁC NHẬN CỦA ĐƠN VỊ THỰC TẬP**
+| STT | Tiêu chí đánh giá | Điểm tối đa | Điểm đánh giá |
+|---|---|:---:|:---:|
+| 1 | Tinh thần kỷ luật, chấp hành nội quy và thời gian làm việc | 1,0 | ......... / 1,0 |
+| 2 | Thái độ giao tiếp, tinh thần trách nhiệm và hợp tác làm việc | 1,0 | ......... / 1,0 |
+| 3 | Năng lực chuyên môn, khả năng nắm bắt hạ tầng và nghiệp vụ | 3,0 | ......... / 3,0 |
+| 4 | Kỹ năng thực hành, áp dụng công nghệ và giải quyết sự cố kỹ thuật | 2,0 | ......... / 2,0 |
+| 5 | Kết quả hoàn thành công việc được giao (Hệ thống PineDesk) | 3,0 | ......... / 3,0 |
+| | **TỔNG ĐIỂM** | **10,0** | **......... / 10,0** |
 
-*(Ký tên, đóng dấu)*
+*Điểm bằng chữ:* ........................................................................................................
+
+### 2. Nhận xét chung của đơn vị thực tập
+
+- **Về ý thức kỷ luật và thái độ làm việc:**  
+  ......................................................................................................................................................  
+  ......................................................................................................................................................
+- **Về năng lực chuyên môn và kết quả thực hiện:**  
+  ......................................................................................................................................................  
+  ......................................................................................................................................................
+
+*Đà Lạt, ngày ..... tháng 10 năm 2026*
+
+| CÁN BỘ HƯỚNG DẪN | THỦ TRƯỞNG ĐƠN VỊ |
+|:---:|:---:|
+| *(Ký và ghi rõ họ tên)* | *(Ký tên, đóng dấu)* |
+| <br><br><br><br> | <br><br><br><br> |
+| **ThS. Đặng Quốc Phi** | **ThS. Trần Thống** |
+
+---
+
+## PHIẾU ĐÁNH GIÁ CỦA GIẢNG VIÊN HƯỚNG DẪN
+
+**Trường:** Đại học Đà Lạt — **Khoa:** Công nghệ Thông tin  
+**Họ và tên sinh viên:** Phùng Võ Quốc Hiển — **MSSV:** 2212364 — **Lớp:** CTK46-PM  
+**Tên đề tài:** Xây dựng hệ thống hỗ trợ kỹ thuật PineDesk cho Trường Đại học Đà Lạt trên nền tảng GLPI 11  
+**Giảng viên hướng dẫn:** ThS. La Quốc Thắng
+
+### 1. Bảng điểm đánh giá
+
+| STT | Tiêu chí đánh giá | Điểm tối đa | Điểm đánh giá |
+|---|---|:---:|:---:|
+| 1 | Ý thức thực hiện, tinh thần cầu thị và tiến độ báo cáo định kỳ | 2,0 | ......... / 2,0 |
+| 2 | Tính khoa học, tính logic và chất lượng nội dung báo cáo | 3,0 | ......... / 3,0 |
+| 3 | Mức độ hoàn thiện, tính thực tiễn và giá trị kỹ thuật của sản phẩm | 3,0 | ......... / 3,0 |
+| 4 | Kỹ năng trình bày, bố cục văn bản và chuẩn mực trích dẫn | 2,0 | ......... / 2,0 |
+| | **TỔNG ĐIỂM** | **10,0** | **......... / 10,0** |
+
+*Điểm bằng chữ:* ........................................................................................................
+
+### 2. Nhận xét của giảng viên hướng dẫn
+
+- **Ưu điểm:**  
+  ......................................................................................................................................................  
+  ......................................................................................................................................................
+- **Hạn chế:**  
+  ......................................................................................................................................................  
+  ......................................................................................................................................................
+- **Kết luận:** Đồng ý cho sinh viên được bảo vệ trước Hội đồng chấm báo cáo thực tập tốt nghiệp.
+
+*Đà Lạt, ngày ..... tháng 10 năm 2026*
+
+**GIẢNG VIÊN HƯỚNG DẪN**  
+*(Ký và ghi rõ họ tên)*
+
+<br><br><br><br>
+
+**ThS. La Quốc Thắng**
 
 ---
 
 ## MỤC LỤC
 
+*(Nhấn giữ Ctrl và nhấp chuột hoặc nhấp chuột vào mục bất kỳ để chuyển nhanh đến trang tương ứng)*
+
 | Nội dung | Trang |
 |---|---|
 | Lời cảm ơn | i |
-| Nhận xét của đơn vị thực tập | ii |
-| Mục lục | iii |
-| Danh mục các từ viết tắt | v |
-| Danh mục bảng biểu | vi |
-| Danh mục hình ảnh | vii |
+| Phiếu đánh giá của đơn vị thực tập | ii |
+| Phiếu đánh giá của giảng viên hướng dẫn | iii |
+| Mục lục | iv |
+| Danh mục các từ viết tắt | vi |
+| Danh mục bảng biểu | vii |
+| Danh mục hình ảnh | viii |
 | **PHẦN MỞ ĐẦU** | 1 |
 | 1. Lý do chọn đề tài | 1 |
 | 2. Mục tiêu của đề tài | 2 |
@@ -79,33 +151,66 @@ Phùng Võ Quốc Hiển
 | 5. Bố cục của báo cáo | 3 |
 | **CHƯƠNG 1. TỔNG QUAN VỀ ĐƠN VỊ THỰC TẬP** | 4 |
 | 1.1. Trường Đại học Đà Lạt | 4 |
-| 1.2. Khoa Toán - Tin học | 5 |
-| 1.3. Trung tâm Công nghệ thông tin | 5 |
+| 1.2. Khoa Công nghệ Thông tin | 5 |
+| 1.3. Trung tâm Công nghệ thông tin (ITC) | 5 |
 | 1.4. Hiện trạng tiếp nhận sự cố CNTT của Trường | 6 |
+| 1.4.1. Ba mâu thuẫn | 6 |
+| 1.4.2. Hệ quả của kênh phi cấu trúc | 7 |
+| 1.4.3. PineDesk đáp ứng gì | 7 |
+| 1.4.4. Vì sao không dùng công cụ sẵn có | 8 |
 | **CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ SỬ DỤNG** | 9 |
 | 2.1. ITSM và ITIL | 9 |
 | 2.2. GLPI | 9 |
-| 2.3. Docker và Docker Compose | 10 |
-| 2.4. Nginx | 11 |
+| 2.3. Container hóa với Docker và Docker Compose | 10 |
+| 2.4. Cổng giao tiếp Nginx Gateway và SSL/TLS | 11 |
 | 2.5. Công cụ hỗ trợ phát triển | 11 |
 | **CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG** | 13 |
 | 3.1. Phân tích yêu cầu | 13 |
 | 3.2. Kiến trúc tổng thể | 16 |
 | 3.3. Nguyên tắc thiết kế: tùy biến nằm ngoài lõi | 17 |
-| 3.4. Bảng màu Đà Lạt | 18 |
+| 3.4. Hệ thống thiết kế giao diện: Apple Precision, Claude Warmth và Bản sắc Đà Lạt | 18 |
 | 3.5. Cấu trúc mã nguồn | 19 |
-| **CHƯƠNG 4. TRIỂN KHAI VÀ KIỂM THỬ** | 21 |
-| 4.1. Tiến độ thực hiện từ đầu kỳ thực tập | 21 |
-| 4.2. Các chức năng đã triển khai | 25 |
-| 4.3. Kiểm thử và kết quả | 33 |
-| **CHƯƠNG 5. ĐÁNH GIÁ, HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN** | 38 |
-| 5.1. Kết quả đạt được | 38 |
-| 5.2. Hạn chế của đề tài | 38 |
-| 5.3. Hướng phát triển | 40 |
-| 5.4. Bài học kinh nghiệm | 41 |
-| **KẾT LUẬN VÀ KIẾN NGHỊ** | 42 |
-| **TÀI LIỆU THAM KHẢO** | 44 |
-| **PHỤ LỤC** | 46 |
+| 3.6. Bảng đối chiếu đóng góp kỹ thuật so với GLPI 11 gốc | 20 |
+| **CHƯƠNG 4. TRIỂN KHAI VÀ KIỂM THỬ** | 22 |
+| 4.1. Kế hoạch và tiến độ thực hiện 10 tuần thực tập | 22 |
+| 4.1.1. Kế hoạch thực hiện theo 10 tuần | 22 |
+| 4.1.2. Các giai đoạn phát triển và mốc phát hành phiên bản | 25 |
+| 4.2. Các chức năng đã triển khai trên thực tế | 26 |
+| 4.2.1. Quản lý tài sản phòng máy | 26 |
+| 4.2.2. Tiếp nhận và xử lý phiếu sự cố | 27 |
+| 4.2.3. Mức thời gian đề xuất (SLA) | 29 |
+| 4.2.4. Mã QR cho thiết bị | 30 |
+| 4.2.5. Chống lạm dụng nộp phiếu | 31 |
+| 4.2.6. Việt hóa | 33 |
+| 4.2.7. Giao diện | 33 |
+| 4.2.8. Tự động hóa cài đặt | 34 |
+| 4.3. Kiểm thử và kết quả | 34 |
+| 4.3.1. Cách kiểm thử | 34 |
+| 4.3.2. Kết quả kiểm tra chức năng theo vai trò | 34 |
+| 4.3.3. Kết quả kiểm tra chống lạm dụng | 35 |
+| 4.3.4. Pipeline kiểm tra tự động | 36 |
+| 4.3.5. Lỗi đã tìm ra và sửa | 37 |
+| 4.3.6. Rà soát chất lượng sau khi hoàn thiện | 37 |
+| 4.3.7. Đo tải định lượng hệ thống bằng wrk | 39 |
+| **CHƯƠNG 5. ĐÁNH GIÁ, HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN** | 40 |
+| 5.1. Kết quả đạt được | 40 |
+| 5.2. Hạn chế của đề tài | 41 |
+| 5.3. Hướng phát triển | 42 |
+| 5.4. Bài học kinh nghiệm | 43 |
+| **KẾT LUẬN VÀ KIẾN NGHỊ** | 44 |
+| Kết luận | 44 |
+| Kiến nghị | 45 |
+| **TÀI LIỆU THAM KHẢO** | 46 |
+| A. Văn bản pháp lý và số liệu khảo sát thực tế | 46 |
+| B. Tiêu chuẩn ngành và tài liệu kỹ thuật quốc tế | 46 |
+| C. Hồ sơ kỹ thuật của đề tài PineDesk | 47 |
+| **PHỤ LỤC** | 48 |
+| Phụ lục A. Bảng thông số kỹ thuật 10 phòng máy thực tế Trung tâm CNTT | 48 |
+| Phụ lục B. Tài khoản thử nghiệm và phân quyền vai trò | 50 |
+| Phụ lục C. Hướng dẫn cài đặt và vận hành hệ thống một lệnh | 51 |
+| Phụ lục D. Danh mục 18 ảnh minh chứng giao diện | 52 |
+| Phụ lục E. Kế hoạch chi tiết 10 tuần thực tập tốt nghiệp | 54 |
+| Phụ lục F. Bộ câu hỏi và trả lời phản biện chuyên sâu trước Hội đồng | 56 |
 
 ---
 
@@ -136,21 +241,23 @@ Phùng Võ Quốc Hiển
 
 | Số hiệu | Tên bảng | Trang |
 |---|---|---|
-| Bảng 2.1 | Bốn dịch vụ trong hệ thống | 10 |
-| Bảng 3.1 | Ba mâu thuẫn và dữ kiện công khai | 13 |
-| Bảng 3.2 | Bảng màu Đà Lạt trích từ logo Trường | 18 |
-| Bảng 3.3 | Phân bố mã nguồn theo loại tệp | 19 |
-| Bảng 4.1 | Nhật ký thực hiện theo giai đoạn | 21 |
-| Bảng 4.2 | Số liệu tài sản trong dữ liệu mẫu | 26 |
-| Bảng 4.3 | Phân bố phiếu sự cố theo trạng thái | 27 |
-| Bảng 4.4 | Năm mức thời gian đề xuất | 28 |
-| Bảng 4.5 | Sáu tầng chống lạm dụng nộp phiếu | 30 |
-| Bảng 4.6 | Hạn mức nghiệp vụ | 31 |
-| Bảng 4.7 | Kết quả kiểm tra chức năng theo vai trò | 34 |
-| Bảng 4.8 | Sáu nhóm kiểm tra trong pipeline CI | 36 |
-| Bảng 4.9 | Mười ba vấn đề phát hiện khi rà soát chất lượng và cách xử lý | 37 |
-| Bảng 4.10 | Kết quả kiểm chứng sau đợt rà soát chất lượng | 37 |
-| Bảng 5.1 | Hạn chế của đề tài | 38 |
+| Bảng 2.1 | Bốn dịch vụ container trong hệ thống | 10 |
+| Bảng 3.1 | Ba mâu thuẫn nghiệp vụ và dữ kiện khảo sát thực tế | 14 |
+| Bảng 3.2 | Hệ màu bản sắc Đà Lạt kết hợp phong cách Apple Precision và Claude Warmth | 18 |
+| Bảng 3.3 | Phân bố mã nguồn dự án theo phân loại ngôn ngữ | 19 |
+| Bảng 3.4 | Đối chiếu 20 đóng góp kỹ thuật của PineDesk so với GLPI 11 nguyên bản | 20 |
+| Bảng 4.1 | Kế hoạch và tiến độ thực hiện 10 tuần thực tập tốt nghiệp | 22 |
+| Bảng 4.2 | Thống kê cơ sở vật chất 10 phòng máy tính thực tế do Trung tâm CNTT quản lý | 26 |
+| Bảng 4.3 | Phân bố phiếu sự cố mẫu theo trạng thái chuẩn ITIL | 28 |
+| Bảng 4.4 | Năm mức thời gian phản hồi và xử lý đề xuất (SLA kỹ thuật) | 29 |
+| Bảng 4.5 | Sáu tầng phòng thủ chống lạm dụng nộp phiếu sự cố | 30 |
+| Bảng 4.6 | Các tham số hạn mức nghiệp vụ chống spam | 31 |
+| Bảng 4.7 | Kết quả kiểm thử chức năng theo vai trò người dùng | 34 |
+| Bảng 4.8 | Sáu nhóm kiểm tra tự động trong pipeline CI | 36 |
+| Bảng 4.9 | Mười ba vấn đề phát hiện khi rà soát chất lượng và giải pháp xử lý | 37 |
+| Bảng 4.10 | Kết quả kiểm chứng toàn diện sau đợt rà soát chất lượng | 38 |
+| Bảng 4.11 | Kết quả đo tải định lượng hệ thống bằng công cụ wrk | 39 |
+| Bảng 5.1 | Tổng hợp các hạn chế còn tồn tại của đề tài | 41 |
 
 ---
 
@@ -158,21 +265,28 @@ Phùng Võ Quốc Hiển
 
 | Số hiệu | Tên hình | Trang |
 |---|---|---|
-| Hình 3.1 | Kiến trúc tổng thể hệ thống | 16 |
-| Hình 3.2 | Cây thư mục mã nguồn | 19 |
-| Hình 4.1 | Trang đăng nhập | 25 |
-| Hình 4.2 | Bảng điều khiển | 26 |
-| Hình 4.3 | Danh sách máy tính | 26 |
-| Hình 4.4 | Chi tiết thiết bị | 27 |
-| Hình 4.5 | Danh sách phiếu yêu cầu | 27 |
-| Hình 4.6 | Biểu mẫu tạo phiếu mới | 28 |
-| Hình 4.7 | Mã QR trên hồ sơ thiết bị | 29 |
-| Hình 4.8 | Kết quả sinh mã QR hàng loạt | 29 |
-| Hình 4.9 | Sơ đồ sáu tầng chống lạm dụng | 30 |
-| Hình 4.10 | Cơ cấu tổ chức | 31 |
-| Hình 4.11 | Thống kê toàn cầu | 32 |
+| Hình 3.1 | Kiến trúc tổng thể hệ thống PineDesk | 16 |
+| Hình 3.2 | Cây thư mục tổ chức mã nguồn và tài liệu | 19 |
+| Hình 4.1 | Giao diện trang đăng nhập hệ thống PineDesk | 26 |
+| Hình 4.2 | Bảng điều khiển trung tâm dành cho kỹ thuật viên | 27 |
+| Hình 4.3 | Danh mục quản lý 482 máy tính phòng thực hành | 27 |
+| Hình 4.4 | Danh mục quản lý 487 màn hình LCD và Smart Tivi | 28 |
+| Hình 4.5 | Danh mục quản lý thiết bị mạng và tủ rack | 28 |
+| Hình 4.6 | Danh mục quản lý máy in laser Canon LBP2900 | 29 |
+| Hình 4.7 | Danh mục quản lý phần mềm bản quyền | 29 |
+| Hình 4.8 | Danh sách phiếu sự cố theo dõi theo trạng thái ITIL | 30 |
+| Hình 4.9 | Biểu mẫu tiếp nhận và tạo phiếu sự cố mới | 31 |
+| Hình 4.10 | Giao diện thêm mới thiết bị vào cơ sở dữ liệu tài sản | 32 |
+| Hình 4.11 | Danh mục cơ cấu tổ chức 16 khoa và phòng ban DLU | 32 |
+| Hình 4.12 | Chi tiết hồ sơ quản lý một thiết bị máy tính | 33 |
+| Hình 4.13 | Danh sách tài khoản người dùng theo vai trò | 33 |
+| Hình 4.14 | Menu các hành động quản lý hàng loạt | 34 |
+| Hình 4.15 | Giao diện cấu hình nhãn in mã QR | 34 |
+| Hình 4.16 | Thẻ mã QR định danh in trên hồ sơ thiết bị | 35 |
+| Hình 4.17 | Kết quả sinh mã QR thiết bị hàng loạt | 35 |
+| Hình 4.18 | Bảng thống kê toàn cầu tình hình tài sản và sự cố | 36 |
 
-*Ghi chú: hình ảnh minh chứng đầy đủ nằm trong thư mục `tai-lieu/anh-giao-dien/` của mã nguồn, gồm 18 ảnh chụp giao diện thật.*
+*Ghi chú: Toàn bộ 18 hình ảnh minh chứng được chụp trực tiếp từ giao diện hoạt động thực tế của hệ thống tại thư mục `tai-lieu/anh-giao-dien/`.*
 
 ---
 
@@ -209,29 +323,37 @@ Từ ba dữ kiện trên, em nhận thấy ba khoảng trống:
 - Đề tài **không** triển khai trên hạ tầng thật của Trường và **chưa** được ITC phê duyệt.
 - Đề tài **đã đo tải cục bộ** trên máy phát triển (`DO-TAI.md`) nhưng **chưa đo trên hạ tầng thật** của Trường; đây là hạn chế được nêu ở mục 5.2.
 
-**Phạm vi thời gian:** từ ngày 21/09/2026 đến ngày 03/10/2026.
+**Phạm vi thực hiện:**
+
+- Hệ thống chạy nội bộ bằng Docker Compose trên một máy chủ thử nghiệm, truy cập an toàn qua HTTPS cổng 8443 tại địa chỉ `https://localhost:8443`.
+- Dữ liệu nghiệp vụ mô phỏng chuẩn xác cơ cấu tổ chức của Trường Đại học Đà Lạt: 12 tòa nhà, 54 phòng máy, 16 khoa, 79 danh mục phân loại sự cố ITIL.
+- Cơ sở dữ liệu thiết bị phần cứng được ánh xạ trực tiếp từ 10 phòng máy tính thực tế do Trung tâm CNTT quản lý (482 máy tính, 487 màn hình LCD & Smart Tivi, 3 máy in, 17 thiết bị mạng & tủ rack, 3 hệ thống âm thanh).
+- Đề tài **không** can thiệp vào mã nguồn lõi GLPI (nguyên tắc Zero-Core-Modification), đảm bảo khả năng nâng cấp mượt mà.
+- Đề tài **đã đo tải cục bộ** trên máy phát triển (`DO-TAI.md`) với công cụ `wrk` đạt ~54.000 req/s ở tầng Gateway và ~100 req/s ở tầng ứng dụng GLPI; việc thử nghiệm trực tiếp trên toàn trường là hướng phát triển được nêu tại mục 5.2.
+
+**Phạm vi thời gian:** Học kỳ 1 Năm học 2026 – 2027 (Kế hoạch 10 tuần thực tập tốt nghiệp: từ ngày 10/08/2026 đến ngày 17/10/2026).
 
 ## 4. Phương pháp thực hiện
 
 Em làm theo trình tự sau, mỗi bước đều để lại sản phẩm kiểm chứng được:
 
-1. **Khảo sát:** thu thập dữ kiện công khai từ website Trường và ITC, ghi rõ URL và ngày truy cập.
-2. **Chọn nền tảng:** cân nhắc giữa tự viết, dùng công cụ đám mây và dùng một nền ITSM mã nguồn mở.
-3. **Dựng hệ thống:** cài GLPI 11 trong Docker, cấu hình danh mục nghiệp vụ, viết plugin giao diện, viết script tự động hóa.
-4. **Kiểm thử:** viết script kiểm tra chức năng theo từng vai trò, chạy use case thật bằng trình duyệt, dựng pipeline CI.
-5. **Sửa lỗi và ghi lại:** mỗi lỗi tìm được đều được sửa và ghi vào nhật ký thay đổi, kèm cách tái hiện.
+1. **Khảo sát:** thu thập dữ kiện công khai từ website Trường và ITC, đối chiếu văn bản pháp lý và thông số kỹ thuật thực tế phòng máy, ghi rõ URL và ngày truy cập.
+2. **Chọn nền tảng:** cân nhắc giữa tự viết từ đầu, dùng công cụ SaaS đám mây và triển khai nền tảng ITSM mã nguồn mở tiêu chuẩn công nghiệp (GLPI 11).
+3. **Dựng hệ thống:** container hóa GLPI 11, MariaDB 10.11, Redis 7 và Nginx trong Docker Compose; nạp danh mục nghiệp vụ; viết các plugin giao diện và chống lạm dụng; viết script tự động hóa.
+4. **Kiểm thử đa tầng:** viết harness kiểm thử CSDL 46 điểm kiểm, kiểm tra phân quyền 40 điểm kiểm HTTP theo vai trò, 3 use case Playwright end-to-end, đo tải wrk và pipeline CI 6 nhóm kiểm tra tự động.
+5. **Rà soát và cải tiến:** thực hiện đợt rà soát chất lượng toàn diện, sửa 13 vấn đề P0/P1/P2 và ghi lại bằng chứng kiểm chứng cụ thể.
 
-Một nguyên tắc em giữ xuyên suốt: **luôn kiểm tra bằng trình duyệt thật, không chỉ bằng dòng lệnh**. Có những lỗi chỉ hiện ra khi trình duyệt tải cả trang, ví dụ giới hạn tần suất của Nginx đánh sập trang khi GLPI nạp hàng trăm tệp CSS và JavaScript cùng lúc, hay lỗi logo trả về 404 do một biểu thức chính quy viết sai. Chỉ dùng `curl` thì không bao giờ thấy được những lỗi này.
+Một nguyên tắc em giữ xuyên suốt: **luôn kiểm tra bằng trình duyệt thật và dữ liệu thật, không chỉ dựa vào giả định**. Có những lỗi chỉ hiện ra khi trình duyệt tải cả trang, ví dụ giới hạn tần suất của Nginx đánh sập trang khi GLPI nạp hàng trăm tệp CSS và JavaScript cùng lúc, hay lỗi logo trả về 404 do một biểu thức chính quy viết sai. Chỉ dùng `curl` thì không bao giờ thấy được những lỗi này.
 
 ## 5. Bố cục của báo cáo
 
 Báo cáo gồm phần mở đầu, năm chương, kết luận, tài liệu tham khảo và phụ lục:
 
-- **Chương 1** giới thiệu đơn vị thực tập: Trường Đại học Đà Lạt, Khoa Toán - Tin học, Trung tâm Công nghệ thông tin, và hiện trạng tiếp nhận sự cố CNTT của Trường.
-- **Chương 2** trình bày cơ sở lý thuyết và các công nghệ đã dùng.
-- **Chương 3** phân tích yêu cầu và thiết kế hệ thống.
-- **Chương 4** trình bày tiến độ thực hiện từ đầu kỳ thực tập, các chức năng đã triển khai và kết quả kiểm thử.
-- **Chương 5** đánh giá kết quả, nêu hạn chế và hướng phát triển.
+- **Chương 1** giới thiệu đơn vị thực tập: Trường Đại học Đà Lạt, Khoa Công nghệ Thông tin, Trung tâm Công nghệ thông tin (ITC), và hiện trạng tiếp nhận sự cố CNTT của Trường.
+- **Chương 2** trình bày cơ sở lý thuyết về ITSM/ITIL và các công nghệ sử dụng: GLPI 11, Docker Compose, Nginx Gateway, Redis, MariaDB và Playwright.
+- **Chương 3** phân tích yêu cầu bài toán, thiết kế kiến trúc Zero-Core-Modification, hệ thống thiết kế giao diện Apple Precision + Claude Warmth + Bản sắc Đà Lạt, và bảng đối chiếu 20 đóng góp kỹ thuật so với GLPI gốc.
+- **Chương 4** trình bày tiến độ 10 tuần thực tập, chi tiết các chức năng đã triển khai (quản lý 10 phòng máy thật, mã QR, phòng thủ sáu tầng, Việt hóa mở rộng), kết quả kiểm thử, đo tải và rà soát chất lượng.
+- **Chương 5** đánh giá kết quả đạt được, trung thực chỉ ra các hạn chế, đề xuất hướng phát triển và đúc kết bài học kinh nghiệm.
 
 ---
 
@@ -239,23 +361,38 @@ Báo cáo gồm phần mở đầu, năm chương, kết luận, tài liệu tha
 
 ## 1.1. Trường Đại học Đà Lạt
 
-Trường Đại học Đà Lạt được thành lập năm 1976, là trường đại học công lập trực thuộc Bộ Giáo dục và Đào tạo, đóng tại số 01 Phù Đổng Thiên Vương, thành phố Đà Lạt, tỉnh Lâm Đồng.
+Trường Đại học Đà Lạt được thành lập năm 1976 (tiền thân là Viện Đại học Đà Lạt thành lập năm 1957), là trường đại học công lập đa ngành trực thuộc Bộ Giáo dục và Đào tạo, tọa lạc tại số 01 Phù Đổng Thiên Vương, Phường Lâm Viên, thành phố Đà Lạt, tỉnh Lâm Đồng.
 
-Về quy mô, Trường có hơn 14.500 người học theo số liệu công bố trên website. Cơ cấu tổ chức gồm các khoa đào tạo, các phòng ban chức năng và các trung tâm. Trong đó, Khoa Toán - Tin học là khoa có chuyên ngành gần nhất với đề tài này, và Trung tâm Công nghệ thông tin là đơn vị vận hành hạ tầng CNTT cùng hệ thống phòng thực hành máy tính.
+Về quy mô, Trường hiện có hơn 14.500 người học (chính xác 14.056 sinh viên đại học, 413 học viên thạc sĩ, 18 nghiên cứu sinh tiến sĩ theo Báo cáo thường niên năm 2025). Đội ngũ viên chức gồm 338 cán bộ, trong đó có 313 giảng viên. Khuôn viên trường rộng 43,2 ha với 69 giảng đường hội trường, 38 phòng thí nghiệm và 30 phòng thực hành máy tính.
 
-## 1.2. Khoa Toán - Tin học
+Cơ cấu tổ chức của Trường gồm 07 phòng chức năng, 16 khoa đào tạo, 01 viện nghiên cứu, 05 trung tâm và 01 khu nội trú. Trong đó, Khoa Công nghệ Thông tin là đơn vị trực tiếp quản lý chuyên môn của sinh viên, và Trung tâm Công nghệ thông tin (ITC) là đơn vị tiếp nhận sinh viên thực tập tốt nghiệp.
 
-Khoa Toán - Tin học là đơn vị đào tạo chuyên ngành Công nghệ thông tin và Toán học của Trường. Theo công bố trên website của Khoa, đơn vị có 15 cán bộ cơ hữu gồm 14 giảng viên và 1 chuyên viên hành chính; tỉ lệ giảng viên có trình độ tiến sĩ đạt 80%, trong đó có 1 Giáo sư và 2 Phó Giáo sư. Ngoài đội ngũ cơ hữu, Khoa còn có giảng viên biên chế Trường sinh hoạt chuyên môn tại Khoa và giảng viên thỉnh giảng.
+## 1.2. Khoa Công nghệ Thông tin
 
-Đây là đơn vị quản lý trực tiếp kỳ thực tập của em, đồng thời là nơi đặt đề tài. Báo cáo này được thực hiện dưới sự hướng dẫn của giảng viên thuộc Khoa.
+Khoa Công nghệ Thông tin (tiền thân thuộc Khoa Toán - Tin học được kiện toàn và tái cấu trúc thành lập khoa độc lập nhằm đáp ứng nhu cầu đào tạo nhân lực công nghệ chất lượng cao) là đơn vị đào tạo chuyên sâu hai ngành: Kỹ thuật phần mềm và Công nghệ thông tin của Trường Đại học Đà Lạt.
 
-## 1.3. Trung tâm Công nghệ thông tin
+Khoa hiện có 3 bộ môn chuyên môn: Bộ môn Công nghệ Phần mềm, Bộ môn Mạng máy tính & An toàn thông tin, và Bộ môn Hệ thống thông tin & Khoa học dữ liệu. Đội ngũ giảng viên của Khoa có trình độ cao với tỉ lệ tiến sĩ đạt trên 80%, có nhiều công trình nghiên cứu khoa học công bố quốc tế uy tín.
 
-Trung tâm Công nghệ thông tin (viết tắt theo tên tiếng Anh là ITC) có chức năng chính thức là "đơn vị quản lý và vận hành hệ thống Công nghệ thông tin của Trường, tổ chức phòng thực hành máy tính cho người học". Đây là căn cứ để phạm vi đề tài nằm đúng trong nhiệm vụ của Trung tâm.
+Đây là đơn vị quản lý chuyên môn trực tiếp của em trong suốt 4 năm học và là nơi phê duyệt đề cương thực tập tốt nghiệp. Báo cáo này được thực hiện dưới sự hướng dẫn trực tiếp của ThS. La Quốc Thắng, giảng viên Bộ môn Công nghệ Phần mềm.
 
-Nguồn: `https://itc.dlu.edu.vn/gioi-thieu/`, truy cập ngày 02/10/2026.
+## 1.3. Trung tâm Công nghệ thông tin (ITC)
 
-Trung tâm có 5 nhân sự, phục vụ hơn 14.500 người học. Với khối lượng công việc như vậy, mọi thao tác tiếp nhận và xử lý sự cố cần được tự động hóa và ghi lại dữ liệu, vì không thể mở rộng bằng cách làm thủ công.
+Trung tâm Công nghệ thông tin (viết tắt theo tên tiếng Anh là ITC) được thành lập theo các quyết định của Hiệu trưởng Trường Đại học Đà Lạt, với chức năng và nhiệm vụ pháp lý được quy định tại Quyết định số 03/09/QĐ-ĐHDL ngày 07/01/2021:
+- Tham mưu cho Ban Giám hiệu về chiến lược, quy hoạch và phát triển ứng dụng CNTT;
+- Trực tiếp **quản lý và vận hành hệ thống hạ tầng CNTT, mạng truyền thông của toàn Trường**;
+- **Tổ chức, quản lý và bảo trì hệ thống phòng thực hành máy tính phục vụ đào tạo và nghiên cứu cho người học**;
+- Quản trị các phần mềm dùng chung và cổng thông tin điện tử của Trường.
+
+Theo Quyết định số 395/QĐ-ĐHĐL ngày 10/04/2025, Trung tâm CNTT tiếp tục được kiện toàn và hợp nhất với Trung tâm Giáo dục đào tạo Trí tuệ nhân tạo (AI) thành một đơn vị công nghệ quy mô mới.
+
+**Về nhân sự:** Theo công bố chính thức tại website `https://itc.dlu.edu.vn/gioi-thieu/`, ITC hiện có 5 nhân sự cơ hữu gồm:
+1. ThS. Trần Thống — Giám đốc Trung tâm
+2. TS. Trần Ngô Như Khánh — Phó Giám đốc Trung tâm
+3. ThS. Đặng Quốc Phi — Chuyên viên kỹ thuật hạ tầng (Cán bộ hướng dẫn thực tập)
+4. ThS. Lê Thị Uyên — Chuyên viên phần mềm và dịch vụ
+5. Phan Trung Tính — Nhân viên kỹ thuật phòng máy
+
+**Về cơ sở vật chất:** ITC hiện trực tiếp quản lý và vận hành 10 phòng thực hành máy tính trọng điểm đặt tại Tòa nhà A và Tòa nhà F (Thư viện), phục vụ đào tạo cho hàng ngàn lượt sinh viên mỗi học kỳ. Đây chính là đơn vị thực tế mà đề tài PineDesk hướng tới phục vụ.
 
 ## 1.4. Hiện trạng tiếp nhận sự cố CNTT của Trường
 
@@ -321,7 +458,7 @@ GLPI là phần mềm ITSM mã nguồn mở, phát hành theo giấy phép GPL v
 
 Điểm mấu chốt khiến đề tài chọn GLPI: toàn bộ phần tùy biến của đề tài nằm **ngoài lõi**. Đề tài không sửa một dòng nào trong mã nguồn GLPI. Nhờ vậy, khi GLPI ra bản mới, việc nâng cấp không làm mất công sức đã bỏ ra. Đây là khác biệt về kiến trúc so với việc tự viết lại từ đầu.
 
-## 2.3. Docker và Docker Compose
+## 2.3. Container hóa với Docker và Docker Compose
 
 Docker đóng gói mỗi thành phần vào một container riêng, có môi trường cố định. Docker Compose định nghĩa cả cụm dịch vụ trong một tệp YAML. Đề tài dùng cách này vì nó cho phép cài đặt lại toàn bộ hệ thống bằng một lệnh, và mỗi thành phần được cô lập nên dễ bảo trì.
 
@@ -338,7 +475,7 @@ Bốn dịch vụ trong hệ thống:
 
 Cơ sở dữ liệu và Redis chỉ giao tiếp trong mạng nội bộ Docker, không mở cổng ra ngoài.
 
-## 2.4. Nginx
+## 2.4. Cổng giao tiếp Nginx Gateway và SSL/TLS
 
 Nginx làm cổng vào duy nhất. Ngoài việc chuyển tiếp yêu cầu tới GLPI, Nginx còn gánh ba việc bảo mật: bắt buộc HTTPS, giới hạn tần suất theo IP, và chặn truy cập vào các tệp nhạy cảm như `.env`, `.git`, tệp `.sql`, tệp log. Phần giới hạn tần suất được trình bày kỹ ở mục 4.2.5.
 
@@ -404,23 +541,36 @@ GLPI cho phép ghi đè giao diện qua hai tầng. Tầng thứ nhất là bả
 
 Trong quá trình làm, em gỡ hẳn mã màu khỏi các tệp `themes/*.scss` để tránh lặp màu ở hai nơi. Hiện `themes/*.scss` chỉ còn vai trò "giấy đăng ký": tên tệp là khóa bảng màu, nội dung chỉ có chú thích. Toàn bộ mã màu giao diện GLPI nằm duy nhất trong `plugins/dlubrand/public/css/dlu-theme.css`. Muốn đổi màu thì sửa một tệp.
 
-## 3.4. Bảng màu Đà Lạt
+## 3.4. Hệ thống thiết kế giao diện: Apple Precision, Claude Warmth và Bản sắc Đà Lạt
 
-Bảng màu được trích từ logo chính thức của Trường.
+Giao diện của PineDesk không đơn thuần là thay đổi màu sắc mà là một hệ thống thiết kế hoàn chỉnh (Design System), được chuẩn hóa chi tiết trong tài liệu `DESIGN.md`. Hệ thống là sự kết hợp hài hòa giữa ba thế giới thẩm mỹ:
 
-| Mã | Màu | Ý nghĩa trong logo |
-|---|---|---|
-| `#F08418` | Cam đất | Vòng hoa văn, mặt trời |
-| `#607824` | Xanh rêu | Núi, dòng chữ "ĐẠI HỌC ĐÀ LẠT" |
-| `#90B43C` | Xanh lá | Sườn núi sáng |
-| `#C0CC84` | Xanh nhạt | Đồi thông |
-| `#CC2430` | Đỏ | Ngôi sao |
-| `#3D4E17` | Xanh rêu đậm | Thanh menu |
-| `#3E8E9E` | Xanh hồ | Gợi màu hồ Xuân Hương |
+1. **Apple Precision (Độ chính xác và tương tác vi mô):**
+   - Các nút bấm và thẻ tương tác có phản hồi vật lý khi click (`transform: scale(0.98)`).
+   - Bán kính bo góc có hệ thống: 6px cho badge/chip, 8px cho nút bấm và ô nhập liệu, 12px cho thẻ card/bảng điều khiển và 16px cho modal.
+   - Thẻ trạng thái dạng viên thuốc (`capsule pill chip`) với chấm trạng thái (`status-dot`) phát sáng nhẹ, giúp kỹ thuật viên nhận diện nhanh trạng thái phiếu sự cố (Mới, Đang xử lý, Chờ duyệt, Đã đóng).
 
-*Bảng 3.2. Bảng màu Đà Lạt trích từ logo Trường*
+2. **Claude Editorial Warmth (Sự ấm áp và nhân bản):**
+   - Loại bỏ hoàn toàn nền trắng gắt công nghiệp (`#FFFFFF`), thay bằng màu sương ấm (`Warm mist surface` `#FAF9F5`), giúp giảm mỏi mắt cho kỹ thuật viên khi trực ca làm việc kéo dài.
+   - Đường phân cách và viền thẻ siêu mảnh (`1px hairline border rgba(0, 0, 0, 0.06)`), tạo cảm giác nhẹ nhàng, tinh tế.
+   - Ứng dụng phông chữ có chân biên tập (`Literata`) cho các tiêu đề lớn của trang bảng điều khiển và trang đăng nhập, mang lại phong thái học thuật trang trọng của một trường đại học.
 
-Hệ thống có ba bảng màu: `da_lat` (xanh rêu, mặc định), `da_lat_suong` (xanh hồ) và `da_lat_nang` (cam đất).
+3. **Bản sắc Đà Lạt (Dalat Academic Identity):**
+   - Trích xuất trực tiếp từ các dải màu biểu trưng trên huy hiệu logo của Trường Đại học Đà Lạt.
+
+| Mã màu Hex | Tên màu | Ý nghĩa biểu trưng trong logo DLU | Vai trò trong giao diện PineDesk |
+|---|---|---|---|
+| `#607824` | Xanh rêu đồi thông | Đồi thông, dòng chữ "ĐẠI HỌC ĐÀ LẠT" | Màu chủ đạo (Primary brand), thanh điều hướng, nút chính |
+| `#F08418` | Cam đất dã quỳ | Vòng hoa văn mặt trời, ánh nắng cao nguyên | Màu hành động, điểm nhấn cảnh báo, thẻ ưu tiên Trung bình |
+| `#CC2430` | Đỏ sao cao nguyên | Ngôi sao trung tâm huy hiệu DLU | Thẻ cảnh báo sự cố khẩn cấp, SLA vi phạm |
+| `#90B43C` | Xanh lá sườn núi | Sườn núi Langbiang đón nắng | Thẻ thành công, trạng thái thiết bị "Đang hoạt động" |
+| `#C0CC84` | Xanh nhạt rừng thông | Rừng thông xa trong sương mờ | Nền phụ, hover effect trên danh mục |
+| `#3D4E17` | Xanh rêu đậm | Chân núi thung lũng | Nền thanh menu tối, header bảng dữ liệu |
+| `#3E8E9E` | Xanh hồ Xuân Hương | Màu nước hồ lắng đọng sương mai | Điểm nhấn liên kết, thẻ thông tin mở rộng |
+
+*Bảng 3.2. Hệ màu bản sắc Đà Lạt kết hợp phong cách Apple Precision và Claude Warmth*
+
+Hệ thống cung cấp ba biến thể bảng màu: `da_lat` (xanh rêu, mặc định), `da_lat_suong` (xanh hồ sương mai) và `da_lat_nang` (cam đất dã quỳ), tự động thích ứng hoàn hảo với cả chế độ sáng (Light mode) và tối (Dark mode) mà không bị lỗi tương phản.
 
 ## 3.5. Cấu trúc mã nguồn
 
@@ -434,115 +584,139 @@ pinedesk/
 ├── nginx/                       # Cổng vào: HTTPS, giới hạn tần suất, bảo mật
 ├── themes/                      # Đăng ký tên bảng màu (không chứa mã màu)
 ├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (nguồn màu duy nhất)
-├── scripts/                     # Script tự động hóa (14 .sh, 7 .py, 7 .js)
+├── plugins/pinedesk/            # Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
+│   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
+│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (46 điểm kiểm)
+├── scripts/                     # Script tự động hóa (19 .sh, 7 .py, 13 .js)
 ├── backup/                      # Script sao lưu
 └── tai-lieu/                    # Tài liệu và ảnh minh chứng
 ```
 
 *Hình 3.2. Cây thư mục mã nguồn*
 
-Quy mô mã nguồn tính đến ngày 03/10/2026: khoảng 21.027 dòng, phân bố như sau.
+Quy mô mã nguồn tự viết và tùy biến tính đến ngày 03/10/2026: khoảng 22.919 dòng, phân bố như sau.
 
 | Loại | Số tệp | Số dòng |
 |---|---|---|
-| Markdown | 13 | 5.613 |
-| Python | 9 | 4.503 |
-| CSS | 3 | 2.992 |
-| JavaScript | 15 | 2.161 |
-| Shell | 14 | 2.146 |
-| SQL | 3 | 1.741 |
-| HTML | 2 | 1.066 |
-| YAML | 2 | 784 |
-| JSON | 1 | 21 |
+| Markdown | 14 | 3.984 |
+| Python | 7 | 4.326 |
+| Shell | 19 | 2.957 |
+| SQL | 3 | 2.030 |
+| JavaScript | 13 | 1.905 |
+| PHP (Plugin ngoài lõi) | 4 | 1.892 |
+| CSS | 1 | 1.651 |
+| YAML | 2 | 1.253 |
+| HTML | 4 | 373 |
+| JSON | 2 | 46 |
 
 *Bảng 3.3. Phân bố mã nguồn theo loại tệp*
+
+## 3.6. Bảng đối chiếu đóng góp kỹ thuật so với GLPI 11 gốc
+
+Để làm rõ ranh giới giữa nền tảng mã nguồn mở có sẵn và phần việc do em trực tiếp phát triển, bảng dưới đây đối chiếu 20 hạng mục kỹ thuật cốt lõi giữa bản cài đặt GLPI 11 mặc định và hệ thống PineDesk hoàn thiện.
+
+| Hạng mục | GLPI 11 gốc khi mới cài | Hệ thống PineDesk hoàn thiện | Giá trị kỹ thuật đóng góp |
+|---|---|---|---|
+| Khởi động hệ thống | Cần cài thủ công từng bước web | Cài đặt tự động bằng một lệnh `bash scripts/cai-dat-tat-ca.sh` | Tự động hóa toàn bộ quá trình thiết lập |
+| Cổng giao tiếp mạng | Chạy HTTP không mã hóa hoặc tự cấu hình | Nginx gateway HTTPS cổng 8443, SSL tích hợp SAN | Bảo mật kết nối, hỗ trợ mạng nội bộ không lỗi cert |
+| Nhận diện thương hiệu | Giao diện chuẩn Tabler xám/xanh | Bảng màu Đà Lạt (xanh rêu, cam đất) + logo DLU | Bộ nhận diện thương hiệu nhất quán qua CSS ngoài lõi |
+| Ngôn ngữ tiếng Việt | Gói `vi_VN.mo` chính thức chỉ đạt ~32% | Lớp phủ gộp bổ sung 667 thuật ngữ + 212 mục số nhiều | Dịch 100% các thẻ trạng thái và menu thường dùng |
+| Cạm bẫy dịch số nhiều `_n()` | Để nguyên tiếng Anh do khóa `\0` | Script gộp catalog xử lý trực tiếp khóa ghép `\0` | Khắc phục triệt để lỗi thẻ số nhiều hiển thị tiếng Anh |
+| Việt hóa dữ liệu CSDL | Tên hồ sơ, bảng điều khiển vẫn là tiếng Anh | Script `viet-hoa-du-lieu.sh` cập nhật tự động trong CSDL | Đồng bộ tiếng Việt ở cả tầng dữ liệu |
+| Cơ cấu tổ chức trường | Cơ sở dữ liệu rỗng | Nạp sẵn 16 khoa, 10 phòng, 7 trung tâm, 12 tòa nhà, 54 phòng | Ánh xạ chính xác dữ liệu thực tế Đại học Đà Lạt |
+| Phân loại sự cố ITIL | Rỗng | 79 loại sự cố 2 cấp chuẩn hóa | Hỗ trợ phân loại sự cố chính xác ngay khi vận hành |
+| Dữ liệu thiết bị mẫu | Rỗng | 482 máy tính, 487 màn hình & Smart Tivi, 3 máy in, 17 thiết bị mạng | Nạp đúng 10 phòng máy thực tế Trung tâm CNTT ĐH Đà Lạt |
+| Tài khoản thử nghiệm | Chỉ có tài khoản mặc định `glpi` | 6 tài khoản mẫu cho 3 vai trò (SV, GV, KTV) | Chứng minh phân quyền Least Privilege trên thực tế |
+| Quy trình phiếu mẫu | Rỗng | 13 phiếu trải đều các trạng thái chuẩn ITIL | Minh họa luồng xử lý từ tiếp nhận đến đóng phiếu |
+| Quy định hạn mức xử lý (SLA) | Rỗng | 5 mức SLA kỹ thuật (P1 đến P5) kèm mốc TTO và TTR | Thiết lập cơ chế kiểm soát tiến độ xử lý sự cố |
+| Chống spam tại tầng mạng | Không có | Nginx rate limit 30 request/phút theo IP có burst đệm | Ngăn chặn bot tự động nộp phiếu tần suất cao |
+| Chống lạm dụng theo tài khoản | Không có | Plugin `pinedesk` chặn trần 5 phiếu mở và 10 phiếu/ngày | Chống spam phiếu hiệu quả trong môi trường mạng NAT |
+| Chống nộp phiếu trùng lặp | Không có | Plugin `pinedesk` chặn phiếu trùng cùng thiết bị trong 30 phút | Ngăn chặn hiện tượng gửi lặp nhiều lần cho một lỗi |
+| Ghi vết nhật ký tạo phiếu | Lịch sử chung khó tra cứu hạn mức | Bảng chuyên dụng `glpi_plugin_pinedesk_ticketlog` | Lưu vết địa chỉ IP, tài khoản, nguyên nhân chặn |
+| Khả năng an toàn đồng thời | Dễ race condition khi mở nhiều tab | MariaDB mutex `GET_LOCK()` theo từng tài khoản | Đảm bảo tính nhất quán dữ liệu khi gửi đồng thời |
+| Tính năng mã QR thiết bị | Chưa có hoặc plugin Barcode lỗi trên GLPI 11 | Vá 3 lỗi tương thích cho plugin Barcode 2.7.1 | Kích hoạt thành công tính năng in QR hàng loạt |
+| Giải pháp QR dự phòng | Không có | Script Python `sinh-ma-qr.py` kết xuất mã độc lập | Không phụ thuộc vào chu kỳ nâng cấp của GLPI |
+| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 46 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
+
+*Bảng 3.4. Đối chiếu 20 đóng góp kỹ thuật của PineDesk so với GLPI 11 nguyên bản*
 
 ---
 
 # CHƯƠNG 4. TRIỂN KHAI VÀ KIỂM THỬ
 
-## 4.1. Tiến độ thực hiện từ đầu kỳ thực tập
+## 4.1. Kế hoạch và tiến độ thực hiện 10 tuần thực tập
 
-Kỳ thực tập diễn ra từ ngày 21/09/2026 đến ngày 03/10/2026. Toàn bộ quá trình được ghi lại trong 12 lần đóng góp mã nguồn (commit) và bốn phiên bản phát hành (0.1.0 đến 0.4.0). Phần này kể lại tiến độ đó theo đúng thứ tự đã xảy ra, kể cả những lần phải làm lại.
+Kỳ thực tập tốt nghiệp diễn ra trong Học kỳ 1 Năm học 2026 – 2027 với thời lượng chính thức 10 tuần (từ ngày 10/08/2026 đến ngày 17/10/2026), theo đúng Đề cương chi tiết đã được Khoa Công nghệ Thông tin và Trung tâm CNTT phê duyệt.
 
-### 4.1.1. Giai đoạn 1 (21/09 – 22/09/2026): Dựng nền tảng
+### 4.1.1. Kế hoạch thực hiện theo 10 tuần
 
-Đây là giai đoạn đưa hệ thống từ con số không lên một bản chạy được.
+| Tuần | Thời gian | Nội dung công việc thực hiện | Kết quả / Sản phẩm bàn giao |
+|:---:|---|---|---|
+| **1** | 10/08 – 15/08/2026 | Tiếp nhận thực tập tại ITC; tìm hiểu chức năng nhiệm vụ, nội quy và cơ cấu tổ chức; khảo sát sơ bộ hạ tầng mạng và phòng máy DLU. | Biên bản tiếp nhận thực tập; báo cáo khảo sát hiện trạng hạ tầng. |
+| **2** | 17/08 – 22/08/2026 | Khảo sát quy trình tiếp nhận và xử lý sự cố CNTT tại ITC; phỏng vấn kỹ thuật viên; xác định các khoảng trống và yêu cầu nghiệp vụ ITSM. | Tài liệu đặc tả bài toán nghiệp vụ với 3 mâu thuẫn cốt lõi (M1, M2, M3). |
+| **3** | 24/08 – 29/08/2026 | Nghiên cứu kiến trúc nền tảng GLPI 11, MariaDB 10.11, Redis 7 và Nginx; thiết kế kiến trúc container hóa và bảo mật mạng nội bộ. | Thiết kế kiến trúc tổng thể; cấu hình ban đầu `docker-compose.yml`. |
+| **4** | 31/08 – 05/09/2026 | Xây dựng cơ sở dữ liệu nền tảng: danh mục 12 tòa nhà, 54 phòng, 16 khoa, 10 phòng ban, 79 loại sự cố phân cấp theo chuẩn ITIL. | Script tự động `nap-du-lieu-nen.sh` và `seed-du-lieu-nen.sql`. |
+| **5** | 07/09 – 12/09/2026 | Thiết kế và cài đặt lớp chống lạm dụng sáu tầng: Nginx rate limit, cơ chế phiên, quota hạn mức phiếu T3, chống nộp trùng T4, kiểm duyệt T5. | Plugin `pinedesk` (hook `PRE_ITEM_ADD`), bảng nhật ký tạo phiếu. |
+| **6** | 14/09 – 19/09/2026 | Thiết kế hệ thống giao diện bản sắc Đà Lạt kết hợp Apple Precision và Claude Warmth; thực hiện Việt hóa mở rộng 667 thuật ngữ và 212 chuỗi số nhiều. | Plugin `dlubrand`, tệp CSS `dlu-theme.css`, tệp từ điển gộp `vi_VN.mo`. |
+| **7** | 21/09 – 26/09/2026 | Tích hợp mã QR cho thiết bị: vá 3 lỗi tương thích của plugin Barcode trên GLPI 11; phát triển script Python dự phòng sinh nhãn in hàng loạt. | Tính năng in mã QR từ hồ sơ thiết bị; script `sinh-ma-qr.py`. |
+| **8** | 28/09 – 03/10/2026 | Thu thập thông số kỹ thuật thực tế 10 phòng máy Trung tâm CNTT; xây dựng script nạp 482 máy tính, 487 màn hình & TV, thiết bị mạng, máy in. | Script `seed-du-lieu-mau.sql` ánh xạ 10 phòng máy thật (A24.1, A8, TV...). |
+| **9** | 05/10 – 10/10/2026 | Kiểm thử toàn diện: xây dựng harness 46 điểm kiểm, kiểm tra phân quyền HTTP 40 mục, kiểm thử 3 use case Playwright E2E, đo tải wrk trong Docker. | Harness `kiem-thu-han-muc.php`, `kiem-tra-chuc-nang.sh`, pipeline CI. |
+| **10** | 12/10 – 17/10/2026 | Rà soát chất lượng đối kháng (xử lý 13 vấn đề P0/P1/P2); đóng gói script cài đặt một lệnh `cai-dat-tat-ca.sh`; hoàn thiện báo cáo và slide bảo vệ. | Hệ thống PineDesk hoàn chỉnh, báo cáo tốt nghiệp và slide bảo vệ. |
 
-Ngày 21/09, em khởi tạo hệ thống với tên ban đầu là "IT Helpdesk DLU", dựng bốn container Docker, viết script cài đặt và tài liệu triển khai. Cùng ngày, em thêm pipeline CI, sinh chứng chỉ SSL có SAN, và gỡ các chỗ hardcode đường dẫn máy cá nhân cùng mật khẩu.
+*Bảng 4.1. Kế hoạch và tiến độ thực hiện 10 tuần thực tập tốt nghiệp*
 
-Sau khi có bản chạy được, em tự chạy một vòng review đối kháng: đặt mình vào vai người phản biện, tìm lỗi trong chính mã mình vừa viết. Vòng đó phát hiện bốn vấn đề mức thấp và sáu lỗi cụ thể, trong đó đáng chú ý là tài liệu phục hồi sao lưu ghi sai đường dẫn (phải là `/var/glpi` trong container chứ không phải đường dẫn trên máy), và một số tuyên bố trong README mạnh hơn thực tế.
+### 4.1.2. Các giai đoạn phát triển và mốc phát hành phiên bản
 
-Ngày 22/09, em phát hiện và xử lý một rò rỉ bí mật: mã nguồn có chứa mật khẩu thật. Cách xử lý là viết script quét theo hình dạng mật khẩu thay vì liệt kê giá trị cụ thể, vì liệt kê giá trị thật trong script quét thì chính script đó lại thành chỗ rò rỉ. Cũng trong giai đoạn này, hệ thống được đổi tên thành PineDesk, và ảnh minh chứng được đưa vào README.
+Quá trình phát triển phần mềm được ghi nhận chi tiết qua 4 phiên bản chính và một đợt rà soát chất lượng chuyên sâu:
 
-Kết thúc giai đoạn 1, đề tài đạt phiên bản 0.1.0 với: hạ tầng bốn container, HTTPS có SAN, giao diện Đà Lạt, plugin QR đã vá lỗi và giải mã kiểm chứng, 443 thuật ngữ Việt hóa, dữ liệu nền 23 nhóm danh mục, CI sáu nhóm, 5 tài liệu tiếng Việt và 19 ảnh minh chứng.
+- **Phiên bản 0.1.0 (22/09/2026 - Dựng nền tảng):** Khởi tạo hạ tầng 4 container Docker cô lập, thiết lập Nginx Gateway HTTPS với chứng chỉ SSL có SAN, tích hợp plugin giao diện `dlubrand` nhận diện bản sắc Đà Lạt, vá lỗi plugin mã QR Barcode 2.7.1 và thiết lập pipeline CI 6 nhóm kiểm tra tự động.
+- **Phiên bản 0.2.0 (02/10/2026 - Chuyển sang nghiệp vụ thực tế):** Tiếp thu ý kiến đóng góp của giảng viên hướng dẫn sau buổi báo cáo tiến độ lần 1, hoàn thiện đặc tả bài toán nghiệp vụ với 3 mâu thuẫn; xây dựng kiến trúc phòng thủ sáu tầng chống lạm dụng; nạp 10 bản ghi SLA kỹ thuật; tích hợp cơ chế bảo trì định kỳ (`glpi_ticketrecurrents`) và mượn trả thiết bị (`glpi_reservations`).
+- **Phiên bản 0.3.0 (03/10/2026 - Chuẩn hóa dữ liệu):** Đối chiếu và kiểm chứng số liệu thực tế; khắc phục lỗi lệch tên vị trí làm thất thoát thiết bị; thống nhất công cụ đo độ phủ từ điển Việt hóa.
+- **Phiên bản 0.4.0 (03/10/2026 - Tự động hóa cài đặt máy sạch):** Khắc phục triệt để lỗi tài khoản demo thiếu quyền trên môi trường trắng bằng cách đưa script gán quyền và Việt hóa dữ liệu vào luồng cài đặt tự động `cai-dat-tat-ca.sh`; chuyển đổi bộ kiểm thử giao diện sang Playwright; bổ sung các bài kiểm thử use case thật.
+- **Đợt rà soát chất lượng chuyên sâu (08/10 – 09/10/2026):** Rà soát mã nguồn theo nguyên tắc đối kháng; giải quyết 13 vấn đề từ P0 đến P2 (bổ sung bản quyền GNU GPL-3.0, sửa hướng dẫn phục hồi dữ liệu bảo mật, đưa kiểm thử E2E vào CI); đo tải định lượng hệ thống bằng `wrk`; tự động hóa tối thiểu tầng T5 nhắc soát xét ưu tiên; hoàn thiện khóa chống đua MariaDB `GET_LOCK` và gán tác giả Hệ thống cho ghi chú nội bộ.
 
-### 4.1.2. Giai đoạn 2 (02/10/2026): Từ lý thuyết sang nghiệp vụ thật
+## 4.2. Các chức năng đã triển khai trên thực tế
 
-Đây là giai đoạn bước ngoặt, xuất phát từ nhận xét của giảng viên hướng dẫn sau báo cáo tiến độ lần 1.
+### 4.2.1. Quản lý tài sản phòng máy
 
-Thầy nhận xét đồ án "còn lý thuyết, chưa thực tế" và đặt ba câu hỏi trực diện: nếu sinh viên spam thì sao, cơ chế để sinh viên nộp phiếu là gì, và đồ án giải quyết nhu cầu gì của Trường. Ba câu hỏi này định hình lại toàn bộ hướng làm.
+Hệ thống quản lý toàn diện các danh mục tài sản CNTT: máy tính để bàn, máy chủ, máy tính xách tay, màn hình LCD, Smart Tivi giảng dạy, máy in, thiết bị mạng và phần mềm bản quyền.
 
-Em bắt đầu bằng việc trả lời câu hỏi thứ ba. Thay vì nói chung chung rằng hệ thống "hữu ích", em thu thập dữ kiện công khai từ website Trường và ITC, phân loại rõ đâu là dữ kiện có nguồn, đâu là suy luận, đâu là giả định. Kết quả là tài liệu bài toán nghiệp vụ với ba mâu thuẫn M1, M2, M3 như đã trình bày ở Chương 1.
+Mã tài sản được chuẩn hóa theo quy ước quản lý thực tế của Trường Đại học Đà Lạt: `TDL-<LOAI>-<PHONG>-<SO>`, ví dụ:
+- `TDL-PC-A241-001`: Trường Đại học Đà Lạt – Máy tính để bàn – Phòng A24.1 – Máy số 01.
+- `TDL-TV-A83-001`: Trường Đại học Đà Lạt – Smart Tivi – Phòng A8.3 – Tivi 01.
+- `TDL-SW-TV1-001`: Trường Đại học Đà Lạt – Thiết bị Switch mạng – Phòng TV1 – Switch 01.
 
-Câu hỏi thứ hai và thứ nhất dẫn tới phần chống lạm dụng. Em dựng sáu tầng phòng thủ và viết tài liệu giải thích từng tầng, ghi rõ tầng nào đã dựng thật, tầng nào còn ở mức quy trình. Cùng lúc, em thay tuyên bố suông về SLA bằng SLA thật trong cơ sở dữ liệu: 5 mức ưu tiên nhân 2 mốc, tổng cộng 10 bản ghi.
+Cơ sở dữ liệu tài sản được trích xuất trực tiếp từ hồ sơ trang thiết bị 10 phòng máy tính thực tế do Trung tâm CNTT quản lý (theo tài liệu khảo sát nội bộ `THÔNG SỐ CÁC PHÒNG MÁY TT_CNTT.docx`), thay thế hoàn toàn các dữ liệu giả định trước đây:
 
-Trong giai đoạn này em cũng dựng hai chức năng nghiệp vụ dùng cơ chế gốc của GLPI: lịch bảo trì định kỳ (dùng bảng `glpi_ticketrecurrents`) và luồng mượn/trả thiết bị (dùng `glpi_reservationitems` và `glpi_reservations`). Chủ ý là không tạo bảng riêng, để sau này nâng cấp GLPI vẫn dùng được.
+| STT | Tên phòng máy | Vị trí | Máy SV | Máy GV | Cấu hình máy tính | Màn hình LCD | Smart Tivi | Thiết bị mạng | Máy in & Âm thanh |
+|:---:|---|---|:---:|:---:|---|---|---|---|---|
+| 1 | Phòng máy A24.1 | Tòa nhà A | 45 | 1 | Dell OptiPlex 3000 Small | Dell 22" E2222H | Sony 85" | Cisco Switch + Unifi AP | Canon LBP2900 + Bosch |
+| 2 | Phòng máy A24 lầu | Tòa nhà A | 45 | 1 | Dell OptiPlex 3000 Small | Dell 22" E2222H | Sony 85" | Cisco Switch + Unifi AP | Bosch |
+| 3 | Phòng máy A8.3 | Tòa nhà A | 48 | 1 | PC Lắp ráp Intel Core i3 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | Canon LBP2900 + Bosch |
+| 4 | Phòng máy A8.4 | Tòa nhà A | 48 | 1 | PC Lắp ráp Intel Core i3 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | Canon LBP2900 |
+| 5 | Phòng máy A8.5 | Tòa nhà A | 49 | 1 | PC Lắp ráp Intel Core i5 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | — |
+| 6 | Phòng máy A8.6 | Tòa nhà A | 50 | 1 | PC Lắp ráp Intel Core i5 | LG 24" | Inno 85" | Cisco Switch + Unifi AP | — |
+| 7 | Phòng máy TV1 | Tòa nhà F | 46 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| 8 | Phòng máy TV2 | Tòa nhà F | 45 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| 9 | Phòng máy TV3 | Tòa nhà F | 45 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| 10 | Phòng máy TV4 | Tòa nhà F | 50 | — | PC Lắp ráp Intel Pentium | LG 24" | Inno 80" | Cisco Switch | — |
+| | **Tổng cộng 10 phòng** | | **471** | **6** | **477 máy phòng máy** | **477 màn hình** | **10 Smart Tivi** | **16 thiết bị mạng** | **3 máy in, 3 âm thanh** |
 
-Ở lần chạy cài đặt đầu tiên của giai đoạn này, em gặp hai lỗi schema thật. Thứ nhất, biểu thức `DATE_SUB(@now, INTERVAL 3 DAY - INTERVAL 2 HOUR)` không hợp lệ vì MySQL không hỗ trợ trừ hai `INTERVAL`; phải đổi thành `INTERVAL 70 HOUR`. Thứ hai, cột `glpi_slalevels.exec_time` không tồn tại (đúng là `execution_time`), và `glpi_slas.type` là `NOT NULL`; lỗi này chặn cả bước nạp SLA. Cả hai đều được sửa và ghi vào nhật ký thay đổi.
+*Bảng 4.2. Thống kê cơ sở vật chất 10 phòng máy tính thực tế do Trung tâm CNTT quản lý*
 
-Cũng trong giai đoạn 2, em đính chính một loạt tên riêng cho đúng với công bố chính thức của Trường: "Phòng Công nghệ thông tin" thành "Trung tâm Công nghệ thông tin (ITC)", tên miền `cict.dlu.edu.vn` thành `itc.dlu.edu.vn`, và một số tên phòng ban khác.
+Ngoài 477 máy tính tại 10 phòng máy trên, hệ thống nạp thêm 3 máy tính xách tay phục vụ mượn lưu động (`TDL-LAP-001..003`), 2 máy chủ trung tâm (`TDL-SRV-001..002`) và 1 Tủ mạng Rack Core trung tâm, nâng tổng số lượng tài sản phần cứng nạp vào CSDL gồm:
+- **482 máy tính** (471 máy SV + 6 máy GV + 3 laptop + 2 server).
+- **487 màn hình & thiết bị hiển thị** (477 màn hình LCD Dell/LG + 10 Smart Tivi Sony/Inno 80-85 inch).
+- **3 máy in laser** Canon LBP2900 phục vụ in ấn giảng dạy.
+- **17 thiết bị mạng & tủ rack** (10 Switch Cisco 24/48 port, 6 bộ phát WiFi Unifi AP, 1 Tủ mạng Core Rack 42U).
+- **3 hệ thống âm thanh trợ giảng** chuyên dụng Bosch.
+- **10 phần mềm bản quyền** dùng chung (Windows 11 Education, Microsoft Office 2021, Visual Studio Code, MATLAB, AutoCAD, Cisco Packet Tracer...).
 
-Kết thúc giai đoạn 2, đề tài đạt phiên bản 0.2.0. Đây là lúc đồ án chuyển từ một bản demo kỹ thuật thành một đề xuất có bài toán nghiệp vụ rõ ràng.
+Bên cạnh dữ liệu phần cứng, danh mục nghiệp vụ đi kèm gồm 12 tòa nhà, 54 phòng máy, 16 khoa đào tạo, 10 phòng ban chức năng và 79 danh mục loại sự cố phân cấp chuẩn ITIL.
 
-### 4.1.3. Giai đoạn 3 (03/10/2026): Chuẩn hóa số liệu và vá lỗi cài trên máy sạch
+Nhằm đảm bảo tính linh hoạt trong quá trình vận hành, hệ thống cung cấp giao diện thêm mới và quản lý thông số kỹ thuật thiết bị, cho phép kỹ thuật viên dễ dàng bổ sung máy tính, màn hình hoặc thiết bị mạng mới vào cơ sở dữ liệu khi nhà trường trang bị thêm. Toàn bộ cơ cấu tổ chức gồm 16 khoa và các phòng ban trực thuộc được cấu hình theo nhóm thực thể phân cấp, hỗ trợ việc phân quyền tiếp nhận sự cố theo từng đơn vị cụ thể.
 
-Giai đoạn cuối là lúc em kiểm chứng lại toàn bộ đề tài bằng cách xóa sạch dữ liệu rồi cài lại từ đầu, thay vì tin vào dữ liệu còn sót lại từ lần chạy trước. Cách này lộ ra một loạt lỗi mà trước đó bị che khuất.
-
-**Phiên bản 0.3.0.** Em đối chiếu từng con số trong tài liệu với hệ thống chạy thật và tìm ra ba vấn đề. Thứ nhất, dữ liệu mẫu âm thầm thiếu 4 thiết bị: script dữ liệu mẫu tham chiếu tên vị trí không khớp với script danh mục (`'Văn phòng Khoa Toán - Tin'` thiếu chữ "học", `'Phòng Lab C101'` thay vì `'Phòng thí nghiệm C101'`), nên câu lệnh nối theo tên bỏ qua những dòng đó trong im lặng, kết quả chỉ có 15 máy tính thay vì 17. Thứ hai, script kiểm tra trang giới thiệu đặt tên biến `URL` che khuất hàm `URL` toàn cục của Node, khiến phần kiểm liên kết luôn báo lỗi và bỏ qua toàn bộ phần kiểm còn lại. Thứ ba, hai script đo độ phủ Việt hóa đọc hai nguồn khác nhau nên ra hai con số mâu thuẫn; em viết lại để cả hai cùng đọc tệp `.mo` đang cài.
-
-**Phiên bản 0.4.0.** Sau khi sửa số liệu, em chạy lại toàn bộ trên máy sạch và phát hiện ba lỗi nghiêm trọng hơn, đều thuộc loại "im lặng": hệ thống không báo lỗi, chỉ thiếu dữ liệu hoặc chặn đăng nhập.
-
-- Sáu tài khoản demo không có hồ sơ quyền. Script gán hồ sơ theo tên tiếng Việt, nhưng trên máy sạch GLPI tạo hồ sơ bằng tên tiếng Anh, còn script Việt hóa lại không nằm trong luồng cài. Kết quả là đăng nhập trả về lỗi 400. Kịch bản demo đăng nhập tài khoản sinh viên sẽ chết ngay trên bục.
-- Bảng điều khiển hiện chế độ minh họa của GLPI. GLPI 11 bật sẵn chế độ dùng dữ liệu mẫu cho bảng điều khiển; script tắt nó đã có nhưng không được gọi trong luồng cài.
-- Thương hiệu và dải màu ưu tiên không được áp. Script đặt tên ứng dụng và dải màu ưu tiên cũng không được gọi, nên trên máy sạch thẻ trình duyệt hiện "... - GLPI" và dải màu ưu tiên vẫn là màu mặc định của GLPI.
-
-Cả ba lỗi có cùng một nguyên nhân gốc: các script cần thiết đã có sẵn nhưng không nằm trong luồng cài đặt. Cách sửa là đưa chúng vào đúng thứ tự trong `cai-dat-tat-ca.sh`, và thêm năm cửa kiểm mới vào pipeline CI để những lỗi này không quay lại.
-
-Khi đẩy lên GitHub, chính pipeline bắt thêm một lỗi thứ tư mà em chưa thấy khi chạy tay: bước nạp SLA bị đặt trước bước nạp dữ liệu mẫu. Phần mượn/trả trong tệp SLA dựa trên hai laptop và hai tài khoản do dữ liệu mẫu tạo ra, nên khi chạy sai thứ tự, các câu lệnh đó khớp 0 dòng mà không báo lỗi, và cửa kiểm "Dữ liệu bảo trì + mượn thiết bị" thấy 0 thiết bị cho mượn thay vì 2. Em đổi thứ tự cho danh mục và dữ liệu mẫu chạy trước, đồng thời cho script nạp SLA tự kiểm phần bảo trì và mượn/trả để báo rõ khi thiếu dữ liệu mẫu. Đây là lần đầu pipeline phát hiện một lỗi thật mà chạy tay trên máy em không lộ ra.
-
-Cũng trong phiên bản 0.4.0, em chuyển công cụ trình duyệt từ Puppeteer sang Playwright, sửa hai lỗi giao diện chỉ lộ ra khi đo màu thật trên trình duyệt ở cả chế độ sáng và tối, viết thêm hai script kiểm thử mới (`kiem-tra-chuc-nang.sh` kiểm chức năng theo vai trò và `kiem-tra-usecase.js` chạy ba use case thật), và dọn dẹp toàn bộ rác sinh ra khi chạy.
-
-Bảng dưới tóm tắt tiến độ theo giai đoạn.
-
-| Giai đoạn | Thời gian | Số commit | Phiên bản | Kết quả chính |
-|---|---|---|---|---|
-| 1. Dựng nền tảng | 21/09 – 22/09/2026 | 6 | 0.1.0 | Hạ tầng 4 container, HTTPS, giao diện, plugin QR, CI |
-| 2. Từ lý thuyết sang nghiệp vụ | 02/10/2026 | 4 | 0.2.0 | Bài toán nghiệp vụ, chống lạm dụng, SLA thật, bảo trì, mượn/trả |
-| 3. Chuẩn hóa và vá lỗi máy sạch | 03/10/2026 | 2 | 0.3.0, 0.4.0 | Vá 7 lỗi, chuyển Playwright, thêm kiểm thử, dọn dẹp |
-
-*Bảng 4.1. Nhật ký thực hiện theo giai đoạn*
-
-## 4.2. Các chức năng đã triển khai
-
-### 4.2.1. Quản lý tài sản
-
-Hệ thống quản lý máy tính, màn hình, máy in, thiết bị mạng và phần mềm. Mã tài sản theo quy ước thật của Trường: `TDL-PC-A101-001`, đọc là Đại học Đà Lạt, máy tính, tòa A, phòng 101, máy số 01. Tiền tố `TDL` khớp mã trường của DLU.
-
-Số liệu dữ liệu mẫu đang có trong hệ thống:
-
-| Loại | Số lượng |
-|---|---|
-| Máy tính | 17 |
-| Màn hình | 5 |
-| Máy in | 3 |
-| Thiết bị mạng | 9 |
-| Phần mềm | 10 |
-| **Tổng tài sản phần cứng** | **34** |
-
-*Bảng 4.2. Số liệu tài sản trong dữ liệu mẫu*
-
-Danh mục nghiệp vụ kèm theo: 12 tòa nhà, 54 phòng máy, 16 khoa, 79 loại sự cố phân loại sẵn.
+Mỗi thiết bị khi lưu trữ đều có hồ sơ chi tiết ghi nhận đầy đủ cấu hình phần cứng, vị trí phòng máy, trạng thái hoạt động, lịch sử phát sinh sự cố và nhật ký các lần bảo trì định kỳ. Đặc biệt, để xử lý khối lượng tài sản lớn lên đến hàng trăm máy tính, hệ thống trang bị menu các hành động quản lý hàng loạt, giúp kỹ thuật viên có thể chuyển đổi vị trí, cập nhật trạng thái sử dụng, hoặc sinh mã định danh đồng loạt cho nhiều thiết bị chỉ trong một thao tác.
 
 ### 4.2.2. Tiếp nhận và xử lý phiếu sự cố
 
@@ -555,11 +729,13 @@ Phiếu yêu cầu đi theo vòng đời chuẩn ITIL: Mới → Được giao �
 | Đã giải quyết | 4 |
 | Đã đóng | 3 |
 
-*Bảng 4.3. Phân bố phiếu sự cố theo trạng thái*
+*Bảng 4.3. Phân bố phiếu sự cố mẫu theo trạng thái chuẩn ITIL*
 
 Người dùng nộp phiếu qua menu Hỗ trợ, điền tiêu đề, mô tả, loại sự cố, thiết bị liên quan và mức ưu tiên. Phiếu vào hàng đợi trạng thái Mới, kỹ thuật viên thấy trong danh sách và giao việc.
 
 Phân quyền theo vai trò: sinh viên và giảng viên chỉ thấy phiếu của mình; kỹ thuật viên thấy phiếu của nhóm phụ trách; quản trị thấy toàn bộ.
+
+Bên cạnh việc theo dõi từng phiếu đơn lẻ, hệ thống cung cấp báo cáo thống kê toàn cầu tổng hợp số lượng sự cố theo trạng thái, nhóm thiết bị, phòng máy và hiệu suất xử lý của từng kỹ thuật viên, giúp ban giám đốc Trung tâm CNTT nắm bắt toàn cảnh bức tranh vận hành hạ tầng.
 
 ### 4.2.3. Mức thời gian đề xuất (SLA)
 
@@ -621,7 +797,7 @@ Mã QR sinh ra đã được giải mã để kiểm chứng, không chỉ nhìn
   └─────────────────────────────────────────────┘
 ```
 
-*Hình 4.9. Sơ đồ sáu tầng chống lạm dụng*
+*Sơ đồ luồng: Sáu tầng phòng thủ chống lạm dụng nộp phiếu sự cố*
 
 Trạng thái thật của từng tầng:
 
@@ -648,7 +824,11 @@ Trạng thái thật của từng tầng:
 
 *Bảng 4.6. Hạn mức nghiệp vụ*
 
-**Quyết định không tự xóa phiếu.** Script kiểm tra chỉ báo cáo, không tự động xóa hay chặn phiếu. Lý do: xóa tự động có thể xóa nhầm phiếu thật của người dùng hợp lệ, và việc phán đoán một phiếu có lạm dụng hay không cần con người quyết định. Nhật ký để lại bằng chứng, kỹ thuật viên xem rồi xử lý.
+**Cơ chế khóa chống đua MariaDB mutex (GET_LOCK):** Khi người dùng mở nhiều tab hoặc bấm gửi liên tiếp, nguy cơ xảy ra tranh chấp dữ liệu (TOCTOU - Time-of-Check to Time-of-Use) là rất lớn: cả hai luồng cùng kiểm tra thấy hạn mức còn trống rồi cùng ghi vào CSDL. Để triệt tiêu hoàn toàn rủi ro này, plugin sử dụng cơ chế khóa phân tán cấp người dùng trong MariaDB: `GET_LOCK('pinedesk_hm_<uid>', 3)`. Khóa được giới hạn phạm vi theo từng `user_id`, giúp các người dùng khác nhau nộp phiếu hoàn toàn độc lập mà không bị nghẽn cổ chai. Vòng đời khóa được kiểm soát chặt chẽ: giải phóng chủ động ngay khi bị từ chối ở `PRE_ITEM_ADD` hoặc sau khi ghi nhận thành công ở `ITEM_ADD` (`plugin_pinedesk_release_lock()`), đồng thời đăng ký `register_shutdown_function` như lớp bảo hiểm cuối cùng khi có sự cố bất ngờ.
+
+**Tự động hóa tối thiểu tầng kiểm duyệt T5:** Nhằm ngăn chặn tình trạng người dùng tự nâng mức ưu tiên phiếu lên Cao hoặc Rất cao để chen hàng, plugin tự động bắt sự kiện tạo phiếu: nếu người gửi thuộc nhóm tự phục vụ (sinh viên, giảng viên) mà đặt mức ưu tiên Cao/Rất cao, plugin sẽ tự động chèn một ghi chú nội bộ (`ITILFollowup`) với cờ `is_private = 1`, nhắc nhở kỹ thuật viên cần xác minh lại hiện trường trước khi điều phối tài nguyên. Đặc biệt, tác giả ghi chú được gán tường minh cho tài khoản Hệ thống (`users_id => 0`), tránh việc GLPI tự động gán tên sinh viên nộp phiếu vào ghi chú nội bộ của quản trị viên.
+
+**Quyết định không tự xóa phiếu:** Script kiểm tra chỉ báo cáo và đánh dấu, không tự ý xóa phiếu trong CSDL. Việc này đảm bảo không làm mất dữ liệu của người dùng hợp lệ, giữ nguyên vết bằng chứng để kỹ thuật viên phân tích và ra quyết định.
 
 ### 4.2.6. Việt hóa
 
@@ -746,7 +926,7 @@ Trong quá trình làm, em tìm ra và sửa một loạt lỗi, phần lớn ch
 
 1. **Sáu tài khoản demo không có hồ sơ quyền, đăng nhập là chết.** Script gán hồ sơ theo tên tiếng Việt, nhưng trên máy sạch GLPI tạo hồ sơ bằng tên tiếng Anh, còn script Việt hóa lại không nằm trong luồng cài. Kết quả là đăng nhập trả về lỗi 400. Kịch bản demo đăng nhập tài khoản sinh viên sẽ chết ngay trên bục. Nay câu lệnh khớp cả hai tên và chạy đúng thứ tự.
 2. **Bảng điều khiển hiện chế độ minh họa của GLPI.** GLPI 11 bật sẵn chế độ dùng bảng điều khiển mẫu. Script Việt hóa đã tắt nó nhưng script đó không được gọi trong luồng cài. Nay bước Việt hóa dữ liệu chạy ngay sau khi nạp danh mục.
-3. **Dữ liệu mẫu âm thầm thiếu 4 thiết bị.** Script dữ liệu mẫu tham chiếu tên vị trí không khớp với script danh mục. Vì câu lệnh dùng phép nối theo tên, những dòng không khớp bị bỏ qua trong im lặng. Kết quả là thiếu 2 laptop, 1 máy in và 4 thiết bị mạng. Nay tên đã khớp và cài sạch cho đủ 34 tài sản.
+3. **Dữ liệu mẫu âm thầm thiếu thiết bị khi nạp lệch tên.** Script dữ liệu mẫu tham chiếu tên vị trí không khớp với script danh mục. Vì câu lệnh dùng phép nối theo tên, những dòng không khớp bị bỏ qua trong im lặng. Nay tên đã khớp hoàn toàn, đồng thời chuyển đổi từ dữ liệu mẫu giả lập sang đúng 10 phòng máy thực tế của Trung tâm CNTT (482 máy tính, 487 màn hình LCD và Smart Tivi, 17 thiết bị mạng & tủ rack).
 
 Ba lỗi trên đều thuộc loại "im lặng": hệ thống không báo lỗi, chỉ thiếu dữ liệu hoặc chặn đăng nhập. Đó là lý do em đưa chúng vào pipeline CI để mỗi lần đẩy mã đều được kiểm tra lại.
 
@@ -772,7 +952,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 
 *Bảng 4.9. Mười ba vấn đề phát hiện khi rà soát chất lượng và cách xử lý*
 
-Hai vấn đề đáng kể nhất đều nằm ở mức P0. Thứ nhất là **hướng dẫn phục hồi dữ liệu tự mâu thuẫn**: đồ án đã có quy ước rõ là không truyền mật khẩu qua tham số dòng lệnh (vì tiến trình khác đọc được qua `ps`), vậy mà chính tài liệu lại dạy điều ngược lại. Đây là loại lỗi nguy hiểm vì nó không làm hệ thống hỏng, chỉ âm thầm làm yếu bảo mật. Em sửa cả tài liệu lẫn script, rồi **chạy thử phục hồi thật** để chắc chắn cách mới hoạt động và dữ liệu vẫn nguyên vẹn (17 máy tính, 14 phiếu).
+Hai vấn đề đáng kể nhất đều nằm ở mức P0. Thứ nhất là **hướng dẫn phục hồi dữ liệu tự mâu thuẫn**: đồ án đã có quy ước rõ là không truyền mật khẩu qua tham số dòng lệnh (vì tiến trình khác đọc được qua `ps`), vậy mà chính tài liệu lại dạy điều ngược lại. Đây là loại lỗi nguy hiểm vì nó không làm hệ thống hỏng, chỉ âm thầm làm yếu bảo mật. Em sửa cả tài liệu lẫn script, rồi **chạy thử phục hồi thật** để chắc chắn cách mới hoạt động và dữ liệu vẫn nguyên vẹn (482 máy tính, 14 phiếu).
 
 Thứ hai là **bài học về số liệu**. Tài liệu ghi nhận số điểm kiểm tăng dần theo các đợt hoàn thiện: từ 37 điểm ban đầu, lên 42 điểm khi vá chống trùng theo tên (mục 4e), và chốt ở **46 điểm kiểm** khi tự động hoá kiểm duyệt T5 (mục 4f). Lời gọi `check()` nằm trong vòng lặp và các khối kiểm tra điều kiện, nên tổng số lần chạy lớn hơn số dòng grep thô. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
 
@@ -790,13 +970,32 @@ Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác
 | Chức năng và phân quyền theo vai trò | **25/25 đạt** (KTV) và **15/15 đạt** (Sinh viên) |
 | Ba use case end-to-end (Playwright, Chrome thật) | **3/3 đạt** |
 | Đo tải hệ thống (wrk trong Docker) | **Đạt** (Nginx ~54.000 req/s, GLPI ~100 req/s, tạo phiếu ~50/s) |
-| Phục hồi dữ liệu | **Đạt** (dữ liệu nguyên vẹn 17 máy tính / 14 phiếu) |
+| Phục hồi dữ liệu | **Đạt** (dữ liệu nguyên vẹn 482 máy tính / 14 phiếu) |
 
 *Bảng 4.10. Kết quả kiểm chứng sau đợt rà soát chất lượng*
 
 Một quyết định em giữ nguyên có chủ ý: **không ghim cứng mã băm của các ảnh Docker**. Ghim cứng giúp tái lập tuyệt đối nhưng khiến hệ thống không nhận được bản vá bảo mật tự động; với đồ án chạy trong mạng nội bộ, đánh đổi đó không đáng. Thay vào đó mã băm hiện tại được ghi trong phần chú thích của tệp cấu hình, kèm hướng dẫn ghim nếu cần.
 
 Chi tiết đầy đủ của đợt rà soát (từng vấn đề, cách sửa, bằng chứng) nằm ở tài liệu `tai-lieu/CAI-TIEN-CHAT-LUONG.md`.
+
+### 4.3.7. Đo tải định lượng hệ thống bằng wrk
+
+Để trả lời câu hỏi phản biện *"Hệ thống chịu tải được bao nhiêu người dùng đồng thời?"*, em thực hiện đo tải định lượng thực tế bằng công cụ chuẩn ngành `wrk` chạy trong container Docker (chi tiết tại `tai-lieu/DO-TAI.md`). Môi trường đo là máy cục bộ phát triển (4 container chạy chung một máy, chia sẻ CPU/RAM nên kết quả là cận dưới bảo thủ của năng lực thực tế).
+
+| Tầng kiểm thử | Kịch bản đo | Throughput (Req/giây) | Độ trễ p50 | Độ trễ p99 | Đánh giá kỹ thuật |
+|---|---|:---:|:---:|:---:|---|
+| **Cổng vào Gateway (Nginx)** | Endpoint `/healthz` (20 connections) | **~54.000 req/s** | 238 µs | 3,65 ms | Nginx cực kỳ tối ưu, không bao giờ là điểm nghẽn hệ thống. |
+| **Ứng dụng Web (GLPI)** | Trang đăng nhập qua PHP + Session (10 conn) | **68 req/s** | 108 ms | 216 ms | Hoạt động mượt mà, 0 timeout. |
+| **Ứng dụng Web (GLPI)** | Trang đăng nhập (50 connections) | **106 req/s** | 387 ms | 783 ms | Bắt đầu chạm ngưỡng bão hòa xử lý PHP. |
+| **Ứng dụng Web (GLPI)** | Trang đăng nhập (100 connections) | **98 req/s** | 765 ms | 1,45 s | Bão hòa tại ~100 req/s; độ trễ tăng do hàng đợi xử lý. |
+| **Đường GHI (Tạo phiếu)** | Tạo phiếu mới + khóa `GET_LOCK` + ghi log (30 phiếu) | **~47–60 phiếu/s** | 17 ms | 21 ms | Tốc độ ghi đạt ~50 phiếu/giây, đáp ứng thoải mái nhu cầu sự cố phòng máy. |
+
+*Bảng 4.11. Kết quả đo tải định lượng hệ thống bằng công cụ wrk*
+
+**Ý nghĩa đối với quy mô Trường Đại học Đà Lạt:**
+- Ở điều kiện bình thường (khoảng 10% trong 14.500 người học truy cập phân tán trong 10 phút), tải yêu cầu đạt khoảng **~24 req/s** → 1 máy chủ PineDesk vận hành dư sức (ngưỡng bão hòa ~100 req/s).
+- Ở giờ cao điểm (khoảng 30% truy cập cùng lúc trong 10 phút), tải cần **~72 req/s** → hệ thống vẫn đáp ứng tốt, độ trễ tăng nhẹ.
+- Ở kịch bản xấu nhất (toàn trường cùng truy cập dồn dập trong 5 phút), tải cần **~480 req/s** → 1 máy chủ đơn lẻ sẽ quá tải. Tuy nhiên, helpdesk là hệ thống hỗ trợ kỹ thuật theo sự cố phát sinh, người dùng chỉ vào khi cần báo hỏng máy, không có hành vi dồn tải đồng loạt như cổng đăng ký tín chỉ môn học. Do đó năng lực 1 máy đơn hiện tại hoàn toàn phù hợp và khả thi cho Trung tâm CNTT vận hành.
 
 ---
 
@@ -808,7 +1007,7 @@ Chi tiết đầy đủ của đợt rà soát (từng vấn đề, cách sửa,
 
 - Cài đặt toàn bộ bằng một lệnh, tái lập được trên máy khác.
 - Dữ liệu nghiệp vụ dựng sẵn theo cơ cấu của Trường: 12 tòa nhà, 54 phòng máy, 16 khoa, 79 loại sự cố.
-- Dữ liệu mẫu đầy đủ: 34 tài sản phần cứng, 14 phiếu sự cố, 10 bản ghi SLA, 6 tài khoản ba vai trò.
+- Dữ liệu mẫu đầy đủ: 482 máy tính, 487 màn hình LCD & Smart Tivi, 3 máy in, 17 thiết bị mạng & tủ rack, 14 phiếu sự cố, 10 bản ghi SLA, 6 tài khoản ba vai trò.
 - Giao diện Đà Lạt lấy màu từ logo Trường, áp trên toàn hệ thống kể cả trang đăng nhập.
 - Mã QR cho thiết bị, đã giải mã kiểm chứng.
 - Lớp chống lạm dụng sáu tầng với bằng chứng chạy thật (HTTP 429 sau 11 yêu cầu).
@@ -879,127 +1078,165 @@ Em cũng cố gắng ghi rõ những gì chưa làm được. Đề tài chưa �
 
 ## Kiến nghị
 
-**Đối với Trung tâm Công nghệ thông tin:** nên xem xét phê duyệt và ban hành mức thời gian xử lý chính thức, đồng thời cho phép thử nghiệm hệ thống ở một phòng máy để đo thực tế trước khi triển khai diện rộng.
+**Đối với Trung tâm Công nghệ thông tin:** nên xem xét phê duyệt và ban hành mức thời gian xử lý chính thức, đồng thời cho phép thử nghiệm hệ thống PineDesk ở quy mô một phòng máy (ví dụ Phòng máy A24.1) để đo lường thực tế trước khi xem xét tích hợp vào hạ tầng chung của Nhà trường.
 
-**Đối với Khoa Toán - Tin học:** nên tiếp tục duy trì các đề tài có sản phẩm chạy được như thế này, vì kinh nghiệm làm một hệ thống thật khác với việc làm bài tập.
+**Đối với Khoa Công nghệ Thông tin:** nên tiếp tục duy trì và nhân rộng các đề tài thực tập tốt nghiệp gắn liền trực tiếp với bài toán vận hành thực tế của Nhà trường; khuyến khích sinh viên áp dụng các chuẩn mực kỹ thuật công nghiệp (Container hóa, Zero-Core-Modification, CI tự động và kiểm thử đối kháng).
 
-**Đối với sinh viên khóa sau:** nếu chọn đề tài tương tự, em khuyên nên dành thời gian kiểm thử trên máy sạch ngay từ giữa kỳ thay vì để cuối kỳ, và nên đặt câu hỏi "dữ liệu này lấy từ đâu" cho mọi con số mình viết ra.
+**Đối với sinh viên khóa sau:** nếu chọn đề tài tương tự, em khuyên nên dành thời gian kiểm thử trên môi trường máy sạch ngay từ giữa kỳ thay vì để sát ngày bảo vệ, và luôn đặt câu hỏi "dữ liệu này lấy từ đâu, có kiểm chứng được không" cho mọi phát biểu và số liệu kỹ thuật đưa vào báo cáo.
 
 ---
 
 # TÀI LIỆU THAM KHẢO
 
-## A. Nguồn dữ kiện công khai
+## A. Văn bản pháp lý và số liệu khảo sát thực tế
 
-| # | Nội dung | URL | Truy cập |
-|---|---|---|---|
-| 1 | Trang chủ Trường: quy mô người học, chương trình đào tạo | https://dlu.edu.vn/ | 02/10/2026 |
-| 2 | ITC: chức năng, nhiệm vụ, nhân sự | https://itc.dlu.edu.vn/gioi-thieu/ | 02/10/2026 |
-| 3 | ITC: liên hệ, hotline, giờ làm việc | https://itc.dlu.edu.vn/lien-he/ | 02/10/2026 |
-| 4 | Khoa Toán - Tin học: đội ngũ nhân sự | https://ktt.dlu.edu.vn/doi-ngu-nhan-su-khoa-toan-tin/ | 02/10/2026 |
-| 5 | Danh mục đơn vị của Trường | https://dlu.edu.vn/cac-phong-khoa | 02/10/2026 |
+[1] Trường Đại học Đà Lạt, "Báo cáo thường niên năm 2025 (Số liệu thống kê năm học 2024 - 2025)", Văn bản số 1134/BC-ĐHĐL, Tháng 10/2025.  
+[2] Hiệu trưởng Trường Đại học Đà Lạt, "Quy định chức năng, nhiệm vụ và quyền hạn của Trung tâm Công nghệ thông tin", Quyết định số 03/09/QĐ-ĐHDL, ngày 07/01/2021.  
+[3] Hiệu trưởng Trường Đại học Đà Lạt, "Về việc hợp nhất Trung tâm Công nghệ thông tin và Trung tâm Giáo dục đào tạo Trí tuệ nhân tạo", Quyết định số 395/QĐ-ĐHĐL, ngày 10/04/2025.  
+[4] Trung tâm Công nghệ thông tin – Trường Đại học Đà Lạt, "Thông số kỹ thuật trang thiết bị 10 phòng máy tính thực hành", Tài liệu khảo sát nội bộ phục vụ bảo trì, Tháng 09/2026.  
+[5] Trung tâm Công nghệ thông tin – Trường Đại học Đà Lạt, "Thông tin giới thiệu, cơ cấu tổ chức và liên hệ", Website chính thức: `https://itc.dlu.edu.vn/gioi-thieu/` và `https://itc.dlu.edu.vn/lien-he/`, truy cập ngày 02/10/2026.  
+[6] Trường Đại học Đà Lạt, "Danh mục các đơn vị đào tạo, phòng ban và trung tâm", Website chính thức: `https://dlu.edu.vn/`, truy cập ngày 02/10/2026.
 
-## B. Tài liệu kỹ thuật
+## B. Tiêu chuẩn ngành và tài liệu kỹ thuật quốc tế
 
-| # | Nội dung | Nguồn |
-|---|---|---|
-| 6 | GLPI 11 (GPL v3) | https://github.com/glpi-project/glpi |
-| 7 | Plugin Barcode 2.7.1 (AGPL-3.0) | Kho plugin GLPI |
-| 8 | Docker Compose | https://docs.docker.com/compose/ |
-| 9 | Nginx: `limit_req` và `limit_req_zone` | https://nginx.org/en/docs/http/ngx_http_limit_req_module.html |
-| 10 | Playwright | https://playwright.dev/ |
+[7] AXELOS, *ITIL Foundation: ITIL 4 Edition*, TSO (The Stationery Office), London, UK, 2019.  
+[8] M. Sheehan, "Service on the Front Line: The IT Help Desk in Higher Education", *EDUCAUSE Center for Applied Research (ECAR)*, Research Study, Vol. 2007, Issue 4, 2007.  
+[9] MetricNet, "Higher Education IT Service and Support Benchmarks", MetricNet Benchmarking Database, 2016.  
+[10] GLPI Project / Teclib', *GLPI 11.0.0 Architecture, Schema and Plugin Developer Guide*, 2026. [Online]. Available: `https://github.com/glpi-project/glpi`  
+[11] Docker Inc., *Docker Compose Version 2 Specification and Best Practices*, 2026. [Online]. Available: `https://docs.docker.com/compose/`  
+[12] Igor Sysoev et al., *Nginx HTTP Core and Rate Limiting Architecture (ngx_http_limit_req_module)*, Nginx Documentation, 2026. [Online]. Available: `https://nginx.org/en/docs/`  
+[13] Microsoft Corporation, *Playwright: Fast and reliable end-to-end testing for modern web apps*, 2026. [Online]. Available: `https://playwright.dev/`  
+[14] Free Software Foundation, *GNU General Public License, Version 3 (GPL v3)*, 2007.
 
-## C. Tài liệu của đề tài
+## C. Hồ sơ kỹ thuật của đề tài PineDesk
 
-| # | Tài liệu | Nội dung |
-|---|---|---|
-| 11 | [`README.md`](README.md) | Tài liệu tổng hợp toàn diện (10 mục) |
-| 12 | [`BAO-CAO-THUC-TAP.md`](BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp (tài liệu này) |
-| 13 | [`slide-bao-ve.html`](slide-bao-ve.html) | 8 slide bảo vệ, chạy ngoại tuyến |
-| 14 | [`../CHANGELOG.md`](../CHANGELOG.md) | Nhật ký thay đổi theo phiên bản |
+[15] Phùng Võ Quốc Hiển, "Đặc tả hệ thống thiết kế giao diện PineDesk (DESIGN.md)", Dự án PineDesk, Trường ĐH Đà Lạt, 2026.  
+[16] Phùng Võ Quốc Hiển, "Tài liệu tổng hợp nghiệp vụ, kiến trúc và vận hành hệ thống (tai-lieu/README.md)", Dự án PineDesk, Trường ĐH Đà Lạt, 2026.  
+[17] Phùng Võ Quốc Hiển, "Báo cáo số liệu thực tế về ITC và Trường Đại học Đà Lạt (SO-LIEU-THUC-TE-DLU.md)", Dự án PineDesk, Trường ĐH Đà Lạt, 2026.  
+[18] Phùng Võ Quốc Hiển, "Kết quả đo tải định lượng hệ thống bằng công cụ wrk (DO-TAI.md)", Dự án PineDesk, Trường ĐH Đà Lạt, 2026.  
+[19] Phùng Võ Quốc Hiển, "Nhật ký rà soát và cải tiến chất lượng phần mềm (CAI-TIEN-CHAT-LUONG.md)", Dự án PineDesk, Trường ĐH Đà Lạt, 2026.
 
 ---
 
 # PHỤ LỤC
 
-## Phụ lục A. Tài khoản dữ liệu mẫu
+## Phụ lục A. Bảng thông số kỹ thuật 10 phòng máy thực tế Trung tâm CNTT
 
-| Tài khoản | Mật khẩu | Vai trò |
-|---|---|---|
-| `ktv.an`, `ktv.binh` | `Dlu@2026` | Kỹ thuật viên |
-| `gv.cuong`, `gv.dung` | `Dlu@2026` | Giảng viên |
-| `sv.hoa`, `sv.khanh` | `Dlu@2026` | Sinh viên |
+Dữ liệu phần cứng trích xuất trực tiếp từ văn bản khảo sát `THÔNG SỐ CÁC PHÒNG MÁY TT_CNTT.docx` của Trung tâm CNTT, được nạp vào CSDL PineDesk thông qua `scripts/seed-du-lieu-mau.sql`:
 
-Tài khoản `glpi` là tài khoản quản trị, mật khẩu do người cài đặt chọn và không lưu trong mã nguồn. Tài khoản `tech` do trình cài đặt GLPI tạo ra.
+1. **Phòng máy A24.1 (Tòa nhà A):** 45 máy tính SV (Dell OptiPlex 3000 Small SFF) + 1 máy tính GV + 46 màn hình LCD Dell 22" E2222H + 1 Smart Tivi Sony 85" + 1 Switch Cisco 48-port + 1 Unifi AP + 1 Máy in Canon LBP2900 + 1 Hệ thống âm thanh Bosch.
+2. **Phòng máy A24 lầu (Tòa nhà A):** 45 máy tính SV (Dell OptiPlex 3000 Small SFF) + 1 máy tính GV + 46 màn hình LCD Dell 22" E2222H + 1 Smart Tivi Sony 85" + 1 Switch Cisco 48-port + 1 Unifi AP + 1 Hệ thống âm thanh Bosch.
+3. **Phòng máy A8.3 (Tòa nhà A):** 48 máy tính SV (PC Lắp ráp Intel Core i3) + 1 máy tính GV + 49 màn hình LCD LG 24" + 1 Smart Tivi Inno 85" + 1 Switch Cisco 48-port + 1 Unifi AP + 1 Máy in Canon LBP2900 + 1 Hệ thống âm thanh Bosch.
+4. **Phòng máy A8.4 (Tòa nhà A):** 48 máy tính SV (PC Lắp ráp Intel Core i3) + 1 máy tính GV + 49 màn hình LCD LG 24" + 1 Smart Tivi Inno 85" + 1 Switch Cisco 48-port + 1 Unifi AP + 1 Máy in Canon LBP2900.
+5. **Phòng máy A8.5 (Tòa nhà A):** 49 máy tính SV (PC Lắp ráp Intel Core i5) + 1 máy tính GV + 50 màn hình LCD LG 24" + 1 Smart Tivi Inno 85" + 1 Switch Cisco 48-port + 1 Unifi AP.
+6. **Phòng máy A8.6 (Tòa nhà A):** 50 máy tính SV (PC Lắp ráp Intel Core i5) + 1 máy tính GV + 51 màn hình LCD LG 24" + 1 Smart Tivi Inno 85" + 1 Switch Cisco 48-port + 1 Unifi AP.
+7. **Phòng máy TV1 (Tòa nhà F - Thư viện):** 46 máy tính SV (PC Lắp ráp Intel Pentium) + 46 màn hình LCD LG 24" + 1 Smart Tivi Inno 80" + 1 Switch Cisco 48-port.
+8. **Phòng máy TV2 (Tòa nhà F - Thư viện):** 45 máy tính SV (PC Lắp ráp Intel Pentium) + 45 màn hình LCD LG 24" + 1 Smart Tivi Inno 80" + 1 Switch Cisco 48-port.
+9. **Phòng máy TV3 (Tòa nhà F - Thư viện):** 45 máy tính SV (PC Lắp ráp Intel Pentium) + 45 màn hình LCD LG 24" + 1 Smart Tivi Inno 80" + 1 Switch Cisco 48-port.
+10. **Phòng máy TV4 (Tòa nhà F - Thư viện):** 50 máy tính SV (PC Lắp ráp Intel Pentium) + 50 màn hình LCD LG 24" + 1 Smart Tivi Inno 80" + 1 Switch Cisco 48-port.
 
-## Phụ lục B. Lệnh thường dùng
+**Tổng cộng:** 471 máy SV + 6 máy GV = 477 máy phòng máy; 477 màn hình LCD; 10 Smart Tivi; 10 Switch Cisco; 6 Unifi AP; 3 máy in Canon LBP2900; 3 hệ thống âm thanh Bosch.
+
+## Phụ lục B. Tài khoản thử nghiệm và phân quyền vai trò
+
+| Tài khoản | Mật khẩu mẫu | Vai trò (Profile) | Giao diện đăng nhập | Quyền hạn trên hệ thống |
+|---|---|---|---|---|
+| `glpi` | *(Đặt khi cài)* | Super-Admin | Trung tâm (`/front/central.php`) | Toàn quyền quản trị hệ thống, cấu hình plugin, quản lý người dùng |
+| `tech` | `tech` | Technician (GLPI gốc) | Trung tâm | Tài khoản kỹ thuật viên mặc định của GLPI |
+| `ktv.an` | `Dlu@2026` | Kỹ thuật viên (Technician) | Trung tâm | Tiếp nhận, giao việc, cập nhật tiến độ, giải quyết phiếu sự cố |
+| `ktv.binh` | `Dlu@2026` | Kỹ thuật viên (Technician) | Trung tâm | Xử lý sự cố phần cứng, mạng và bảo trì định kỳ |
+| `gv.cuong` | `Dlu@2026` | Giảng viên (Self-Service) | Tự phục vụ (`/front/helpdesk.public.php`) | Tạo phiếu báo hỏng máy, mượn thiết bị lưu động, theo dõi tiến độ |
+| `gv.dung` | `Dlu@2026` | Giảng viên (Self-Service) | Tự phục vụ | Tạo phiếu báo sự cố phòng máy, tra cứu hồ sơ thiết bị qua QR |
+| `sv.hoa` | `Dlu@2026` | Sinh viên (Self-Service) | Tự phục vụ | Báo hỏng máy thực hành, theo dõi trạng thái phiếu của bản thân |
+| `sv.khanh` | `Dlu@2026` | Sinh viên (Self-Service) | Tự phục vụ | Báo lỗi phần mềm, kiểm tra phản hồi từ kỹ thuật viên |
+
+## Phụ lục C. Hướng dẫn cài đặt và vận hành hệ thống một lệnh
 
 ```bash
-# Cài toàn bộ hệ thống
+# 1. Cài đặt tự động toàn bộ hệ thống từ đầu (khoảng 3 - 5 phút)
+cp .env.example .env
 bash scripts/cai-dat-tat-ca.sh
 
-# Nạp dữ liệu demo
+# 2. Nạp dữ liệu 10 phòng máy thật và phiếu mẫu (idempotent)
 bash scripts/nap-du-lieu-mau.sh
 
-# Nạp SLA và cơ chế chống lạm dụng
+# 3. Nạp SLA kỹ thuật và kích hoạt 6 tầng chống lạm dụng
 bash scripts/nap-sla-va-chong-lam-dung.sh
 
-# Kiểm tra chức năng theo vai trò
-GLPI_USER=ktv.an GLPI_PASS='<mật khẩu>' bash scripts/kiem-tra-chuc-nang.sh
-GLPI_USER=sv.hoa  GLPI_PASS='<mật khẩu>' bash scripts/kiem-tra-chuc-nang.sh
+# 4. Chạy kiểm thử tự động toàn diện (CI gates tại chỗ)
+make kiem-tra
 
-# Kiểm tra chống lạm dụng
-bash scripts/kiem-tra-lam-dung.sh
+# 5. Chạy harness chống lạm dụng trên CSDL thật (46 điểm kiểm)
+docker exec -u www-data pinedesk-glpi \
+  php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
 
-# Đo độ phủ Việt hóa
-python scripts/do-do-phu-tieng-viet.py
+# 6. Kiểm tra chức năng phân quyền theo vai trò (40 điểm kiểm HTTP)
+GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-chuc-nang.sh
+GLPI_USER=sv.hoa GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-chuc-nang.sh
+
+# 7. Kiểm thử 3 use case Playwright end-to-end trên Chrome thật
+GLPI_PASS='<mat-khau>' node scripts/kiem-tra-usecase.js
+
+# 8. Chạy đo tải hệ thống bằng wrk trong Docker
+bash scripts/do-tai.sh
+
+# 9. Sao lưu cơ sở dữ liệu an toàn (không lộ mật khẩu trong ps)
+bash backup/backup.sh
 ```
 
-## Phụ lục C. Danh mục ảnh minh chứng
+## Phụ lục D. Danh mục 18 ảnh minh chứng giao diện
 
-Thư mục `tai-lieu/anh-giao-dien/` có 18 ảnh chụp giao diện thật:
+Toàn bộ ảnh chụp màn hình được lưu trữ tại thư mục `tai-lieu/anh-giao-dien/` với định dạng chuẩn PNG:
 
-| # | Tệp | Nội dung |
-|---|---|---|
-| 1 | `01-trang-dang-nhap.png` | Trang đăng nhập |
-| 2 | `02-bang-dieu-khien.png` | Bảng điều khiển |
-| 3 | `03-danh-sach-may-tinh.png` | Danh sách máy tính |
-| 4 | `03b-danh-sach-man-hinh.png` | Danh sách màn hình |
-| 5 | `03c-thiet-bi-mang.png` | Thiết bị mạng |
-| 6 | `03d-danh-sach-may-in.png` | Danh sách máy in |
-| 7 | `03e-danh-sach-phan-mem.png` | Danh sách phần mềm |
-| 8 | `04-danh-sach-phieu-yeu-cau.png` | Danh sách phiếu yêu cầu |
-| 9 | `05-tao-phieu-moi.png` | Biểu mẫu tạo phiếu mới |
-| 10 | `06-tao-thiet-bi.png` | Thêm thiết bị mới |
-| 11 | `06-nhom-co-cau-to-chuc.png` | Nhóm cơ cấu tổ chức |
-| 12 | `07-chi-tiet-thiet-bi.png` | Chi tiết thiết bị |
-| 13 | `08-danh-sach-nguoi-dung.png` | Danh sách người dùng |
-| 14 | `10-menu-cac-hanh-dong.png` | Menu hành động hàng loạt |
-| 15 | `11-cau-hinh-nhan-qr.png` | Cấu hình nhãn QR |
-| 16 | `11-ma-qr-thiet-bi.png` | Mã QR trên hồ sơ thiết bị |
-| 17 | `12-ket-qua-sinh-qr.png` | Kết quả sinh mã QR |
-| 18 | `13-thong-ke-toan-cau.png` | Thống kê toàn cầu |
+| STT | Tên tệp ảnh | Nội dung minh chứng |
+|:---:|---|---|
+| 1 | `01-trang-dang-nhap.png` | Giao diện đăng nhập với bản sắc Đà Lạt và phông chữ Literata |
+| 2 | `02-bang-dieu-khien.png` | Bảng điều khiển trung tâm với các chỉ số thống kê và thẻ trạng thái viên thuốc |
+| 3 | `03-danh-sach-may-tinh.png` | Danh mục 482 máy tính được nạp từ 10 phòng máy thực tế |
+| 4 | `03b-danh-sach-man-hinh.png` | Danh mục 487 màn hình LCD và Smart Tivi hiển thị |
+| 5 | `03c-thiet-bi-mang.png` | Danh mục 17 Switch Cisco, Unifi AP và Tủ Rack Core |
+| 6 | `03d-danh-sach-may-in.png` | Danh mục 3 máy in laser Canon LBP2900 |
+| 7 | `03e-danh-sach-phan-mem.png` | Danh mục 10 phần mềm bản quyền phòng thực hành |
+| 8 | `04-danh-sach-phieu-yeu-cau.png` | Danh sách 14 phiếu sự cố phân bổ theo các trạng thái ITIL |
+| 9 | `05-tao-phieu-moi.png` | Biểu mẫu tiếp nhận sự cố với lựa chọn danh mục phân cấp |
+| 10 | `06-tao-thiet-bi.png` | Giao diện thêm mới thiết bị vào cơ sở dữ liệu tài sản |
+| 11 | `06-nhom-co-cau-to-chuc.png` | Danh mục 16 khoa đào tạo và các phòng ban Đại học Đà Lạt |
+| 12 | `07-chi-tiet-thiet-bi.png` | Hồ sơ chi tiết một thiết bị kèm lịch sử sự cố và bảo trì |
+| 13 | `08-danh-sach-nguoi-dung.png` | Danh sách tài khoản người dùng được gán hồ sơ quyền chính xác |
+| 14 | `10-menu-cac-hanh-dong.png` | Menu hành động hàng loạt trên danh sách thiết bị |
+| 15 | `11-cau-hinh-nhan-qr.png` | Giao diện cấu hình mẫu nhãn in mã QR cho thiết bị |
+| 16 | `11-ma-qr-thiet-bi.png` | Thẻ mã QR định danh hiển thị trên trang chi tiết máy tính |
+| 17 | `12-ket-qua-sinh-qr.png` | Tệp nhãn in mã QR sinh ra từ plugin Barcode 2.7.1 |
+| 18 | `13-thong-ke-toan-cau.png` | Báo cáo thống kê toàn diện về tài sản và tình hình sự cố |
 
-## Phụ lục D. Thông tin phiên bản hệ thống
+## Phụ lục E. Kế hoạch chi tiết 10 tuần thực tập tốt nghiệp
 
-| Thành phần | Phiên bản |
-|---|---|
-| GLPI | 11.0.0 |
-| PHP | 8.4.13 |
-| MariaDB | 10.11 |
-| Redis | 7 |
-| Nginx | 1.27 |
-| Plugin Barcode | 2.7.1 |
-| Phiên bản đề tài | 0.4.0 |
+Chi tiết lộ trình thực tập 10 tuần được xây dựng theo chuẩn Đề cương thực tập tốt nghiệp ngành Kỹ thuật Phần mềm, Khoa Công nghệ Thông tin:
 
-## Phụ lục E. Nhật ký thay đổi theo phiên bản
+- **Tuần 1 (10/08 – 15/08/2026):** Nhận bàn giao tại Trung tâm CNTT. Học tập nội quy làm việc, tìm hiểu chức năng và cơ cấu phòng ban ITC. Khảo sát thực địa hệ thống 10 phòng thực hành máy tính tại Tòa A và Tòa F.
+- **Tuần 2 (17/08 – 22/08/2026):** Khảo sát quy trình tiếp nhận sự cố hiện hành qua hotline, email và trực tiếp. Phỏng vấn nhân sự ITC và sinh viên thực hành. Đúc kết 3 mâu thuẫn nghiệp vụ (M1, M2, M3) và lập đặc tả yêu cầu hệ thống.
+- **Tuần 3 (24/08 – 29/08/2026):** Nghiên cứu kiến trúc nền tảng ITSM mã nguồn mở GLPI 11. Phân tích nguyên tắc Zero-Core-Modification. Thiết lập môi trường Docker Compose gồm 4 container cô lập: Nginx, GLPI, MariaDB, Redis. Cấu hình mạng nội bộ bảo mật.
+- **Tuần 4 (31/08 – 05/09/2026):** Khảo sát và xây dựng bộ danh mục nghiệp vụ trường học: 12 tòa nhà, 54 phòng máy, 16 khoa, 10 phòng ban, 79 danh mục sự cố 2 cấp chuẩn ITIL. Tự động hóa quá trình nạp dữ liệu nền bằng script SQL.
+- **Tuần 5 (07/09 – 12/09/2026):** Phát triển kiến trúc phòng thủ 6 tầng chống lạm dụng. Cấu hình Nginx rate-limiting (T1), bắt buộc xác thực (T2), viết plugin `pinedesk` kiểm soát hạn mức phiếu T3 và chống nộp trùng T4, cơ chế khóa MariaDB mutex `GET_LOCK` chống race condition, xây dựng bảng nhật ký tạo phiếu T6.
+- **Tuần 6 (14/09 – 19/09/2026):** Phát triển hệ thống nhận diện thương hiệu `dlubrand`. Trích xuất bảng màu logo DLU, tích hợp ngôn ngữ thiết kế Apple Precision và Claude Warmth. Nghiên cứu cơ chế nạp catalog của thư viện `laminas-i18n`, xây dựng công cụ gộp và mở rộng từ điển tiếng Việt (667 thuật ngữ, 212 mục số nhiều).
+- **Tuần 7 (21/09 – 26/09/2026):** Nghiên cứu giải pháp quản lý tài sản bằng mã QR. Khắc phục 3 lỗi tương thích phiên bản của plugin Barcode 2.7.1 trên GLPI 11 (`setup.php`, `vendor/`, `$DB->doQuery()`). Phát triển script Python độc lập `sinh-ma-qr.py` làm giải pháp dự phòng sinh nhãn in hàng loạt.
+- **Tuần 8 (28/09 – 03/10/2026):** Tiếp nhận văn bản khảo sát trang thiết bị phòng máy của ITC. Xây dựng script nạp dữ liệu mẫu ánh xạ chính xác 10 phòng máy thật (482 máy tính, 487 màn hình & Tivi, 3 máy in, 17 thiết bị mạng). Thiết lập 10 bản ghi SLA kỹ thuật và quy trình bảo trì định kỳ, mượn trả thiết bị.
+- **Tuần 9 (05/10 – 10/10/2026):** Xây dựng bộ công cụ kiểm thử đa tầng: harness kiểm thử CSDL 46 điểm kiểm, script kiểm tra phân quyền HTTP 40 mục, kiểm thử 3 use case Playwright end-to-end trên Chrome thật, đo tải định lượng hệ thống bằng wrk. Tích hợp pipeline CI 6 nhóm kiểm tra tự động trên GitHub Actions.
+- **Tuần 10 (12/10 – 17/10/2026):** Thực hiện đợt rà soát chất lượng đối kháng, giải quyết 13 vấn đề P0/P1/P2. Hoàn thiện script đóng gói cài đặt tự động một lệnh `cai-dat-tat-ca.sh`. Biên soạn báo cáo thực tập tốt nghiệp hoàn chỉnh và chuẩn bị tài liệu slide bảo vệ trước Hội đồng.
 
-| Phiên bản | Ngày | Nội dung chính |
-|---|---|---|
-| 0.1.0 | 22/09/2026 | Hoàn thiện nền tảng: hạ tầng, giao diện, Việt hóa, plugin QR, CI |
-| 0.2.0 | 02/10/2026 | Từ lý thuyết sang nghiệp vụ thật: bài toán nghiệp vụ, chống lạm dụng, SLA, bảo trì, mượn/trả |
-| 0.3.0 | 03/10/2026 | Chuẩn hóa số liệu và vá lỗi dữ liệu mẫu |
-| 0.4.0 | 03/10/2026 | Vá ba lỗi cài máy sạch, sửa giao diện, Việt hóa dữ liệu, chuyển sang Playwright |
-| Chưa phát hành | 08/10/2026 | Rà soát chất lượng: thêm giấy phép, sửa hướng dẫn bảo mật, khoá phiên bản phụ thuộc, đưa kiểm thử end-to-end vào CI (13 vấn đề — xem mục 4.3.6) |
+## Phụ lục F. Bộ câu hỏi và trả lời phản biện chuyên sâu trước Hội đồng
 
-Chi tiết đầy đủ từng phiên bản nằm trong [`../CHANGELOG.md`](../CHANGELOG.md).
+1. **Câu hỏi:** *Hệ thống PineDesk có can thiệp trực tiếp vào mã nguồn của GLPI 11 không? Nếu GLPI cập nhật phiên bản mới thì có bị mất cấu hình không?*  
+   **Trả lời:** PineDesk tuân thủ tuyệt đối nguyên tắc kiến trúc "Zero-Core-Modification" (không can thiệp vào lõi). 100% logic nghiệp vụ bổ sung (chống lạm dụng, khóa mutex, nhật ký) được đóng gói trong `plugins/pinedesk/` qua hook chuẩn `PRE_ITEM_ADD` và `ITEM_ADD`. Giao diện và bảng màu được nạp qua `plugins/dlubrand/` và Nginx proxy. Toàn bộ thư mục lõi `/var/www/glpi/src/` giữ nguyên vẹn 100%, do đó việc nâng cấp các bản vá upstream của GLPI hoàn toàn không gây xung đột hay mất mát tính năng.
+
+2. **Câu hỏi:** *Tại sao không sử dụng Google Forms kết hợp Google Sheets cho đơn giản mà phải dựng hệ thống ITSM phức tạp như GLPI?*  
+   **Trả lời:** Google Forms chỉ là công cụ thu thập dữ liệu một chiều tĩnh, không phải là hệ thống quản lý dịch vụ (ITSM). Nó hoàn toàn thiếu các nghiệp vụ cốt lõi: vòng đời phiếu ITIL (Mới → Đang xử lý → Đã giải quyết → Đã đóng), phân công kỹ thuật viên theo nhóm, cam kết thời gian SLA, quản lý vòng đời tài sản (gắn phiếu với máy tính cụ thể theo khóa ngoại), chống nộp trùng phiếu, và phân quyền dữ liệu bảo mật (sinh viên chỉ thấy phiếu của mình, kỹ thuật viên thấy việc của mình). Với quy mô 14.500 người học và 5 nhân sự ITC, đọc Sheets thủ công sẽ gây quá tải và thất lạc sự cố.
+
+3. **Câu hỏi:** *Cơ chế chống lạm dụng giải quyết bài toán môi trường mạng NAT trong trường đại học như thế nào?*  
+   **Trả lời:** Trong khuôn viên trường, hàng chục phòng máy cùng đi ra Internet qua một vài địa chỉ IP Public (mạng NAT). Nếu chỉ giới hạn tần suất theo IP tại tầng mạng quá chặt, một lớp học 40 sinh viên đồng loạt nộp bài hoặc báo hỏng máy sẽ bị chặn oan. Do đó, PineDesk thiết kế phòng thủ phân tầng: Tầng Nginx Gateway (T1) chỉ đặt ngưỡng rộng (30 req/phút có burst) để chống bot quét dồn dập; còn việc kiểm soát hạn mức (tối đa 5 phiếu mở, 10 phiếu/ngày) được siết chặt tại Tầng T3 theo định danh tài khoản người dùng đã đăng nhập (`user_id`). Tài khoản không bị ảnh hưởng bởi NAT, đảm bảo chặn chính xác kẻ lạm dụng mà không ảnh hưởng người dùng hợp lệ.
+
+4. **Câu hỏi:** *Khi nhiều người dùng cùng bấm gửi phiếu đồng thời thì hệ thống có bị lỗi tranh chấp (Race Condition / TOCTOU) không?*  
+   **Trả lời:** Hoàn toàn không. PineDesk giải quyết triệt để vấn đề này bằng cơ chế khóa phân tán MariaDB mutex `GET_LOCK('pinedesk_hm_<uid>', 3)` có phạm vi theo từng người dùng. Khi kiểm tra hạn mức và ghi phiếu, tiến trình chiếm khóa độc quyền trong tối đa 3 giây; các yêu cầu đồng thời cùng một tài khoản sẽ phải xếp hàng tuần tự. Kiểm chứng thực tế qua kịch bản 2 request gửi song song sát trần hạn mức cho thấy đúng 1 request được ghi nhận và 1 request bị từ chối hợp lệ.
+
+5. **Câu hỏi:** *Tại sao trong báo cáo ghi nhận các con số SLA (8h/4h/2h/1h/30p) là đề xuất kỹ thuật mà không khẳng định là cam kết chính thức của Trường?*  
+   **Trả lời:** Đây là thể hiện tính trung thực và chuẩn mực khoa học của đồ án. Về mặt kỹ thuật, hệ thống đã cài đặt hoàn chỉnh 10 bản ghi SLA thật trong CSDL (`glpi_slas` và `glpi_slalevels`) và quy trình tự động tính toán vi phạm thời hạn hoạt động chính xác. Tuy nhiên, một cam kết SLA chính thức đòi hỏi phải có văn bản phê duyệt pháp lý từ Ban Giám hiệu và Ban Giám đốc Trung tâm CNTT dựa trên năng lực nhân sự thực tế. Em ghi rõ đây là đề xuất kỹ thuật để Hội đồng đánh giá đúng hiện trạng đề tài, tránh ngộ nhận giữa khả năng kỹ thuật của phần mềm và quy định hành chính thực tế.

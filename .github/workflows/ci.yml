@@ -516,16 +516,16 @@ jobs:
           echo "[OK] Danh muc nghiep vu khop: 12 toa nha / 54 phong / 67 vi tri / 79 loai su co"
 
       # ----------------------------------------------------------------------
-      # Du lieu demo phai du, KHONG duoc am tham mat thiet bi
+      # Du lieu demo phai du thiet bi 10 phong may TT CNTT (khong mat thiet bi)
       # ----------------------------------------------------------------------
-      # Tung co loi that: seed-du-lieu-mau.sql tham chieu ten vi tri khong
-      # khop voi seed-du-lieu-nen.sql ('Văn phòng Khoa Toán - Tin' vs
-      # '... - Tin học'), khien JOIN vi tri that bai va 4 thiet bi bi bo qua
-      # trong im lang. Job nay chot so luong de khong tai dien.
-      # LUU Y: o buoc nay chi co 13 phieu cua du lieu mau; phieu thu 14 (phieu
-      # muon thiet bi) do buoc SLA ngay sau tao ra, nen con so 14 duoc chot o
-      # buoc "Du lieu bao tri + muon thiet bi".
-      - name: Du lieu demo phai du 34 tai san (khong mat thiet bi)
+      # Thong so thuc te tu tai lieu khao sat 10 phong may Trung tam CNTT:
+      # - 471 may sinh vien + 6 may giang vien + 3 laptop + 2 server = 482 may tinh
+      # - 471 man hinh sinh vien + 6 man hinh GV + 10 Smart Tivi = 487 man hinh
+      # - 3 may in Canon LBP2900
+      # - 17 thiet bi mang & tu rack (10 Switch Cisco, 6 AP Unifi, 1 Tu rack)
+      # - 10 phan mem mau
+      # - 13 phieu du lieu mau
+      - name: Du lieu demo phai du thiet bi 10 phong may TT CNTT (khong mat thiet bi)
         run: |
           bash scripts/nap-du-lieu-mau.sh
           Q() { docker exec pinedesk-db sh -c \
@@ -540,12 +540,12 @@ jobs:
           echo "May tinh: $PC | Man hinh: $MON | May in: $PRN | Thiet bi mang: $NET"
           echo "Phan mem: $SW | Phieu (du lieu mau): $TK"
 
-          [ "$PC" = "17" ]  || { echo "[LOI] May tinh: mong doi 17, thuc te $PC"; exit 1; }
-          [ "$MON" = "5" ]  || { echo "[LOI] Man hinh: mong doi 5, thuc te $MON"; exit 1; }
-          [ "$PRN" = "3" ]  || { echo "[LOI] May in: mong doi 3, thuc te $PRN"; exit 1; }
-          [ "$NET" = "9" ]  || { echo "[LOI] Thiet bi mang: mong doi 9, thuc te $NET"; exit 1; }
-          [ "$SW" = "10" ]  || { echo "[LOI] Phan mem: mong doi 10, thuc te $SW"; exit 1; }
-          [ "$TK" = "13" ]  || { echo "[LOI] Phieu du lieu mau: mong doi 13, thuc te $TK"; exit 1; }
+          [ "$PC" = "482" ]  || { echo "[LOI] May tinh: mong doi 482, thuc te $PC"; exit 1; }
+          [ "$MON" = "487" ] || { echo "[LOI] Man hinh: mong doi 487, thuc te $MON"; exit 1; }
+          [ "$PRN" = "3" ]   || { echo "[LOI] May in: mong doi 3, thuc te $PRN"; exit 1; }
+          [ "$NET" = "17" ]  || { echo "[LOI] Thiet bi mang: mong doi 17, thuc te $NET"; exit 1; }
+          [ "$SW" = "10" ]   || { echo "[LOI] Phan mem: mong doi 10, thuc te $SW"; exit 1; }
+          [ "$TK" = "13" ]   || { echo "[LOI] Phieu du lieu mau: mong doi 13, thuc te $TK"; exit 1; }
 
           # Moi tai san phai co vi tri (level 3) hop le -> bat loi ten vi tri lech
           ORPHAN=$(Q "SELECT COUNT(*) FROM glpi_computers WHERE locations_id = 0;")
@@ -559,7 +559,7 @@ jobs:
           [ "$BAD" = "0" ] || { echo "[LOI] $BAD phieu co date_creation > date (vo ly)"; exit 1; }
           NEG=$(Q "SELECT COUNT(*) FROM glpi_tickets WHERE solvedate IS NOT NULL AND solvedate < date_creation;")
           [ "$NEG" = "0" ] || { echo "[LOI] $NEG phieu giai quyet TRUOC khi tao"; exit 1; }
-          echo "[OK] Du lieu demo du: 17 may tinh / 5 man hinh / 3 may in / 9 thiet bi mang / 13 phieu"
+          echo "[OK] Du lieu demo du: 482 may tinh / 487 man hinh & tivi / 3 may in / 17 thiet bi mang / 13 phieu"
           echo "[OK] Ngay thang phieu hop ly (khong con date_creation > date)"
 
       # ----------------------------------------------------------------------

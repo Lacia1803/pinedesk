@@ -652,10 +652,11 @@ check($t5_high > 0, "T5: phieu uu tien cao tao thanh cong (id=" . var_export($t5
 $res = $DB->doQuery(
     "SELECT COUNT(*) AS n FROM glpi_itilfollowups
       WHERE itemtype = 'Ticket' AND items_id = " . (int) $t5_high . "
+        AND users_id = 0
         AND content LIKE '%[T5-SOAT-XET]%'"
 );
 $row = $res ? $DB->fetchAssoc($res) : null;
-check((int) ($row['n'] ?? 0) >= 1, "T5: phieu uu tien CAO co ghi chu noi bo nhac soat xet");
+check((int) ($row['n'] ?? 0) >= 1, "T5: phieu uu tien CAO co ghi chu noi bo tu He thong (users_id=0) nhac soat xet");
 
 // Phieu uu tien THAP -> KHONG co ghi chu T5
 $t = new Ticket();

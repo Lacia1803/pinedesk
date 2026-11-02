@@ -11,6 +11,7 @@ Tài liệu này tổng hợp toàn diện các nội dung về bài toán nghi�
 | [`../README.md`](../README.md) | Tài liệu tổng quan dự án, kiến trúc tổng thể và hướng dẫn cài đặt 1 lệnh |
 | [`../DESIGN.md`](../DESIGN.md) | Đặc tả hệ thống thiết kế giao diện (Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt) |
 | [`README.md`](README.md) | **Tài liệu tổng hợp toàn diện** (10 mục lớn, cơ sở kỹ thuật và nghiệp vụ chi tiết) |
+| [`BAO-CAO-THUC-TAP-FINAL.docx`](BAO-CAO-THUC-TAP-FINAL.docx) | **Báo cáo thực tập tốt nghiệp chính thức** (Microsoft Word, 73 trang, chuẩn thể thức DLU, 112 Bookmark và Mục lục tương tác) |
 | [`BAO-CAO-THUC-TAP.md`](BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp hoàn chỉnh (định dạng in ấn, 5 chương + 5 phụ lục) |
 | [`CAI-TIEN-CHAT-LUONG.md`](CAI-TIEN-CHAT-LUONG.md) | Nhật ký cải tiến chất lượng toàn diện và kết quả phản biện đa tác nhân |
 | [`SO-LIEU-THUC-TE-DLU.md`](SO-LIEU-THUC-TE-DLU.md) | Khảo sát số liệu thực tế có nguồn chính thức về ITC & Trường ĐH Đà Lạt (BCTN 2025) |
@@ -161,17 +162,17 @@ Trường Đại học Đà Lạt
 |---|---|---|---|
 | Khoa, phòng ban, trung tâm | Nhóm (Groups) | `glpi_groups` | 33 đơn vị (16 khoa, 10 phòng, 7 trung tâm) |
 | Tòa nhà, phòng máy, văn phòng | Cây vị trí (Locations) | `glpi_locations` | 67 bản ghi (12 tòa nhà, 54 phòng máy) |
-| Thiết bị theo đơn vị và phòng | Máy tính (Computers) | `glpi_computers` | 17 máy tính demo gắn vị trí |
-| Màn hình, máy in, mạng | Màn hình, Máy in, Thiết bị mạng | `glpi_monitors`, `glpi_printers`, `glpi_networkequipments` | 5 màn hình, 3 máy in, 9 thiết bị mạng |
+| Thiết bị theo đơn vị và phòng | Máy tính (Computers) | `glpi_computers` | 482 máy tính (471 máy sinh viên 10 phòng máy, 6 máy GV, 3 laptop, 2 server) gắn vị trí |
+| Màn hình, máy in, mạng, âm thanh | Màn hình, Máy in, Mạng, Ngoại vi | `glpi_monitors`, `glpi_printers`, `glpi_networkequipments`, `glpi_peripherals` | 487 màn hình & Smart Tivi, 3 máy in, 17 thiết bị mạng & tủ rack, 3 âm thanh Bosch |
 | Cán bộ, kỹ thuật viên, sinh viên | Người dùng (Users) | `glpi_users` | 6 tài khoản demo trải đều 3 vai trò |
 | Phân quyền theo vai trò | Hồ sơ quyền (Profiles) | `glpi_profiles_users` | Super-Admin, Admin, Technician, Self-Service |
 | Danh mục phân loại sự cố | ITIL Categories | `glpi_itilcategories` | 79 loại sự cố (10 cấp 1, 69 cấp 2) |
 
 Quy chuẩn mã định danh tài sản (`Inventory number`):
-- `TDL-PC-A101-001`: Trường ĐH Đà Lạt, Máy tính, Phòng A101, Số thứ tự 001.
-- `TDL-SW-A101-01`: Trường ĐH Đà Lạt, Switch mạng, Phòng A101, Số thứ tự 01.
-- `TDL-PR-B203-01`: Trường ĐH Đà Lạt, Máy in, Phòng B203, Số thứ tự 01.
-- `TDL-MON-A102-005`: Trường ĐH Đà Lạt, Màn hình, Phòng A102, Số thứ tự 005.
+- `TDL-PC-A241-001`: Trường ĐH Đà Lạt, Máy tính, Phòng A24.1, Số thứ tự 001.
+- `TDL-SW-A241-001`: Trường ĐH Đà Lạt, Switch mạng, Phòng A24.1, Số thứ tự 01.
+- `TDL-PRN-A241-001`: Trường ĐH Đà Lạt, Máy in, Phòng A24.1, Số thứ tự 001.
+- `TDL-MON-TV1-002`: Trường ĐH Đà Lạt, Màn hình, Phòng TV1, Số thứ tự 002.
 
 Ước tính quy mô phần cứng toàn trường khi triển khai thực tế:
 800 - 1.200 máy tính phòng máy thực hành (10-12 phòng máy, 40-60 máy/phòng); 400 - 600 máy tính văn phòng; 80 - 120 máy in; 100 - 150 máy chiếu; 150 - 250 thiết bị mạng; 1.200 - 1.500 màn hình; 15 - 25 máy chủ do ITC quản lý.
@@ -202,7 +203,7 @@ Nguyên tắc kiến trúc cốt lõi: 100% các thành phần tùy biến nằm
 | Việt hóa dữ liệu CSDL | Tên hồ sơ, bảng điều khiển vẫn là tiếng Anh | Script `viet-hoa-du-lieu.sh` cập nhật tự động trong CSDL | Đồng bộ tiếng Việt ở cả tầng dữ liệu |
 | Cơ cấu tổ chức trường | Cơ sở dữ liệu rỗng | Nạp sẵn 16 khoa, 10 phòng, 7 trung tâm, 12 tòa nhà, 54 phòng | Ánh xạ chính xác dữ liệu thực tế Đại học Đà Lạt |
 | Phân loại sự cố ITIL | Rỗng | 79 loại sự cố 2 cấp chuẩn hóa | Hỗ trợ phân loại sự cố chính xác ngay khi vận hành |
-| Dữ liệu thiết bị mẫu | Rỗng | 17 máy tính, 5 màn hình, 3 máy in, 9 thiết bị mạng | Có dữ liệu kiểm chứng và kịch bản demo sống động |
+| Dữ liệu thiết bị mẫu | Rỗng | 482 máy tính, 487 màn hình & Smart Tivi, 3 máy in, 17 thiết bị mạng | Có dữ liệu thực tế từ 10 phòng máy TT CNTT |
 | Tài khoản thử nghiệm | Chỉ có tài khoản mặc định `glpi` | 6 tài khoản mẫu cho 3 vai trò (SV, GV, KTV) | Chứng minh phân quyền Least Privilege trên thực tế |
 | Quy trình phiếu mẫu | Rỗng | 13 phiếu trải đều các trạng thái chuẩn ITIL | Minh họa luồng xử lý từ tiếp nhận đến đóng phiếu |
 | Quy định hạn mức xử lý (SLA) | Rỗng | 5 mức SLA kỹ thuật (P1 đến P5) kèm mốc TTO và TTR | Thiết lập cơ chế kiểm soát tiến độ xử lý sự cố |

@@ -68,13 +68,13 @@ SELECT p.name,
        (SELECT id FROM glpi_locations WHERE name = p.building LIMIT 1),
        p.comment, 0, 1, NOW(), NOW()
 FROM (
-    -- Toa nha A - Hanh chinh & phong hoc
-    SELECT 'Phòng máy A101' AS name, 'Tòa nhà A' AS building, 'Phòng thực hành 40 máy tính' AS comment UNION ALL
-    SELECT 'Phòng máy A102', 'Tòa nhà A', 'Phòng thực hành 40 máy tính' UNION ALL
-    SELECT 'Phòng máy A201', 'Tòa nhà A', 'Phòng thực hành 30 máy tính' UNION ALL
-    SELECT 'Phòng học A103', 'Tòa nhà A', 'Phòng học lý thuyết có máy chiếu' UNION ALL
-    SELECT 'Phòng học A104', 'Tòa nhà A', 'Phòng học lý thuyết có máy chiếu' UNION ALL
-    SELECT 'Phòng học A105', 'Tòa nhà A', 'Phòng học lý thuyết' UNION ALL
+    -- Toa nha A - Hanh chinh & cac phong may TT CNTT quan ly
+    SELECT 'Phòng máy A24.1' AS name, 'Tòa nhà A' AS building, 'Phòng máy A24 trệt - Đề án Chuyển đổi số 2023 (51 máy Dell OptiPlex 3000)' AS comment UNION ALL
+    SELECT 'Phòng máy A24 lầu', 'Tòa nhà A', 'Phòng thực hành 60 máy tính sinh viên, 1 máy giảng viên' UNION ALL
+    SELECT 'Phòng máy A8.3', 'Tòa nhà A', 'Phòng máy mới đưa vào sử dụng HK2/2026 (49 máy Dell OptiPlex 3000)' UNION ALL
+    SELECT 'Phòng máy A8.4', 'Tòa nhà A', 'Phòng thực hành 48 máy tính sinh viên, 1 máy giảng viên' UNION ALL
+    SELECT 'Phòng máy A8.5', 'Tòa nhà A', 'Phòng máy Đề án 2023 (49 máy Dell OptiPlex 3000, webcam, tai nghe)' UNION ALL
+    SELECT 'Phòng máy A8.6', 'Tòa nhà A', 'Phòng máy Đề án 2023 (49 máy Dell OptiPlex 3000, webcam, tai nghe)' UNION ALL
     SELECT 'Văn phòng Khoa Toán - Tin học', 'Tòa nhà A', 'Khu làm việc giảng viên' UNION ALL
 
     -- Toa nha B - Giang duong
@@ -109,11 +109,11 @@ FROM (
     SELECT 'Phòng thí nghiệm E201', 'Tòa nhà E', 'Phòng thí nghiệm Công nghệ thực phẩm' UNION ALL
     SELECT 'Văn phòng Khoa Nông lâm', 'Tòa nhà E', 'Khu làm việc giảng viên' UNION ALL
 
-    -- Toa nha F - Thu vien
-    SELECT 'Phòng máy tra cứu F101', 'Tòa nhà F', 'Phòng tra cứu tài liệu số - 25 máy' UNION ALL
-    SELECT 'Phòng học nhóm F102', 'Tòa nhà F', 'Phòng học nhóm có màn hình lớn' UNION ALL
-    SELECT 'Phòng học nhóm F103', 'Tòa nhà F', 'Phòng học nhóm' UNION ALL
-    SELECT 'Kho tài liệu F201', 'Tòa nhà F', 'Kho sách và tài liệu' UNION ALL
+    -- Toa nha F - Thu vien (cac phong may TV1-TV4 do TT CNTT quan ly)
+    SELECT 'Phòng máy TV1', 'Tòa nhà F', 'Phòng máy Thư viện tầng 1 - 42 máy sinh viên, 1 máy giảng viên' UNION ALL
+    SELECT 'Phòng máy TV2', 'Tòa nhà F', 'Phòng máy Thư viện tầng 2 - 42 máy sinh viên, 1 máy giảng viên' UNION ALL
+    SELECT 'Phòng máy TV3', 'Tòa nhà F', 'Phòng máy Thư viện tầng 3 - 40 máy sinh viên, 1 máy giảng viên' UNION ALL
+    SELECT 'Phòng máy TV4', 'Tòa nhà F', 'Phòng máy Thư viện tầng 4 - 41 máy sinh viên Dell, 1 máy giảng viên' UNION ALL
 
     -- Toa nha G - Nghien cuu
     SELECT 'Phòng nghiên cứu G101', 'Tòa nhà G', 'Phòng nghiên cứu Khoa học dữ liệu' UNION ALL
@@ -156,9 +156,10 @@ WHERE NOT EXISTS (SELECT 1 FROM glpi_locations WHERE name = p.name);
 --      tham chieu nao (khong co phong con, khong gan cho thiet bi/phieu/
 --      nguoi dung). Chay lai nhieu lan vo hai.
 DELETE FROM glpi_locations
- WHERE name = 'Phòng Khoa học Công nghệ'
+ WHERE name IN ('Phòng Khoa học Công nghệ',
+                'Phòng máy A101', 'Phòng máy A102', 'Phòng máy A201', 'Phòng học A103', 'Phòng học A104', 'Phòng học A105',
+                'Phòng máy tra cứu F101', 'Phòng học nhóm F102', 'Phòng học nhóm F103', 'Kho tài liệu F201')
    AND level = 3
-   AND EXISTS (SELECT 1 FROM (SELECT id FROM glpi_locations WHERE name = 'Phòng Khoa học công nghệ và Hợp tác quốc tế' AND level = 3) n)
    AND NOT EXISTS (SELECT 1 FROM (SELECT locations_id FROM glpi_locations) c WHERE c.locations_id = glpi_locations.id)
    AND NOT EXISTS (SELECT 1 FROM glpi_computers x WHERE x.locations_id = glpi_locations.id)
    AND NOT EXISTS (SELECT 1 FROM glpi_monitors x WHERE x.locations_id = glpi_locations.id)
@@ -219,7 +220,12 @@ FROM (
     SELECT 'APC' UNION ALL
     SELECT 'Synology' UNION ALL
     SELECT 'Xiaomi' UNION ALL
-    SELECT 'Panasonic'
+    SELECT 'Panasonic' UNION ALL
+    SELECT 'Sony' UNION ALL
+    SELECT 'Inno' UNION ALL
+    SELECT 'Bosch' UNION ALL
+    SELECT 'Eaglen' UNION ALL
+    SELECT 'Intel'
 ) m
 WHERE NOT EXISTS (SELECT 1 FROM glpi_manufacturers WHERE name = m.name);
 
@@ -247,8 +253,10 @@ FROM (
     SELECT 'Màn hình 19 inch' AS name, 'Màn hình cỡ nhỏ' AS comment UNION ALL
     SELECT 'Màn hình 21.5 inch', 'Màn hình phổ thông' UNION ALL
     SELECT 'Màn hình 24 inch', 'Màn hình tiêu chuẩn phòng máy' UNION ALL
+    SELECT 'Màn hình 22 inch', 'Màn hình 22 inch phòng máy Đề án' UNION ALL
     SELECT 'Màn hình 27 inch', 'Màn hình lớn' UNION ALL
-    SELECT 'Màn hình cảm ứng', 'Màn hình tương tác'
+    SELECT 'Màn hình cảm ứng', 'Màn hình tương tác' UNION ALL
+    SELECT 'Smart Tivi', 'Tivi thông minh 80-85 inch trình chiếu phòng máy'
 ) t
 WHERE NOT EXISTS (SELECT 1 FROM glpi_monitortypes WHERE name = t.name);
 
@@ -279,7 +287,8 @@ FROM (
     SELECT 'Ổ cứng di động', 'Ổ cứng gắn ngoài' UNION ALL
     SELECT 'USB', 'Thiết bị lưu trữ USB' UNION ALL
     SELECT 'Camera giám sát', 'Camera an ninh trong khuôn viên' UNION ALL
-    SELECT 'Bộ chuyển đổi tín hiệu', 'HDMI, VGA, USB-C adapter'
+    SELECT 'Bộ chuyển đổi tín hiệu', 'HDMI, VGA, USB-C adapter' UNION ALL
+    SELECT 'Hệ thống âm thanh', 'Hệ thống âm thanh chuyên dụng phòng máy và hội trường'
 ) t
 WHERE NOT EXISTS (SELECT 1 FROM glpi_peripheraltypes WHERE name = t.name);
 
@@ -344,6 +353,10 @@ FROM (
     SELECT 'ProArt Station D940MX' UNION ALL
     SELECT 'ExpertCenter D500' UNION ALL
     SELECT 'Veriton X2660G' UNION ALL
+    SELECT 'OptiPlex 3000 Small' UNION ALL
+    SELECT 'PC Lắp ráp Core i3' UNION ALL
+    SELECT 'PC Lắp ráp Core i5' UNION ALL
+    SELECT 'PC Lắp ráp Pentium' UNION ALL
     SELECT 'PowerEdge R740' UNION ALL
     SELECT 'ProLiant DL380' UNION ALL
     SELECT 'PowerEdge T340'
@@ -363,7 +376,12 @@ FROM (
     SELECT '24MP400' UNION ALL
     SELECT '27MP400' UNION ALL
     SELECT 'VA2419' UNION ALL
-    SELECT 'VA2447'
+    SELECT 'VA2447' UNION ALL
+    SELECT 'LCD 22 inch' UNION ALL
+    SELECT 'LCD 15 inch' UNION ALL
+    SELECT 'Smart TV 80"' UNION ALL
+    SELECT 'Sony Bravia 85"' UNION ALL
+    SELECT 'Inno Smart TV 85"'
 ) m
 WHERE NOT EXISTS (SELECT 1 FROM glpi_monitormodels WHERE name = m.name);
 
@@ -402,7 +420,9 @@ FROM (
     SELECT 'UniFi U6-Lite' UNION ALL
     SELECT 'UniFi Switch 24 PoE' UNION ALL
     SELECT 'AR617VW' UNION ALL
-    SELECT 'S5720-28X'
+    SELECT 'S5720-28X' UNION ALL
+    SELECT 'Tủ mạng Rack 19U' UNION ALL
+    SELECT 'Tủ mạng Rack 42U'
 ) m
 WHERE NOT EXISTS (SELECT 1 FROM glpi_networkequipmentmodels WHERE name = m.name);
 

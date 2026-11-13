@@ -72,7 +72,7 @@ __pycache__/
 .tmp-locale/
 # Tai lieu CA NHAN cua nguoi lam do an (de cuong, danh sach thuc tap, mo ta de tai...)
 #   - KHONG thuoc san pham, KHONG duoc version hoa va KHONG duoc phuc vu qua nginx
-#     (tai-lieu/ da co allowlist .md/.png/.html o gateway + cua chan trong CI).
+#     (tai-lieu/ da co allowlist .md/.png/.html/.docx o gateway + cua chan trong CI).
 #   - Truoc day cac tep nay nam trong tai-lieu/ (thu muc nginx mount read-only);
 #     da chuyen ra day cho chac.
 tai-lieu-ca-nhan/

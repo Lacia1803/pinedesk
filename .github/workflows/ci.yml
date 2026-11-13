@@ -294,21 +294,21 @@ jobs:
           bash scripts/quet-bi-mat.sh
 
       # Tai lieu duoc phuc vu cong khai qua nginx (README.md, tai-lieu/*.md,
-      # slide-bao-ve.html). Moi file nam trong tai-lieu/ deu bi allowlist cua
-      # nginx chan TRU .md/.png/.html — nhung file .docx/.pdf lo tay commit
-      # se bi tu choi 404 (khong lo), con .md/.html van phuc vu duoc.
+      # slide-bao-ve.html, BAO-CAO-THUC-TAP-FINAL.docx). Moi file nam trong tai-lieu/ deu bi allowlist cua
+      # nginx chan TRU .md/.png/.html/.docx — nhung file .pdf/.xlsx lo tay commit
+      # se bi tu choi 404 (khong lo), con .md/.html/.docx van phuc vu duoc.
       # Cua nay chan viec commit tai lieu CA NHAN (de cuong, bao cao nhap...)
       # vao thu muc cong khai.
       - name: Khong commit tai lieu ca nhan vao thu muc cong khai
         run: |
-          BAD=$(git ls-files tai-lieu | grep -Ev '\.(md|png|html)$' || true)
+          BAD=$(git ls-files tai-lieu | grep -Ev '\.(md|png|html|docx)$' || true)
           if [ -n "$BAD" ]; then
             echo "[LOI] File khong thuoc loai duoc phep trong tai-lieu/:"
             echo "$BAD"
-            echo "      (chi .md/.png/.html duoc phep - xem nginx allowlist)"
+            echo "      (chi .md/.png/.html/.docx duoc phep - xem nginx allowlist)"
             exit 1
           fi
-          echo "[OK] tai-lieu/ chi chua .md/.png/.html"
+          echo "[OK] tai-lieu/ chi chua .md/.png/.html/.docx"
 
   # --------------------------------------------------------------------------
   # 6. Smoke test: khoi dong that toan bo he thong

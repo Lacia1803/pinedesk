@@ -40,11 +40,15 @@
   li{padding-left:1.4em;position:relative;margin-bottom:.5em}
   li::before{content:"▸";position:absolute;left:0;color:var(--cam)}
   .so-luong{display:flex;gap:3vw;flex-wrap:wrap;margin:1.5em 0}
-  .so{flex:1;min-width:200px;border-left:6px solid var(--cam);padding-left:1.2em}
+  .so{
+    flex:1;min-width:200px;padding:1.2em 1.4em;
+    background:rgba(255,255,255,.04);border-radius:8px;
+    border:1px solid rgba(255,255,255,.08);
+  }
   .so b{display:block;font-size:clamp(2.2rem,6vw,5rem);line-height:1;font-weight:800;color:var(--cam)}
   .so span{display:block;margin-top:.5em;font-size:clamp(.85rem,1.4vw,1.2rem);color:#C6D0B4}
-  .so.reu{border-color:var(--reu)} .so.reu b{color:var(--la)}
-  .so.ho{border-color:var(--ho)}  .so.ho b{color:#7EC8D0}
+  .so.reu b{color:var(--la)}
+  .so.ho b{color:#7EC8D0}
   .tag{
     display:inline-block;padding:.25em .8em;border-radius:4px;
     font-size:clamp(.7rem,1.2vw,1rem);font-weight:700;letter-spacing:.05em;
@@ -63,10 +67,14 @@
         font-size:clamp(.8rem,1.35vw,1.15rem)}
   th{color:var(--la);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
   .ghi-chu{
-    margin-top:1.5em;padding:1em 1.2em;border-left:4px solid var(--do);
-    background:rgba(204,36,48,.12);font-size:clamp(.8rem,1.3vw,1.05rem);
+    margin-top:1.5em;padding:1em 1.25em;border-radius:8px;
+    border:1px solid rgba(204,36,48,.35);
+    background:rgba(204,36,48,.1);font-size:clamp(.8rem,1.3vw,1.05rem);
   }
-  .ghi-chu.vang{border-color:var(--cam);background:rgba(240,132,24,.12)}
+  .ghi-chu.vang{
+    border-color:rgba(252,160,56,.35);
+    background:rgba(252,160,56,.1);
+  }
   .ghi-chu b{color:#fff}
   .dieu-huong{
     position:fixed;bottom:2vh;right:3vw;display:flex;gap:.6em;align-items:center;
@@ -82,12 +90,12 @@
   /* Tang truong phan tang (defence in depth) */
   .tang{display:flex;gap:.5em;flex-wrap:wrap;margin-top:1em}
   .tang div{
-    flex:1;min-width:150px;padding:.9em;border-radius:0 0 6px 6px;text-align:center;
-    background:rgba(255,255,255,.06);border-top:4px solid var(--la);
+    flex:1;min-width:150px;padding:.9em;border-radius:6px;text-align:center;
+    background:rgba(255,255,255,.05);border:1px solid rgba(144,180,60,.3);
     font-size:clamp(.75rem,1.2vw,1rem);
   }
-  .tang div.to{ border-top-color:var(--cam) }
-  .tang div.chua{ border-top-color:#5A6448;opacity:.65 }
+  .tang div.to{ border-color:rgba(252,160,56,.45);background:rgba(252,160,56,.08) }
+  .tang div.chua{ border-color:rgba(255,255,255,.08);background:rgba(255,255,255,.02);opacity:.65 }
   .tang b{display:block;color:var(--la);margin-bottom:.3em}
   .tang div.to b{color:var(--cam)}
   .tang div.chua b{color:#B4C4A2}

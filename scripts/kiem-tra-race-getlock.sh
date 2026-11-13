@@ -141,6 +141,7 @@ global \$DB;
 Session::init(\$auth);
 \$u = new User();
 if (\$u->getFromDB($uid_copy)) { \$u->delete(['id' => $uid_copy], true); }
+\$DB->doQuery(\"DELETE FROM glpi_useremails WHERE users_id = $uid_copy\");
 ob_end_clean();
 " 2>/dev/null || true
     fi
@@ -174,6 +175,15 @@ global \$DB;
 Session::init(\$auth);
 \$u = new User();
 \$uid = \$u->add(['name' => '$UNAME', 'password' => 'Race@$SUFFIX', 'password2' => 'Race@$SUFFIX', '_profiles_id' => 1, 'is_active' => 1]);
+if (\$uid > 0) {
+    \$ue = new UserEmail();
+    \$ue->add([
+        'users_id'   => (int) \$uid,
+        'is_default' => 1,
+        'email'      => '$UNAME' . '@dlu.edu.vn',
+    ]);
+    \$DB->doQuery(\"INSERT IGNORE INTO glpi_useremails (users_id, is_default, email) VALUES (\" . (int)\$uid . \", 1, '{$UNAME}@dlu.edu.vn')\");
+}
 ob_end_clean();
 echo \$uid > 0 ? \$uid : 0;
 " 2>/dev/null)

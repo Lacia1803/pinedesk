@@ -141,7 +141,18 @@ lấp một khoảng trống có thật, đã kiểm chứng.
 *(Lưu ý kỹ thuật: `*.dlu.edu.vn` dùng wildcard DNS — mọi subdomain đều phân giải
 về cùng IP, nên chỉ subdomain trả về HTTP 200 mới tính là "đang dùng".)*
 
-### 3.3. Điều KHÔNG tìm thấy (không công khai)
+### 3.3. Hệ thống email và định danh chính thức của Trường Đại học Đà Lạt
+
+**Nguồn:** Khảo sát DNS MX (`Resolve-DnsName dlu.edu.vn -Type MX`), thông báo đào tạo và thực tế tài khoản sinh viên/cán bộ.
+
+- **Duy nhất một tên miền email:** Toàn bộ dịch vụ thư điện tử của Trường Đại học Đà Lạt được vận hành tập trung trên nền tảng **Google Workspace for Education** dưới một tên miền duy nhất là `@dlu.edu.vn`. Bản ghi DNS MX của `dlu.edu.vn` trỏ về hệ thống máy chủ Google (`aspmx.l.google.com`, `alt1.aspmx.l.google.com`).
+- **Quy chuẩn định dạng email sinh viên:** `{mssv}@dlu.edu.vn` (Mã số sinh viên 7 chữ số, ví dụ `2110123@dlu.edu.vn` cho khóa K45, `2212364@dlu.edu.vn` cho khóa K46).
+- **Quy chuẩn định dạng email cán bộ / giảng viên:** `{tên_viết_tắt}@dlu.edu.vn` (ví dụ `haidv@dlu.edu.vn`, `tunglv@dlu.edu.vn`, `cuonggv@dlu.edu.vn`).
+- **Quy chuẩn email đơn vị / phòng ban:** `{đơn_vị}@dlu.edu.vn` (ví dụ `itc@dlu.edu.vn`, `daihocdalat@dlu.edu.vn`).
+- **Không có subdomain cho email:** Các tên miền phụ như `cntt.dlu.edu.vn`, `ktt.dlu.edu.vn`, `sv.dlu.edu.vn`, `lms.dlu.edu.vn` chỉ là các cổng thông tin và hệ thống học trực tuyến dạng web, **hoàn toàn không có bản ghi MX**. Mọi giả định về email dạng `@sinhvien.dlu.edu.vn` hay `@cntt.dlu.edu.vn` là không tồn tại trong thực tế.
+- **Ý nghĩa với hệ thống PineDesk:** Tầng T2 (Xác thực tên miền email) áp dụng biểu thức chính quy `/^[a-zA-Z0-9._%+-]+@dlu\.edu\.vn$/i`, bắt buộc tài khoản người gửi phải có email chính thức `@dlu.edu.vn`. Cơ chế này loại bỏ triệt để việc dùng email cá nhân ngoài trường (@gmail.com, @yahoo.com) hoặc email vô danh để quấy rối hệ thống tiếp nhận sự cố.
+
+### 3.4. Điều KHÔNG tìm thấy (không công khai)
 - **Số lượng yêu cầu hỗ trợ CNTT mỗi tuần/tháng/năm** của ITC.
 - **Thời gian xử lý trung bình / SLA hiện tại** của ITC.
 - **Quy trình tiếp nhận & phân loại sự cố** công khai.
@@ -231,6 +242,7 @@ Cùng với 3 laptop cho mượn (`TDL-LAP-001..003`), 2 máy chủ (`TDL-SRV-00
 | Trường có 14.500+ người học | ✅ **XÁC NHẬN** | dlu.edu.vn + BC thường niên (14.487) |
 | Trường có 16 khoa | ✅ **XÁC NHẬN** | BC thường niên + dlu.edu.vn |
 | **Trường CHƯA có hệ thống helpdesk** | ✅ **XÁC NHẬN** | kiểm tra subdomain, 09/10/2026 |
+| **Email trường dùng duy nhất @dlu.edu.vn** | ✅ **XÁC NHẬN** | Khảo sát DNS MX và Google Workspace |
 | Tỉ lệ 1 nhân sự : ~2.900 người học | ✅ **TÍNH ĐƯỢC** | 14.487 / 5 |
 | Thiếu nhân sự so với chuẩn ngành | ✅ **CÓ CƠ SỞ** | EDUCAUSE ECAR: nên có ~10 |
 | Hạn mức 5 phiếu mở / 10 phiếu/ngày | ❌ **VẪN LÀ ĐỀ XUẤT** | chưa có số sự cố thật |

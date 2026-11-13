@@ -103,6 +103,33 @@ WHERE name IN ('glpi','tech','normal','post-only',
 UPDATE glpi_configs SET value = 'vi_VN'  WHERE name = 'language' AND context = 'core';
 UPDATE glpi_configs SET value = 'da_lat' WHERE name = 'palette'  AND context = 'core';
 
+-- 1.6. Gan email chinh thuc thuoc ten mien Truong Dai hoc Da Lat (dlu.edu.vn)
+--      cho cac tai khoan demo theo dung quy dinh cua Nha truong (Google Workspace):
+--        - Email sinh vien:  {mssv}@dlu.edu.vn (sv.hoa: 2110123@dlu.edu.vn, sv.khanh: 2210456@dlu.edu.vn)
+--        - Email giang vien: {ten}@dlu.edu.vn (gv.cuong@dlu.edu.vn, gv.dung@dlu.edu.vn)
+--        - Email can bo/KTV: {ten}@dlu.edu.vn (ktv.an@dlu.edu.vn, ktv.binh@dlu.edu.vn)
+--      DLU chi su dung duy nhat mien @dlu.edu.vn (khong dung subdomain cho email).
+--      Day la co so de Plugin PineDesk thuc thi lop xac thuc mien email (Tier 2).
+INSERT INTO glpi_useremails (users_id, is_default, is_dynamic, email)
+SELECT u.id, 1, 0,
+       CASE u.name
+           WHEN 'ktv.an'    THEN 'ktv.an@dlu.edu.vn'
+           WHEN 'ktv.binh'  THEN 'ktv.binh@dlu.edu.vn'
+           WHEN 'gv.cuong'  THEN 'gv.cuong@dlu.edu.vn'
+           WHEN 'gv.dung'   THEN 'gv.dung@dlu.edu.vn'
+           WHEN 'sv.hoa'    THEN '2110123@dlu.edu.vn'
+           WHEN 'sv.khanh'  THEN '2210456@dlu.edu.vn'
+           WHEN 'glpi'      THEN 'admin.glpi@dlu.edu.vn'
+           WHEN 'tech'      THEN 'tech@dlu.edu.vn'
+           WHEN 'normal'    THEN 'normal@dlu.edu.vn'
+           WHEN 'post-only' THEN 'post-only@dlu.edu.vn'
+           ELSE CONCAT(u.name, '@dlu.edu.vn')
+       END
+FROM glpi_users u
+WHERE u.name IN ('glpi','tech','normal','post-only',
+               'ktv.an','ktv.binh','gv.cuong','gv.dung','sv.hoa','sv.khanh')
+  AND NOT EXISTS (SELECT 1 FROM glpi_useremails ue WHERE ue.users_id = u.id);
+
 
 -- ==============================================================================
 --  2. GAN NGUOI DUNG VAO NHOM THEO CO CAU TO CHUC
@@ -343,10 +370,10 @@ SELECT
     CONCAT('TDL-MON-', r.code, '-', LPAD(n.seq, 3, '0')) AS otherserial,
     @entity,
     l.id,
-    (SELECT id FROM glpi_monitortypes WHERE name = r.mtype LIMIT 1),
-    (SELECT id FROM glpi_monitormodels WHERE name = r.mmodel LIMIT 1),
-    (SELECT id FROM glpi_manufacturers WHERE name = r.mbrand LIMIT 1),
-    (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1),
+    COALESCE((SELECT id FROM glpi_monitortypes WHERE name = r.mtype LIMIT 1), 0),
+    COALESCE((SELECT id FROM glpi_monitormodels WHERE name = r.mmodel LIMIT 1), 0),
+    COALESCE((SELECT id FROM glpi_manufacturers WHERE name = r.mbrand LIMIT 1), 0),
+    COALESCE((SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1), 0),
     0, 0, @now, @now,
     CONCAT('Màn hình đi kèm máy tính sinh viên ', r.loc, ' - Máy số ', n.seq) AS comment
 FROM (
@@ -558,10 +585,10 @@ INSERT INTO glpi_peripherals
      peripheraltypes_id, peripheralmodels_id, manufacturers_id,
      states_id, is_template, is_deleted, date_creation, date_mod, comment)
 SELECT s.name, s.serial, s.otherserial, @entity, l.id,
-       (SELECT id FROM glpi_peripheraltypes WHERE name = s.ptype LIMIT 1),
-       (SELECT id FROM glpi_peripheralmodels WHERE name = s.pmodel LIMIT 1),
-       (SELECT id FROM glpi_manufacturers  WHERE name = s.brand LIMIT 1),
-       (SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1),
+       COALESCE((SELECT id FROM glpi_peripheraltypes WHERE name = s.ptype LIMIT 1), 0),
+       COALESCE((SELECT id FROM glpi_peripheralmodels WHERE name = s.pmodel LIMIT 1), 0),
+       COALESCE((SELECT id FROM glpi_manufacturers  WHERE name = s.brand LIMIT 1), 0),
+       COALESCE((SELECT id FROM glpi_states WHERE name = 'Đang sử dụng' LIMIT 1), 0),
        0, 0, @now, @now, s.comment
 FROM (
     SELECT 'TDL-AUD-A85-001' AS name, 'AUD-A85-0001' AS serial, 'TDL-AUD-A85-001' AS otherserial,

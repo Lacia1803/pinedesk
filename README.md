@@ -2,7 +2,9 @@
 
 [![CI](https://github.com/Lacia1803/pinedesk/actions/workflows/ci.yml/badge.svg)](https://github.com/Lacia1803/pinedesk/actions/workflows/ci.yml)
 
-> **Đồ án thực tập** — Trường Đại học Đà Lạt (DLU)
+> **Đồ án thực tập tốt nghiệp** — Trường Đại học Đà Lạt (DLU)  
+> **Nhóm sinh viên thực hiện (Nhóm 4 - ITC):** Phùng Võ Quốc Hiển (Trưởng nhóm), Lý Gia Bảo, Nguyễn Việt Bình  
+> **Giảng viên hướng dẫn:** ThS. La Quốc Thắng · ThS. Đặng Quốc Phi  
 > Hệ thống quản lý phòng máy, thiết bị CNTT và tiếp nhận sự cố dạng ticket,
 > xây dựng trên nền tảng mã nguồn mở **GLPI 11**.
 >
@@ -142,9 +144,9 @@ pinedesk/
 │   └── ssl/openssl-san.cnf      #   Cấu hình sinh chứng chỉ SSL (có SAN)
 ├── themes/                      # Đăng ký bảng màu Đà Lạt (chỉ có tên file, KHÔNG chứa màu)
 ├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (CSS + logo) — NGUỒN MÀU DUY NHẤT
-├── plugins/pinedesk/            # ★ Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
-│   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
-│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (46 điểm kiểm)
+├── plugins/pinedesk/            # ★ Plugin xác thực email DLU, chặn hạn mức & chống trùng (T2-T6) — hook ngoài lõi
+│   ├── hook.php                 #   Xác thực email DLU + hạn mức + chống trùng + nhật ký
+│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (56 điểm kiểm)
 ├── scripts/                     # ★ Tất cả script tự động hoá
 │   ├── cai-dat-tat-ca.sh        #   Cài toàn bộ, 1 lệnh
 │   ├── nap-du-lieu-nen.sh       #   Nạp danh mục nghiệp vụ
@@ -175,6 +177,7 @@ pinedesk/
 │   └── sinh-ma-qr.py            #   Sinh mã QR hàng loạt
 ├── backup/                      # Script sao lưu dữ liệu
 └── tai-lieu/                    # ★ Tài liệu hướng dẫn + ảnh minh chứng
+    ├── PHAN-CONG-NHIEM-VU.md    # ★ Bảng phân công nhiệm vụ 3 thành viên Nhóm 4 (khớp Đề cương)
     ├── README.md                # ★ Tài liệu tổng hợp toàn diện (nghiệp vụ, kiến trúc, 6 tầng phòng thủ, cài đặt, demo, phản biện)
     ├── BAO-CAO-THUC-TAP-FINAL.docx # ★ Báo cáo thực tập tốt nghiệp Word hoàn chỉnh (73 trang, Mục lục tương tác)
     ├── BAO-CAO-THUC-TAP.md      #   Báo cáo thực tập tốt nghiệp (bản in Markdown)
@@ -256,6 +259,7 @@ bash backup/backup.sh                # Sao lưu dữ liệu
 | Tài liệu | Nội dung |
 |---|---|
 | [`DESIGN.md`](DESIGN.md) | **Đặc tả hệ thống thiết kế giao diện**: dung hợp Apple Precision + Claude Editorial Warmth + Bản sắc Đà Lạt |
+| [`tai-lieu/PHAN-CONG-NHIEM-VU.md`](tai-lieu/PHAN-CONG-NHIEM-VU.md) | **Bảng phân công nhiệm vụ chi tiết**: ma trận trách nhiệm, phân hệ tệp nguồn phụ trách và tiến độ 10 tuần của 3 thành viên (Hiển, Bảo, Bình) |
 | [`tai-lieu/README.md`](tai-lieu/README.md) | **Tài liệu tổng hợp toàn diện**: bài toán nghiệp vụ, cơ cấu tổ chức DLU, kiến trúc so sánh GLPI gốc, phòng thủ 6 tầng chống lạm dụng, tùy biến giao diện & Việt hóa, tạo mã QR thiết bị, hướng dẫn triển khai & vận hành, kịch bản demo 7 phút và bộ 25 câu hỏi phản biện |
 | [`tai-lieu/BAO-CAO-THUC-TAP-FINAL.docx`](tai-lieu/BAO-CAO-THUC-TAP-FINAL.docx) | **Báo cáo thực tập tốt nghiệp chính thức** (Microsoft Word, 73 trang, chuẩn thể thức DLU, 112 Bookmark và Mục lục tương tác nhấp chuyển trang) |
 | [`tai-lieu/BAO-CAO-THUC-TAP.md`](tai-lieu/BAO-CAO-THUC-TAP.md) | Báo cáo thực tập tốt nghiệp đầy đủ (bản in Markdown) |

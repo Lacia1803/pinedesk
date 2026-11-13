@@ -12,7 +12,7 @@
      Tự chứa — không CDN, không tài nguyên ngoài. Chạy được khi mất mạng.
      ========================================================================== */
   :root{
-    --cam:   #F08418;   /* cam đất  — mặt trời trong logo */
+    --cam:   #FCA038;   /* cam đất sáng — tương phản chuẩn WCAG AA trên nền tối */
     --reu:   #607824;   /* xanh rêu — núi, dòng chữ ĐẠI HỌC ĐÀ LẠT */
     --la:    #90B43C;   /* xanh lá  — sườn núi phía sáng */
     --do:    #CC2430;   /* đỏ sao   */
@@ -34,7 +34,7 @@
   .slide.active{display:flex}
   h1{font-size:clamp(2rem,5vw,4rem);line-height:1.1;margin-bottom:.4em;color:#fff}
   h2{font-size:clamp(1.4rem,3.2vw,2.6rem);line-height:1.2;margin-bottom:.6em}
-  .cam{color:var(--cam)} .la{color:var(--la)} .do{color:var(--do)} .ho{color:var(--ho)}
+  .cam{color:#FCA038} .la{color:var(--la)} .do{color:#FF7B7B} .ho{color:var(--ho)}
   p,li{font-size:clamp(.95rem,1.6vw,1.5rem);line-height:1.6;color:#DDE4CE}
   ul{list-style:none;padding-left:0}
   li{padding-left:1.4em;position:relative;margin-bottom:.5em}
@@ -70,7 +70,7 @@
   .ghi-chu b{color:#fff}
   .dieu-huong{
     position:fixed;bottom:2vh;right:3vw;display:flex;gap:.6em;align-items:center;
-    font-size:.85rem;color:#8A967A;z-index:10;
+    font-size:.85rem;color:#B4C4A2;z-index:10;
   }
   .dieu-huong button{
     background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);
@@ -109,7 +109,11 @@
     Xây dựng trên nền tảng mã nguồn mở <b>GLPI 11</b> —
     quản lý phòng máy, tài sản CNTT và tiếp nhận sự cố theo quy trình ITIL.
   </p>
-  <p style="margin-top:2.5em;font-size:.95em;color:#8A967A">
+  <p style="margin-top:1.5em;font-size:1.05em;color:#E5E7EB;line-height:1.6">
+    <b>Nhóm sinh viên thực hiện:</b> Phùng Võ Quốc Hiển (Trưởng nhóm), Lý Gia Bảo, Nguyễn Việt Bình<br>
+    <b>Giảng viên hướng dẫn:</b> ThS. La Quốc Thắng · ThS. Đặng Quốc Phi (Trung tâm CNTT)
+  </p>
+  <p style="margin-top:1.8em;font-size:.9em;color:#8A967A">
     Dùng <code>→</code> / <code>←</code> hoặc bấm nút để chuyển slide ·
     Bấm <code>F</code> để toàn màn hình · <code>P</code> để in/PDF
   </p>
@@ -176,7 +180,7 @@
   <h2>"Sinh viên spam thì sao?"</h2>
   <div class="tang">
     <div class="to"><b>T1 · Nginx</b>Rate limit theo IP</div>
-    <div class="to"><b>T2 · Phiên</b>Bắt buộc đăng nhập</div>
+    <div class="to"><b>T2 · Email DLU</b>Xác thực @dlu.edu.vn</div>
     <div class="to"><b>T3 · Nghiệp vụ</b>Trần phiếu/người/ngày</div>
     <div class="to"><b>T4 · Chống trùng</b>Người + thiết bị + loại</div>
     <div class="to"><b>T5 · Kiểm duyệt</b>Tự động nhắc soát xét</div>
@@ -185,11 +189,11 @@
   <div class="ghi-chu" style="margin-top:2em">
     <b>Quyết định thiết kế đáng chú ý:</b> khuôn viên trường dùng NAT chung — cả
     phòng máy 40 máy đi ra bằng một IP. Chặn theo IP quá chặt sẽ <b>chặn oan cả lớp</b>.
-    Vì vậy tầng mạng giữ ngưỡng rộng có chủ đích, còn <b>tầng nghiệp vụ mới siết
-    chính xác theo tài khoản</b>.
+    Vì vậy tầng mạng giữ ngưỡng rộng có chủ đích, còn <b>tầng T2 xác thực email @dlu.edu.vn
+    và tầng T3 siết hạn mức chính xác theo tài khoản</b>.
   </div>
   <p style="margin-top:1.2em;color:#8A967A;font-size:.95em">
-    Chi tiết: <code>tai-lieu/README.md</code> (mục 4) — có bằng chứng chạy thật.
+    Chi tiết: <code>tai-lieu/README.md</code> (mục 4) — có bằng chứng chạy thật 56/56 điểm kiểm.
   </p>
 </section>
 
@@ -200,13 +204,13 @@
   <ul>
     <li><b>Không sửa một dòng nào trong lõi GLPI</b> — toàn bộ tùy biến ở plugin,
         cấu hình, script, dữ liệu → nâng cấp GLPI không mất công</li>
-    <li><b>4 container</b> (Nginx · GLPI · MariaDB · Redis), HTTPS TLS 1.2/1.3,
-        chứng chỉ tự ký <span class="la">có SAN</span></li>
+    <li><b>4 container cô lập an toàn</b> (Nginx · GLPI · MariaDB · Redis), mạng nội bộ <code>internal: true</code>
+        ngăn ransomware (C3RB3R), <code>no-new-privileges</code>, cấm <code>local-infile</code></li>
     <li><b>Cài bằng một lệnh</b> — 6 bước, báo kết quả từng bước</li>
     <li><b>CI tự kiểm 6 nhóm</b>: cú pháp · ShellCheck · cấu hình · SAN ·
         bảo mật · <b>smoke test khởi động thật 4 container</b></li>
-    <li><b>Kiểm thử chống lạm dụng trong CI</b> — harness 46 điểm kiểm chạy trên
-        CSDL thật: vượt hạn mức bị chặn, phiếu trùng bị chặn, pipeline đỏ nếu cơ chế bị gỡ</li>
+    <li><b>Kiểm thử chống lạm dụng trong CI</b> — harness 56 điểm kiểm chạy trên
+        CSDL thật: xác thực email DLU (@dlu.edu.vn), vượt hạn mức bị chặn, phiếu trùng bị chặn</li>
     <li><b>Đo tải thực tế (wrk)</b> — Nginx ~54.000 req/s, GLPI ~100 req/s, tạo phiếu ~50/s</li>
     <li><b>Giao diện dung hợp chuẩn Impeccable</b> — Apple Precision + Claude Warmth + Bản sắc Đà Lạt, phông Literata nhúng offline</li>
     <li><b>Hệ thống chạy ngoại tuyến hoàn toàn</b>: phông chữ nhúng trực tiếp, không phụ thuộc CDN</li>

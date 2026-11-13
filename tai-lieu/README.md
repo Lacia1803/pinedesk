@@ -214,7 +214,7 @@ Nguyên tắc kiến trúc cốt lõi: 100% các thành phần tùy biến nằm
 | Khả năng an toàn đồng thời | Dễ race condition khi mở nhiều tab | MariaDB mutex `GET_LOCK()` theo từng tài khoản | Đảm bảo tính nhất quán dữ liệu khi gửi đồng thời |
 | Tính năng mã QR thiết bị | Chưa có hoặc plugin Barcode lỗi trên GLPI 11 | Vá 3 lỗi tương thích cho plugin Barcode 2.7.1 | Kích hoạt thành công tính năng in QR hàng loạt |
 | Giải pháp QR dự phòng | Không có | Script Python `sinh-ma-qr.py` kết xuất mã độc lập | Không phụ thuộc vào chu kỳ nâng cấp của GLPI |
-| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 46 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
+| Kiểm thử tự động (CI) | Không có kịch bản cho dự án | Pipeline CI kiểm tra cú pháp, cấu hình và 56 test cases | Đảm bảo hệ thống ổn định trước khi đưa vào vận hành |
 
 ### 3.3. Danh mục tài khoản kiểm thử và phân quyền
 
@@ -241,7 +241,7 @@ Người dùng gửi phiếu yêu cầu
 ┌────────────────────────────────────────────────────────┐
 │ T1. NGINX: Giới hạn tần suất 30 request/phút theo IP   │
 ├────────────────────────────────────────────────────────┤
-│ T2. PHIÊN: Bắt buộc đăng nhập tài khoản DLU xác thực   │
+│ T2. ĐỊNH DANH: Bắt buộc email @dlu.edu.vn / sinh viên  │
 ├────────────────────────────────────────────────────────┤
 │ T3. NGHIỆP VỤ: Giới hạn tối đa 5 phiếu mở và 10 p/ngày │
 ├────────────────────────────────────────────────────────┤
@@ -255,7 +255,7 @@ Người dùng gửi phiếu yêu cầu
 
 Trạng thái kỹ thuật từng tầng:
 - T1 (Đã kích hoạt): Nginx `ticket_zone` áp dụng cho mọi đường nộp phiếu (`nginx/conf.d/default.conf`).
-- T2 (Có sẵn): Bắt buộc xác thực tài khoản DLU, không mở nộp phiếu ẩn danh.
+- T2 (Đã kích hoạt qua plugin): Bắt buộc đăng nhập tài khoản DLU và xác thực tên miền email chính thức của Trường Đại học Đà Lạt (`@dlu.edu.vn`). Theo quy định thực tế của Nhà trường (nền tảng Google Workspace for Education), sinh viên được cấp email định dạng `{mssv}@dlu.edu.vn` (ví dụ `2110123@dlu.edu.vn`), cán bộ giảng viên được cấp email `{tên_viết_tắt}@dlu.edu.vn` (ví dụ `cuonggv@dlu.edu.vn`), không sử dụng subdomain cho email. Chặn tài khoản thiếu email, email công cộng bên ngoài hoặc subdomain giả mạo.
 - T3 (Đã kích hoạt qua plugin): Plugin `pinedesk` chặn trần 5 phiếu mở và 10 phiếu/ngày (`plugins/pinedesk/hook.php`).
 - T4 (Đã kích hoạt qua plugin): Plugin `pinedesk` chặn trùng lặp thiết bị trong 30 phút.
 - T5 (Quy trình vận hành): Kỹ thuật viên kiểm tra nội dung và xác nhận lại mức độ khẩn cấp trước khi giao việc.
@@ -278,9 +278,10 @@ location ~* ^/Form/(SubmitAnswers|ValidateAnswers)(/|$) {
 Căn cứ chọn ngưỡng 30 request/phút:
 Khuôn viên trường sử dụng mạng NAT: toàn bộ 35 đến 40 máy trong một phòng thực hành chia sẻ chung một địa chỉ IP ra bên ngoài. Nếu đặt ngưỡng IP quá khắt khe (ví dụ 5 request/phút), các sinh viên nộp phiếu cùng thời điểm trong một lớp học sẽ bị chặn nhầm mã lỗi HTTP 429. Do đó, tầng mạng đặt ngưỡng 30 request/phút kèm `burst=10 nodelay` nhằm lọc bot tự động, còn việc kiểm soát chặt chẽ từng cá nhân được chuyển giao cho tầng nghiệp vụ T3 theo tài khoản.
 
-### 4.3. Tầng T3 và T4: Kiểm soát hạn mức tài khoản qua plugin pinedesk
+### 4.3. Tầng T2, T3 và T4: Kiểm soát danh tính và hạn mức tài khoản qua plugin pinedesk
 
 Plugin `pinedesk` đăng ký hook `PRE_ITEM_ADD` của GLPI, can thiệp trước khi bản ghi phiếu được thêm vào cơ sở dữ liệu:
+- Kiểm tra T2 (Xác thực tên miền email DLU): Hàm `plugin_pinedesk_has_valid_institutional_email()` kiểm tra tài khoản người gửi có email chính thức thuộc tên miền `@dlu.edu.vn` (áp dụng biểu thức chính quy nghiêm ngặt `/^[a-zA-Z0-9._%+-]+@dlu\.edu\.vn$/i`). DLU quản lý email tập trung qua Google Workspace trên miền duy nhất `@dlu.edu.vn` ({mssv}@dlu.edu.vn cho sinh viên và {tên}@dlu.edu.vn cho cán bộ/giảng viên), không có subdomain cho email. Nếu tài khoản chưa có email, dùng email công cộng (như `@gmail.com`) hoặc subdomain giả định (`@sinhvien.dlu.edu.vn`), phiếu bị từ chối ngay lập tức và ghi nhận `EMAIL_BLOCKED` vào nhật ký kiểm toán.
 - Kiểm tra T3a (Trần phiếu đang mở): Hàm `plugin_pinedesk_count_open()` đếm trực tiếp trên bảng `glpi_tickets` với `status IN (1,2,3,4)` — không qua view. (View `v_pinedesk_phieu_dang_mo` chỉ phục vụ tra cứu thủ công qua SQL, không tham gia đường xử lý phiếu.) Nếu đạt ngưỡng 5 phiếu, hệ thống từ chối tạo phiếu và gửi thông báo tiếng Việt yêu cầu chờ xử lý các phiếu cũ.
   **Lưu ý quan trọng (đã kiểm chứng bằng HTTP thật):** trên đường tạo phiếu mới của GLPI 11 (`/Form/SubmitAnswers`), khi plugin chặn bằng cách gán `$item->input = false`, lõi GLPI ném `Exception("Failed to create ...")` (`AbstractCommonITILFormDestination.php:187`) và **thay thế thông báo tiếng Việt bằng lỗi hệ thống chung "Failed to submit form, please contact your administrator"**. Cơ chế chặn vẫn có tác dụng (phiếu không được ghi), nhưng thông báo thân thiện chỉ hiển thị trên đường `/front/ticket.form.php` cũ. Đây là hành vi của lõi GLPI, không sửa được nếu không đụng vào lõi — ghi rõ ở mục hạn chế của báo cáo.
 - Kiểm tra T3b (Trần phiếu theo ngày): Đếm số phiếu tạo trong ngày của tài khoản. Nếu chạm ngưỡng 10 phiếu, hệ thống từ chối yêu cầu tiếp theo.
@@ -288,7 +289,7 @@ Plugin `pinedesk` đăng ký hook `PRE_ITEM_ADD` của GLPI, can thiệp trướ
 - An toàn đồng thời: Sử dụng hàm `GET_LOCK('pinedesk_hm_<uid>', 3)` của MariaDB — mỗi người dùng có một khóa riêng (`pinedesk_hm_<users_id>`) nên các phiên của những người khác nhau không chặn lẫn nhau, chỉ tuần tự hoá các tab của cùng một tài khoản. Timeout 3 giây; không lấy được khóa → fail-open (không chặn oan).
 - Khả năng chịu lỗi: Nếu truy vấn đếm gặp lỗi cơ sở dữ liệu, plugin ghi log vào `pinedesk.log` và tạm thời cho phép phiếu đi qua nhằm tránh chặn nhầm người dùng hợp lệ.
 
-Hệ thống kiểm thử tự động tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` bao gồm 46 điểm kiểm thử xác nhận đầy đủ hành vi chặn hạn mức, chống trùng và quyền miễn trừ cho kỹ thuật viên.
+Hệ thống kiểm thử tự động tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` bao gồm 56 điểm kiểm thử xác nhận đầy đủ hành vi xác thực miền email DLU (Tier 2, bao gồm kiểm tra chặn email ngoài và chặn subdomain không hợp lệ), chặn hạn mức (Tier 3), chống trùng (Tier 4), nhắc soát xét ưu tiên (Tier 5) và quyền miễn trừ cho kỹ thuật viên.
 
 Lệnh rà soát định kỳ qua terminal:
 
@@ -502,12 +503,14 @@ docker compose restart glpi
 
 ### 7.5. Chính sách an toàn thông tin
 
-- Bắt buộc giao thức TLS 1.2 và 1.3, tự động chuyển hướng HTTP sang HTTPS.
-- Giới hạn tần suất đăng nhập 10 request/phút mỗi IP chống brute-force.
-- Cookie phiên thiết lập cờ `HttpOnly`, `SameSite=Strict` và `Secure`.
-- Gateway Nginx chặn truy cập trực tiếp các tệp nhạy cảm (`.env`, `.sql`, `.log`, `.git`, `.sh`).
-- Ẩn thông tin phiên bản phần mềm (`expose_php = Off`).
-- Dịch vụ cơ sở dữ liệu MariaDB và Redis cô lập hoàn toàn trong mạng nội bộ Docker (`internal: true`).
+Hệ thống thiết lập các biện pháp bảo vệ theo từng lớp:
+
+- Cổng vào (Nginx Gateway): Bắt buộc TLS 1.2 và 1.3, tự động chuyển hướng HTTP sang HTTPS kèm chứng chỉ có SAN. Chặn các phương thức HTTP rủi ro (TRACE, TRACK). Bổ sung bộ header an toàn gồm HSTS (1 năm), X-Frame-Options (SAMEORIGIN), X-Content-Type-Options (nosniff), Referrer-Policy, Permissions-Policy, X-Permitted-Cross-Domain-Policies (none), Cross-Origin-Opener-Policy (same-origin-allow-popups), Cross-Origin-Resource-Policy (same-origin) và Content-Security-Policy nội bộ.
+- Giới hạn lưu lượng và quét tệp: Phân 3 vùng rate limit (10 lượt/phút ở trang đăng nhập, 30 lượt/phút cho các biểu mẫu gửi phiếu và 600 lượt/phút cho tài nguyên chung). Chặn truy cập trực tiếp vào tệp ẩn, tệp cấu hình, log, bản sao lưu (.env, .sql, .log, .sh, .bak, .backup, .swp, composer.json). Ẩn hoàn toàn header công nghệ X-Powered-By.
+- Xác thực danh tính và miền email trường (Tier 2): Chỉ cho phép nộp phiếu đối với các tài khoản có email chính thức của Trường Đại học Đà Lạt (`@dlu.edu.vn` — áp dụng Google Workspace tập trung, bao gồm `{mssv}@dlu.edu.vn` cho sinh viên và `{tên}@dlu.edu.vn` cho cán bộ/giảng viên). Tài khoản thiếu email, dùng email công cộng (như `@gmail.com`) hoặc subdomain giả mạo bị từ chối ngay tại hook `PRE_ITEM_ADD` và ghi nhận `EMAIL_BLOCKED` vào nhật ký kiểm toán.
+- Ứng dụng PHP và phiên làm việc: Cookie phiên mang đầy đủ thuộc tính HttpOnly, SameSite=Strict và Secure. Bật session.use_strict_mode chống session fixation, chỉ nhận session ID qua cookie (session.use_only_cookies = 1), tắt allow_url_include và ẩn tham số trong thông báo lỗi (zend.exception_ignore_args = On, expose_php = Off).
+- Phòng máy dùng chung: Mặc định tắt tuỳ chọn "Ghi nhớ đăng nhập" (login_remember_default = 0) để tránh lưu phiên khi sinh viên hoặc giảng viên rời máy thực hành.
+- Cách ly container và cơ sở dữ liệu: Cả 4 container được gán cờ no-new-privileges:true để ngăn tiến trình con leo thang đặc quyền. MariaDB tắt nạp tệp từ client (--local-infile=0) và vô hiệu hoá symlink (--skip-symbolic-links). Mạng nội bộ cơ sở dữ liệu và Redis được cô lập hoàn toàn (`internal: true`).
 
 ---
 
@@ -581,7 +584,7 @@ Kiểm tra:
 - Trả lời: Bot phải vượt qua bước đăng nhập vốn bị giới hạn 10 request/phút mỗi IP với mã lỗi 429. Mọi cổng nộp phiếu đều nằm trong vùng đệm 30 request/phút của Nginx. Kể cả qua được tầng mạng, bot vẫn bị chặn bởi trần phiếu tài khoản và khóa chống trùng lặp.
 
 **B5. "Cơ chế này em đã kiểm thử tự động chưa?"**
-- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 46 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` cho hành vi chặn vượt trần, chặn trùng lặp và quyền miễn trừ cho kỹ thuật viên. Mã 429 được kiểm tra riêng trên đường HTTP thật bằng `scripts/kiem-tra-http-limit.sh`. Cả hai đều chạy trong pipeline CI.
+- Trả lời: Đã xây dựng bộ kiểm thử tự động gồm 56 điểm kiểm thử tại `plugins/pinedesk/tests/kiem-thu-han-muc.php` cho toàn bộ hành vi: xác thực tên miền email DLU (Tier 2, chặn email ngoài và subdomain giả mạo), chặn vượt trần số phiếu (Tier 3), chặn trùng lặp (Tier 4), nhắc soát xét ưu tiên (Tier 5) và quyền miễn trừ cho kỹ thuật viên. Mã 429 được kiểm tra riêng trên đường HTTP thật bằng `scripts/kiem-tra-http-limit.sh`. Cả hai đều chạy trong pipeline CI.
 
 ### Nhóm C: Quy trình nghiệp vụ và cam kết thời gian (SLA)
 
@@ -668,7 +671,7 @@ bash scripts/do-tai.sh                           # Đo tải hệ thống bằng
 bash scripts/kiem-tra-race-getlock.sh            # Kiểm tra chống đua GET_LOCK (2 request song song)
 GLPI_USER=sv.hoa GLPI_PASS='<mk>' bash scripts/kiem-tra-http-limit.sh # Kiểm tra chặn hạn mức qua HTTP thật
 GLPI_PASS='<mk>' node scripts/kiem-tra-usecase.js # 3 use case end-to-end bằng Playwright
-docker exec pinedesk-glpi php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php # Harness 46 điểm kiểm
+docker exec pinedesk-glpi php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php # Harness 56 điểm kiểm thử tự động
 bash scripts/kiem-tra-lam-dung.sh                # Kiểm tra lạm dụng CSDL
 bash scripts/quet-bi-mat.sh                     # Quét rò rỉ bí mật
 bash backup/backup.sh                            # Sao lưu hệ thống

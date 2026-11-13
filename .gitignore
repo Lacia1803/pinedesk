@@ -26,10 +26,12 @@ backup/*.zip
 *.log
 logs/
 
-# File tam cua he dieu hanh
+# File tam cua he dieu hanh & Office
 .DS_Store
 Thumbs.db
 desktop.ini
+~$*
+*.tmp
 
 # File cua trinh soan thao
 *.swp

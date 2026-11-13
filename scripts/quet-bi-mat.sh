@@ -25,7 +25,7 @@ TARGET="${1:-}"
 # mat khau DEMO (co y cong khai trong README - xem ghi chu cuoi file).
 # 'login_password=%s' la placeholder printf trong than curl dang nhap
 # (gia tri do tu bien), khong phai mat khau viet thang.
-LOAI_TRU='\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|<[A-Za-z_]+>|DOI_MAT_KHAU|example|placeholder|your[_-]?pass|login_password=%s|getenv|process\.env|password_need|password_min|password_expiration|non_reusable|password_last_update|basic_auth_password|password_forget|password_init|password2|password_last|Dlu@2026([^A-Za-z0-9]|$)'
+LOAI_TRU='\$\{?[A-Za-z_][A-Za-z0-9_]*\}?|<[A-Za-z_]+>|DOI_MAT_KHAU|example|placeholder|your[_-]?pass|login_password=%s|getenv|process\.env|password_need|password_min|password_expiration|non_reusable|password_last_update|basic_auth_password|password_forget|password_init|password2|password_last|Dlu@2026([^A-Za-z0-9]|$)|@dlu\.edu\.vn'
 
 quyet() {
     # $1 = nhan, $2 = mau regex

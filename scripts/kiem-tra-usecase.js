@@ -42,7 +42,7 @@ async function main() {
     );
     await page.waitForTimeout(500);
 
-    await page.locator('button.btn-primary:has-text("Submit")').first().click();
+    await page.locator('button.btn-primary').filter({ hasText: /Submit|Gửi/i }).first().click();
     await page.waitForLoadState('networkidle').catch(() => {});
     await sleep(3000);
 

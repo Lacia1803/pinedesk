@@ -11,7 +11,12 @@
  *
  *  Kịch bản (chạy trên CSDL THẬT, tự dọn dẹp sau khi xong):
  *
- *    1. Tạo 6 user tạm (Self-Service — quyền ticket không có UPDATE)
+ *    1. Tạo 8 user tạm (Self-Service — quyền ticket không có UPDATE)
+ *    1b. Tier 2: Xác thực miền email trường (@dlu.edu.vn duy nhất, chặn subdomain và email ngoài)
+ *        - User G (không email) -> BỊ CHẶN (EMAIL_BLOCKED)
+ *        - User H (@gmail.com) -> BỊ CHẶN (EMAIL_BLOCKED)
+ *        - User H (@sinhvien.dlu.edu.vn subdomain) -> BỊ CHẶN (EMAIL_BLOCKED)
+ *        - User H cập nhật email chuẩn DLU (2110999@dlu.edu.vn) -> tạo phiếu THÀNH CÔNG (NEW)
  *    2. User A tạo 5 phiếu hợp lệ -> tất cả phải thành công
  *    3. User A tạo phiếu thứ 6 -> PHẢI BỊ CHẶN (LIMIT_BLOCKED) — trần phiếu mở
  *    4. User B tạo phiếu trùng loại + vị trí -> PHẢI BỊ CHẶN (DUP_BLOCKED)
@@ -22,6 +27,7 @@
  *        -> phiếu vẫn tạo được nhưng các trường bị ép về giá trị chuẩn
  *    4e. User D: gửi lại CÙNG tiêu đề nhưng KHÁC category -> PHẢI BỊ CHẶN
  *        (T4 điều kiện c — chống spam đổi category); tiêu đề KHÁC -> không chặn
+ *    4f. T5: tự động nhắc soát xét ưu tiên cho phiếu quan trọng
  *    5. User có quyền UPDATE (kỹ thuật viên profile 6) tạo phiếu -> KHÔNG bị chặn
  *    6. Phiếu do cron tạo -> KHÔNG bị chặn
  *    7. Kiểm tra nhật ký T6 + dọn dẹp: xoá phiếu, user tạm, MỌI dòng nhật ký
@@ -31,12 +37,12 @@
  *
  *  CÁCH ĐẾM SỐ ĐIỂM KIỂM (con số nêu trong README/tài liệu):
  *    Đếm theo SỐ LẦN CHẠY check(), không phải lời gọi trong mã:
- *      32 lời gọi tĩnh (ngoài vòng lặp/khối điều kiện) + 6 lần của lời gọi
- *      trong vòng lặp tạo 6 user tạm, + 4 lời gọi trong khối "if ($e_ticket > 0)"
- *      (4d, chỉ chạy khi tạo được phiếu E) + 4 điểm T5 (mục 4f) = 46.
- *      Dòng cuối in ra "KET QUA: n/46 dat" lấy trực tiếp từ biến $checks lúc chạy.
+ *      32 lời gọi tĩnh (ngoài vòng lặp/khối điều kiện) + 8 lần của lời gọi
+ *      trong vòng lặp tạo 8 user tạm, + 7 điểm Tier 2 email (mục 1b)
+ *      + 4 lời gọi trong khối "if ($e_ticket > 0)" (4d) + 4 điểm T5 (mục 4f) = 55.
+ *      Dòng cuối in ra "KET QUA: n/55 dat" lấy trực tiếp từ biến $checks lúc chạy.
  *    => Đừng "sửa" theo grep đếm lời gọi: sẽ làm số liệu SAI. Số đúng LUÔN là
- *      con số harness in ra khi chạy (hiện tại: 46).
+ *      con số harness in ra khi chạy (hiện tại: 55).
  * -----------------------------------------------------------------------------
  */
 
@@ -181,7 +187,7 @@ $WIN_MIN  = $limits['window_min'];
 // -----------------------------------------------------------------------------
 // 1. Tao user tam (Self-Service)
 // -----------------------------------------------------------------------------
-echo "\n--- 1. Tao 6 user tam (Self-Service) ---\n";
+echo "\n--- 1. Tao 8 user tam (Self-Service) ---\n";
 
 $suffix  = substr((string) time(), -6);
 $uname_a = 'test.hm.a.' . $suffix;
@@ -190,11 +196,23 @@ $uname_c = 'test.hm.c.' . $suffix;
 $uname_d = 'test.hm.d.' . $suffix;
 $uname_e = 'test.hm.e.' . $suffix;
 $uname_f = 'test.hm.f.' . $suffix;
+$uname_g = 'test.hm.g.' . $suffix;
+$uname_h = 'test.hm.h.' . $suffix;
 
 $profile_self = 1;   // "Nguoi dung" (Self-Service) — da kiem chung quyen ticket = 5
 
 $ids = [];
-foreach (['a' => $uname_a, 'b' => $uname_b, 'c' => $uname_c, 'd' => $uname_d, 'e' => $uname_e, 'f' => $uname_f] as $key => $uname) {
+$user_list = [
+    'a' => $uname_a,
+    'b' => $uname_b,
+    'c' => $uname_c,
+    'd' => $uname_d,
+    'e' => $uname_e,
+    'f' => $uname_f,
+    'g' => $uname_g,
+    'h' => $uname_h,
+];
+foreach ($user_list as $key => $uname) {
     $u = new User();
     $uid = $u->add([
         'name'         => $uname,
@@ -205,6 +223,26 @@ foreach (['a' => $uname_a, 'b' => $uname_b, 'c' => $uname_c, 'd' => $uname_d, 'e
     ]);
     $ids[$key] = (int) $uid;
     check($uid > 0, "Tao user tam '$uname' (id=$uid)");
+
+    // Gan email theo vai tro / kich ban kiem thu:
+    //   - a..f: email hop le thuoc mien @dlu.edu.vn (theo chuan Google Workspace cua DLU)
+    //   - g: KHONG gan email (kiem thu tai khoan thieu email)
+    //   - h: gan email cong cong (@gmail.com, kiem thu chan email ngoai truong)
+    if (in_array($key, ['a', 'b', 'c', 'd', 'e', 'f'], true)) {
+        $ue = new UserEmail();
+        $ue->add([
+            'users_id'   => (int) $uid,
+            'is_default' => 1,
+            'email'      => $uname . '@dlu.edu.vn',
+        ]);
+    } elseif ($key === 'h') {
+        $ue = new UserEmail();
+        $ue->add([
+            'users_id'   => (int) $uid,
+            'is_default' => 1,
+            'email'      => $uname . '@gmail.com',
+        ]);
+    }
 }
 $uid_a = $ids['a'];
 $uid_b = $ids['b'];
@@ -212,6 +250,8 @@ $uid_c = $ids['c'];
 $uid_d = $ids['d'];
 $uid_e = $ids['e'];
 $uid_f = $ids['f'];
+$uid_g = $ids['g'];
+$uid_h = $ids['h'];
 
 // Tim super-admin (profile 4) — de loai khoi vai tro KTV
 $admin_id = 0;
@@ -276,6 +316,99 @@ if ($res) {
     $comp2_id = $rows[1] ?? 0;
 }
 check($comp1_id > 0 && $comp2_id > 0, "Co 2 thiet bi that de kiem trung theo thiet bi (id=$comp1_id, $comp2_id)");
+
+// -----------------------------------------------------------------------------
+// 1b. Tier 2: Kiem tra xac thuc mien email truong (@dlu.edu.vn duy nhat)
+// -----------------------------------------------------------------------------
+echo "\n--- 1b. Tier 2: Xac thuc mien email truong DLU ---\n";
+
+// User G: KHONG co email -> phieu phai bi chan boi Tier 2 (EMAIL_BLOCKED)
+test_logout();
+test_login($uid_g);
+
+$t = new Ticket();
+$g_res = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' Phieu user G khong email (phai bi chan)',
+    'content'           => 'Khong co email truong — phai bi chan boi Tier 2.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($g_res === false || $g_res === 0, "G: khong co email -> phieu BI CHAN boi Tier 2 (add tra ve " . var_export($g_res, true) . ")");
+
+$msgs = $_SESSION['MESSAGE_AFTER_REDIRECT'][ERROR] ?? [];
+$has_email_msg = false;
+foreach ($msgs as $m) {
+    if (stripos($m, 'email') !== false && stripos($m, 'dlu.edu.vn') !== false) {
+        $has_email_msg = true;
+        break;
+    }
+}
+check($has_email_msg, 'G: co thong bao loi tieng Viet yeu cau email chinh thuc @dlu.edu.vn');
+
+$res = $DB->doQuery(
+    "SELECT COUNT(*) AS n FROM " . PLUGIN_PINEDESK_TABLE_LOG . "
+      WHERE users_id = $uid_g AND reason = 'EMAIL_BLOCKED'"
+);
+$row = $res ? $DB->fetchAssoc($res) : null;
+check((int) ($row['n'] ?? 0) >= 1, 'G: nhat ky T6 ghi nhan EMAIL_BLOCKED khi thieu email');
+
+// User H: dung email ngoai truong (@gmail.com) -> phieu phai bi chan
+test_logout();
+test_login($uid_h);
+
+$t = new Ticket();
+$h_res_blocked = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' Phieu user H email gmail (phai bi chan)',
+    'content'           => 'Dung email @gmail.com — phai bi chan boi Tier 2.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($h_res_blocked === false || $h_res_blocked === 0, "H: email cong cong (@gmail.com) -> phieu BI CHAN (add tra ve " . var_export($h_res_blocked, true) . ")");
+
+$res = $DB->doQuery(
+    "SELECT COUNT(*) AS n FROM " . PLUGIN_PINEDESK_TABLE_LOG . "
+      WHERE users_id = $uid_h AND reason = 'EMAIL_BLOCKED'"
+);
+$row = $res ? $DB->fetchAssoc($res) : null;
+check((int) ($row['n'] ?? 0) >= 1, 'H: nhat ky T6 ghi nhan EMAIL_BLOCKED khi dung email cong cong');
+
+// User H: cap nhat subdomain khong hop le (@sinhvien.dlu.edu.vn — DLU khong co MX cho subdomain) -> van bi chan
+$DB->doQuery("UPDATE glpi_useremails SET email = 'test.h." . $suffix . "@sinhvien.dlu.edu.vn' WHERE users_id = $uid_h");
+$t = new Ticket();
+$h_res_subdomain = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' Phieu user H subdomain (phai bi chan)',
+    'content'           => 'Dung subdomain @sinhvien.dlu.edu.vn — phai bi chan vi DLU chi dung @dlu.edu.vn.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($h_res_subdomain === false || $h_res_subdomain === 0, "H: subdomain khong hop le (@sinhvien.dlu.edu.vn) -> phieu BI CHAN (add tra ve " . var_export($h_res_subdomain, true) . ")");
+
+// User H: cap nhat email chinh thuc truong (@dlu.edu.vn, vi du mssv 2110999@dlu.edu.vn) -> phieu duoc chap nhan
+$DB->doQuery("UPDATE glpi_useremails SET email = '2110999@dlu.edu.vn' WHERE users_id = $uid_h");
+
+$t = new Ticket();
+$h_ticket_ok = $t->add([
+    'name'              => PLUGIN_PINEDESK_TEST_TAG . ' Phieu user H sau khi co email DLU',
+    'content'           => 'Da cap nhat email @dlu.edu.vn — phai duoc tao thanh cong.',
+    'type'              => 1,
+    'itilcategories_id' => $cat_id,
+    'urgency'           => 3,
+    'impact'            => 3,
+]);
+check($h_ticket_ok > 0, "H: sau khi cap nhat email chuan DLU (2110999@dlu.edu.vn) -> tao phieu THANH CONG (id=" . var_export($h_ticket_ok, true) . ")");
+
+$res = $DB->doQuery(
+    "SELECT COUNT(*) AS n FROM " . PLUGIN_PINEDESK_TABLE_LOG . "
+      WHERE users_id = $uid_h AND tickets_id = " . (int) $h_ticket_ok . " AND reason = 'NEW'"
+);
+$row = $res ? $DB->fetchAssoc($res) : null;
+check((int) ($row['n'] ?? 0) >= 1, 'H: nhat ky T6 ghi nhan NEW sau khi xac thuc email thanh cong');
 
 // -----------------------------------------------------------------------------
 // 2. User A: tao $MAX_OPEN phieu -> thanh cong het
@@ -741,6 +874,7 @@ test_login($admin_id > 0 ? $admin_id : 2); // glpi (super-admin) — xoa duoc mo
 $to_delete = array_merge(
     $tickets_a,
     array_filter([
+        $h_ticket_ok ?? 0,
         $dup_first,
         $d_first,
         $d_no_anchor,
@@ -770,8 +904,8 @@ if ($log_id_before >= 0) {
     $DB->doQuery("DELETE FROM " . PLUGIN_PINEDESK_TABLE_LOG . " WHERE id > " . $log_id_before);
 }
 
-// Xoa 6 user tam (kem ho so)
-foreach ([$uid_a, $uid_b, $uid_c, $uid_d, $uid_e, $uid_f] as $uid) {
+// Xoa 8 user tam (kem ho so va email)
+foreach ([$uid_a, $uid_b, $uid_c, $uid_d, $uid_e, $uid_f, $uid_g, $uid_h] as $uid) {
     if ($uid > 0) {
         $u = new User();
         if ($u->getFromDB($uid)) {

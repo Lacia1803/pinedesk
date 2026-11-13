@@ -155,6 +155,18 @@ function plugin_pinedesk_check_limits($item): void
         $message = '';
         $dup_id  = 0;
 
+        // ---- T2: Xác thực tên miền email trường Đại học Đà Lạt ------------
+        // Bắt buộc người gửi phiếu phải có email chính thức của trường (@dlu.edu.vn).
+        // Quy định thực tế tại DLU (Google Workspace):
+        //   - Sinh viên: {mssv}@dlu.edu.vn (ví dụ: 2110123@dlu.edu.vn)
+        //   - Cán bộ / Giảng viên: {tên_viết_tắt}@dlu.edu.vn (ví dụ: cuonggv@dlu.edu.vn)
+        // DLU dùng duy nhất tên miền @dlu.edu.vn (không dùng subdomain cho email).
+        // Chặn các tài khoản thiếu email hoặc dùng email ngoài trường (OWASP A07).
+        if (!plugin_pinedesk_has_valid_institutional_email($uid)) {
+            $reason  = 'EMAIL_BLOCKED';
+            $message = 'Hệ thống chỉ tiếp nhận phiếu yêu cầu từ tài khoản sử dụng email chính thức của Trường Đại học Đà Lạt (@dlu.edu.vn, bao gồm {mssv}@dlu.edu.vn cho sinh viên và {tên}@dlu.edu.vn cho cán bộ/giảng viên). Vui lòng cập nhật email chính thức trong hồ sơ cá nhân hoặc liên hệ Trung tâm CNTT để được hỗ trợ.';
+        }
+
         // ---- T3a: trần số phiếu ĐANG MỞ -------------------------------------
         if ($limits['max_open'] > 0) {
             $open = plugin_pinedesk_count_open($uid);
@@ -479,6 +491,52 @@ function plugin_pinedesk_get_limits(): array
 }
 
 /**
+ * T2 — Xác thực tên miền email chính thức của trường ĐH Đà Lạt.
+ *
+ * BỐI CẢNH & QUY ĐỊNH THỰC TẾ TẠI DLU:
+ *   Trường Đại học Đà Lạt sử dụng Google Workspace tập trung trên duy nhất một
+ *   tên miền email là @dlu.edu.vn (không sử dụng subdomain email).
+ *   - Sinh viên: định dạng {mssv}@dlu.edu.vn (ví dụ: 2110123@dlu.edu.vn).
+ *   - Cán bộ / Giảng viên: định dạng {tên_viết_tắt}@dlu.edu.vn (ví dụ: cuonggv@dlu.edu.vn).
+ *   - Đơn vị / Phòng ban: {phòng_khoa}@dlu.edu.vn (ví dụ: it@dlu.edu.vn).
+ *   Các subdomain như cntt.dlu.edu.vn, lms.dlu.edu.vn chỉ là cổng thông tin web,
+ *   không có bản ghi MX và không dùng làm email.
+ *   Hàm này chỉ chấp nhận email có đuôi chính xác là @dlu.edu.vn, chặn email công cộng
+ *   hoặc subdomain không hợp lệ (OWASP A07).
+ *
+ * @param int $uid users_id
+ * @return bool true nếu tài khoản có ít nhất 1 email hợp lệ thuộc tên miền @dlu.edu.vn
+ */
+function plugin_pinedesk_has_valid_institutional_email(int $uid): bool
+{
+    global $DB;
+
+    if ($uid <= 0 || !($DB instanceof DBmysql) || !$DB->tableExists('glpi_useremails')) {
+        return false;
+    }
+
+    // Nghiêm ngặt chỉ chấp nhận @dlu.edu.vn, không chấp nhận subdomain
+    $pattern = '/^[a-zA-Z0-9._%+-]+@dlu\.edu\.vn$/i';
+
+    $res = $DB->doQuery(
+        "SELECT email FROM glpi_useremails
+          WHERE users_id = " . (int) $uid
+    );
+    if (!$res || $DB->numrows($res) === 0) {
+        return false;
+    }
+
+    while ($row = $DB->fetchAssoc($res)) {
+        $email = trim((string) ($row['email'] ?? ''));
+        if ($email !== '' && preg_match($pattern, $email)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
  * Đếm số phiếu ĐANG MỞ của một người.
  * "Đang mở" = trạng thái Mới/Được giao/Đã lên kế hoạch/Chờ (1-4),
  * giống hệt view v_pinedesk_phieu_dang_mo.
@@ -672,7 +730,7 @@ function plugin_pinedesk_find_duplicate(int $uid, int $cat, int $loc, array $ite
  * @param int    $uid       users_id
  * @param int    $ticket_id tickets_id (0 nếu phiếu bị chặn — chưa tồn tại)
  * @param int    $dup_id    tickets_id_dup (phiếu trùng, nếu có)
- * @param string $reason    NEW / LIMIT_BLOCKED / DUP_BLOCKED
+ * @param string $reason    NEW / EMAIL_BLOCKED / LIMIT_BLOCKED / DUP_BLOCKED / LOCK_FAIL / FAIL_OPEN
  * @return void
  */
 function plugin_pinedesk_write_log(int $uid, int $ticket_id, int $dup_id, string $reason): void

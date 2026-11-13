@@ -112,7 +112,7 @@ Khi đếm bằng `grep` thấy ít hơn số đó → nghi số liệu sai.
 nằm trong vòng lặp tạo **6 user tạm**, và một số lời gọi khác nằm trong khối
 điều kiện (chỉ chạy khi tạo được phiếu E):
 
-> (con số tăng dần qua các đợt: 37 → 42 → 46 khi thêm phép kiểm mới).
+> (con số tăng dần qua các đợt: 37 → 42 → 46 → 56 khi thêm phép kiểm mới).
 
 Đây là ví dụ cho thấy **không được sửa số liệu theo cảm tính** — phải chạy thật.
 
@@ -125,7 +125,7 @@ nằm trong vòng lặp tạo **6 user tạm**, và một số lời gọi khác
 **Bằng chứng.** Chạy thật trên hệ thống đang sống:
 
 ```
-KET QUA: 46/46 dat — CO CHE CHAN HOAT DONG THAT
+KET QUA: 56/56 dat — CO CHE CHAN HOAT DONG THAT
 ```
 
 ---
@@ -270,7 +270,7 @@ make cu-phap-php
 make smoke
 GLPI_USER=ktv.an GLPI_PASS='<mat-khau>' bash scripts/kiem-tra-chuc-nang.sh
 
-# 4. Harness chống lạm dụng (46 điểm kiểm)
+# 4. Harness chống lạm dụng và xác thực danh tính (56 điểm kiểm)
 docker exec -u www-data pinedesk-glpi \
   php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
 
@@ -292,7 +292,7 @@ GLPI_PASS='<mat-khau>' node scripts/kiem-tra-usecase.js
 | Cấu hình Docker | `docker compose config` | ✅ hợp lệ |
 | Cấu hình Nginx | `nginx -t` trong container thật | ✅ hợp lệ |
 | Quét bí mật | `scripts/quet-bi-mat.sh` | ✅ sạch |
-| Chống lạm dụng | harness plugin | ✅ **46/46** |
+| Chống lạm dụng & xác thực email | harness plugin | ✅ **56/56** |
 | Chức năng & phân quyền | `kiem-tra-chuc-nang.sh` (2 vai trò) | ✅ **25/25** |
 | Use case end-to-end | Playwright + Chrome thật | ✅ **3/3** |
 | Chống race (GET_LOCK) | 2 request song song | ✅ **đạt** (1/2 tạo được) |
@@ -427,8 +427,17 @@ hay chỉ nói?"*. Cách trả lời không phải thêm chữ, mà là **thêm 
 
 Rà soát mã nguồn trước vòng báo cáo số 2 phát hiện hai chi tiết cần làm gọn:
 
-1. **Tác giả ghi chú nội bộ T5**: ban đầu `ITILFollowup::add()` không truyền `users_id`, nên GLPI tự lấy ID của phiên hiện tại. Phiếu do sinh viên nộp thì ghi chú soát xét nội bộ lại mang tên sinh viên đó, dễ gây hiểu nhầm khi kỹ thuật viên đọc lịch sử. Đã thêm `users_id => 0` để GLPI gán đúng tác giả là Hệ thống. Đồng thời cập nhật mục kiểm 4f trong harness để kiểm tra thêm điều kiện `users_id = 0`, giữ nguyên tổng 46 điểm kiểm.
+1. **Tác giả ghi chú nội bộ T5**: ban đầu `ITILFollowup::add()` không truyền `users_id`, nên GLPI tự lấy ID của phiên hiện tại. Phiếu do sinh viên nộp thì ghi chú soát xét nội bộ lại mang tên sinh viên đó, dễ gây hiểu nhầm khi kỹ thuật viên đọc lịch sử. Đã thêm `users_id => 0` để GLPI gán đúng tác giả là Hệ thống. Đồng thời cập nhật mục kiểm 4f trong harness để kiểm tra thêm điều kiện `users_id = 0`.
 2. **Vòng đời nhả khóa chống đua**: trước đây khóa `GET_LOCK` chỉ nhả qua `register_shutdown_function`. Cơ chế này an toàn trên web, nhưng nếu chạy nhiều lượt tạo phiếu trong một tiến trình CLI thì khóa bị giữ lâu hơn mức cần thiết. Đã bổ sung lệnh nhả khóa chủ động ngay khi phiếu bị chặn (ở `PRE_ITEM_ADD`) hoặc sau khi tạo xong phiếu và ghi nhật ký (ở `ITEM_ADD`). Lệnh nhả lúc shutdown vẫn giữ làm chốt chặn an toàn khi có lỗi bất ngờ.
+
+### 8.6. Bổ sung Tier 2: Xác thực email trường DLU và nâng cấp harness lên 56 điểm kiểm
+
+Theo gợi ý của giảng viên hướng dẫn về nâng cấp an toàn hệ thống (OWASP Top 10 và sự cố ransomware C3RB3R), yêu cầu cốt lõi được đặt ra: *chỉ được gửi ticket khi đăng nhập bằng mail sinh viên hoặc mail nội bộ trường*.
+
+1. **Khảo sát hạ tầng email thực tế tại DLU:** Trường Đại học Đà Lạt sử dụng Google Workspace tập trung trên duy nhất một tên miền email là `@dlu.edu.vn` (bản ghi DNS MX trỏ về máy chủ Google). Sinh viên có định dạng `{mssv}@dlu.edu.vn`, cán bộ/giảng viên có định dạng `{tên}@dlu.edu.vn`. Các tên miền phụ như `cntt.dlu.edu.vn`, `lms.dlu.edu.vn` chỉ là cổng web và không có bản ghi MX.
+2. **Triển khai kỹ thuật:** Thêm hàm `plugin_pinedesk_has_valid_institutional_email()` trong `plugins/pinedesk/hook.php`, kiểm tra biểu thức chính quy `/^[a-zA-Z0-9._%+-]+@dlu\.edu\.vn$/i` trên bảng `glpi_useremails`. Chặn mọi tài khoản không có email, dùng email công cộng (@gmail.com) hoặc subdomain không hợp lệ (@sinhvien.dlu.edu.vn).
+3. **Mở rộng harness kiểm thử:** Bổ sung nhóm kiểm thử 1b trong `plugins/pinedesk/tests/kiem-thu-han-muc.php` (User G không email, User H email ngoài, User H subdomain, User H email DLU hợp lệ). Tổng số điểm kiểm tăng từ **46 lên 56 điểm kiểm** (56/56 đạt).
+4. **Cách ly mạng container chống ransomware:** Cấu hình `backend_net` với `internal: true`, chặn đường kết nối Internet ra ngoài của MariaDB và Redis, bổ sung `no-new-privileges` và vô hiệu hóa `--local-infile=0`.
 
 ---
 

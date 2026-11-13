@@ -373,6 +373,7 @@ FROM (
     SELECT 'E2422HN' UNION ALL
     SELECT 'S2421HN' UNION ALL
     SELECT 'LS24R350' UNION ALL
+    SELECT '24MK430H' UNION ALL
     SELECT '24MP400' UNION ALL
     SELECT '27MP400' UNION ALL
     SELECT 'VA2419' UNION ALL
@@ -425,6 +426,14 @@ FROM (
     SELECT 'Tủ mạng Rack 42U'
 ) m
 WHERE NOT EXISTS (SELECT 1 FROM glpi_networkequipmentmodels WHERE name = m.name);
+
+-- 5.5. Model thiet bi ngoai vi
+INSERT INTO glpi_peripheralmodels (name, date_creation, date_mod)
+SELECT m.name, NOW(), NOW()
+FROM (
+    SELECT 'PT-LB386' AS name
+) m
+WHERE NOT EXISTS (SELECT 1 FROM glpi_peripheralmodels WHERE name = m.name);
 
 
 -- ==============================================================================

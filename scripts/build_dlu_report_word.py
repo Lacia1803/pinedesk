@@ -337,7 +337,8 @@ TOC_ITEMS = [
     (1, "CHƯƠNG 4. TRIỂN KHAI VÀ KIỂM THỬ", 136, "bm_c4", "22", True),
     (2, "4.1. Kế hoạch và tiến độ thực hiện 10 tuần thực tập", 137, "bm_c4_1", "22", False),
     (3, "4.1.1. Kế hoạch thực hiện theo 10 tuần", 138, "bm_c4_1_1", "22", False),
-    (3, "4.1.2. Các giai đoạn phát triển và mốc phát hành phiên bản", 139, "bm_c4_1_2", "25", False),
+    (3, "4.1.2. Phân công nhiệm vụ các thành viên Nhóm 4", 176, "bm_c4_1_2b", "24", False),
+    (3, "4.1.3. Các giai đoạn phát triển và mốc phát hành phiên bản", 139, "bm_c4_1_2", "25", False),
     (2, "4.2. Các chức năng đã triển khai trên thực tế", 140, "bm_c4_2", "26", False),
     (3, "4.2.1. Quản lý tài sản phòng máy", 141, "bm_c4_2_1", "26", False),
     (3, "4.2.2. Tiếp nhận và xử lý phiếu sự cố", 142, "bm_c4_2_2", "27", False),
@@ -383,6 +384,7 @@ TABLES_DATA = [
     ("Bảng 3.3", "Phân bố mã nguồn dự án theo phân loại ngôn ngữ", 204, "bm_tbl_3_3", "19"),
     ("Bảng 3.4", "Đối chiếu 20 đóng góp kỹ thuật của PineDesk so với GLPI 11 nguyên bản", 205, "bm_tbl_3_4", "20"),
     ("Bảng 4.1", "Kế hoạch và tiến độ thực hiện 10 tuần thực tập tốt nghiệp", 206, "bm_tbl_4_1", "22"),
+    ("Bảng 4.1b", "Phân công nhiệm vụ các thành viên Nhóm 4 trong đề tài", 218, "bm_tbl_4_1b", "24"),
     ("Bảng 4.2", "Thống kê cơ sở vật chất 10 phòng máy tính thực tế do Trung tâm CNTT quản lý", 207, "bm_tbl_4_2", "26"),
     ("Bảng 4.3", "Phân bố phiếu sự cố mẫu theo trạng thái chuẩn ITIL", 208, "bm_tbl_4_3", "28"),
     ("Bảng 4.4", "Năm mức thời gian phản hồi và xử lý đề xuất (SLA kỹ thuật)", 209, "bm_tbl_4_4", "29"),
@@ -1179,7 +1181,7 @@ def parse_and_build_body(doc, md_text):
                     p._p.append(bm_start)
                     p._p.append(bm_end)
 
-            m_tbl = re.search(r'Bảng\s+(\d+\.\d+)', stripped)
+            m_tbl = re.search(r'Bảng\s+(\d+\.\d+[a-z]?)', stripped, re.IGNORECASE)
             if m_tbl:
                 code_key = f"Bảng {m_tbl.group(1)}"
                 if code_key in TABLE_LOOKUP:

@@ -107,6 +107,7 @@ if [ -n "${GLPI_DB_PASSWORD:-}" ]; then
 UPDATE glpi_users SET palette='$THEME_KEY' WHERE palette IS NULL OR palette='';
 INSERT INTO glpi_configs (context, name, value) VALUES ('core', 'app_name', 'PineDesk DLU')
   ON DUPLICATE KEY UPDATE value='PineDesk DLU';
+UPDATE glpi_configs SET value='0' WHERE name='login_remember_default';
 UPDATE glpi_configs SET value='#EDF0E4' WHERE name='priority_1';
 UPDATE glpi_configs SET value='#CFE0DE' WHERE name='priority_2';
 UPDATE glpi_configs SET value='#F6D9A8' WHERE name='priority_3';

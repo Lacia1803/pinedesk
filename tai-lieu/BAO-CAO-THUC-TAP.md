@@ -15,9 +15,10 @@ KHOA CÔNG NGHỆ THÔNG TIN
 | | |
 |---|---|
 | **Ngành đào tạo** | Kỹ thuật phần mềm |
-| **Sinh viên thực hiện** | Phùng Võ Quốc Hiển |
+| **Sinh viên thực hiện** | Phùng Võ Quốc Hiển (Nhóm trưởng) |
 | **Mã số sinh viên** | 2212364 |
 | **Lớp** | CTK46-PM |
+| **Thành viên nhóm đề tài** | Lý Gia Bảo (2213934) · Nguyễn Việt Bình (2213831) |
 | **Khóa học** | K46 (2022 – 2026) |
 | **Giảng viên hướng dẫn** | ThS. La Quốc Thắng |
 | **Đơn vị thực tập** | Trung tâm Công nghệ thông tin – Trường Đại học Đà Lạt |
@@ -38,7 +39,7 @@ Em xin bày tỏ lòng biết ơn sâu sắc tới thầy ThS. La Quốc Thắng
 
 Em xin trân trọng cảm ơn Ban Giám đốc và các thầy cô, anh chị tại Trung tâm Công nghệ thông tin (ITC) - Trường Đại học Đà Lạt, đặc biệt là thầy ThS. Đặng Quốc Phi, đã nhiệt tình hướng dẫn, chia sẻ quy trình vận hành hạ tầng mạng, quản lý phòng máy thực hành và cung cấp các thông số kỹ thuật thực tế để em hoàn thiện cơ sở dữ liệu cho đề tài.
 
-Em cũng xin cảm ơn các bạn sinh viên lớp CTK46-PM đã cùng trao đổi, hỗ trợ kiểm thử giao diện và đóng góp ý kiến hoàn thiện tài liệu báo cáo.
+Em cũng xin gửi lời cảm ơn sâu sắc tới hai bạn thành viên trong nhóm thực tập tại Trung tâm CNTT — bạn Lý Gia Bảo và bạn Nguyễn Việt Bình — đã luôn đồng hành, cùng chia sẻ khối lượng công việc lớn trong suốt 10 tuần, từ khảo sát thiết bị, quản lý phòng máy, thiết kế giao diện nhận diện thương hiệu đến chuẩn hóa quy trình nghiệp vụ và kiểm thử hệ thống. Đồng thời, em xin cảm ơn các bạn sinh viên lớp CTK46-PM đã cùng trao đổi và đóng góp ý kiến hoàn thiện tài liệu báo cáo.
 
 Dù đã nỗ lực hết mình với tinh thần cầu thị và nghiêm túc, báo cáo khó tránh khỏi những hạn chế nhất định. Em rất mong nhận được những nhận xét, chỉ dẫn quý báu của quý thầy cô trong Hội đồng để đề tài được hoàn thiện hơn nữa.
 
@@ -174,7 +175,8 @@ Phùng Võ Quốc Hiển
 | **CHƯƠNG 4. TRIỂN KHAI VÀ KIỂM THỬ** | 22 |
 | 4.1. Kế hoạch và tiến độ thực hiện 10 tuần thực tập | 22 |
 | 4.1.1. Kế hoạch thực hiện theo 10 tuần | 22 |
-| 4.1.2. Các giai đoạn phát triển và mốc phát hành phiên bản | 25 |
+| 4.1.2. Phân công nhiệm vụ các thành viên Nhóm 4 | 24 |
+| 4.1.3. Các giai đoạn phát triển và mốc phát hành phiên bản | 25 |
 | 4.2. Các chức năng đã triển khai trên thực tế | 26 |
 | 4.2.1. Quản lý tài sản phòng máy | 26 |
 | 4.2.2. Tiếp nhận và xử lý phiếu sự cố | 27 |
@@ -247,6 +249,7 @@ Phùng Võ Quốc Hiển
 | Bảng 3.3 | Phân bố mã nguồn dự án theo phân loại ngôn ngữ | 19 |
 | Bảng 3.4 | Đối chiếu 20 đóng góp kỹ thuật của PineDesk so với GLPI 11 nguyên bản | 20 |
 | Bảng 4.1 | Kế hoạch và tiến độ thực hiện 10 tuần thực tập tốt nghiệp | 22 |
+| Bảng 4.1b | Phân công nhiệm vụ các thành viên Nhóm 4 trong đề tài | 24 |
 | Bảng 4.2 | Thống kê cơ sở vật chất 10 phòng máy tính thực tế do Trung tâm CNTT quản lý | 26 |
 | Bảng 4.3 | Phân bố phiếu sự cố mẫu theo trạng thái chuẩn ITIL | 28 |
 | Bảng 4.4 | Năm mức thời gian phản hồi và xử lý đề xuất (SLA kỹ thuật) | 29 |
@@ -340,7 +343,7 @@ Em làm theo trình tự sau, mỗi bước đều để lại sản phẩm ki�
 1. **Khảo sát:** thu thập dữ kiện công khai từ website Trường và ITC, đối chiếu văn bản pháp lý và thông số kỹ thuật thực tế phòng máy, ghi rõ URL và ngày truy cập.
 2. **Chọn nền tảng:** cân nhắc giữa tự viết từ đầu, dùng công cụ SaaS đám mây và triển khai nền tảng ITSM mã nguồn mở tiêu chuẩn công nghiệp (GLPI 11).
 3. **Dựng hệ thống:** container hóa GLPI 11, MariaDB 10.11, Redis 7 và Nginx trong Docker Compose; nạp danh mục nghiệp vụ; viết các plugin giao diện và chống lạm dụng; viết script tự động hóa.
-4. **Kiểm thử đa tầng:** viết harness kiểm thử CSDL 46 điểm kiểm, kiểm tra phân quyền 40 điểm kiểm HTTP theo vai trò, 3 use case Playwright end-to-end, đo tải wrk và pipeline CI 6 nhóm kiểm tra tự động.
+4. **Kiểm thử đa tầng:** viết harness kiểm thử CSDL 56 điểm kiểm, kiểm tra phân quyền 40 điểm kiểm HTTP theo vai trò, 3 use case Playwright end-to-end, đo tải wrk và pipeline CI 6 nhóm kiểm tra tự động.
 5. **Rà soát và cải tiến:** thực hiện đợt rà soát chất lượng toàn diện, sửa 13 vấn đề P0/P1/P2 và ghi lại bằng chứng kiểm chứng cụ thể.
 
 Một nguyên tắc em giữ xuyên suốt: **luôn kiểm tra bằng trình duyệt thật và dữ liệu thật, không chỉ dựa vào giả định**. Có những lỗi chỉ hiện ra khi trình duyệt tải cả trang, ví dụ giới hạn tần suất của Nginx đánh sập trang khi GLPI nạp hàng trăm tệp CSS và JavaScript cùng lúc, hay lỗi logo trả về 404 do một biểu thức chính quy viết sai. Chỉ dùng `curl` thì không bao giờ thấy được những lỗi này.
@@ -515,23 +518,58 @@ Từ ba mâu thuẫn ở mục 1.4.1, đề tài rút ra các yêu cầu chức 
 | N3 | Chống lạm dụng khi kênh nộp phiếu mở cho sinh viên | Câu hỏi phản biện của giảng viên hướng dẫn |
 | N4 | Cài đặt lại được bằng một lệnh, có kiểm thử tự động | Yêu cầu tái lập |
 | N5 | Tùy biến nằm ngoài lõi GLPI để nâng cấp an toàn | Quyết định kiến trúc |
+| N6 | Bảo mật đa tầng, cô lập ransomware và xác thực email trường DLU | Khuyến nghị của giảng viên hướng dẫn (OWASP Top 10, C3RB3R, @dlu.edu.vn) |
 
-## 3.2. Kiến trúc tổng thể
+## 3.2. Kiến trúc tổng thể và phân vùng an toàn
 
 ```
-Người dùng --HTTPS:8443--> [ Nginx Gateway ]
-                                  |
-                        HTTP:80   |
-                                  v
-                          [ GLPI 11 ] <--> [ Redis Cache ]
-                                  |
-                                  v
-                            [ MariaDB 10.11 ]
+               [ NGƯỜI DÙNG: Trình duyệt Web / Thiết bị di động ]
+                                     │
+                             HTTPS (TLS 1.2/1.3):8443
+                                     ▼
+      ┌─────────────────────────────────────────────────────────────────┐
+      │  VÙNG CỔNG VÀO (INGRESS ZONE)                                   │
+      │  Container: pinedesk-gateway (Nginx 1.27-Alpine)                │
+      │  - Tiếp nhận kết nối an toàn, chấm dứt mã hóa SSL/TLS           │
+      │  - Giới hạn tần suất: 30 req/phút nộp phiếu (burst=10 nodelay)  │
+      │  - Bộ đệm an toàn chống Slowloris, 9 tiêu đề bảo mật HTTP       │
+      │  - Chặn các tệp nhạy cảm (.env, .sql, .bak, .log, .sh)          │
+      └──────────────────────────────┬──────────────────────────────────┘
+                                     │ Mạng cầu nối: frontend_net
+                                     │ HTTP:80 (Nội bộ)
+                                     ▼
+      ┌─────────────────────────────────────────────────────────────────┐
+      │  VÙNG ỨNG DỤNG (APPLICATION ZONE)                               │
+      │  Container: pinedesk-glpi (GLPI 11.0.0 / PHP 8.3 FPM)          │
+      │  - Phân hệ quản lý tài sản, biểu mẫu FormCreator                │
+      │  - Plugin pinedesk: Xác thực email DLU (@dlu.edu.vn),           │
+      │    hạn mức phiếu, chống trùng lặp, soát xét ưu tiên             │
+      │  - Plugin dlubrand: Bản địa hóa giao diện Bản sắc Đà Lạt        │
+      └──────────────────────────────┬──────────────────────────────────┘
+                                     │ Mạng cô lập: backend_net (internal: true)
+                                     │ Không có đường ra Internet / Không cấp Gateway
+                       ┌─────────────┴─────────────┐
+                       ▼                           ▼
+        ┌─────────────────────────────┐ ┌─────────────────────────────┐
+        │ Container: pinedesk-db      │ │ Container: pinedesk-redis   │
+        │ MariaDB 10.11 LTS           │ │ Redis 7-Alpine              │
+        │ - --local-infile=0          │ │ - maxmemory 256mb           │
+        │ - --skip-symbolic-links     │ │ - allkeys-lru               │
+        │ - Khóa chống đua GET_LOCK   │ │ - Lưu trữ phiên & Cache     │
+        └─────────────────────────────┘ └─────────────────────────────┘
 ```
 
-*Hình 3.1. Kiến trúc tổng thể hệ thống*
+*Hình 3.1. Kiến trúc phân vùng an toàn và luồng dữ liệu hệ thống PineDesk*
 
-Mỗi thành phần chạy trong một container riêng. Nginx là cửa vào duy nhất, giữ vai trò chấm dứt kết nối HTTPS rồi chuyển tiếp vào GLPI qua HTTP trong mạng nội bộ. MariaDB và Redis không mở cổng ra ngoài máy chủ.
+Hệ thống được thiết kế theo nguyên lý phân vùng phòng thủ theo chiều sâu (Defense-in-Depth), chia làm hai mạng nội bộ riêng biệt:
+1. `frontend_net`: Mạng cầu nối giữa Nginx Gateway và ứng dụng GLPI. Nginx là cổng dịch vụ duy nhất mở cổng tiếp nhận kết nối bên ngoài (8443 cho HTTPS và 8080 cho HTTP tự động chuyển hướng).
+2. `backend_net`: Mạng nội bộ kết nối GLPI với MariaDB và Redis, được thiết lập thuộc tính `internal: true`. Thuộc tính này chặn hoàn toàn việc cấp gateway ra ngoài Internet cho cơ sở dữ liệu và bộ nhớ đệm, giúp loại bỏ nguy cơ mã độc liên lạc với máy chủ chỉ huy (C2 - Command and Control) nếu hệ thống gặp sự cố an ninh.
+
+**Biện pháp phòng chống tấn công mã độc tống tiền (Ransomware):**
+Dựa trên phân tích thực tế từ sự cố mã độc tống tiền C3RB3R tấn công các hệ thống máy chủ lưu trữ và cơ sở dữ liệu trường học, đề tài triển khai ba lớp phòng thủ kiên cố ở tầng hạ tầng container:
+- *Cô lập cơ sở dữ liệu tuyệt đối:* MariaDB và Redis không công bố cổng ra máy chủ vật lý (`ports` bị loại bỏ, chỉ dùng `expose` nội bộ) và nằm hoàn toàn trong mạng `backend_net` cô lập. Mã độc bên ngoài không thể quét hay kết nối trực tiếp vào cổng 3306.
+- *Ngăn chặn leo thang đặc quyền:* Toàn bộ 4 container được thiết lập cờ `security_opt: [ "no-new-privileges:true" ]`, tước bỏ khả năng chiếm quyền root thông qua các tệp thực thi setuid bên trong container.
+- *Khóa các lỗ hổng khai thác tệp trong MariaDB:* MariaDB được khởi động với các tham số khắt khe `--local-infile=0` (ngăn chặn việc đọc trộm tệp tin hệ thống máy chủ thông qua SQL injection) và `--skip-symbolic-links` (ngăn chặn tấn công vượt quyền qua liên kết mềm hệ thống tệp).
 
 ## 3.3. Nguyên tắc thiết kế: tùy biến nằm ngoài lõi
 
@@ -586,7 +624,7 @@ pinedesk/
 ├── plugins/dlubrand/            # Plugin giao diện Đà Lạt (nguồn màu duy nhất)
 ├── plugins/pinedesk/            # Plugin chặn hạn mức phiếu (T3/T4/T6) — hook ngoài lõi
 │   ├── hook.php                 #   Kiểm tra hạn mức + chống trùng + nhật ký
-│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (46 điểm kiểm)
+│   └── tests/kiem-thu-han-muc.php #  Harness kiểm thử trên CSDL thật (56 điểm kiểm)
 ├── scripts/                     # Script tự động hóa (19 .sh, 7 .py, 13 .js)
 ├── backup/                      # Script sao lưu
 └── tai-lieu/                    # Tài liệu và ảnh minh chứng
@@ -660,12 +698,27 @@ Kỳ thực tập tốt nghiệp diễn ra trong Học kỳ 1 Năm học 2026 �
 | **6** | 14/09 – 19/09/2026 | Thiết kế hệ thống giao diện bản sắc Đà Lạt kết hợp Apple Precision và Claude Warmth; thực hiện Việt hóa mở rộng 667 thuật ngữ và 212 chuỗi số nhiều. | Plugin `dlubrand`, tệp CSS `dlu-theme.css`, tệp từ điển gộp `vi_VN.mo`. |
 | **7** | 21/09 – 26/09/2026 | Tích hợp mã QR cho thiết bị: vá 3 lỗi tương thích của plugin Barcode trên GLPI 11; phát triển script Python dự phòng sinh nhãn in hàng loạt. | Tính năng in mã QR từ hồ sơ thiết bị; script `sinh-ma-qr.py`. |
 | **8** | 28/09 – 03/10/2026 | Thu thập thông số kỹ thuật thực tế 10 phòng máy Trung tâm CNTT; xây dựng script nạp 482 máy tính, 487 màn hình & TV, thiết bị mạng, máy in. | Script `seed-du-lieu-mau.sql` ánh xạ 10 phòng máy thật (A24.1, A8, TV...). |
-| **9** | 05/10 – 10/10/2026 | Kiểm thử toàn diện: xây dựng harness 46 điểm kiểm, kiểm tra phân quyền HTTP 40 mục, kiểm thử 3 use case Playwright E2E, đo tải wrk trong Docker. | Harness `kiem-thu-han-muc.php`, `kiem-tra-chuc-nang.sh`, pipeline CI. |
+| **9** | 05/10 – 10/10/2026 | Kiểm thử toàn diện: xây dựng harness 56 điểm kiểm, kiểm tra phân quyền HTTP 40 mục, kiểm thử 3 use case Playwright E2E, đo tải wrk trong Docker. | Harness `kiem-thu-han-muc.php`, `kiem-tra-chuc-nang.sh`, pipeline CI. |
 | **10** | 12/10 – 17/10/2026 | Rà soát chất lượng đối kháng (xử lý 13 vấn đề P0/P1/P2); đóng gói script cài đặt một lệnh `cai-dat-tat-ca.sh`; hoàn thiện báo cáo và slide bảo vệ. | Hệ thống PineDesk hoàn chỉnh, báo cáo tốt nghiệp và slide bảo vệ. |
 
 *Bảng 4.1. Kế hoạch và tiến độ thực hiện 10 tuần thực tập tốt nghiệp*
 
-### 4.1.2. Các giai đoạn phát triển và mốc phát hành phiên bản
+### 4.1.2. Phân công nhiệm vụ các thành viên Nhóm 4
+
+Theo quyết định phân công thực tập tốt nghiệp của Trung tâm CNTT — Trường Đại học Đà Lạt trong Học kỳ 1 Năm học 2026 – 2027, đề tài *Xây dựng hệ thống hỗ trợ kỹ thuật (IT Helpdesk)* được giao cho **Nhóm 4 gồm 3 sinh viên**: Phùng Võ Quốc Hiển (Nhóm trưởng), Lý Gia Bảo và Nguyễn Việt Bình, dưới sự hướng dẫn trực tiếp của ThS. La Quốc Thắng và ThS. Đặng Quốc Phi.
+
+Để đảm bảo hoàn thành khối lượng công việc thực tiễn quy mô lớn (quản lý 482 máy tính, 487 màn hình thuộc 10 phòng máy, thiết lập 6 tầng bảo mật, mở rộng 667 thuật ngữ tiếng Việt và xây dựng 56 điểm kiểm thử tự động), đồng thời bám sát đúng Đề cương thực tập tốt nghiệp cá nhân đã được phê duyệt, nhóm đã thống nhất ma trận phân công trách nhiệm chi tiết (Bảng 4.1b):
+
+| Thành viên | Vai trò | Trách nhiệm và khối lượng công việc đảm nhận | Tệp nguồn & tài liệu phụ trách chính |
+|---|---|---|---|
+| **Phùng Võ Quốc Hiển**<br>*(MSSV: 2212364)* | **Nhóm trưởng<br>Kỹ thuật & Bảo mật** | - Thiết kế kiến trúc phân vùng 4 container Docker, cấu hình Nginx Gateway HTTPS.<br>- Phát triển lớp bảo mật phòng thủ chiều sâu 6 tầng & plugin `pinedesk` (Xác thực email DLU, hạn mức nộp phiếu, chống trùng bằng khóa MariaDB `GET_LOCK`, nhật ký kiểm toán).<br>- Phân quyền theo vai trò (Self-Service, Technician, Admin) và cấu hình FormCreator.<br>- Xây dựng bộ kiểm thử tự động toàn diện (harness CSDL 56 điểm kiểm, kịch bản Playwright E2E 3 use case, đo tải định lượng wrk, pipeline CI 6 nhóm).<br>- Chủ trì tích hợp toàn hệ thống, tự động hóa luồng cài đặt và viết báo cáo kỹ thuật. | `docker-compose.yml`, `nginx/`, `plugins/pinedesk/`, `tests/kiem-thu-han-muc.php`, `kiem-tra-usecase.js`, `.github/workflows/ci.yml`, `cai-dat-tat-ca.sh`, `BAO-CAO-THUC-TAP.md` |
+| **Lý Gia Bảo**<br>*(MSSV: 2213934)* | **Thành viên** | - Khảo sát thực địa thông số kỹ thuật 10 phòng máy tính tại Trung tâm CNTT.<br>- Số hóa cơ sở dữ liệu tài sản: 482 máy tính, 487 màn hình & Tivi, 3 máy in, 17 thiết bị mạng; thiết lập quy chuẩn mã định danh tài sản (`TDL-PC-A241-001`).<br>- Thiết kế hệ thống giao diện nhận diện bản sắc Đà Lạt (plugin `dlubrand`, CSS chủ đề trích xuất màu logo DLU).<br>- Khắc phục 3 lỗi tương thích của plugin Barcode 2.7.1 trên GLPI 11; phát triển script Python độc lập `sinh-ma-qr.py` phục vụ in nhãn mã QR hàng loạt.<br>- Chụp và quản lý hệ thống ảnh chụp màn hình minh chứng giao diện thực tế. | `plugins/dlubrand/`, `themes/`, `DESIGN.md`, `sinh-ma-qr.py`, `scripts/seed-du-lieu-mau.sql` (khối thiết bị 10 phòng máy), `tai-lieu/anh-giao-dien/` |
+| **Nguyễn Việt Bình**<br>*(MSSV: 2213831)* | **Thành viên** | - Khảo sát quy trình tiếp nhận và xử lý sự cố CNTT hiện hành tại ITC, phỏng vấn kỹ thuật viên và người học để đúc kết 3 mâu thuẫn cốt lõi.<br>- Chuẩn hóa bộ danh mục trường học: 12 tòa nhà, 54 phòng, 16 khoa và 79 danh mục sự cố 2 cấp chuẩn ITIL v4.<br>- Thiết kế chính sách cam kết thời gian dịch vụ (5 mức SLA kỹ thuật); cấu hình luồng nghiệp vụ bảo trì định kỳ và mượn trả thiết bị phòng máy.<br>- Tham gia mở rộng bản dịch tiếng Việt cho GLPI 11 (667 mục từ + 212 chuỗi số nhiều), đạt độ phủ 100% menu và biểu mẫu.<br>- Thực hiện kiểm thử chấp nhận người dùng (UAT), soạn thảo tài liệu hướng dẫn vận hành và kịch bản demo 7 phút. | `seed-du-lieu-nen.sql`, `seed-sla-va-chong-lam-dung.sql`, `viet-hoa-du-lieu.sh`, `bo-sung-tieng-viet.py`, `kiem-tra-chuc-nang.sh`, `tai-lieu/README.md`, `SO-LIEU-THUC-TE-DLU.md` |
+| **Cả 3 thành viên** | **Thực tập sinh ITC** | - Cùng tham gia công tác quản lý, bảo dưỡng định kỳ các phòng máy tính khu A và khu TV dưới sự hướng dẫn của ThS. Đặng Quốc Phi.<br>- Hỗ trợ cài đặt phần mềm và chuẩn bị phòng máy phục vụ Hội thi Tin học trẻ toàn quốc tổ chức tại Trường Đại học Đà Lạt.<br>- Tham gia hỗ trợ hạ tầng kỹ thuật cho cuộc thi An toàn thông tin sinh viên. | Hoàn thành tốt các nhiệm vụ chuyên môn và công tác hỗ trợ đột xuất được Ban Giám đốc ITC giao phó. |
+
+*Bảng 4.1b. Phân công nhiệm vụ các thành viên Nhóm 4 trong đề tài*
+
+### 4.1.3. Các giai đoạn phát triển và mốc phát hành phiên bản
 
 Quá trình phát triển phần mềm được ghi nhận chi tiết qua 4 phiên bản chính và một đợt rà soát chất lượng chuyên sâu:
 
@@ -774,61 +827,69 @@ Ngoài ba lỗi trên, em còn tìm ra hai lỗi âm thầm, nghĩa là chúng k
 
 Mã QR sinh ra đã được giải mã để kiểm chứng, không chỉ nhìn thấy hình.
 
-### 4.2.5. Chống lạm dụng nộp phiếu
+### 4.2.5. Chống lạm dụng nộp phiếu và kiểm soát danh tính
 
-Đây là phần trả lời trực tiếp câu hỏi phản biện "nếu sinh viên spam thì sao". Vì kênh nộp phiếu mở cho sinh viên, hệ thống cần phòng thủ nhiều tầng, mỗi tầng chặn một kiểu hành vi khác nhau.
+Khi mở cổng tiếp nhận sự cố cho hơn 14.500 người học, rủi ro lớn nhất của hệ thống là bị lạm dụng: sinh viên nộp phiếu rác, gửi liên tục khi gặp lỗi mạng, spam làm nghẽn hàng đợi hoặc mạo danh người khác. Theo gợi ý của giảng viên hướng dẫn về việc áp dụng các tiêu chuẩn an toàn thông tin (OWASP Top 10) và yêu cầu bắt buộc đăng nhập bằng email trường, hệ thống xây dựng mô hình phòng thủ theo chiều sâu 6 tầng:
 
 ```
-   Người dùng
+   Người dùng (Sinh viên / Giảng viên)
        │
        ▼
-  ┌─────────────────────────────────────────────┐
-  │ T1  NGINX      giới hạn tần suất theo IP    │  chặn bot, bấm liên tục
-  ├─────────────────────────────────────────────┤
-  │ T2  PHIÊN      bắt buộc đăng nhập           │  chặn người ngoài
-  ├─────────────────────────────────────────────┤
-  │ T3  NGHIỆP VỤ  trần phiếu mỗi người mỗi ngày│  chặn lạm dụng theo tài khoản
-  ├─────────────────────────────────────────────┤
-  │ T4  CHỐNG TRÙNG cùng người + thiết bị + loại│  chặn nộp lặp
-  ├─────────────────────────────────────────────┤
-  │ T5  KIỂM DUYỆT  kỹ thuật viên xác nhận      │  chặn tự nâng khẩn cấp
-  ├─────────────────────────────────────────────┤
-  │ T6  NHẬT KÝ     ghi ai, khi nào, từ đâu     │  truy vết, xử lý sau
-  └─────────────────────────────────────────────┘
+  ┌─────────────────────────────────────────────────────────────┐
+  │ T1  NGINX GATEWAY   giới hạn tần suất 30 req/phút theo IP   │  chặn bot, flood mạng
+  ├─────────────────────────────────────────────────────────────┤
+  │ T2  XÁC THỰC EMAIL  bắt buộc email chính thức @dlu.edu.vn   │  chặn email ngoài, mạo danh
+  ├─────────────────────────────────────────────────────────────┤
+  │ T3  HẠN MỨC TÀI KHOẢN trần 5 phiếu mở, 10 phiếu/ngày        │  chặn spam theo tài khoản
+  ├─────────────────────────────────────────────────────────────┤
+  │ T4  CHỐNG TRÙNG LẶP   cửa sổ 30 phút (thiết bị / tiêu đề)   │  chặn nộp lặp do sốt ruột
+  ├─────────────────────────────────────────────────────────────┤
+  │ T5  SOÁT XÉT ƯU TIÊN  nhắc KTV kiểm tra phiếu Cao/Rất cao   │  chặn tự chen hàng
+  ├─────────────────────────────────────────────────────────────┤
+  │ T6  NHẬT KÝ ĐỘC LẬP   ghi vết users_id, IP, lý do chặn      │  truy vết và kiểm toán
+  └─────────────────────────────────────────────────────────────┘
 ```
 
-*Sơ đồ luồng: Sáu tầng phòng thủ chống lạm dụng nộp phiếu sự cố*
+*Sơ đồ luồng: Sáu tầng phòng thủ chống lạm dụng và kiểm soát danh tính*
 
-Trạng thái thật của từng tầng:
+| Tầng | Tên cơ chế | Phạm vi kiểm soát | Cách thức triển khai | Trạng thái |
+|---|---|---|---|---|
+| T1 | Giới hạn tần suất mạng | Địa chỉ IP máy trạm | Nginx `limit_req_zone` (30 req/phút, `burst=10 nodelay`) | Đã dựng |
+| T2 | Xác thực miền email trường | Tài khoản người gửi | Plugin `pinedesk`: chỉ chấp nhận email `@dlu.edu.vn` | Đã dựng |
+| T3 | Hạn mức phiếu nghiệp vụ | Tài khoản người gửi | Plugin `pinedesk`: trần 5 phiếu đang mở, 10 phiếu/ngày | Đã dựng |
+| T4 | Chống nộp phiếu trùng lặp | Tài khoản + Thiết bị / Tiêu đề | Cửa sổ 30 phút, bảo vệ bằng khóa MariaDB `GET_LOCK` | Đã dựng |
+| T5 | Soát xét mức độ ưu tiên | Trạng thái phiếu | Tự động tạo ghi chú nội bộ Hệ thống cho phiếu Cao/Rất cao | Đã dựng |
+| T6 | Nhật ký kiểm toán an ninh | Mọi yêu cầu tạo phiếu | Bảng `glpi_plugin_pinedesk_ticketlog` ghi nhận lý do | Đã dựng |
 
-| Tầng | Cơ chế | Trạng thái |
-|---|---|---|
-| T1 | Giới hạn tần suất tại endpoint nộp phiếu | Đã dựng |
-| T2 | Bắt buộc đăng nhập, không cho nộp ẩn danh | Có sẵn của GLPI |
-| T3 | Trần phiếu đang mở và số phiếu mỗi ngày | Đã dựng |
-| T4 | Phát hiện phiếu trùng | Đã dựng |
-| T5 | Kiểm duyệt trước khi giao việc | Tự động nhắc soát xét cho phiếu ưu tiên cao (người vẫn quyết) |
-| T6 | Nhật ký tạo phiếu | Đã dựng |
+*Bảng 4.5. Sáu tầng chống lạm dụng và kiểm soát danh tính của PineDesk*
 
-*Bảng 4.5. Sáu tầng chống lạm dụng nộp phiếu*
+**Căn cứ chọn ngưỡng giới hạn tần suất tầng mạng (Tier 1):**
+Khuôn viên Trường Đại học Đà Lạt sử dụng cơ chế NAT chung: toàn bộ 35 đến 40 máy tính trong một phòng thực hành chia sẻ chung một địa chỉ IP khi kết nối ra ngoài. Nếu đặt ngưỡng IP quá thấp (chẳng hạn 5 yêu cầu/phút), các sinh viên trong cùng một lớp học khi nộp bài hoặc báo cáo sự cố đồng thời sẽ bị chặn nhầm bởi mã lỗi HTTP 429. Do đó, Nginx Gateway giữ ngưỡng 30 yêu cầu/phút kèm dự phòng `burst=10 nodelay` nhằm triệt tiêu bot tự động, còn việc kiểm soát hạn mức từng cá nhân được chuyển giao hoàn toàn cho tầng T2 và T3 theo tài khoản đăng nhập.
 
-**Vì sao chọn ngưỡng 30 request mỗi phút cho tầng mạng, không chặt hơn.** Khuôn viên trường dùng NAT chung, cả phòng máy 35 đến 40 máy đi ra ngoài bằng một địa chỉ IP. Nếu đặt ngưỡng theo IP quá thấp, một lớp học đang thao tác có thể bị chặn oan: sinh viên thứ sáu trong phòng bấm lưu sẽ bị chặn dù hoàn toàn hợp lệ. Vì vậy tầng mạng giữ ngưỡng rộng có chủ đích, còn tầng nghiệp vụ mới siết chính xác theo tài khoản, vì tài khoản không bị NAT. Đây là quyết định thiết kế có lý do, không phải bỏ sót.
+**Hạ tầng email thực tế tại DLU và cơ chế xác thực danh tính (Tier 2):**
+Theo quy chuẩn vận hành của Trường Đại học Đà Lạt, toàn bộ dịch vụ thư điện tử được quản lý tập trung trên nền tảng Google Workspace for Education dưới một tên miền duy nhất là `@dlu.edu.vn` (đã xác thực qua bản ghi DNS MX trỏ về máy chủ Google). Quy chuẩn định danh email của trường như sau:
+- Sinh viên: `{mssv}@dlu.edu.vn` (Mã số sinh viên 7 chữ số, ví dụ `2110123@dlu.edu.vn`, `2212364@dlu.edu.vn`).
+- Giảng viên / Cán bộ: `{tên_viết_tắt}@dlu.edu.vn` (ví dụ `cuonggv@dlu.edu.vn`, `tunglv@dlu.edu.vn`).
+- Các subdomain như `cntt.dlu.edu.vn`, `ktt.dlu.edu.vn`, `lms.dlu.edu.vn` chỉ là cổng thông tin web, hoàn toàn không có bản ghi MX và không dùng làm email.
 
-**Hạn mức nghiệp vụ** nằm trong bảng cấu hình, không hardcode trong mã:
+Mặc định, phần mềm GLPI cho phép bất kỳ tài khoản nào đăng nhập cũng được nộp phiếu, kể cả tài khoản chưa khai báo email hoặc sử dụng email cá nhân ngoài trường (`@gmail.com`, `@yahoo.com`), dẫn đến lỗ hổng xác thực theo tiêu chuẩn OWASP (A07: Identification and Authentication Failures). Plugin `pinedesk` can thiệp vào hook `PRE_ITEM_ADD` qua hàm `plugin_pinedesk_has_valid_institutional_email()`, kiểm tra nghiêm ngặt biểu thức chính quy:
 
-| Tham số | Giá trị | Ý nghĩa |
-|---|---|---|
-| Số phiếu mở tối đa | 5 | Một người tối đa 5 phiếu đang mở cùng lúc |
-| Số phiếu mỗi ngày | 10 | Tối đa 10 phiếu mỗi ngày mỗi người |
-| Cửa sổ chống trùng | 30 phút | Khoảng thời gian phát hiện phiếu trùng |
+```php
+$pattern = '/^[a-zA-Z0-9._%+-]+@dlu\.edu\.vn$/i';
+```
 
-*Bảng 4.6. Hạn mức nghiệp vụ*
+Nếu người dùng chưa có email hoặc sử dụng email ngoài trường (kể cả subdomain giả định `@sinhvien.dlu.edu.vn`), hàm lập tức hủy bỏ quá trình tạo phiếu (`$item->input = false`) và ghi nhận trạng thái `EMAIL_BLOCKED` vào nhật ký kiểm toán.
 
-**Cơ chế khóa chống đua MariaDB mutex (GET_LOCK):** Khi người dùng mở nhiều tab hoặc bấm gửi liên tiếp, nguy cơ xảy ra tranh chấp dữ liệu (TOCTOU - Time-of-Check to Time-of-Use) là rất lớn: cả hai luồng cùng kiểm tra thấy hạn mức còn trống rồi cùng ghi vào CSDL. Để triệt tiêu hoàn toàn rủi ro này, plugin sử dụng cơ chế khóa phân tán cấp người dùng trong MariaDB: `GET_LOCK('pinedesk_hm_<uid>', 3)`. Khóa được giới hạn phạm vi theo từng `user_id`, giúp các người dùng khác nhau nộp phiếu hoàn toàn độc lập mà không bị nghẽn cổ chai. Vòng đời khóa được kiểm soát chặt chẽ: giải phóng chủ động ngay khi bị từ chối ở `PRE_ITEM_ADD` hoặc sau khi ghi nhận thành công ở `ITEM_ADD` (`plugin_pinedesk_release_lock()`), đồng thời đăng ký `register_shutdown_function` như lớp bảo hiểm cuối cùng khi có sự cố bất ngờ.
+*Lưu ý về hành vi giao diện trên GLPI 11 FormCreator:* Khi nộp phiếu qua biểu mẫu FormCreator (`/Form/SubmitAnswers`), việc plugin trả về `$item->input = false` khiến lớp `AbstractCommonITILFormDestination` của lõi GLPI ném ngoại lệ và hiển thị thông báo lỗi chung: "Failed to submit form, please contact your administrator". Giao dịch cơ sở dữ liệu được rollback an toàn, phiếu không bị ghi vào hệ thống và mã lỗi bảo mật được lưu lại trong nhật ký.
 
-**Tự động hóa tối thiểu tầng kiểm duyệt T5:** Nhằm ngăn chặn tình trạng người dùng tự nâng mức ưu tiên phiếu lên Cao hoặc Rất cao để chen hàng, plugin tự động bắt sự kiện tạo phiếu: nếu người gửi thuộc nhóm tự phục vụ (sinh viên, giảng viên) mà đặt mức ưu tiên Cao/Rất cao, plugin sẽ tự động chèn một ghi chú nội bộ (`ITILFollowup`) với cờ `is_private = 1`, nhắc nhở kỹ thuật viên cần xác minh lại hiện trường trước khi điều phối tài nguyên. Đặc biệt, tác giả ghi chú được gán tường minh cho tài khoản Hệ thống (`users_id => 0`), tránh việc GLPI tự động gán tên sinh viên nộp phiếu vào ghi chú nội bộ của quản trị viên.
+**Hạn mức nghiệp vụ và khóa chống đua phân tán MariaDB Mutex (Tier 3 & Tier 4):**
+Hạn mức nghiệp vụ được lưu trong bảng cấu hình `glpi_plugin_pinedesk_configs` (mặc định trần 5 phiếu đang mở và 10 phiếu/ngày, cửa sổ chống trùng 30 phút). Để ngăn ngừa tranh chấp dữ liệu (TOCTOU - Time-of-Check to Time-of-Use) khi sinh viên mở nhiều tab trình duyệt hoặc bấm gửi nhiều lần liên tiếp, plugin sử dụng cơ chế khóa phân tán MariaDB: `GET_LOCK('pinedesk_hm_<uid>', 3)`. Khóa được phân tách độc lập theo từng `users_id`, giải phóng chủ động ngay khi phiếu bị chặn hoặc tạo thành công, có đăng ký hàm dọn dẹp an toàn khi tắt tiến trình (`register_shutdown_function`).
 
-**Quyết định không tự xóa phiếu:** Script kiểm tra chỉ báo cáo và đánh dấu, không tự ý xóa phiếu trong CSDL. Việc này đảm bảo không làm mất dữ liệu của người dùng hợp lệ, giữ nguyên vết bằng chứng để kỹ thuật viên phân tích và ra quyết định.
+**Tự động hóa tối thiểu tầng kiểm duyệt (Tier 5):**
+Để ngăn chặn hành vi tự nâng mức ưu tiên lên Cao hoặc Rất cao nhằm chen hàng trong danh sách phục vụ, plugin tự động bắt sự kiện tạo phiếu: nếu người gửi thuộc nhóm tự phục vụ mà chọn mức ưu tiên cao, hệ thống tự động chèn một ghi chú nội bộ (`ITILFollowup`) với cờ ẩn danh `is_private = 1`, nhắc kỹ thuật viên cần xác minh hiện trường trước khi điều phối tài nguyên. Tác giả của ghi chú được gán tường minh cho tài khoản Hệ thống (`users_id = 0`), tránh việc GLPI tự động gán tên sinh viên vào ghi chú nội bộ của kỹ thuật viên.
+
+**Tầng kiểm toán độc lập (Tier 6):**
+Mọi hành động nộp phiếu (thành công hoặc bị chặn) đều được ghi nhận vào bảng chuyên dụng `glpi_plugin_pinedesk_ticketlog` gồm: `users_id`, `tickets_id`, `ip_address`, `tickets_id_dup`, và mã lý do (`NEW`, `EMAIL_BLOCKED`, `LIMIT_BLOCKED`, `DUP_BLOCKED`, `LOCK_FAIL`, `FAIL_OPEN`). Dữ liệu này giúp Trung tâm CNTT dễ dàng truy vết và đánh giá mức độ lạm dụng qua các câu truy vấn quản trị.
 
 ### 4.2.6. Việt hóa
 
@@ -891,15 +952,44 @@ Với kỹ thuật viên, toàn bộ trang trung tâm trả về 200 và có n�
 
 Đây là bằng chứng cho hai điều cùng lúc: chức năng hoạt động, và phân quyền hoạt động.
 
-### 4.3.3. Kết quả kiểm tra chống lạm dụng
+### 4.3.3. Kết quả kiểm tra chống lạm dụng và an toàn thông tin
 
-Script kiểm tra chống lạm dụng báo cáo ba mục, tất cả đều đạt trên dữ liệu hiện có:
+Hệ thống chống lạm dụng và kiểm soát danh tính được kiểm chứng qua ba phương pháp độc lập: kiểm thử tích hợp sâu bên trong container cơ sở dữ liệu, kiểm thử luồng người dùng đầu-cuối bằng trình duyệt tự động, và kiểm thử tải mạng trực tiếp.
 
-- Không có tài khoản nào vượt hạn mức phiếu đang mở.
-- Không phát hiện phiếu trùng trong 7 ngày qua.
-- Không phát hiện nộp quá nhanh.
+**1. Kiểm thử tích hợp tự động qua harness chuyên dụng (56/56 điểm kiểm ĐẠT):**
+Tệp kiểm thử `plugins/pinedesk/tests/kiem-thu-han-muc.php` được thực thi trực tiếp bên trong container `pinedesk-glpi` trên cơ sở dữ liệu MariaDB thật, tạo các tài khoản tạm thời thuộc hồ sơ tự phục vụ (Self-Service) để kiểm tra toàn bộ 6 tầng phòng thủ và tự động dọn dẹp sạch sẽ sau khi kết thúc:
 
-Kiểm tra giới hạn tần suất ở tầng mạng bằng cách gửi 40 yêu cầu liên tiếp vào endpoint nộp phiếu: sau 11 yêu cầu đầu, hệ thống bắt đầu trả về mã 429. Điều này chứng minh tầng T1 hoạt động thật, không phải chỉ có trong cấu hình.
+```bash
+docker exec pinedesk-glpi php -f /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
+```
+
+| Nhóm | Mục tiêu kiểm thử | Số ca kiểm | Kết quả | Trạng thái ghi nhận |
+|---|---|---|---|---|
+| 0 | Tiên quyết: Trạng thái plugin, cấu hình động từ bảng | 4 | 4/4 Đạt | Plugin bật, bảng cấu hình hợp lệ |
+| 1 | Khởi tạo môi trường: 8 tài khoản tạm, thiết bị & danh mục thật | 11 | 11/11 Đạt | Tài khoản phân quyền Self-Service |
+| 1b | Tier 2: Xác thực email trường DLU (@dlu.edu.vn) | 8 | 8/8 Đạt | Chặn không email, chặn Gmail, chặn subdomain; cho phép @dlu.edu.vn |
+| 2-3 | Tier 3a: Trần 5 phiếu mở (User A tạo 5 phiếu rồi nộp phiếu thứ 6) | 7 | 7/7 Đạt | Phiếu 6 bị chặn, thông báo tiếng Việt, CSDL lưu đúng 5 phiếu |
+| 4 | Tier 4: Chống phiếu trùng lặp nội dung / thiết bị (User B & User D) | 7 | 7/7 Đạt | Phiếu trùng bị hủy, phiếu thiết bị khác thông qua |
+| 4c | Tier 3b: Trần phiếu mỗi ngày (User C) | 3 | 3/3 Đạt | Phiếu thứ 3 trong ngày bị chặn đúng thông báo |
+| 4d | Chống vượt quyền qua tham số client (User E) | 5 | 5/5 Đạt | Date lùi bị ép về hiện tại, status bị ép về Mới=1 |
+| 4e | Chống trùng tiêu đề khác danh mục (User F) | 4 | 4/4 Đạt | Cùng tiêu đề bị chặn, khác tiêu đề thông qua |
+| 4f | Tier 5: Tự động nhắc kỹ thuật viên kiểm duyệt phiếu ưu tiên cao | 4 | 4/4 Đạt | Tự động tạo ghi chú nội bộ từ Hệ thống (users_id=0) |
+| 5-7 | Miễn trừ cho KTV / Cron và Dọn dẹp dữ liệu kiểm thử | 3 | 3/3 Đạt | KTV không bị hạn mức, dữ liệu kiểm thử được xóa sạch |
+
+*Bảng 4.8. Kết quả 56 điểm kiểm thử tích hợp cơ chế chống lạm dụng và xác thực danh tính*
+
+Kết quả chi tiết đạt **56/56 điểm kiểm** (100%), chứng minh mọi kịch bản gian lận hoặc sai lệch danh tính đều bị hệ thống chặn đứng ở tầng nghiệp vụ.
+
+**2. Kiểm thử luồng sử dụng thực tế đầu-cuối (End-to-End) bằng Playwright (3/3 use case ĐẠT):**
+Script `scripts/kiem-tra-usecase.js` sử dụng thư viện Playwright điều khiển trình duyệt Chromium chạy ngầm, mô phỏng chính xác ba luồng thao tác của người dùng thật:
+- *UC1 (Sinh viên nộp phiếu sự cố):* Sinh viên đăng nhập, truy cập FormCreator, điền tiêu đề "Máy tính phòng A101 không khởi động", chọn loại sự cố, nhập nội dung qua bộ soạn thảo TinyMCE và bấm gửi. Kiểm tra phiếu xuất hiện lập tức trong danh sách cá nhân (`status = 1`).
+- *UC2 (Sinh viên đặt mượn thiết bị):* Sinh viên truy cập phân hệ Đặt chỗ, chọn thiết bị khả dụng trong phòng máy và hoàn tất đặt mượn thành công.
+- *UC3 (Kỹ thuật viên tiếp nhận phiếu):* Kỹ thuật viên đăng nhập giao diện điều hành, xác nhận nhìn thấy phiếu mới của sinh viên, mở chi tiết phiếu và kiểm tra thiết bị liên kết.
+
+Kết quả kiểm thử đầu-cuối: **3/3 ca kiểm thử hoàn thành xuất sắc**, không gặp bất kỳ lỗi giao diện hay bất đồng bộ dữ liệu nào.
+
+**3. Kiểm thử tải mạng và giới hạn tần suất Nginx Gateway (Tier 1):**
+Kiểm tra phản ứng của Nginx Gateway bằng cách gửi liên tục 40 yêu cầu HTTP POST vào endpoint nộp phiếu: 11 yêu cầu đầu tiên đi qua thành công (nhờ hạn mức dự phòng `burst=10 nodelay`), từ yêu cầu thứ 12 trở đi hệ thống lập tức trả về mã trạng thái `HTTP 429 Too Many Requests`. Cơ chế giới hạn tần suất tầng mạng hoạt động chính xác theo thiết kế.
 
 ### 4.3.4. Pipeline kiểm tra tự động
 
@@ -939,7 +1029,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 | 1 | README ghi giấy phép GPL v3 nhưng kho mã nguồn không có tệp giấy phép | P0 | Thêm `LICENSE` (GNU GPL-3.0) |
 | 2 | Còn nhánh `bao-cao-thuc-tap-dlu` lỗi thời trên kho từ xa | P0 | Xoá sau khi kiểm chứng nội dung đã nằm trong `master` |
 | 3 | Hướng dẫn phục hồi dữ liệu dạy `source .env` và truyền mật khẩu qua dòng lệnh — trái với chuẩn bảo mật của chính đồ án | P0 | Đổi sang cách an toàn, rồi chạy thử phục hồi thật |
-| 4 | Nghi ngờ con số "điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI (tăng dần 37 → 42 → 46) |
+| 4 | Nghi ngờ con số "điểm kiểm" trong tài liệu là sai | P0 | Kiểm chứng: con số **đúng**; ghi rõ cách đếm và chốt lại bằng một cửa CI (tăng dần 37 → 42 → 46 → 56) |
 | 5 | Thiếu tệp khoá phiên bản phụ thuộc | P1 | Thêm `package-lock.json`, `requirements.txt`, `.dockerignore` |
 | 6 | Pipeline CI ghim phiên bản công cụ bằng nhãn trôi nổi | P1 | Ghim theo mã băm commit |
 | 7 | Nhật ký container không giới hạn dung lượng | P1 | Thêm giới hạn log cho cả bốn dịch vụ |
@@ -954,7 +1044,7 @@ Sau khi hệ thống đã chạy được và báo cáo đã có bản nháp, em
 
 Hai vấn đề đáng kể nhất đều nằm ở mức P0. Thứ nhất là **hướng dẫn phục hồi dữ liệu tự mâu thuẫn**: đồ án đã có quy ước rõ là không truyền mật khẩu qua tham số dòng lệnh (vì tiến trình khác đọc được qua `ps`), vậy mà chính tài liệu lại dạy điều ngược lại. Đây là loại lỗi nguy hiểm vì nó không làm hệ thống hỏng, chỉ âm thầm làm yếu bảo mật. Em sửa cả tài liệu lẫn script, rồi **chạy thử phục hồi thật** để chắc chắn cách mới hoạt động và dữ liệu vẫn nguyên vẹn (482 máy tính, 14 phiếu).
 
-Thứ hai là **bài học về số liệu**. Tài liệu ghi nhận số điểm kiểm tăng dần theo các đợt hoàn thiện: từ 37 điểm ban đầu, lên 42 điểm khi vá chống trùng theo tên (mục 4e), và chốt ở **46 điểm kiểm** khi tự động hoá kiểm duyệt T5 (mục 4f). Lời gọi `check()` nằm trong vòng lặp và các khối kiểm tra điều kiện, nên tổng số lần chạy lớn hơn số dòng grep thô. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
+Thứ hai là **bài học về số liệu**. Tài liệu ghi nhận số điểm kiểm tăng dần theo các đợt hoàn thiện: từ 37 điểm ban đầu, lên 42 điểm khi vá chống trùng theo tên (mục 4e), lên 46 điểm khi tự động hoá kiểm duyệt T5 (mục 4f), và đạt **56 điểm kiểm** khi bổ sung Tier 2 xác thực miền email chính thức `@dlu.edu.vn` theo gợi ý của giảng viên hướng dẫn. Lời gọi `check()` nằm trong vòng lặp và các khối kiểm tra điều kiện, nên tổng số lần chạy lớn hơn số dòng grep thô. Từ đó em thêm một cửa CI tự chốt con số này, để nếu ai thêm hoặc bớt phép kiểm mà quên cập nhật tài liệu thì pipeline báo đỏ ngay.
 
 Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác nhận không có hồi quy:
 
@@ -964,7 +1054,7 @@ Sau khi hoàn tất, em chạy lại toàn bộ các cửa kiểm tra để xác
 | Lint shell (ShellCheck), cú pháp PHP | Đạt (4 tệp PHP) |
 | Cấu hình Docker Compose và Nginx | Hợp lệ |
 | Quét bí mật trong mã nguồn | Sạch |
-| Chống lạm dụng (harness plugin) | **46/46 đạt** |
+| Chống lạm dụng và xác thực email (harness plugin) | **56/56 đạt** |
 | Chống đua GET_LOCK (2 request song song) | **Đạt** (chỉ 1/2 thành công) |
 | Chặn hạn mức qua HTTP thật (Service Catalog) | **Đạt** |
 | Chức năng và phân quyền theo vai trò | **25/25 đạt** (KTV) và **15/15 đạt** (Sinh viên) |
@@ -1012,7 +1102,7 @@ Chi tiết đầy đủ của đợt rà soát (từng vấn đề, cách sửa,
 - Mã QR cho thiết bị, đã giải mã kiểm chứng.
 - Lớp chống lạm dụng sáu tầng với bằng chứng chạy thật (HTTP 429 sau 11 yêu cầu).
 - Kiểm thử: 25/25 mục đạt với vai trò kỹ thuật viên, 15/15 với vai trò sinh viên.
-- Pipeline CI sáu nhóm gồm 46 bước kiểm tra tự động nghiêm ngặt (có cả E2E Playwright).
+- Pipeline CI sáu nhóm gồm 56 bước kiểm tra tự động nghiêm ngặt (có cả E2E Playwright).
 - Đặc tả hệ thống thiết kế `DESIGN.md` chuẩn Impeccable (dung hợp Apple Precision + Claude Warmth + Bản sắc Đà Lạt).
 - Khảo sát số liệu thực tế có nguồn chính thức (`SO-LIEU-THUC-TE-DLU.md`) và báo cáo đo tải định lượng (`DO-TAI.md`).
 
@@ -1166,7 +1256,7 @@ bash scripts/nap-sla-va-chong-lam-dung.sh
 # 4. Chạy kiểm thử tự động toàn diện (CI gates tại chỗ)
 make kiem-tra
 
-# 5. Chạy harness chống lạm dụng trên CSDL thật (46 điểm kiểm)
+# 5. Chạy harness chống lạm dụng trên CSDL thật (56 điểm kiểm)
 docker exec -u www-data pinedesk-glpi \
   php /var/www/glpi/plugins/pinedesk/tests/kiem-thu-han-muc.php
 
@@ -1221,7 +1311,7 @@ Chi tiết lộ trình thực tập 10 tuần được xây dựng theo chuẩn 
 - **Tuần 6 (14/09 – 19/09/2026):** Phát triển hệ thống nhận diện thương hiệu `dlubrand`. Trích xuất bảng màu logo DLU, tích hợp ngôn ngữ thiết kế Apple Precision và Claude Warmth. Nghiên cứu cơ chế nạp catalog của thư viện `laminas-i18n`, xây dựng công cụ gộp và mở rộng từ điển tiếng Việt (667 thuật ngữ, 212 mục số nhiều).
 - **Tuần 7 (21/09 – 26/09/2026):** Nghiên cứu giải pháp quản lý tài sản bằng mã QR. Khắc phục 3 lỗi tương thích phiên bản của plugin Barcode 2.7.1 trên GLPI 11 (`setup.php`, `vendor/`, `$DB->doQuery()`). Phát triển script Python độc lập `sinh-ma-qr.py` làm giải pháp dự phòng sinh nhãn in hàng loạt.
 - **Tuần 8 (28/09 – 03/10/2026):** Tiếp nhận văn bản khảo sát trang thiết bị phòng máy của ITC. Xây dựng script nạp dữ liệu mẫu ánh xạ chính xác 10 phòng máy thật (482 máy tính, 487 màn hình & Tivi, 3 máy in, 17 thiết bị mạng). Thiết lập 10 bản ghi SLA kỹ thuật và quy trình bảo trì định kỳ, mượn trả thiết bị.
-- **Tuần 9 (05/10 – 10/10/2026):** Xây dựng bộ công cụ kiểm thử đa tầng: harness kiểm thử CSDL 46 điểm kiểm, script kiểm tra phân quyền HTTP 40 mục, kiểm thử 3 use case Playwright end-to-end trên Chrome thật, đo tải định lượng hệ thống bằng wrk. Tích hợp pipeline CI 6 nhóm kiểm tra tự động trên GitHub Actions.
+- **Tuần 9 (05/10 – 10/10/2026):** Xây dựng bộ công cụ kiểm thử đa tầng: harness kiểm thử CSDL 56 điểm kiểm, script kiểm tra phân quyền HTTP 40 mục, kiểm thử 3 use case Playwright end-to-end trên Chrome thật, đo tải định lượng hệ thống bằng wrk. Tích hợp pipeline CI 6 nhóm kiểm tra tự động trên GitHub Actions.
 - **Tuần 10 (12/10 – 17/10/2026):** Thực hiện đợt rà soát chất lượng đối kháng, giải quyết 13 vấn đề P0/P1/P2. Hoàn thiện script đóng gói cài đặt tự động một lệnh `cai-dat-tat-ca.sh`. Biên soạn báo cáo thực tập tốt nghiệp hoàn chỉnh và chuẩn bị tài liệu slide bảo vệ trước Hội đồng.
 
 ## Phụ lục F. Bộ câu hỏi và trả lời phản biện chuyên sâu trước Hội đồng

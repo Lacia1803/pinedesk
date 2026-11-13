@@ -35,6 +35,8 @@ services:
     # (Luu y: pin digest thi KHONG nhan ban va bao mat tu dong cua tag).
     container_name: pinedesk-gateway
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     logging: *default-logging
     ports:
       - "${HTTP_PORT:-8080}:80"
@@ -78,6 +80,8 @@ services:
     #   sha256:d4cea82338b14c761e6707a71241bb85a3f22fc47befeeb518039a251be742c2
     container_name: pinedesk-glpi
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     logging: *default-logging
     environment:
       GLPI_DB_HOST: mariadb
@@ -153,12 +157,16 @@ services:
     #   sha256:7db29378d4fdab73f8123bbc2b48905c90d1a4b00cf848b028f1e81e623257f2
     container_name: pinedesk-db
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     logging: *default-logging
     command: >
       --default-time-zone="+07:00"
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
       --innodb-buffer-pool-size=512M
+      --local-infile=0
+      --skip-symbolic-links
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Thieu DB_ROOT_PASSWORD trong .env - xem .env.example}
       MARIADB_DATABASE: ${GLPI_DB_NAME:-glpi}
@@ -186,6 +194,8 @@ services:
     #   sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
     container_name: pinedesk-redis
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     logging: *default-logging
     command: >
       redis-server

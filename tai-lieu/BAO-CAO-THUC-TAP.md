@@ -885,6 +885,16 @@ Nếu người dùng chưa có email hoặc sử dụng email ngoài trường (
 **Hạn mức nghiệp vụ và khóa chống đua phân tán MariaDB Mutex (Tier 3 & Tier 4):**
 Hạn mức nghiệp vụ được lưu trong bảng cấu hình `glpi_plugin_pinedesk_configs` (mặc định trần 5 phiếu đang mở và 10 phiếu/ngày, cửa sổ chống trùng 30 phút). Để ngăn ngừa tranh chấp dữ liệu (TOCTOU - Time-of-Check to Time-of-Use) khi sinh viên mở nhiều tab trình duyệt hoặc bấm gửi nhiều lần liên tiếp, plugin sử dụng cơ chế khóa phân tán MariaDB: `GET_LOCK('pinedesk_hm_<uid>', 3)`. Khóa được phân tách độc lập theo từng `users_id`, giải phóng chủ động ngay khi phiếu bị chặn hoặc tạo thành công, có đăng ký hàm dọn dẹp an toàn khi tắt tiến trình (`register_shutdown_function`).
 
+| Tham số cấu hình | Giá trị mặc định | Phạm vi tác động | Mục đích kiểm soát |
+|---|---|---|---|
+| `max_open_tickets` | 5 phiếu | Tài khoản sinh viên / giảng viên | Ngăn chặn tích lũy phiếu chờ xử lý gây quá tải hàng đợi |
+| `max_daily_tickets` | 10 phiếu / ngày | Mỗi tài khoản trong 24 giờ | Giới hạn số lượng phiếu tối đa nộp trong một ngày làm việc |
+| `duplicate_window_minutes` | 30 phút | Cùng người gửi + thiết bị hoặc tiêu đề | Triệt tiêu hành vi bấm nộp lặp lại nhiều lần |
+| `institutional_email_domain` | `@dlu.edu.vn` | Toàn bộ tài khoản nộp phiếu | Xác thực danh tính sinh viên/cán bộ chính danh của trường |
+| `distributed_lock_timeout` | 3 giây | Khóa mutex MariaDB `GET_LOCK` | Ngăn chặn tấn công đồng thời TOCTOU qua nhiều tab trình duyệt |
+
+*Bảng 4.6. Các tham số hạn mức nghiệp vụ chống spam*
+
 **Tự động hóa tối thiểu tầng kiểm duyệt (Tier 5):**
 Để ngăn chặn hành vi tự nâng mức ưu tiên lên Cao hoặc Rất cao nhằm chen hàng trong danh sách phục vụ, plugin tự động bắt sự kiện tạo phiếu: nếu người gửi thuộc nhóm tự phục vụ mà chọn mức ưu tiên cao, hệ thống tự động chèn một ghi chú nội bộ (`ITILFollowup`) với cờ ẩn danh `is_private = 1`, nhắc kỹ thuật viên cần xác minh hiện trường trước khi điều phối tài nguyên. Tác giả của ghi chú được gán tường minh cho tài khoản Hệ thống (`users_id = 0`), tránh việc GLPI tự động gán tên sinh viên vào ghi chú nội bộ của kỹ thuật viên.
 
@@ -976,7 +986,7 @@ docker exec pinedesk-glpi php -f /var/www/glpi/plugins/pinedesk/tests/kiem-thu-h
 | 4f | Tier 5: Tự động nhắc kỹ thuật viên kiểm duyệt phiếu ưu tiên cao | 4 | 4/4 Đạt | Tự động tạo ghi chú nội bộ từ Hệ thống (users_id=0) |
 | 5-7 | Miễn trừ cho KTV / Cron và Dọn dẹp dữ liệu kiểm thử | 3 | 3/3 Đạt | KTV không bị hạn mức, dữ liệu kiểm thử được xóa sạch |
 
-*Bảng 4.8. Kết quả 56 điểm kiểm thử tích hợp cơ chế chống lạm dụng và xác thực danh tính*
+*Bảng 4.7b. Kết quả 56 điểm kiểm thử tích hợp cơ chế chống lạm dụng và xác thực danh tính*
 
 Kết quả chi tiết đạt **56/56 điểm kiểm** (100%), chứng minh mọi kịch bản gian lận hoặc sai lệch danh tính đều bị hệ thống chặn đứng ở tầng nghiệp vụ.
 

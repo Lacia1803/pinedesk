@@ -10,6 +10,12 @@ Khoa Công nghệ Thông tin - Trường Đại học Đà Lạt
 import os
 import re
 import sys
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 import docx
 from docx.shared import Inches, Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -97,36 +103,43 @@ def add_page_number_to_run(run):
     run._r.append(fldChar3)
 
 def add_formatted_text(paragraph, text, default_color=None, default_size=Pt(13), default_font="Times New Roman"):
-    """Phân tích markdown inline (**đậm**, *nghiêng*, `mã lệnh`) thành các run định dạng."""
-    parts = re.split(r'(\*\*.*?\*\*|\*.*?\*|`.*?`)', text)
-    for part in parts:
-        if not part:
-            continue
-        if part.startswith('**') and part.endswith('**'):
-            run = paragraph.add_run(part[2:-2])
-            run.bold = True
-            run.font.name = default_font
-            run.font.size = default_size
-            if default_color:
-                run.font.color.rgb = default_color
-        elif part.startswith('*') and part.endswith('*'):
-            run = paragraph.add_run(part[1:-1])
-            run.italic = True
-            run.font.name = default_font
-            run.font.size = default_size
-            if default_color:
-                run.font.color.rgb = default_color
-        elif part.startswith('`') and part.endswith('`'):
-            run = paragraph.add_run(part[1:-1])
-            run.font.name = "Consolas"
-            run.font.size = Pt(11)
-            run.font.color.rgb = RGBColor(170, 30, 30)
-        else:
-            run = paragraph.add_run(part)
-            run.font.name = default_font
-            run.font.size = default_size
-            if default_color:
-                run.font.color.rgb = default_color
+    """Phân tích markdown inline (**đậm**, *nghiêng*, `mã lệnh`, <br> xuống dòng) thành các run định dạng."""
+    sub_lines = re.split(r'<br\s*/?>', text, flags=re.IGNORECASE)
+    for line_idx, sub_line in enumerate(sub_lines):
+        if line_idx > 0:
+            r_br = paragraph.add_run()
+            r_br.add_break()
+            r_br.font.name = default_font
+            r_br.font.size = default_size
+        parts = re.split(r'(\*\*.*?\*\*|\*.*?\*|`.*?`)', sub_line)
+        for part in parts:
+            if not part:
+                continue
+            if part.startswith('**') and part.endswith('**'):
+                run = paragraph.add_run(part[2:-2])
+                run.bold = True
+                run.font.name = default_font
+                run.font.size = default_size
+                if default_color:
+                    run.font.color.rgb = default_color
+            elif part.startswith('*') and part.endswith('*'):
+                run = paragraph.add_run(part[1:-1])
+                run.italic = True
+                run.font.name = default_font
+                run.font.size = default_size
+                if default_color:
+                    run.font.color.rgb = default_color
+            elif part.startswith('`') and part.endswith('`'):
+                run = paragraph.add_run(part[1:-1])
+                run.font.name = "Consolas"
+                run.font.size = Pt(11)
+                run.font.color.rgb = RGBColor(170, 30, 30)
+            else:
+                run = paragraph.add_run(part)
+                run.font.name = default_font
+                run.font.size = default_size
+                if default_color:
+                    run.font.color.rgb = default_color
 
 def set_paragraph_spacing(p, before=0, after=6, line_spacing=1.3):
     """Thiết lập giãn dòng 1.3 và khoảng cách đoạn chuẩn DLU."""
@@ -329,7 +342,7 @@ TOC_ITEMS = [
     (2, "2.5. Công cụ hỗ trợ phát triển", 128, "bm_c2_5", "11", False),
     (1, "CHƯƠNG 3. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG", 129, "bm_c3", "13", True),
     (2, "3.1. Phân tích yêu cầu", 130, "bm_c3_1", "13", False),
-    (2, "3.2. Kiến trúc tổng thể", 131, "bm_c3_2", "16", False),
+    (2, "3.2. Kiến trúc tổng thể và phân vùng an toàn", 131, "bm_c3_2", "16", False),
     (2, "3.3. Nguyên tắc thiết kế: tùy biến nằm ngoài lõi", 132, "bm_c3_3", "17", False),
     (2, "3.4. Hệ thống thiết kế giao diện: Apple Precision, Claude Warmth và Bản sắc Đà Lạt", 133, "bm_c3_4", "18", False),
     (2, "3.5. Cấu trúc mã nguồn", 134, "bm_c3_5", "19", False),
@@ -344,14 +357,14 @@ TOC_ITEMS = [
     (3, "4.2.2. Tiếp nhận và xử lý phiếu sự cố", 142, "bm_c4_2_2", "27", False),
     (3, "4.2.3. Mức thời gian đề xuất (SLA)", 143, "bm_c4_2_3", "29", False),
     (3, "4.2.4. Mã QR cho thiết bị", 144, "bm_c4_2_4", "30", False),
-    (3, "4.2.5. Chống lạm dụng nộp phiếu", 145, "bm_c4_2_5", "31", False),
+    (3, "4.2.5. Chống lạm dụng nộp phiếu và kiểm soát danh tính", 145, "bm_c4_2_5", "31", False),
     (3, "4.2.6. Việt hóa", 146, "bm_c4_2_6", "33", False),
     (3, "4.2.7. Giao diện", 147, "bm_c4_2_7", "33", False),
     (3, "4.2.8. Tự động hóa cài đặt", 148, "bm_c4_2_8", "34", False),
     (2, "4.3. Kiểm thử và kết quả", 149, "bm_c4_3", "34", False),
     (3, "4.3.1. Cách kiểm thử", 150, "bm_c4_3_1", "34", False),
     (3, "4.3.2. Kết quả kiểm tra chức năng theo vai trò", 151, "bm_c4_3_2", "34", False),
-    (3, "4.3.3. Kết quả kiểm tra chống lạm dụng", 152, "bm_c4_3_3", "35", False),
+    (3, "4.3.3. Kết quả kiểm tra chống lạm dụng và an toàn thông tin", 152, "bm_c4_3_3", "35", False),
     (3, "4.3.4. Pipeline kiểm tra tự động", 153, "bm_c4_3_4", "36", False),
     (3, "4.3.5. Lỗi đã tìm ra và sửa", 154, "bm_c4_3_5", "37", False),
     (3, "4.3.6. Rà soát chất lượng sau khi hoàn thiện", 155, "bm_c4_3_6", "37", False),
@@ -431,6 +444,32 @@ for lvl, title, bmid, bmname, pg, bold in TOC_ITEMS:
 
 TABLE_LOOKUP = {t[0]: (t[2], t[3]) for t in TABLES_DATA}
 FIGURE_LOOKUP = {f[0]: (f[2], f[3]) for f in FIGURES_DATA}
+
+def find_heading_bookmark(title):
+    """
+    Tra cứu bookmark cho tiêu đề:
+    1. So khớp chính xác theo chuỗi tiêu đề chuẩn hóa.
+    2. Dự phòng: so khớp theo số thứ tự đề mục (e.g. 4.2.5 hoặc 3.2 hoặc CHƯƠNG 1).
+    """
+    norm_t = normalize_title(title)
+    if norm_t in HEADING_LOOKUP:
+        return HEADING_LOOKUP[norm_t]
+
+    m_num = re.match(r'^(\d+(\.\d+)+)\.?', title.strip())
+    if m_num:
+        pref = m_num.group(1)
+        for k, val in HEADING_LOOKUP.items():
+            if k.startswith(pref + '.') or k.startswith(pref + ' '):
+                return val
+
+    m_ch = re.match(r'^(CHƯƠNG\s+\d+)', norm_t)
+    if m_ch:
+        ch_pref = m_ch.group(1)
+        for k, val in HEADING_LOOKUP.items():
+            if k.startswith(ch_pref):
+                return val
+
+    return (None, None, None)
 
 def render_interactive_toc(doc, toc_items):
     """
@@ -944,10 +983,8 @@ def parse_and_build_body(doc, md_text):
             pPr = p._p.get_or_add_pPr()
             pPr.append(parse_xml(f'<w:outlineLvl {nsdecls("w")} w:val="0"/>'))
 
-            norm_t = normalize_title(title)
-            bm_id, bm_name = None, None
-            if norm_t in HEADING_LOOKUP:
-                _, bm_id, bm_name = HEADING_LOOKUP[norm_t]
+            _, bm_id, bm_name = find_heading_bookmark(title)
+            if bm_id is not None:
                 bm_start = parse_xml(f'<w:bookmarkStart {nsdecls("w")} w:id="{bm_id}" w:name="{bm_name}"/>')
                 p._p.append(bm_start)
 
@@ -976,10 +1013,8 @@ def parse_and_build_body(doc, md_text):
             pPr = p._p.get_or_add_pPr()
             pPr.append(parse_xml(f'<w:outlineLvl {nsdecls("w")} w:val="1"/>'))
 
-            norm_t = normalize_title(title)
-            bm_id, bm_name = None, None
-            if norm_t in HEADING_LOOKUP:
-                _, bm_id, bm_name = HEADING_LOOKUP[norm_t]
+            _, bm_id, bm_name = find_heading_bookmark(title)
+            if bm_id is not None:
                 bm_start = parse_xml(f'<w:bookmarkStart {nsdecls("w")} w:id="{bm_id}" w:name="{bm_name}"/>')
                 p._p.append(bm_start)
 
@@ -1021,10 +1056,8 @@ def parse_and_build_body(doc, md_text):
             pPr = p._p.get_or_add_pPr()
             pPr.append(parse_xml(f'<w:outlineLvl {nsdecls("w")} w:val="2"/>'))
 
-            norm_t = normalize_title(title)
-            bm_id, bm_name = None, None
-            if norm_t in HEADING_LOOKUP:
-                _, bm_id, bm_name = HEADING_LOOKUP[norm_t]
+            _, bm_id, bm_name = find_heading_bookmark(title)
+            if bm_id is not None:
                 bm_start = parse_xml(f'<w:bookmarkStart {nsdecls("w")} w:id="{bm_id}" w:name="{bm_name}"/>')
                 p._p.append(bm_start)
 

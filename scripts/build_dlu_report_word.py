@@ -10,6 +10,7 @@ Khoa Công nghệ Thông tin - Trường Đại học Đà Lạt
 import os
 import re
 import sys
+import json
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -40,6 +41,16 @@ MD_FILE_PATH = os.path.join(WORKSPACE_DIR, "tai-lieu", "BAO-CAO-THUC-TAP.md")
 OUT_DOCX_PATH = os.path.join(WORKSPACE_DIR, "tai-lieu", "BAO-CAO-THUC-TAP-FINAL.docx")
 LOGO_PATH = os.path.join(WORKSPACE_DIR, "themes", "pics", "logos", "logo-DLU-250.png")
 IMG_DIR = os.path.join(WORKSPACE_DIR, "tai-lieu", "anh-giao-dien")
+BOOKMARK_PAGES_PATH = os.path.join(WORKSPACE_DIR, "scripts", "bookmark_pages.json")
+
+BOOKMARK_PAGES = {}
+if os.path.exists(BOOKMARK_PAGES_PATH):
+    try:
+        with open(BOOKMARK_PAGES_PATH, "r", encoding="utf-8-sig") as f:
+            BOOKMARK_PAGES = json.load(f)
+        print(f"  [DONG BO] Da nap {len(BOOKMARK_PAGES)} so trang thuc te tu Word COM layout engine.")
+    except Exception as e:
+        print(f"  [CANH BAO] Khong doc duoc bookmark_pages.json: {e}")
 
 def clear_hf(hf):
     """Xóa nội dung mặc định của Header hoặc Footer."""
@@ -471,6 +482,15 @@ def find_heading_bookmark(title):
 
     return (None, None, None)
 
+ROMAN_MAP = {
+    "1": "i", "2": "ii", "3": "iii", "4": "iv", "5": "v",
+    "6": "vi", "7": "vii", "8": "viii", "9": "ix", "10": "x"
+}
+PRELIM_BOOKMARKS = {
+    "bm_loicamon", "bm_danhgiacq", "bm_danhgiagv", "bm_mucluc",
+    "bm_viettat", "bm_bangbieu", "bm_hinhanh"
+}
+
 def render_interactive_toc(doc, toc_items):
     """
     Tạo mục lục tương tác học thuật chuyên nghiệp chuẩn Microsoft Word.
@@ -513,6 +533,9 @@ def render_interactive_toc(doc, toc_items):
 
         bold_xml = "<w:b/>" if is_bold else ""
         escaped_title = title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        actual_page = BOOKMARK_PAGES.get(bm_name, page_def)
+        if bm_name in PRELIM_BOOKMARKS and str(actual_page).isdigit():
+            actual_page = ROMAN_MAP.get(str(actual_page), actual_page)
 
         hl_xml = (
             f'<w:hyperlink {nsdecls("w")} w:anchor="{bm_name}" w:history="1">'
@@ -521,11 +544,9 @@ def render_interactive_toc(doc, toc_items):
             f'<w:t>{escaped_title}</w:t></w:r>'
             f'<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
             f'<w:sz w:val="{sz_val}"/><w:color w:val="737373"/><w:u w:val="none"/></w:rPr><w:tab/></w:r>'
-            f'<w:fldSimple {nsdecls("w")} w:instr="PAGEREF {bm_name} \\h">'
             f'<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
             f'{bold_xml}<w:sz w:val="{sz_val}"/><w:color w:val="{color_hex}"/><w:u w:val="none"/></w:rPr>'
-            f'<w:t>{page_def}</w:t></w:r>'
-            f'</w:fldSimple>'
+            f'<w:t>{actual_page}</w:t></w:r>'
             f'</w:hyperlink>'
         )
         p._p.append(parse_xml(hl_xml))
@@ -558,22 +579,21 @@ def render_interactive_list(doc, items, kind="tbl"):
 
         escaped_code = code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         escaped_title = title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        actual_page = BOOKMARK_PAGES.get(bm_name, page_def)
 
         hl_xml = (
             f'<w:hyperlink {nsdecls("w")} w:anchor="{bm_name}" w:history="1">'
             f'<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
             f'<w:b/><w:sz w:val="23"/><w:color w:val="1B365D"/><w:u w:val="none"/></w:rPr>'
-            f'<w:t>{escaped_code}: </w:t></w:r>'
+            f'<w:t xml:space="preserve">{escaped_code}: </w:t></w:r>'
             f'<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
             f'<w:sz w:val="23"/><w:color w:val="2C3E50"/><w:u w:val="none"/></w:rPr>'
             f'<w:t>{escaped_title}</w:t></w:r>'
             f'<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
             f'<w:sz w:val="23"/><w:color w:val="737373"/><w:u w:val="none"/></w:rPr><w:tab/></w:r>'
-            f'<w:fldSimple {nsdecls("w")} w:instr="PAGEREF {bm_name} \\h">'
             f'<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>'
             f'<w:sz w:val="23"/><w:color w:val="2C3E50"/><w:u w:val="none"/></w:rPr>'
-            f'<w:t>{page_def}</w:t></w:r>'
-            f'</w:fldSimple>'
+            f'<w:t>{actual_page}</w:t></w:r>'
             f'</w:hyperlink>'
         )
         p._p.append(parse_xml(hl_xml))
